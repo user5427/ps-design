@@ -1,0 +1,14 @@
+Template.aux
+Template.bbl
+Template.bcf
+Template.blg
+Template.fdb_latexmk
+Template.fls
+Template.log
+Template.out
+Template.lof
+Template.lot
+Template.run.xml
+Template.toc
+*.synctex.gz
+*.pdf
