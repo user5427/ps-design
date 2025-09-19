@@ -84,7 +84,6 @@
 
 \subsection{Problem statement}
 
-\subsubsection{The background}
 
 % Decades ago, it was still common to go to restaurants and expect menus to be
 % handed out on-site, or to call by phone to register an appointment. However, as
@@ -102,11 +101,14 @@
 % business and leads to overall decrease in customer satisfaction.
 
 
-% Traditional methods like handing out menus and taking orders on-site or booking appointments by phone have become slow and inefficient in the digital age. Small to medium-sized businesses in restaurant and beauty industries often cannot afford specialized web applications due to limited budgets and technical expertise.
+% \textbf{--updated text--}
+
+% Traditional methods like handing out menus and taking orders on-site or booking appointments by phone have become slow and inefficient in the last decade. This is especially noticeable during peak business periods such as holidays, weekends, or promotional events. Small to medium-sized businesses in restaurant and beauty industries often cannot afford specialized web applications due to limited budgets and technical expertise.
 % This creates multiple problems: employees face increased workload and inefficient information exchange, while customers increasingly expect online services like remote ordering and appointment booking. Without accessible digital platforms, businesses risk missing potential customers who rely on the internet, leading to reduced customer reach, lower operational efficiency, and decreased customer satisfaction. The lack of automation results in higher recurring costs and makes customers more reluctant to engage with businesses.
 
+% \textbf{--end of updated text--}
 
-\subsubsection{Impact on the business}
+
 
 Owners of small to medium-sized businesses in the restaurant and beauty
 industries often cannot afford the resources to develop and maintain a
@@ -142,7 +144,7 @@ weekends, or promotional events.
     Stakeholder Type    & Stakeholders \\ \hline
     Primary             & Client Business Owners, Employees \\ \hline
     Secondary           & Customers \\ \hline
-    Indirect (Tertiary) & App Business Owners, Managers \\ \hline
+    Indirect (Tertiary) & App Business Owners \\ \hline
     External/Competitors & Square, Toast POS users \\ \hline
     Technical Support   & Sysadmins, Tech Support \\ \hline
   \end{tabular}
@@ -150,50 +152,49 @@ weekends, or promotional events.
   \label{tab:stakeholders}
 \end{table}
 
-\textbf{Primary Stakeholders} directly and frequently use the system. Client
-business owners (restaurant/salon owners) operate the system daily. Employees
-process orders and manage appointments through the application.
+% \textbf{Primary Stakeholders} directly and frequently use the system. Client
+% business owners (restaurant/salon owners) operate the system daily. Employees
+% process orders and manage appointments through the application.
 
-\textbf{Secondary Stakeholders} are occasionally involved or interact via
-others. Customers use the system when placing orders or booking appointments.
-Managers oversee operations and may need access to system statistics.
+% \textbf{Secondary Stakeholders} are occasionally involved or interact via
+% others. Customers use the system when placing orders or booking appointments.
+% Managers oversee operations and may need access to system statistics.
 
-\textbf{Indirect (Tertiary) Stakeholders} influence purchase decisions and
-benefit from the system. App business owners (our company's owners) profit from
-the system's success. Business managers make decisions about adopting the
-system.
+% \textbf{Indirect (Tertiary) Stakeholders} influence purchase decisions and
+% benefit from the system. App business owners (our company's owners) profit from
+% the system's success. Business managers make decisions about adopting the
+% system.
 
-\textbf{Competitors} represent existing market solutions. Users currently
-employing Square, Toast POS, or similar platforms are potential adopters of our
-system.
+% \textbf{Competitors} represent existing market solutions. Users currently
+% employing Square, Toast POS, or similar platforms are potential adopters of our
+% system.
 
-\textbf{Development and Maintenance Team} creates and maintains the system.
-Sysadmins handle infrastructure and servers. Tech support staff resolve user
-issues and provide assistance.
+% \textbf{Development and Maintenance Team} creates and maintains the system.
+% Sysadmins handle infrastructure and servers. Tech support staff resolve user
+% issues and provide assistance.
 
 \subsection{Stakeholder Expectations}
 
 \textbf{Primary Stakeholders:}
 \begin{itemize}
-    \item \textbf{Client Business Owners} expect comprehensive business management tools including revenue tracking, staff oversight, inventory management, and detailed analytics to improve operational efficiency and reduce costs.
-    \item \textbf{Employees} expect an intuitive, fast interface that streamlines order processing and appointment scheduling without complex training requirements.
+    \item \textbf{Client Business Owners} want tools to manage their business, track sales, watch over staff, manage stock, and get reports to run their business better and reduce costs.
+    \item \textbf{Employees} want an easy-to-use system (efficiently, with few errors) that helps them process orders and book appointments with quick learning and memorization.
 \end{itemize}
 
 \textbf{Secondary Stakeholders:}
 \begin{itemize}
-    \item \textbf{Customers} expect a simple, reliable booking and ordering experience with quick response times and accurate information.
-    \item \textbf{Managers} expect access to performance statistics, staff productivity metrics, and operational reports for decision-making.
+    \item \textbf{Customers} expect a effective, reliable booking and ordering experience with quick response times and accurate information.
 \end{itemize}
 
 \textbf{Indirect (Tertiary) Stakeholders:}
 \begin{itemize}
-    \item \textbf{App Business Owners} expect sustainable revenue growth, market expansion, and competitive positioning in the business management software sector.
-    \item \textbf{Business Managers} expect clear ROI demonstration, cost-effectiveness compared to existing solutions, and smooth implementation processes.
+    \item \textbf{App Business Owners} want steady income growth, to reach more markets, and to compete well with other business software companies
+    % \item \textbf{Business Managers} expect clear ROI demonstration, cost-effectiveness compared to existing solutions, and smooth implementation processes.
 \end{itemize}
 
 \textbf{Competitors:}
 \begin{itemize}
-    \item \textbf{Square/Toast POS users} expect feature parity or superiority, competitive pricing, and seamless migration from existing systems.
+    \item \textbf{Square/Toast POS users} want the same features or better ones, fair prices, and easy switching from their current systems.
 \end{itemize}
 
 \textbf{Development and Maintenance Team:}
@@ -209,32 +210,112 @@ issues and provide assistance.
 
 \section{User needs analysis}
 
+% reikia sistemizuoti kokioje situacijoje ko reikia, labiau detaliau issiaiskinti stakeholder needs.
+% reikia atlikti naudojimo konteksto analize, kaip tos funkcijos isilies i vartotojo esama gyvenima. Mes galvojame apie naudojima ir konteksta vis dar.
+% Naudojimo kontekstas - kaip veiklos itakoja technologiju kaita ir technologiju kaita veiklas, po to kalbesime apie pagrindines zmoniu charakteristikas, kas, kokiose veiklose ir problemas kurias norime spresti, kokiame zingsnyje kas ten stringa, kokioje aplinkoje ten vyksta, kokios tech naudojamos ir ka galime pasiulyti.
+% Naudojimo kontekstas - kombinacija vartotoju, uzduociu, resursu, tikslu. Fizines, socialines, technines, kulturines, organizicines aplinkos. Jas riekes issaiskinti ir aprasyti kaip dabar veikia tas vartotojas, ka tie pasakojimai turi atspindeti: turi buti aiskus visi aspektai, kas, kokie tisklai, aplinkos, kokiais prietaisais, programomis naudojasi ir t.t.
+% PS inzinerijos standartas - naudojimo kontekstas pagrindinis informacijos reikalavimu saltinis.
+% Vystimasis yra begalinis ciklas, yra zmones betkokio amziaus, kutluros, jie veikia kazkokiam kontekste (requirements), tame kontekste kyla nauji reikalavimai naujoms technologijosm, naujos technologijos sudaro galimybe keistis veiklos, vel atsiras nauji reikalavimai ir t.t. gaunasi begalinis ratas.
+% naujos interaktyvios tech - prisidedame dabartines zinias, sukaupta patirti ir kuriame naujus reikalavimus. Suvokdami kazkokius nepatogumus, koks yra stovis, kokias galimybes mes galime isnaudoti su technologijomis mes pasiulome sprendimus, naujas veiklas.
+
+% People, context, activities, technologies
+
+% ____________________________
+
+% People - kokiomis salygomis veikia, ju fizines galimybes, darbo vieta, veikimo aplinka kur bus naudojama technologija, zmoniu ugis, aukstis, antropronetiniai dalykai? ivestis isvestis, klaviaturos ir t.t. Nera vidutinio vartotojo, universali technologija reiskia kad visiem patogu naudotis, zinoma yra tam tikri kompromisai, reikalavimai turi tilpti i budget. Pvz.: ekrano padetis, ryskumas, kontrastas, color blindness, motion sensitivity, hearing etc. etc. Musu varottoju tarpe jeigu yra vyresni zmones tai turime i tai atsizvelgti, mygtukai didesni ir t.t. Kokia turi buti darbo aplinka kad zmogus nepavargtu, nebutu broko, darbo vieta turi buti tokia kuri leistu islaikyti darbinguma.
+
+% psihologinis erdviu suvokimas, kai kurie pasiklysta, kai kurie gerai orientuojasi erdvese. kalbos skirtumai, kai kam gali buti izeidzianti kalba, kai kam ne...
+
+% isiminimas, trumpalaikis isiminimas, sprendimu priemimas, komunikacija, paieska - mes turime sias veiklas kurioms kuriame technologijas.
+
+% socialiniai skirtumai - itakoja motyva pirkti nauja technologija, gali atsirasti stiprus motyvas, pvz bendrauti nuotoliniu budu, todel zmones ismoks tai. skirstosi tipai, begginer, inermediate, expert zmoniu. pvz bileteliu popieriniu nenupirksi, tai beggineriai turi tai naudoti... vidutiniskai patyre kai reikia tia naudoja o taip tai nenaudoja. profesionalai - kiekviena diena naudoja. beggineriu ir expertu poreikia yra labai skirtingi.
+
+% kad pradedantysis galetu naudotis technologija tai ji turi vesti uz rankos, pvz vedlys, jis vedamas uz rankos.
+
+% ekspertai - jiem reikia greicio, juos vedlys erzins.
+
+% vidutiniskai patyre - reikia prisiminti greitai.
+
+% jie visi turi skirtingus poreikius, reikia suprasti su kuo turime reikala.
 
 
+% Mental model - mintinis modelis, koki vaizda suformavo vartotojas savo galvoje, mes bandome tai suprasti, tai suvokimas kas ir kaip gali naudoti technologijas. Mintinis modelis nepilnas, nestabilus, mes negalime visko prisiminti, kazkas isilaiko ilgalaikeje atmintyje, kazkas dingsta. Analizuojame o ka dabar naudoja vartotojai, analizuojame ju mintines zinias. Mintinis modelis kuriamas saveikaujant su sistemomis, su kokiomis sistemomis saveikauja toki ir turesime mintini modeli.
+
+% Nustatymas vartotojo igudzius yra musu tikslas. kokio amziaus, lytis, fizines, issilavinimas, kulturinis, motivacines galimybes, tikslai, asmenybe.
+% Projektavimo tikslai turi susieti su tais skillais. musu tikslas kad vartotojai pilnai isnaudotu ka suprojektavome, norime kad is begginer greitai pereitu i intermediate.
+
+% Pavyzdiziui kai pirma karta paleidziame programa, gali issokti gidas, padeti beginneriams, o kam nereikia tai gali uzdaryti, uzdaro vidutiniskai patyre. Ekspertam reikia kuo greiciau dirbti, kas stabdo (rankos kelimas nuo peles iki klaviaturos, galime sakyti kad viska darytu ant klaviaturos).
+
+% kiek tu sluoksniu design reikia? tai papildomos islaidos ir t.t.
+
+
+% begineriam programa turi pasakyti ka ji gali daryti, pagrindiniai dalykai ka ji daro, begineriu nera daug bet jie yra ir pirmi naudotojai todel jiems reikia viska paaiskinti. po keliu kartu dauguma begineriu tampa intermediate.
+% intermediate svarbu matyti, isnaudoti visas funkcijas kurias jie zino kad yra, gebeti viska surasti, pazengusias funkcijas. GUI visas pagrindines ir pazengusias funkcijas rodo ir galima greitai surasti
+% Ekspertu nera daug, kazkam galbut greiciau reikia.
+
+% kuri viekla daznesne, ta turi buti arciau ekrano.
+
+
+% Universal usability - prieinamas visiems, ir neigaliems. Panaudojamumas + prieinamumas = universalumas. kas aktualu, kam kuriame sistema, i sita turime atsakyti.
+
+
+
+% Reikia pamineti demographics, age, occupation, gender (jei reikia), disabilities. Motyvacija ismokti technologijas, jomis naudotis. Naudojamos technologijos ir prietaisai, IT lygmuo, skillai.
+
+% ____________________________
+
+% Veiklos - reikia ne specifines mineti, o laiko apsketu daznas ar retas, bendradariavimo aspektus, individualus ar organizaciniai, tos veiklos sudetingumas, pasekmes, ar kritines, kokio tipo turinys toje veikloje.
+
+% Daznis jos pirma charakteristika, jos trukme antra, laiko spaudimas, ar veikia ramybes busenoje ar skubos. Ar tai viena atomine veikla ar zingsniai yra, ar testine is zingsniu tai kazkuriame zingsnyje vartotojas gali sustoti. atsako laikas. Bendradarbiavimas, vienas ar grupeje, kaip zino kas ka padare, kaip koordinuoja, komunikuoja. Sudetingumas veiklos, ar veikla apibrezta ar ne, reikia suteikti vartotojui galimybe narsyti ivairias veiklas, kur vartotojas nori narsyti, kaip vartotojas supras ar nutrauke zingsni ir t.t. tai sudetingumas. kaip supras kad klaida padare, ar tai aktualu. kokie duomenys vaiksto, kiek ivesti ten reikia, kokia ten isvestis dabar ir kas siuloma, turi buti realiu laiku atnaujinamas turinys, kad nebutu blogai pavaizduotas, blogai atnaujintas.
+
+% Ne pacios veiklos idomios bet ju charakteristikos.
+
+% ____________________________
+
+% Aplinka - fizine, kur vyksta ta veikla, patalpoje, uz patalpos, jeigu fizine aplinka lauke, tai skirtinga temperatura, kaip vartotojas su pirstinemis ar per lietu gali naudotis, apsvietimas, triuksmas ir t.t.
+
+% Socialine aplinka - individuali, o gal grupine, ar privatumas aktualus, ar visi vienodu teisiu, ar yra super adminas.
+
+%  Organizacinis kontekstas - teises ir t.t.
+
+% ____________________________
+
+% Technologijos - ka dabar naudoja zmones, kokias technologijas, ka jie dabar naudoja, tia itakoja ju mintini modeli, kaip jie dabar iveda informacija?
+
+% Kokias technologijas naudosime - kompiuteris, programele telefone, ar t.t.
+
+% Turime susivokti kokiu techniniu ir sistemu reikia. Kas yra geras turinys ir kokios charakteristikos galetu tobulinti tai, balsu ivedimas, AI ar whatever.
+
+% kokia informacija ir funkcijos reikalingos sistemai, kas tures buti zinoma norinciam naudotis sitema.
+
+
+% Interaktyvus produktas turi atitikti tai ko nori zmones, jis negali sugriauti kontekto, jis turi tai pagerinti.
+
+% musu uzdavinys visus siuos dalykus issiaiskinti, parasyti kiekvienai pirminei ir antrinei vartotoju grupei aprasyti siuos dalykus ir po to dar kitai savaitei galime pradeti rasyti poreikius kas isto isplaukia ir kokiu funckiju riekia
 
 % \sectionnonum{Results and conclusions}
 % For details of what needs to be written in this section, please refer to the methodology requirements of the respective programme. 
 
 \printbibliography[title = {References and sources}]
 
-\appendix
-\renewcommand{\thesection}{Appendix \arabic{section}. }
+% \appendix
+% \renewcommand{\thesection}{Appendix \arabic{section}. }
 
-\section{\phantom{Appendix} Examples of citations}
-In the document \textit{bibliography.bib}, you need to add all the cited sources and after using the function \textit{\{\textbackslash cite\{name of the cited object\}\}} the corresponding source will be added to the list of literature sources.
+% \section{\phantom{Appendix} Examples of citations}
+% In the document \textit{bibliography.bib}, you need to add all the cited sources and after using the function \textit{\{\textbackslash cite\{name of the cited object\}\}} the corresponding source will be added to the list of literature sources.
 
 
-\textit{bibliography.bib} provides examples of some of the most commonly cited types of sources:
-\begin{itemize}
-    \item web pages (\textit{@online}) \cite{PvzInternetinisPuslapis},
-    \item datasets (\textit{@dataset}) \cite{dataset}
-    \item articles (\textit{@article}) \cite{PvzStraipsnLt, PvzStraipsnEn}, 
-    \item articles from conferences (\textit{@inproceedings}) \cite{PvzKonfLt, PvzKonfEn}, 
-    \item books (\textit{@book}) \cite{PvzKnygLt, PvzKnygEn}, 
-    \item theses (\textit{@thesis or mastersthesis/phdthesis} \cite{PvzMagistrLt, PvzPhdEn})
-    \item electronic publications (\textit{@misc}) \cite{PvzElPubLt, PvzElPubEn}
-\end{itemize}
+% \textit{bibliography.bib} provides examples of some of the most commonly cited types of sources:
+% \begin{itemize}
+%     \item web pages (\textit{@online}) \cite{PvzInternetinisPuslapis},
+%     \item datasets (\textit{@dataset}) \cite{dataset}
+%     \item articles (\textit{@article}) \cite{PvzStraipsnLt, PvzStraipsnEn}, 
+%     \item articles from conferences (\textit{@inproceedings}) \cite{PvzKonfLt, PvzKonfEn}, 
+%     \item books (\textit{@book}) \cite{PvzKnygLt, PvzKnygEn}, 
+%     \item theses (\textit{@thesis or mastersthesis/phdthesis} \cite{PvzMagistrLt, PvzPhdEn})
+%     \item electronic publications (\textit{@misc}) \cite{PvzElPubLt, PvzElPubEn}
+% \end{itemize}
 
-Examples are also provided for ChatGPT citation, both in general \cite{chatgpt_bendrai} and for a specific conversation \cite{chatgpt_pokalbis}.
+% Examples are also provided for ChatGPT citation, both in general \cite{chatgpt_bendrai} and for a specific conversation \cite{chatgpt_pokalbis}.
 
 \end{document}
