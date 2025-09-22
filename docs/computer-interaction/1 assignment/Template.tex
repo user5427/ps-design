@@ -18,6 +18,19 @@
 \usepackage{titlesec}
 \newcommand{\sectionbreak}{\clearpage}
 
+\usepackage{titlesec}
+
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{3}
+
+\titleformat{\paragraph}
+{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+% Create the custom command
+\newcommand{\subsubsubsection}[1]{\paragraph{#1}}
+
 \makeatletter
 \renewcommand{\fnum@algorithm}{\thealgorithm}
 \makeatother
@@ -33,18 +46,17 @@
 \newcommand{\RR}{\mathbb{R}}
 
 
-\studyprogramme{Software engineering} %Write your study programme (example – Software engineering, Financial and Actuarial Mathematics, etc.)
-% \worktype{\{Work type\}} % Bachelor's thesis or Master's thesis
-\worktitle{Human computer interaction}
-\secondworktitle{Žmogaus kompiuterio sąveika}
+
+
+\studyprogramme{Software engineering} %Write your study 
+
+
+% pilnas pavadinimas, aiskina ka visa tai daro
+% prasmingas pavadinimas cia
+\worktitle{\textit{UniServe}: A Universal Service Management Platform for Reservation and Order-Based Businesses} 
 \workauthor{Tadas Riksas, Darius Spruogis, Gustas Mickus, Kajus Bicka}
 
-%There may be more than one author, in which case each author is written from a new line which is added in Titlepage.tex or LongerTitlePage.tex
-%\secondauthor{Name Surname} %If present, otherwise delete
-
 \supervisor{Kristina Lapin}
-\reviewer{Kristina Lapin} %If present, otherwise delete
-% \scientificadvisor{pedagogical/scientific title Name Surname} %If present, otherwise delete
 
 \begin{document}
 \selectlanguage{english}
@@ -76,79 +88,65 @@
 \section{Introduction}
 \subsection{Project Title}
 
-\textbf{Title:} UniServe
+\textbf{Full Title:} \textit{UniServe: A Universal Service Management Platform for Reservation and Order-Based Businesses}
 
-\textbf{Explanation:} "Uni" represents \emph{universal} inidicating the platform's flexibility across a variety of business models 
+\textbf{Short Title:} \textit{UniServe}
+
+
+\textbf{Explanation:} "Uni" represents \emph{universal}, indicating the platform's flexibility across a variety of business models 
 (reservation based businesses such as massage services or order based businesses such as restaurants). 
 "Serve" refers to \emph{service}, emphasizing the platform’s role in providing core functionalities for these types of businesses.
 
 \subsection{Problem statement}
 
 
-% Decades ago, it was still common to go to restaurants and expect menus to be
-% handed out on-site, or to call by phone to register an appointment. However, as
-% we move into an age of ever-accelerating communication and information exchange,
-% these methods have become stubborn and slow. More customers and businesses recognize a need for
-% faster communication and more accurate information exchange.
+% Who is affected by the problem?
 
-% Reliance on traditional methods slows down information exchange between
-% employees, introduces human error, and creates friction in customer
-% interactions. This leads to employee dissatisfaction, increased workload, as
-% well as a decrease in operational efficiency.
+% 
 
-% Slower communications and unstandardized registrations or menus introduce friction
-% in customer interactions, makes customers more reluctant to engage with the
-% business and leads to overall decrease in customer satisfaction.
+% What is the problem?
+
+% 
+
+% Where does this problem occur?
+
+% 
+
+% When does the problem occur?
+
+% 
+
+% Why does the problem occur?
+
+% 
+
+% Why is the problem important?
+
+% 
 
 
-% \textbf{--updated text--}
 
-% Traditional methods like handing out menus and taking orders on-site or booking appointments by phone have become slow and inefficient in the last decade. This is especially noticeable during peak business periods such as holidays, weekends, or promotional events. Small to medium-sized businesses in restaurant and beauty industries often cannot afford specialized web applications due to limited budgets and technical expertise.
-% This creates multiple problems: employees face increased workload and inefficient information exchange, while customers increasingly expect online services like remote ordering and appointment booking. Without accessible digital platforms, businesses risk missing potential customers who rely on the internet, leading to reduced customer reach, lower operational efficiency, and decreased customer satisfaction. The lack of automation results in higher recurring costs and makes customers more reluctant to engage with businesses.
+Traditional methods like handing out menus and taking orders on-site or booking appointments by phone have become slow and inefficient in the last decade. This is especially noticeable during peak business periods such as holidays, weekends, or promotional events. Small to medium-sized businesses in the restaurant and beauty industries — particularly those that do not use modern digital platforms — are most affected. Limited budgets and lack of technical expertise often prevent them from adopting specialized web applications. This creates multiple problems: employees face increased workload and inefficient information exchange, while customers increasingly expect online services like remote ordering and appointment booking. Without accessible digital platforms, 
+businesses risk missing potential customers who rely on the internet, leading to reduced customer reach, lower operational efficiency, and decreased customer satisfaction. The lack of automation results in higher recurring costs, prevents the productivity gains that automation can deliver — gains that could allow staff to work more efficiently and focus on higher-value tasks.
 
-% \textbf{--end of updated text--}
-
-
-
-Owners of small to medium-sized businesses in the restaurant and beauty
-industries often cannot afford the resources to develop and maintain a
-specialized web application for managing their business operations and customer
-interactions. This is due to many of these businesses having limited budgets and
-technical expertise, which makes custom software solutions expensive.
-
-The people affected by this problem include customers, who increasingly expect
-online services such as remote ordering or appointment booking. This challenge
-is common in both urban and suburban areas where internet use is high and the
-contest for the attention and loyalty of customers has become a defining force.
-Without an accessible digital platform, businesses risk missing potential
-customers who rely on the internet to discover and engage with services,
-leading to reduced customer reach. 
-
-Furthermore, business owners also face operational inefficiencies and lower
-profits due to the lack of automation, requiring increased employee workload,
-leading to increased recurring costs. The problem occurs continuously throughout
-the year, but becomes critical during peak business periods such as holidays,
-weekends, or promotional events.
+% darbo nasumas dideja
 
 \section{Stakeholder analysis}
 
 \subsection{Identifying stakeholders}
 
-
-% we have identified our primary stakeholders as employees, secondary as customers, indirect as business owners, competitors as null and development and maintance team as sysadmins and tech support. create a table bellow
-
 \begin{table}[h]
   \centering
+  \caption{Stakeholders Identification}
   \begin{tabular}{|c|c|}
     \hline
     Stakeholder Type    & Stakeholders \\ \hline
-    Primary             & Client Business Owners, Employees \\ \hline
-    Secondary           & Customers \\ \hline
+    Primary             & Employees, Customers \\ \hline
+    Secondary           & Client Business Owners \\ \hline
     Indirect (Tertiary) & App Business Owners \\ \hline
-    External/Competitors & Square, Toast POS users \\ \hline
+    External/Competitors & Square, Toast POS, Restaurant365 \\ \hline
     Technical Support   & Sysadmins, Tech Support \\ \hline
   \end{tabular}
-  \caption{Stakeholders Identification}
   \label{tab:stakeholders}
 \end{table}
 
@@ -173,8 +171,6 @@ weekends, or promotional events.
 % Sysadmins handle infrastructure and servers. Tech support staff resolve user
 % issues and provide assistance.
 
-\subsection{Stakeholder Expectations}
-
 % Nielsen‘s principles
 % 1. Learnability
 % 2. Efficiency of use
@@ -185,20 +181,22 @@ weekends, or promotional events.
 
 \textbf{Primary Stakeholders:}
 \begin{itemize}
-    \item \textbf{Client Business Owners} want tools to manage their business,
-    track sales, watch over staff, manage stock, and get reports to run their
-    business better and reduce costs. They expect and error-free system that is
-    reliable and efficient.
-    \item \textbf{Employees} want an efficient, error-free, system that helps
-    them process orders and book appointments with quick learning and
-    memorization of the system.
+
+    \item \textbf{Employees} want an efficient, error-free system that allows them to process orders and book appointments quickly, with an interface that is easy to use throughout the day.
+    % memorization - not really important kadangi darbuotojai sistema naudosis visą dieną taigi bet kokiu atveju atsimins
+    % primary as customers use system directly
+    \item \textbf{Customers} expect an effective, reliable booking and ordering
+    experience with quick response times, and accurate information and
+    satisfying interactions.
 \end{itemize}
 
 \textbf{Secondary Stakeholders:}
 \begin{itemize}
-    \item \textbf{Customers} expect a effective, reliable booking and ordering
-    experience with quick response times, and accurate information and
-    satisfying interactions.
+    \item \textbf{Client Business Owners} want tools to manage their business,
+    track sales, watch over staff, manage stock, and get reports to run their
+    business better and reduce costs. They expect and error-free system that is
+    reliable and efficient. 
+    % this is secondary stakeholder (statistics), indirect (ownder)
 \end{itemize}
 
 \textbf{Indirect (Tertiary) Stakeholders:}
@@ -209,8 +207,8 @@ weekends, or promotional events.
 
 \textbf{Competitors:}
 \begin{itemize}
-    \item \textbf{Square/Toast POS users} want the same features or better ones,
-    fair prices, and easy switching from their current systems (quick learning and memorization).
+% users, specify
+    \item \textbf{Square, Toast POS, Restaurant365}. Users currently relying on these platforms (or contemplating using them) expect similar or improved features, affordable pricing, and intuitive interfaces that allow for quick onboarding without extensive technical training.
 \end{itemize}
 
 \textbf{Development and Maintenance Team:}
@@ -222,29 +220,75 @@ weekends, or promotional events.
 \end{itemize}
 
 
+% <The name of the first user group> research {for each user group in both primary and secondary stakeholders}
+\subsection{Employee research}
+
+\subsubsection{Current users' activities}
+
+\textbf{Café Barista Managing Orders}
+
+Marius, 21, works as a barista in a busy café. He takes orders at the counter and writes them on sticky notes for the kitchen. During the morning rush, notes sometimes fall to the floor or get smudged by spilled drinks. This leads to wrong orders being prepared, which frustrates customers and wastes ingredients. Marius tries to keep the counter tidy, but the lack of a structured system makes mistakes inevitable and thus Marius spends extra time apologizing and remaking orders, which slows down the queue.
+
+\textbf{Salon Receptionist Controlling Bookings}
+
+Lucille, in her twenties, is the receptionist at a busy, well‑known beauty salon. Throughout the day she fields a constant stream of phone calls to arrange appointments. Each booking is first written by hand in a paper diary, then later re‑entered into a spreadsheet. On busy days, at least one record is often missed or entered incorrectly, resulting in double bookings or missed appointments. When a client calls to reschedule, Lucille leafs through pages of the diary to locate the original booking. This takes time, breaks her concentration, and can leave callers waiting on the line. The salon offers no online booking facility, so all scheduling relies entirely on Lucille being available to answer the phone.
+
+\textbf{Restaurant Manager Handling Discounts}
+
+Youmna, in her early twenties, manages a vibrant Lebanese restaurant on a busy high street. To attract customers during quieter weekday afternoons, the restaurant runs a “Taste of Lebanon” promotion, offering discounts on selected platters and traditional dishes.
+When diners ask about the offer, Youmna or the waiting staff consult a printed list of eligible dishes and manually work out the reduced price at the till. At busy times, this slows service. Occasionally, the discount is forgotten, prompting awkward conversations and amended bills; at other times, it is applied in error, reducing profit margins.
+To monitor the promotion, Youmna records discounted orders in a small ledger. However, during the rush, staff often forget to make entries, leaving the records incomplete. This makes it difficult to assess the effectiveness of the offer or refine it for future campaigns.
+
+\subsection{Customer research}
+
+\subsubsection{Current users' activities}
+
+% 4 level section should be working now
+% \subsubsubsection{test test}
+
+\textbf{Looking for a Quick Lunch}
+
+Annie, a 20‑year‑old university student, has a short break between lectures and only 30 minutes to eat. She visits a small café she has not tried before, hoping to find something quick. The menu gives no indication of preparation times, so she chooses a dish at random and waits nearly 10 minutes for a waiter to take her order. She is then told it will take 25 minutes to prepare. With little time left, Annie leaves and buys a takeaway wrap from a nearby chain instead.
+
+\newpage
+
+\textbf{Booking a Haircut}
+
+Felix, in his late forties, needs a haircut before a family gathering. He calls his usual barber, but the line is engaged. After several attempts, he finally gets through, only to learn that his preferred time slot has already been taken. The receptionist offers alternative appointments, but Felix is at work and cannot check his calendar straight away. Frustrated, he decides to book with another salon that can fit him in immediately.
+
+\textbf{Redeeming a Coffee Promotion}
+
+Sarah‑Louise, 27, spots a “Buy One, Get One Free” coffee offer on a café’s social media page. She visits the café to take advantage of the deal, but the barista is unaware of the promotion and has to confirm it with the manager. This causes a delay at the counter and creates an awkward queue behind her. The discount is eventually applied, but Sarah‑Louise leaves feeling the process was poorly organised.
+
+\subsection{Client Business Owners Research (Secondary User Group)}
+
+\subsubsection{Current users' activities}
+
+\textbf{Restaurant Owner Handling Customer Feedback}
+
+Apolline, 39, owns a family restaurant in a popular tourist area. Customers occasionally leave reviews on Google Maps or TripAdvisor, but she only checks them sporadically. Complaints (such as “long wait for a table” or “incorrect order”) can go unnoticed for several days. Apolline also keeps a suggestion box in the restaurant, though very few customers make use of it. She would prefer to gather feedback in a more systematic way and respond swiftly in order to improve the service. Without structured data, it is difficult for her to identify recurring issues (for example, slow service during specific time frames) and to train staff appropriately.
+
+\textbf{Salon Owner Tracking Staff Performance}
+
+Nils, in his forties, runs a busy salon with six stylists. He tries to track performance and service quality, but still relies on a paper diary and casual feedback. Calculating wages and commissions means hours spent combing through notes and receipts. When figures are challenged, he has no firm record to refer to, which not only heightens administrative burden but also sows discontent amongst the team.
 
 
+% \subsection{Primary Stakeholders Needs}
 
 
-\section{User needs analysis}
+% Now that we know what are our primary and secondary stakeholders expectations,
+% we can take a look into what are their needs in more detail. Specifically into
+% how their needs will influence the design of our system.
 
 
-Now that we know what are our primary and secondary stakeholders expectations,
-we can take a look into what are their needs in more detail. Specifically into
-how their needs will influence the design of our system.
+% \subsubsection{Client Business Owners Needs}
 
-\subsection{Primary Stakeholders Needs}
-
-
-
-\subsubsection{Client Business Owners Needs}
-
-The main needs of the client business owners are to have a system where they 
-can manage their business operations daily, track sales, manage inventory,
-generate reports (taxes, profits, losses, etc.), and hire or fire employees.
-This need is driven by the fact that business owners need to have a clear overview of their
-business operations to make informed decisions and ensure the success of their
-business.
+% The main needs of the client business owners are to have a system where they 
+% can manage their business operations daily, track sales, manage inventory,
+% generate reports (taxes, profits, losses, etc.), and hire or fire employees.
+% This need is driven by the fact that business owners need to have a clear overview of their
+% business operations to make informed decisions and ensure the success of their
+% business.
 
 
 
@@ -259,12 +303,12 @@ business.
 % wasting time or effort for looking for features or navigating through complex
 % menus.
 
-\subsubsection{Employees Needs}
+% \subsubsection{Employees Needs}
 
-The main need of the employees is to have a system that helps them process orders,
-book appointments, and manage customer interactions. This need is driven by the
-fact that employees need to be able to perform their tasks quickly and accurately
-to ensure customer satisfaction and the smooth operation of the business.
+% The main need of the employees is to have a system that helps them process orders,
+% book appointments, and manage customer interactions. This need is driven by the
+% fact that employees need to be able to perform their tasks quickly and accurately
+% to ensure customer satisfaction and the smooth operation of the business.
 
 % The main needs of the employees are to have a system that is \textbf{easy to
 % learn}, \textbf{efficient} and \textbf{error-free}. Employees will need to use
@@ -276,15 +320,15 @@ to ensure customer satisfaction and the smooth operation of the business.
 % error-free to ensure that employees can perform their tasks without costly mistakes
 % or disruptions.
 
-\subsection{Secondary Stakeholders Needs}
+% \subsection{Secondary Stakeholders Needs}
 
-\subsubsection{Customers Needs}
+% \subsubsection{Customers Needs}
 
-The main needs of the customers are to have a system that allows them to
-easily place orders or book appointments, view menus or services, and receive
-accurate information about the business. This need is driven by the fact that
-customers expect a seamless and convenient experience when interacting with
-businesses, and a well-designed system can help meet these expectations.
+% The main needs of the customers are to have a system that allows them to
+% easily place orders or book appointments, view menus or services, and receive
+% accurate information about the business. Moreover customers need easy to pay options. This need is driven by the fact that 
+% customers expect a seamless and convenient experience when interacting with
+% businesses, and a well-designed system can help meet these expectations.
 
 
 % The main needs of the customers are to have a system that is \textbf{effective}, \textbf{efficient},
@@ -299,9 +343,9 @@ businesses, and a well-designed system can help meet these expectations.
 % and are more likely to return to the business in the future.
 
 
-
-
-
+% ------------------------
+% PACT stuff below
+% ------------------------
 
 
 
@@ -334,7 +378,7 @@ businesses, and a well-designed system can help meet these expectations.
 % jie visi turi skirtingus poreikius, reikia suprasti su kuo turime reikala.
 
 
-% Mental model - mintinis modelis, koki vaizda suformavo vartotojas savo galvoje, mes bandome tai suprasti, tai suvokimas kas ir kaip gali naudoti technologijas. Mintinis modelis nepilnas, nestabilus, mes negalime visko prisiminti, kazkas isilaiko ilgalaikeje atmintyje, kazkas dingsta. Analizuojame o ka dabar naudoja vartotojai, analizuojame ju mintines zinias. Mintinis modelis kuriamas saveikaujant su sistemomis, su kokiomis sistemomis saveikauja toki ir turesime mintini modeli.
+% Mental model - mintinis modelis, koki vaizda suformavo vartotojas savo galvoje, mes bandome tai sufprasti, tai suvokimas kas ir kaip gali naudoti technologijas. Mintinis modelis nepilnas, nestabilus, mes negalime visko prisiminti, kazkas isilaiko ilgalaikeje atmintyje, kazkas dingsta. Analizuojame o ka dabar naudoja vartotojai, analizuojame ju mintines zinias. Mintinis modelis kuriamas saveikaujant su sistemomis, su kokiomis sistemomis saveikauja toki ir turesime mintini modeli.
 
 % Nustatymas vartotojo igudzius yra musu tikslas. kokio amziaus, lytis, fizines, issilavinimas, kulturinis, motivacines galimybes, tikslai, asmenybe.
 % Projektavimo tikslai turi susieti su tais skillais. musu tikslas kad vartotojai pilnai isnaudotu ka suprojektavome, norime kad is begginer greitai pereitu i intermediate.
