@@ -11,9 +11,11 @@
 \usepackage{graphicx}
 \usepackage{verbatim}
 \usepackage[hidelinks]{hyperref}
-\usepackage{color,algorithm,algorithmic}
+\usepackage{xcolor,algorithm,algorithmic}
+\definecolor{gray}{gray}{0.6}
 \usepackage[nottoc]{tocbibind}
 \usepackage{tocloft}
+\usepackage{longtable}
 
 \usepackage{titlesec}
 \newcommand{\sectionbreak}{\clearpage}
@@ -37,7 +39,7 @@
 \worktype{PS Software Design} % Bachelor's thesis or Master's thesis
 \worktitle{PS Sofware Design documentation}
 % \secondworktitle{Work Title in Lithuanian}
-\workauthor{Tadas Riksas, Darius Spruogis, Gustas Mickus Julius Jauga}
+\workauthor{Tadas Riksas, Darius Spruogis, Gustas Mickus, Julius Jauga}
 
 %There may be more than one author, in which case each author is written from a new line which is added in Titlepage.tex or LongerTitlePage.tex
 %\secondauthor{Name Surname} %If present, otherwise delete
@@ -52,128 +54,411 @@
 \onehalfspacing
 \input{TitlePage}
 
+\tableofcontents
+\onehalfspacing
+
+
 %% Acknowledgements Section
 \sectionnonumnocontent{Acknowledgements}
-The author is thankful the Information Technology Research Center, Faculty of Mathematics and Informatics, Vilnius University, for providing the High-Performance Computing (HPC) resources for this research.
-%%
-%%
-%%      If you have used IT resources (CPU-h, GPU-h, other IT resources) provided by MIF for your thesis research, please leave the acknowledgement; if you have not, you can delete it.
-%%
-%%
+The author is thankful to the lecturer Vasilij Savin for his guidance and
+support throughout the project.
 
-You can also add here acknowledgements for various other things, such as your supervisor, university, company, etc.
 
-%%Summary
-% \sectionnonum{Team agreement}
+% Lets first give some context to copilot
+% #  **Business Management System - Project Summary**
 
-\section*{Team Information}
-\textbf{Team name:} Fantastic 4 \\[4pt]
-\textbf{Team members:} Tadas, Darius, Gustas, Julius \\[4pt]
-\textbf{Team lead:} Tadas \\[2pt]
-\textit{Reason: Showed most motivation} \\[8pt]
+% ##  **Project Overview**
+% Building a **multi-tenant SaaS platform** for small service businesses (bars, restaurants, spas, salons) to manage their operations, appointments, orders, and payments in one unified system.
 
-\section*{Team Lead Responsibilities}
+% ##  **Core Business Domains**
+
+% ### ️ **Order Management** (Bars/Restaurants)
+% - **Table-based ordering** with real-time modifications
+% - **Split bills**, tips, discounts, and multiple payment methods
+% - **Menu management** with item variations (e.g., coffee types, milk options)
+% - **Inventory tracking** and stock management
+
+% ###  **Services Management** (Spas/Salons)  
+% - **Appointment scheduling** with time slot booking
+% - **Employee availability** and conflict prevention
+% - **Service catalog** (massages, haircuts, treatments)
+% - **SMS notifications** for confirmations and reminders
+
+% ## ️ **Technical Requirements**
+
+% ### **Multi-tenancy Architecture**
+% - Single database supporting **multiple businesses**
+% - Data isolation between different business tenants
+% - Super admin access for system management
+
+% ### **Data Model Criticalities**
+% - **Historical data preservation** (price/tax changes must NOT affect past records)
+% - **Soft deletion** instead of physical data removal
+% - **Calculated fields** handled in application layer, not database
+
+% ### **Key Integration Points**
+% - **Payment processing** (Stripe integration)
+% - **SMS gateway** for appointment notifications
+% - **Role-based authentication** (Customer, Employee, Manager, Admin)
+
+% ##  **Current Focus: Business Flow Division**
+% We're analyzing and documenting business workflows across **4 functional domains**:
+% 1. **Core Service Delivery & Booking**
+% 2. **Customer & Business Management** 
+% 3. **Communication & Operations**
+% 4. **Payments & Analytics**
+
+% ##  **Academic Context**
+% This is for a **software design course** where we're creating technical specifications before implementation. The project emphasizes **proper documentation, data modeling, and API design** following software engineering best practices.
+
+% ##  **Current Task**
+% Dividing business flow documentation among team members while maintaining **consistency, clear boundaries, and minimal dependencies** between work streams.
+
+% ---
+% **Key Constraint:** The system must handle **both order-based (restaurants) and appointment-based (spas) businesses** with overlapping but distinct workflows.
+
+
+\section{Introduction}
+This document outlines the software design for
+
+\section{Introduction}
+This document outlines the software design for a multtenant SaaS platform
+aimed at small to medium business that consentrate on order delivery such as
+bars, restaurants and services such as spas and salons. The platform will
+provide a unified system for managing operations, appointments, orders, and
+payments.
+
+
+% ========================================================================
+% FUNCTIONAL DOMAIN SEPARATION
+% ========================================================================
+
+% ------------------------------------------------------------------------
+% DOMAIN INTERACTIONS
+% ------------------------------------------------------------------------
+
+% RESTAURANT ↔ MANAGEMENT
+% - Employee assignments to tables/shifts
+% - Financial data aggregation
+% - Customer profile updates
+
+% SERVICES ↔ MANAGEMENT
+% - Employee scheduling and availability
+% - Appointment revenue tracking
+% - Customer service history
+
+% RESTAURANT ↔ SERVICES (for hybrid businesses)
+% - Shared customer profiles
+% - Combined service packages
+% - Unified payment processing
+
+% NOTE: This separation allows each domain to be developed independently
+% while maintaining clear integration points for businesses that operate
+% across multiple domains.
+
+\section{Business Flows}
+
+We will first start with business flows by describing the business process we are automating. We will
+seperate the business flows into 3 main domains for clarity:
 \begin{itemize}
-    \item Plan the meetings and consultations with lecturer
-    \item Communicate with lecturer
-    \item Create a timeline for the tasks that need to be completed
-    \item Resolve conflicts
-    \item Ensure everyone is putting equal amount of effort
-    \item Ensure requirements are met
+    \item Order Management (Bars/Restaurants)
+    \item Services Management (Spas/Salons)
+    \item Business Management
+\end{itemize}
+These domains will communicate in this simple way:
+\begin{itemize}
+    \item Order Management <-> Business Management
+    \item Services Management <-> Business Management
 \end{itemize}
 
-\subsection*{Team Ambition}
-Target grade: \textbf{9--10}
+We will try to write the business flows and then identify the entities,
+components and actions needed to implement these business flows.
 
-\subsection*{Decision-Making Approach}
-Everyone is free to express their opinions, and the final decision is made by voting.
+% example of how to analyze a business flow
+% Autoshop business flow
 
-\section*{Team Rules}
+%     • Client arrives at the autoshop
+%     • Mechanic engages new client and asks about the reason for the visit
+%     • Client fills in the intake form (contact info, car plates, VIN, complaints/issues, etc)
+%     • Mechanic gives initial estimate for time and cost of the fix
+%     • Client accepts the quote and gives car keys to the mechanic
+%     • Mechanic moves car to the parking lot for cars awaiting repairs
+%     • Mechanic initiates repairs (possible uncovering additional issues)
+%     • Mechanic orders required spare parts OR Mechanics retrieves needed parts from storage
+%     • Mechanic contacts client and provides new estimate for cost and time of repairs
+%     • Client approves the update quote
+%     • Mechanic completes the repairs
+%     • Mechanic moves car to the parking lot of cars awaiting pick up.
+%     • Client arrives, pays for the repairs and departs
+%     • Mechanic adds closing notes to the fix order and closes the order
 
-\subsection*{Communication}
-\begin{itemize}
-    \item Use one main channel on Discord
-    \item Reply to messages promptly
-    \item Be respectful and professional
-\end{itemize}
+% Tables/Entities
+% Car
+% Employee
+% Service? Repair Type performed
+% Repairs by order
+% Spare parts
+% Autoshop
+% Inventory
 
-\subsection*{Meetings}
-\begin{itemize}
-    \item Attend all meetings if possible
-    \item Give notice if not available
-    \item Be prepared to update your teammates
-\end{itemize}
-
-\subsection*{Code Standards}
-\begin{itemize}
-    \item Use ESLint for linting
-    \item Use Prettier for automatic code formatting
-    \item Perform pull request reviews
-    \item Follow additional agreed conventions
-\end{itemize}
-
-\subsection*{Respect \& Accountability}
-\begin{itemize}
-    \item Value everyone's ideas and contributions
-    \item Share workload fairly
-    \item Stay constructive
-\end{itemize}
-
-\subsection*{Penalties}
-For missing deadlines, meetings, or work:
-\begin{itemize}
-    \item Snack tax or beer tax
-    \item Extra documentation duty
-    \item Bug fix duty
-\end{itemize}
-
-\subsection*{Key principles governing work distribution}
-\begin{itemize}
-    \item Fairness and balance: Workload should be distributed so no one feels overburdened; try to balance difficulty, effort, and time commitment.
-    \item Assign tasks according to strengths and preferences of team members.
-    \item Be clear with responsibilities: Each task should have a designated owner and defined expectations.
-    \item Track work using GitHub Projects; everyone should see what others are working on and provide regular progress updates.
-    \item Avoid tasks that block other tasks; strive for parallel work whenever possible.
-    \item Members are responsible for their assigned work, but must communicate and seek help if falling behind.
-    \item Be willing to help each other; documentation and communication should allow someone else to pick up a task in progress.
-\end{itemize}
-
-\subsection*{Capacity Constraints}
-\begin{itemize}
-    \item Each member reports weekly availability so tasks can be planned realistically.
-    \item Hold a weekly sync on [FILL IN], plus short check-ins as needed.
-    \item Track capacity: record planned hours versus actual hours spent.
-    \item If a member cannot meet their capacity, they must inform the team promptly.
-\end{itemize}
+% Components
+% Order Management (Order, Payments)
+% Employee Management
+% Inventory (Spare parts, Inventory)
+% Catalogue/Offering (Service? Repair Type performed, Repairs by order)
 
 
-\subsection*{Tracking Progress}
-\begin{itemize}
-    \item Use GitHub Projects to manage tasks and milestones
-    \item Hold weekly meetings(Monday evenings) to review progress and plan next week.
-\end{itemize}
+% Actions
+% Client fills in the intake form
+% Client accepts the quote
+% Client approves the update quote
+% Client pays for the repairs
+
+
+\subsection{Order Management (Bars/Restaurants)}
+% ------------------------------------------------------------------------
+% RESTAURANT/BAR DOMAIN
+% Core Focus: Product-based transactions with immediate consumption
+% ------------------------------------------------------------------------
+
+% ORDER MANAGEMENT
+% - Table management and seating
+% - Order creation/modification (real-time)
+% - Split check functionality
+% - Menu item selection with modifiers/variations
+
+% TRANSACTION PROCESSING
+% - Multiple payment methods per order (cash, card, gift card)
+% - Tip management (percentage/fixed)
+% - Item-level and order-level discounts
+% - Tax calculation and application
+% - Receipt generation
+% - Refund processing
+
+% PRODUCT MANAGEMENT
+% - Menu catalog with variations
+% - Price management
+% - Optional invenance
+% - Data migration handling
+
+% REPORTING & ANALYTICS
+% - Business performance reports
+% - Employee analytics
+% - Customer behavior analysis
+% - Financial reporting
+
+% INTEGRATION MANAGEMENT
+% - Payment gateway integration (Stripe)
+% - SMS gateway intory tracking (stock levels)
+
+
+
+\subsection{Services Management (Spas/Salons)}
+% ------------------------------------------------------------------------
+% SERVICES DOMAIN
+% Core Focus: Time-based appointments with resource scheduling
+% ------------------------------------------------------------------------
+
+% APPOINTMENT MANAGEMENT
+% - Time slot booking system
+% - Service duration management
+% - Appointment scheduling (advance booking)
+% - Cancellation and rescheduling workflows
+
+% RESOURCE SCHEDULING
+% - Employee availability tracking
+% - Service-to-employee assignment
+% - Time conflict prevention (double-booking protection)
+% - Schedule optimization
+
+% SERVICE MANAGEMENT
+% - Service catalog management
+% - Duration and pricing per service
+% - Pre-payment and deposit handling
+
+% COMMUNICATION
+% - SMS/email appointment confirmations
+% - Reminder notifications
+% - Schedule change notifications
+
+We have identified the following use cases for the services management domain:
+
+\vspace{1cm}
+\begin{longtable}{p{0.25\linewidth} p{0.70\linewidth}}
+\caption{Use cases for the Services Management domain} \\
+\textbf{Use case} & \textbf{Description} \\
+\hline
+\endfirsthead
+
+\multicolumn{2}{c}{{\tablename\ \thetable{} -- Continued from previous page}} \\
+\textbf{Use case} & \textbf{Description} \\
+\hline
+\endhead
+
+\multicolumn{2}{c}{{Continued on next page}} \\
+\endfoot
+
+\endlastfoot
+
+Book appointment &
+\begin{minipage}[t]{\linewidth}
+Customer selects service, date/time and (optionally) employee; system reserves slot and sends confirmation.
+\end{minipage} \\[6pt]
+\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+
+Cancel or reschedule appointment &
+\begin{minipage}[t]{\linewidth}
+Customer or staff cancels or moves an appointment; system updates availability and notifies affected parties.
+\end{minipage} \\[6pt]
+\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+
+Manage service catalog &
+\begin{minipage}[t]{\linewidth}
+Create, update or remove services; define duration, price, variants and prerequisites.
+\end{minipage} \\[6pt]
+\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+
+Manage employee availability &
+\begin{minipage}[t]{\linewidth}
+Define working hours, breaks and leave; publish availability to the scheduling engine.
+\end{minipage} \\[6pt]
+\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+
+Assign staff to services &
+\begin{minipage}[t]{\linewidth}
+Map employees to services they can perform; enable manual or automatic assignment.
+\end{minipage} \\[6pt]
+\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+
+Handle deposits and pre-payments &
+\begin{minipage}[t]{\linewidth}
+Collect partial/full payments for bookings, manage holding, capture and refunds.
+\end{minipage} \\[6pt]
+\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+
+Customer check-in &
+\begin{minipage}[t]{\linewidth}
+Mark arrival, start service, update appointment status and record actual start/end times.
+\end{minipage} \\
+\end{longtable}
+
+\vspace{1cm}
+
+\subsubsection{Book appointment flow}
+
+\begin{enumerate}
+    \item Customer selects service, date/time and (optionally) employee.
+    \item System checks availability and reserves slot.
+    \item Confirmation is sent to customer.
+\end{enumerate}
+
+\subsubsection{Cancel or reschedule appointment flow}
+
+\begin{enumerate}
+    \item Customer requests cancellation or rescheduling.
+    \item System verifies request and checks for any conflicts.
+    \item Confirmation is sent to customer.
+\end{enumerate}
+
+\subsubsection{Manage service catalog flow}
+
+\begin{enumerate}
+    \item Admin accesses service catalog management interface.
+    \item Admin creates, updates or removes services.
+    \item System validates changes and updates service availability.
+\end{enumerate}
+
+\subsubsection{Manage employee availability flow}
+\begin{enumerate}
+    \item Employee or admin accesses availability management interface.
+    \item Employee/admin defines working hours, breaks and leave.
+    \item System updates employee schedule and notifies scheduling engine.
+\end{enumerate}
+
+\subsubsection{Assign staff to services flow}
+\begin{enumerate}
+    \item Admin accesses staff assignment interface.
+    \item Admin maps employees to services they can perform.
+    \item System updates assignment records and notifies affected employees.
+\end{enumerate}
+
+\subsubsection{Handle deposits and pre-payments flow}
+\begin{enumerate}
+    \item Customer selects deposit/pre-payment option during booking.
+    \item System processes payment and holds funds.
+    \item Confirmation is sent to customer.
+\end{enumerate}
+
+\subsubsection{Customer check-in flow}
+\begin{enumerate}
+    \item Customer arrives and notifies staff.
+    \item Staff marks arrival and starts service in the system.
+    \item System updates appointment status and records actual times.
+\end{enumerate}
+
+ok ok im tired, TODO look into this later
+
+
+% GOOD ideas below but they are more of a derivative of the above main use cases
+% 
+% Prevent double-booking & Detect and prevent scheduling conflicts when creating or editing appointments. \\
+% Send notifications & Send confirmations, reminders and change notices via SMS and/or email. \\
+% Service fulfillment & Record performed service details, add notes, upsells and consumed items. \\
+% Appointment history & Preserve historical records (immutable financials, past service metadata). \\
+% Waitlist management & Add customers to a waitlist and notify them when slots become available. \\
+% Search and lookup customers & Retrieve customer profiles, past appointments and preferences. \\
+% Reporting and analytics & Generate utilisation, revenue, appointment and staff performance reports. \\
+% Integrate with payment gateway & Process payments, refunds and receipts via external payment provider (e.g., Stripe). \\
+
+
+\subsection{Business Management}
+% ------------------------------------------------------------------------
+% BUSINESS MANAGEMENT DOMAIN
+% Core Focus: Cross-functional business operations and administration
+% ------------------------------------------------------------------------
+
+% BUSINESS OPERATIONS
+% - Multi-business support (unified platform)
+% - Business profile management
+% - Location management
+% - Business configuration and rules
+
+% EMPLOYEE & HR MANAGEMENT
+% - Employee profiles and roles
+% - Performance tracking and ratings
+% - Bonus management
+% - Role-based permissions
+
+% CUSTOMER MANAGEMENT
+% - Customer profiles and contact information
+% - Customer history (across all domains)
+% - Customer preferences
+% - Future: Loyalty programs
+
+% FINANCIAL MANAGEMENT
+% - Tax management (VAT, rate changes)
+% - Financial reporting
+% - Revenue analytics
+% - Historical data preservation
+
+% SYSTEM ADMINISTRATION
+% - User authentication
+% - Permission management
+% - System monitoring
+% - Audit trail maintenance
+% - Data migration handling
+
+% REPORTING & ANALYTICS
+% - Business performance reports
+% - Employee analytics
+% - Customer behavior analysis
+% - Financial reporting
+
+% INTEGRATION MANAGEMENT
+% - Payment gateway integration (Stripe)
+% - SMS gateway integration
+% - External API management
 
 \printbibliography[title = {References and sources}]
-
-
-% \appendix
-% \renewcommand{\thesection}{Appendix \arabic{section}. }
-
-% \section{\phantom{Appendix} Examples of citations}
-% In the document \textit{bibliography.bib}, you need to add all the cited sources and after using the function \textit{\{\textbackslash cite\{name of the cited object\}\}} the corresponding source will be added to the list of literature sources.
-
-
-% \textit{bibliography.bib} provides examples of some of the most commonly cited types of sources:
-% \begin{itemize}
-%     \item web pages (\textit{@online}) \cite{PvzInternetinisPuslapis},
-%     \item datasets (\textit{@dataset}) \cite{dataset}
-%     \item articles (\textit{@article}) \cite{PvzStraipsnLt, PvzStraipsnEn}, 
-%     \item articles from conferences (\textit{@inproceedings}) \cite{PvzKonfLt, PvzKonfEn}, 
-%     \item books (\textit{@book}) \cite{PvzKnygLt, PvzKnygEn}, 
-%     \item theses (\textit{@thesis or mastersthesis/phdthesis} \cite{PvzMagistrLt, PvzPhdEn})
-%     \item electronic publications (\textit{@misc}) \cite{PvzElPubLt, PvzElPubEn}
-% \end{itemize}
-
-% Examples are also provided for ChatGPT citation, both in general \cite{chatgpt_bendrai} and for a specific conversation \cite{chatgpt_pokalbis}.
 
 \end{document}

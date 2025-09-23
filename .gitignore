@@ -12,3 +12,4 @@ Template.run.xml
 Template.toc
 *.synctex.gz
 *.pdf
+build
