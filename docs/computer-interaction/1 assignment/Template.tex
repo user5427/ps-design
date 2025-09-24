@@ -15,6 +15,8 @@
 \usepackage[nottoc]{tocbibind}
 \usepackage{tocloft}
 
+\usepackage{amssymb}
+
 \usepackage{titlesec}
 \newcommand{\sectionbreak}{\clearpage}
 
@@ -72,25 +74,150 @@
 %list of tables, delete if not needed
 % \listoftables
 
-%Turinys
 \tableofcontents
 \onehalfspacing
 
 
-% %Section for abbreviations
-% \sectionnonum{List of abbreviations} %Leave if necessary
-% This section is for when abbreviations are used. For example:
+\section*{Check List \checkmark}
 
-% \begin{tabular}{rcp{.7\textwidth}}
-%     {u.d.i.r.v.} & {} & {uniformly distributed independent random variables}
-% \end{tabular}
+\section*{Assignment Requirements}
+
+\subsection*{Documentation Requirements}
+
+The assignment consists of the following parts: title page, table of contents,
+and the main part.
+
+\textbf{Section numbering.} Headings of the sections must be numbered strictly
+hierarchically. The sections have assigned numbers, such as 1., subsections –
+1.1., 1.2, subsubsections – 1.1.1., 1.1.2. and so on. \checkmark
+
+\textbf{File naming requirements.} A file name contains a short project title,
+an assignment number and an assignment title. Example: CarBuddy 1 User needs.pdf
+
+\subsection*{An outline of the main part}
+
+\begin{enumerate}
+    \item Introduction \checkmark
+    \begin{enumerate}
+        \item[1.1.] Project titles \checkmark
+        \item[1.2.] Problem statement \checkmark
+    \end{enumerate}
+    
+    \item User needs analysis
+    \begin{enumerate}
+        \item[2.1.] Expectations of the stakeholders \checkmark
+        \item[2.2.] $\langle$The name of the first user group$\rangle$ research \{for each user group in both primary and secondary stakeholders\} \checkmark
+        \begin{enumerate}
+            \item[2.2.1.] Current users' activities
+            \begin{enumerate}
+                \item[2.2.1.1.] $\langle$Title of the 1st user story$\rangle$
+                \begin{itemize}
+                    \item Description of current activity (unnumbered subsection)
+                    \item Problems and opportunities (unnumbered subsection)
+                \end{itemize}
+                \item[2.2.1.2.] $\langle$Title of the 2nd user story$\rangle$
+                \begin{itemize}
+                    \item \ldots
+                \end{itemize}
+            \end{enumerate}
+            \item[2.2.2.] Characteristics of the people, activities, context, and technologies
+            \item[2.2.3.] Needs
+            \item[2.2.4.] Usability objectives
+        \end{enumerate}
+        \item[2.3.] $\langle$The name of the next user group$\rangle$ needs analysis \{if needed\}
+        \item[] \ldots
+        \item[2.$\langle$n+1$\rangle$.] Inspiring user interface designs
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Explanations}
+
+\textbf{The title page} contains:
+\begin{itemize}
+    \item university name, faculty, and study program, \checkmark
+    \item project full title, \checkmark
+    \item contributors' names and surnames, \checkmark
+    \item year. \checkmark
+\end{itemize}
+
+\textbf{The table of contents} includes the sections and subsections until the 3rd level and page numbers. \checkmark
+
+\textbf{Project titles.} The project must have two titles: \checkmark
+\begin{itemize} 
+    \item full (e.g. ``Vilnius University Library App'') and \checkmark
+    \item short (e.g. ``Library''). \checkmark
+\end{itemize}
+
+The full title is used on the title page and in this section, a short title serves as a project reference in the document text and assignment file names. \checkmark
+
+\textbf{Problem statement} explains the high-level project goals shortly and
+specifically (about half a page). The problem is described in terms of user
+activities and situations where the problem occurs, and what aspects might be
+improved with a technical solution. Avoid describing or suggesting a solution at
+this stage that will hamper your design thinking when you start solving the
+problem. \checkmark
+
+To gather the relevant facts for your problem statement, you can use a simple
+technique called the 6 Ws, which involves answering the questions below: \checkmark
+\begin{itemize}
+    \item Who is affected by the problem? \checkmark
+    \item What is the problem? \checkmark
+    \item Where does this problem occur? \checkmark
+    \item When does the problem occur? \checkmark
+    \item Why does the problem occur? \checkmark
+    \item Why is the problem important? \checkmark
+\end{itemize}
+
+\textbf{Expectations of the stakeholders} \checkmark
+
+Specify the specific groups of people (stakeholders) involved in activities that
+will be supported by your project (see Lecture 1. User-centered design).
+Identify relevant stakeholders' intentions that are supposed to be fulfilled. In
+the competitors subsection, you should list your closest competitors. Then you
+should list your main competitive advantages over them. \checkmark
+
+\textbf{Current user activities}
+
+Watching how people do things is a great way to learn their goals and values, and come up with design insight. This is called user research. This assignment helps you train your eyes and ears to develop design ideas. Your goal is to uncover user needs, breakdowns, clever hacks, and opportunities for improvement. Begin by selecting a specific activity to observe.
+
+The description contains the user story that tells about the current user activities. Note that your service or product does not exist yet. Therefore, you must describe the existing activities, such as how your users achieve their goals with existing competitive products, and highlight the pain points and troubles. Then, indicate the problems and improvement opportunities (see the assignment outline).
+
+Describe at least 3 observations of current user activities for primary users, for the secondary – there can be fewer. Examples of activity descriptions:
+
+\begin{itemize}
+    \item \textbf{Story 1:} Ann is a clerk in her twenties, comes for a quick lunch. She wants to see dishes that are served within 15 min. She waits 10 min. for a waiter. The waiter says that only soup can be served in 15 min. Therefore Ann leaves the restaurant and goes for a fast food nearby.
+    
+    \item \textbf{Story 2:} Andrew, a thirty-two-year-old restaurant client, who suffers from allergies, comes to a restaurant. He examines the menu. The menu is long, ingredients are mentioned in every dish. So, it takes about 5 minutes to choose a dish. Waiting for the dish takes 20 min. Andrew must hurry and eats quickly because he has to return to work on time.
+    
+    \item \textbf{Story 3:} Thirty-five-years-old Peter goes to a restaurant with his family. He noticed on Google Maps that a new restaurant was opening not far away. They spend time reading the menu. The café has a children's menu, but children's favorite dishes are missing. Children are bored because of missing the game area. The family chooses quick dishes from the menu.
+    
+    \item \textbf{Story 4:} Fourty-year-old Sara comes with her friends to a restaurant on Sunday. They are looking for a big table but see that the restaurant is almost full. They started to explore the TripAdvisor app on their phone for other restaurants phone numbers to ask whether they have a free big table for a group. \ldots
+\end{itemize}
+
+\textbf{How to check whether a story is correct?} A story should cover characteristics of peoples, activities, environment and technologies that are related to computerized activities. If any characteristic is missing, you should augment the story.
+
+\textbf{Needs statements and usability objectives}
+
+After describing user stories, go over your findings. Brainstorm about both user needs and usability objectives. Observe the opportunities for design innovation that would improve the activity. User needs are formulated for primary and secondary users, only. Indirect stakeholders formulate business goals that are abstract and relate to business strategy. Business goals should be met with the needs of primary and secondary users. The impact of business goals on user needs is explained in Lecture 2, slides 52–53. Examples of usability goals and needs are provided in slides 54--57, and usability objectives are tackled in slides 58--60.
+
+The project must contain at least 15 user needs. 3–5 usability objectives are defined for every user group. You are not looking for solutions yet: focus on user needs only. User needs and usability objectives must have unique identifiers. Below the needs and the usability objectives provide traceability matrices that link the need or objective identifier with the number of paragraph of the user story from which it is derived.
+
+\textbf{Inspiring user interface designs}
+
+Provide here examples of successful user interface solutions of existing software that can be useful for specified user needs and usability objectives. Provide a screenshot of the design, the number of user needs, or the usability objective for which this solution would be beneficial. Images should have captions with concise explanations and references to the source, from which this image is taken. The text related to the image should contain cross-reference to the image. Provide at least 5 examples.
+
+\section*{Use of AI}
+
+Just a little note: dont just copy the assignment text and expect good output,
+look into slides also and try to apply lecture material. 
+
 
 \section{Introduction}
-\subsection{Project Title}
+\subsection{Project title}
 
-\textbf{Full Title:} \textit{UniServe: A Universal Service Management Platform for Reservation and Order-Based Businesses}
+\textbf{Full title:} \textit{UniServe: A Universal Service Management Platform for Reservation and Order-Based Businesses}
 
-\textbf{Short Title:} \textit{UniServe}
+\textbf{Short title:} \textit{UniServe}
 
 
 \textbf{Explanation:} "Uni" represents \emph{universal}, indicating the platform's flexibility across a variety of business models 
@@ -99,37 +226,60 @@
 
 \subsection{Problem statement}
 
+Traditional methods of managing reservations and orders—such as handwritten
+appointment books, paper menus, phone-based booking, and manual order
+taking—create significant operational bottlenecks that directly impact business
+performance and stakeholder satisfaction. Reliance on outdated manual processes
+create several critical problems:
 
-% Who is affected by the problem?
+\begin{itemize}
+    \item \textbf{For employees:} Manual order-taking and appointment booking
+    requires constant \textbf{memorization} of availability, pricing, and menu details.
+    Staff must physically check paper schedules or call to verify bookings,
+    leading to \textbf{errors}, double-bookings, and frustrated customers. During peak
+    periods (weekends, holidays, promotional events), employees become
+    \textbf{overwhelmed} managing multiple phone lines while \textbf{simultaneously serving}
+    in-person customers, resulting in poor service quality and increased stress.
 
-% 
+    \item \textbf{For customers:} Modern consumers expect the
+    \textbf{convenience} of online ordering and booking available 24/7, similar
+    to services like Square or Toast. When forced to call during business hours
+    or wait in line to place orders, customers often \textbf{abandon their
+    purchase intent}. The \textbf{inability} to view real-time availability,
+    modify orders easily, or receive confirmation notifications leads to
+    customer \textbf{dissatisfaction} and \textbf{frustration} as customers
+    cannot make informed decisions or plan their time effectively.
 
-% What is the problem?
+    \item \textbf{For business owners:} Manual systems prevent access to crucial
+    business data—owners \textbf{cannot easily} track popular items, peak hours, or
+    customer patterns. Inventory management relies on \textbf{guesswork}, leading to
+    waste or stockouts. Without automated processes, businesses require more
+    staff hours for administrative tasks that could be automated, increasing
+    labor costs while \textbf{limiting growth potential}.
+\end{itemize}
 
-% 
+\textbf{Why this problem matters now:}
 
-% Where does this problem occur?
+The COVID-19 pandemic accelerated consumer adoption of digital ordering and
+contactless services. Customers now view online booking and ordering as standard
+expectations rather than luxury features. Businesses without these capabilities
+lose customers to competitors who offer digital convenience, even if their core
+service quality is superior.
 
-% 
+\textbf{Technical barriers:}
 
-% When does the problem occur?
+Limited budgets and lack of technical expertise prevent these businesses from
+developing in-house solutions as these solutions are often expensive and complex.
 
-% 
+\textbf{Consequences of inaction:}
 
-% Why does the problem occur?
+Without accessible digital platforms, businesses experience reduced customer
+reach (losing tech‑savvy customers who prefer online interaction), decreased
+operational efficiency (staff spending time on manual tasks instead of customer
+service), higher recurring labor costs (requiring more staff for administrative
+work), and diminished competitive position (falling behind digitally-enabled
+competitors).
 
-% 
-
-% Why is the problem important?
-
-% 
-
-
-
-Traditional methods like handing out menus and taking orders on-site or booking appointments by phone have become slow and inefficient in the last decade. This is especially noticeable during peak business periods such as holidays, weekends, or promotional events. Small to medium-sized businesses in the restaurant and beauty industries — particularly those that do not use modern digital platforms — are most affected. Limited budgets and lack of technical expertise often prevent them from adopting specialized web applications. This creates multiple problems: employees face increased workload and inefficient information exchange, while customers increasingly expect online services like remote ordering and appointment booking. Without accessible digital platforms, 
-businesses risk missing potential customers who rely on the internet, leading to reduced customer reach, lower operational efficiency, and decreased customer satisfaction. The lack of automation results in higher recurring costs, prevents the productivity gains that automation can deliver — gains that could allow staff to work more efficiently and focus on higher-value tasks.
-
-% darbo nasumas dideja
 
 \section{Stakeholder analysis}
 
@@ -137,25 +287,26 @@ businesses risk missing potential customers who rely on the internet, leading to
 
 \begin{table}[h]
   \centering
-  \caption{Stakeholders Identification}
+  \caption{Stakeholders identification}
   \begin{tabular}{|c|c|}
     \hline
-    Stakeholder Type    & Stakeholders \\ \hline
-    Primary             & Employees, Customers \\ \hline
-    Secondary           & Client Business Owners \\ \hline
-    Indirect (Tertiary) & App Business Owners \\ \hline
-    External/Competitors & Square, Toast POS, Restaurant365 \\ \hline
-    Technical Support   & Sysadmins, Tech Support \\ \hline
+    Stakeholder type    & Stakeholders \\ \hline
+    Primary             & Employees, customers \\ \hline
+    Secondary           & Client business owners \\ \hline
+    Indirect (tertiary) & App business owners \\ \hline
+    External/competitors & Square, Toast POS, Restaurant365 \\ \hline
+    Technical support   & Sysadmins, tech support \\ \hline
   \end{tabular}
   \label{tab:stakeholders}
 \end{table}
 
 % \textbf{Primary Stakeholders} directly and frequently use the system. Client
 % business owners (restaurant/salon owners) operate the system daily. Employees
-% process orders and manage appointments through the application.
+% process orders and manage appointments through the application. Customers use
+% the system when placing orders or booking appointments.
 
 % \textbf{Secondary Stakeholders} are occasionally involved or interact via
-% others. Customers use the system when placing orders or booking appointments.
+% others. 
 % Managers oversee operations and may need access to system statistics.
 
 % \textbf{Indirect (Tertiary) Stakeholders} influence purchase decisions and
@@ -179,168 +330,196 @@ businesses risk missing potential customers who rely on the internet, leading to
 % catastrophic errors
 % 5. Satisfaction
 
-\textbf{Primary Stakeholders:}
+\textbf{Primary stakeholders:}
 \begin{itemize}
-
-    \item \textbf{Employees} want an efficient, error-free system that allows them to process orders and book appointments quickly, with an interface that is easy to use throughout the day.
-    % memorization - not really important kadangi darbuotojai sistema naudosis visą dieną taigi bet kokiu atveju atsimins
-    % primary as customers use system directly
-    \item \textbf{Customers} expect an effective, reliable booking and ordering
-    experience with quick response times, and accurate information and
-    satisfying interactions.
+    \item \textbf{Employees} expect a system that eliminates the need to
+    memorize constantly changing information (availability, pricing, specials),
+    reduces the risk of errors in bookings and order processing, and allows for
+    a more satisfying and efficient customer serving experience.
+    \item \textbf{Customers} expect 24/7 convenience for booking and ordering,
+    real-time availability information, effective order modifications, and
+    reliable confirmation notifications that enable informed and satisfying
+    decision-making. Furthermore customers expect to have similar convenience as
+    they have with other digital services.
 \end{itemize}
 
-\textbf{Secondary Stakeholders:}
+\textbf{Secondary stakeholders:}
 \begin{itemize}
-    \item \textbf{Client Business Owners} want tools to manage their business,
-    track sales, watch over staff, manage stock, and get reports to run their
-    business better and reduce costs. They expect and error-free system that is
-    reliable and efficient. 
-    % this is secondary stakeholder (statistics), indirect (ownder)
+    \item \textbf{Client business owners} expect automated access to business
+    data (sales patterns, inventory levels, customer analytics) that are
+    error-free, reduced administrative overhead. They expect efficient systems
+    that will reduce labor and allow them to focus on strategic decision-making.
 \end{itemize}
 
-\textbf{Indirect (Tertiary) Stakeholders:}
+\textbf{Indirect (tertiary) stakeholders:}
 \begin{itemize}
-    \item \textbf{App Business Owners} want steady income growth, to increase
-    market share, and to compete well with other business software companies.
+    \item \textbf{App business owners} recognize a market opportunity to serve
+    underserved small and medium businesses that cannot afford or implement
+    complex enterprise solutions. They want steady income growth by capturing
+    market share from businesses currently using manual processes or considering
+    expensive alternatives.
 \end{itemize}
 
 \textbf{Competitors:}
 \begin{itemize}
-% users, specify
-    \item \textbf{Square, Toast POS, Restaurant365}. Users currently relying on these platforms (or contemplating using them) expect similar or improved features, affordable pricing, and intuitive interfaces that allow for quick onboarding without extensive technical training.
+    \item \textbf{Square, Toast POS, Restaurant365} serve similar markets but
+    often with complex, expensive solutions targeted at larger businesses. Small
+    business owners currently using these platforms (or those considering them)
+    expect affordable pricing and guides allowing quick onboarding
+    without extensive technical training, and features that directly address the
+    problems outlined above. Our competitive advantage lies in providing
+    simplified, cost-effective solutions specifically designed for small to
+    medium businesses that need core functionality without enterprise
+    complexity.
 \end{itemize}
 
-\textbf{Development and Maintenance Team:}
+\textbf{Development and maintenance team:}
 \begin{itemize}
-    \item \textbf{Sysadmins} expect reliable system architecture, scalable
-    infrastructure, and clear deployment procedures.
-    \item \textbf{Tech Support} expect comprehensive documentation, effective
-    troubleshooting tools, and manageable user issue resolution processes.
+    \item \textbf{Sysadmins} expect reliable system architecture that can handle
+    varying loads (especially during peak business periods), scalable
+    infrastructure to accommodate business growth, and clear deployment
+    procedures to maintain system stability.
+    \item \textbf{Tech support} expect comprehensive documentation and effective
+    troubleshooting tools to efficiently resolve the types of issues small
+    business users commonly encounter, along with manageable processes for user
+    support that don't overwhelm limited support resources.
 \end{itemize}
 
 
 % <The name of the first user group> research {for each user group in both primary and secondary stakeholders}
+
+% should include people characters, activities, enviroment and technologies or
+% in other words it should give info to PACT analysis.          
+% Character - who are the users, what are their physical and cognitive abilities,
+% Activities - what tasks do they perform, what are their goals, describe the characteristics of tasks
+% Context - where and when do they perform these tasks, what are the physical, social, cultural, organizational aspects of the environment
+% Technologies - what tools, devices, software do they use to perform their tasks.
 \subsection{Employee research}
 
 \subsubsection{Current users' activities}
 
-\textbf{Café Barista Managing Orders}
+\subsubsubsection{Café Barista Managing Orders}
 
-Marius, 21, works as a barista in a busy café. He takes orders at the counter and writes them on sticky notes for the kitchen. During the morning rush, notes sometimes fall to the floor or get smudged by spilled drinks. This leads to wrong orders being prepared, which frustrates customers and wastes ingredients. Marius tries to keep the counter tidy, but the lack of a structured system makes mistakes inevitable and thus Marius spends extra time apologizing and remaking orders, which slows down the queue.
+% Character - info needs more details, 21 years old. but what else? height, weight, experience, is he a fast learner? good memorization skills?
+% Activities - takes orders at the counter. what are the characteristics of these tasks? (dont write the analysis of tasks, just describe the tasks, is it a complex task? does it require high concentration? is it repetitive? etc)
+% Context - busy cafe, morning rush, sticky notes, smudged notes
+% Technologies - just sticky notes
+% /\ potential improvments if the current stuff is enough.
+Marius, 21, works as a barista in a busy café. He takes orders at the counter
+and writes them on sticky notes for the kitchen. During the morning rush, notes
+sometimes fall to the floor or get smudged by spilled drinks. This leads to
+wrong orders being prepared, which frustrates customers and wastes ingredients.
+Marius tries to keep the counter tidy, but the lack of a structured system makes
+mistakes inevitable and thus Marius spends extra time apologizing and remaking
+orders, which slows down the queue.
 
-\textbf{Salon Receptionist Controlling Bookings}
+\subsubsubsection{Salon Receptionist Controlling Bookings}
 
-Lucille, in her twenties, is the receptionist at a busy, well‑known beauty salon. Throughout the day she fields a constant stream of phone calls to arrange appointments. Each booking is first written by hand in a paper diary, then later re‑entered into a spreadsheet. On busy days, at least one record is often missed or entered incorrectly, resulting in double bookings or missed appointments. When a client calls to reschedule, Lucille leafs through pages of the diary to locate the original booking. This takes time, breaks her concentration, and can leave callers waiting on the line. The salon offers no online booking facility, so all scheduling relies entirely on Lucille being available to answer the phone.
+Lucille, in her twenties, is the receptionist at a busy, well‑known beauty
+salon. Throughout the day she fields a constant stream of phone calls to arrange
+appointments. Each booking is first written by hand in a paper diary, then later
+re‑entered into a spreadsheet. On busy days, at least one record is often missed
+or entered incorrectly, resulting in double bookings or missed appointments.
+When a client calls to reschedule, Lucille leafs through pages of the diary to
+locate the original booking. This takes time, breaks her concentration, and can
+leave callers waiting on the line. The salon offers no online booking facility,
+so all scheduling relies entirely on Lucille being available to answer the
+phone.
 
-\textbf{Restaurant Manager Handling Discounts}
+\subsubsubsection{Restaurant Manager Handling Discounts}
 
-Youmna, in her early twenties, manages a vibrant Lebanese restaurant on a busy high street. To attract customers during quieter weekday afternoons, the restaurant runs a “Taste of Lebanon” promotion, offering discounts on selected platters and traditional dishes.
-When diners ask about the offer, Youmna or the waiting staff consult a printed list of eligible dishes and manually work out the reduced price at the till. At busy times, this slows service. Occasionally, the discount is forgotten, prompting awkward conversations and amended bills; at other times, it is applied in error, reducing profit margins.
-To monitor the promotion, Youmna records discounted orders in a small ledger. However, during the rush, staff often forget to make entries, leaving the records incomplete. This makes it difficult to assess the effectiveness of the offer or refine it for future campaigns.
+
+Youmna, in her early twenties, manages a vibrant Lebanese restaurant on a busy
+high street. To attract customers during quieter weekday afternoons, the
+restaurant runs a “Taste of Lebanon” promotion, offering discounts on selected
+platters and traditional dishes. When diners ask about the offer, Youmna or the
+waiting staff consult a printed list of eligible dishes and manually work out
+the reduced price at the till. At busy times, this slows service. Occasionally,
+the discount is forgotten, prompting awkward conversations and amended bills; at
+other times, it is applied in error, reducing profit margins. To monitor the
+promotion, Youmna records discounted orders in a small ledger. However, during
+the rush, staff often forget to make entries, leaving the records incomplete.
+This makes it difficult to assess the effectiveness of the offer or refine it
+for future campaigns.
+
+\subsubsection{PACT analysis of employees}
+
+\subsubsection{Needs of employees}
+
+\subsubsection{Usability objectives for employees}
 
 \subsection{Customer research}
 
 \subsubsection{Current users' activities}
 
-% 4 level section should be working now
-% \subsubsubsection{test test}
+\subsubsubsection{Looking for a quick lunch}
 
-\textbf{Looking for a Quick Lunch}
 
-Annie, a 20‑year‑old university student, has a short break between lectures and only 30 minutes to eat. She visits a small café she has not tried before, hoping to find something quick. The menu gives no indication of preparation times, so she chooses a dish at random and waits nearly 10 minutes for a waiter to take her order. She is then told it will take 25 minutes to prepare. With little time left, Annie leaves and buys a takeaway wrap from a nearby chain instead.
+Annie, a 20‑year‑old university student, has a short break between lectures and
+only 30 minutes to eat. She visits a small café she has not tried before, hoping
+to find something quick. The menu gives no indication of preparation times, so
+she chooses a dish at random and waits nearly 10 minutes for a waiter to take
+her order. She is then told it will take 25 minutes to prepare. With little time
+left, Annie leaves and buys a takeaway wrap from a nearby chain instead.
 
 \newpage
 
-\textbf{Booking a Haircut}
+\subsubsubsection{Booking a haircut}
 
-Felix, in his late forties, needs a haircut before a family gathering. He calls his usual barber, but the line is engaged. After several attempts, he finally gets through, only to learn that his preferred time slot has already been taken. The receptionist offers alternative appointments, but Felix is at work and cannot check his calendar straight away. Frustrated, he decides to book with another salon that can fit him in immediately.
 
-\textbf{Redeeming a Coffee Promotion}
+Felix, in his late forties, needs a haircut before a family gathering. He calls
+his usual barber, but the line is engaged. After several attempts, he finally
+gets through, only to learn that his preferred time slot has already been taken.
+The receptionist offers alternative appointments, but Felix is at work and
+cannot check his calendar straight away. Frustrated, he decides to book with
+another salon that can fit him in immediately.
 
-Sarah‑Louise, 27, spots a “Buy One, Get One Free” coffee offer on a café’s social media page. She visits the café to take advantage of the deal, but the barista is unaware of the promotion and has to confirm it with the manager. This causes a delay at the counter and creates an awkward queue behind  her. The discount is eventually applied, but Sarah‑Louise leaves feeling the process was poorly organised.
+\subsubsubsection{Redeeming a coffee promotion}
+
+
+Sarah‑Louise, 27, spots a “Buy One, Get One Free” coffee offer on a café’s
+social media page. She visits the café to take advantage of the deal, but the
+barista is unaware of the promotion and has to confirm it with the manager. This
+causes a delay at the counter and creates an awkward queue behind  her. The
+discount is eventually applied, but Sarah‑Louise leaves feeling the process was
+poorly organised.
+
+\subsubsection{PACT analysis of customers}
+
+\subsubsection{Needs of customers}
+
+\subsubsection{Usability objectives for customers}
 
 \subsection{Client Business Owners Research (Secondary User Group)}
 
 \subsubsection{Current users' activities}
 
-\textbf{Restaurant Owner Handling Customer Feedback}
+\subsubsubsection{Restaurant Owner Handling Customer Feedback}
 
-Apolline, 39, owns a family restaurant in a popular tourist area. Customers occasionally leave reviews on Google Maps or TripAdvisor, but she only checks them sporadically. Complaints (such as “long wait for a table” or “incorrect order”) can go unnoticed for several days. Apolline also keeps a suggestion box in the restaurant, though very few customers make use of it. She would prefer to gather feedback in a more systematic way and respond swiftly in order to improve the service. Without structured data, it is difficult for her to identify recurring issues (for example, slow service during specific time frames) and to train staff appropriately.
+Apolline, 39, owns a family restaurant in a popular tourist area. Customers
+occasionally leave reviews on Google Maps or TripAdvisor, but she only checks
+them sporadically. Complaints (such as “long wait for a table” or “incorrect
+order”) can go unnoticed for several days. Apolline also keeps a suggestion box
+in the restaurant, though very few customers make use of it. She would prefer to
+gather feedback in a more systematic way and respond swiftly in order to improve
+the service. Without structured data, it is difficult for her to identify
+recurring issues (for example, slow service during specific time frames) and to
+train staff appropriately.
 
-\textbf{Salon Owner Tracking Staff Performance}
+\subsubsubsection{Salon Owner Tracking Staff Performance}
 
-Nils, in his forties, runs a busy salon with six stylists. He tries to track performance and service quality, but still relies on a paper diary and casual feedback. Calculating wages and commissions means hours spent combing through notes and receipts. When figures are challenged, he has no firm record to refer to, which not only heightens administrative burden but also sows discontent amongst the team.
+Nils, in his forties, runs a busy salon with six stylists. He tries to track
+performance and service quality, but still relies on a paper diary and casual
+feedback. Calculating wages and commissions means hours spent combing through
+notes and receipts. When figures are challenged, he has no firm record to refer
+to, which not only heightens administrative burden but also sows discontent
+amongst the team.
 
+\subsubsection{PACT analysis of Client Business Owners}
 
-% \subsection{Primary Stakeholders Needs}
+\subsubsection{Needs of Client Business Owners}
 
-
-% Now that we know what are our primary and secondary stakeholders expectations,
-% we can take a look into what are their needs in more detail. Specifically into
-% how their needs will influence the design of our system.
-
-
-% \subsubsection{Client Business Owners Needs}
-
-% The main needs of the client business owners are to have a system where they 
-% can manage their business operations daily, track sales, manage inventory,
-% generate reports (taxes, profits, losses, etc.), and hire or fire employees.
-% This need is driven by the fact that business owners need to have a clear overview of their
-% business operations to make informed decisions and ensure the success of their
-% business.
-
-
-
-% The main needs of the client business owners are to have a system that is
-% \textbf{error-free}, \textbf{reliable} and \textbf{efficient}. Business owners will need to use the system daily to manage their employees,
-% track sales, manage inventory, and generate reports (taxes, profits, losses,
-% etc.). Therefore the system must be error-free to ensure that critical data like
-% report generation is not compromised. The system must also be reliable to ensure
-% that business operations are not disrupted and that business owners can trust
-% the system to perform as expected. Finally, the system must be efficient to
-% ensure that business owners can quickly and easily perform their tasks without
-% wasting time or effort for looking for features or navigating through complex
-% menus.
-
-% \subsubsection{Employees Needs}
-
-% The main need of the employees is to have a system that helps them process orders,
-% book appointments, and manage customer interactions. This need is driven by the
-% fact that employees need to be able to perform their tasks quickly and accurately
-% to ensure customer satisfaction and the smooth operation of the business.
-
-% The main needs of the employees are to have a system that is \textbf{easy to
-% learn}, \textbf{efficient} and \textbf{error-free}. Employees will need to use
-% the system daily to process orders, book appointments, and manage customer
-% interactions. Therefore the system must be easy to learn to ensure that
-% employees can quickly adapt to the system and become proficient in its use. The
-% system must also be efficient to ensure that employees can complete their tasks
-% in a timely manner without unnecessary delays. Finally, the system must be
-% error-free to ensure that employees can perform their tasks without costly mistakes
-% or disruptions.
-
-% \subsection{Secondary Stakeholders Needs}
-
-% \subsubsection{Customers Needs}
-
-% The main needs of the customers are to have a system that allows them to
-% easily place orders or book appointments, view menus or services, and receive
-% accurate information about the business. Moreover customers need easy to pay options. This need is driven by the fact that 
-% customers expect a seamless and convenient experience when interacting with
-% businesses, and a well-designed system can help meet these expectations.
-
-
-% The main needs of the customers are to have a system that is \textbf{effective}, \textbf{efficient},
-% \textbf{reliable} and \textbf{satisfying}. Customers will need to use the system
-% occasionally to place orders or book appointments. Therefore the system must be
-% effective to ensure that customers can easily find and use the features they
-% need. The system must also be efficient to ensure that customers can complete
-% their tasks quickly and without unnecessary delays. The system must be
-% reliable to ensure that customers can trust the system to perform as expected
-% and that their interactions with the business are not disrupted. Finally, the
-% system must be satisfying to ensure that customers have a positive experience
-% and are more likely to return to the business in the future.
+\subsubsection{Usability objectives for Client Business Owners}
 
 
 % ------------------------
@@ -446,136 +625,194 @@ Nils, in his forties, runs a busy salon with six stylists. He tries to track per
 % For details of what needs to be written in this section, please refer to the methodology requirements of the respective programme.
 
 
-\section{PACT analysis}
+% \section{PACT analysis}
 
-\begin{center}
-    \textcolor{red}{\textbf{(rough draft, dont look too deep into it yet)}}
-\end{center}
-
-
-We will use the \textbf{PACT} framework to analyze the needs of our system
-users. That means we will look into the people and their physical and mental
-capabilities, the characteristics of the activities they perform with current
-systems, context in which they perform these activities, and the technologies
-they use and which can improve their experience.
+% \begin{center}
+%     \textcolor{red}{\textbf{(rough draft, dont look too deep into it yet)}}
+% \end{center}
 
 
-\subsection{Primary Stakeholders PACT analysis}
+% We will use the \textbf{PACT} framework to analyze the needs of our system
+% users. That means we will look into the people and their physical and mental
+% capabilities, the characteristics of the activities they perform with current
+% systems, context in which they perform these activities, and the technologies
+% they use and which can improve their experience.
 
-\subsubsection{Client Business Owners PACT analysis}
 
-Lets start with analyzing the \textbf{people} aspect of PACT. 
+% \subsection{Primary Stakeholders PACT analysis}
 
-\begin{itemize}
-    \item \textbf{Physical capabilities:} Client business owners can have
-    different physical capabilities, some of them might have visual or hearing
-    impairments. This means that our system must have different contrast modes,
-    font sizes, and support for screen readers.
-    \item \textbf{Mental capabilities:} Client business owners can have
-    different levels of technical expertise, mostly ranging from intermediate to
-    expert. We expect that they will be able to use sales tracking, inventory
-    management, and report generation features without much difficulty.
-    \item \textbf{Psychological capabilities:} Client business owners can be
-    from various cultural backgrounds and have different language preferences.
-    This means that our system must support multiple languages and be culturally
-    neutral.
-\end{itemize}
+% \subsubsection{Client Business Owners PACT analysis}
 
-Now lets analyze the \textbf{activities} aspect of PACT.
+% Lets start with analyzing the \textbf{people} aspect of PACT. 
 
-\begin{itemize}
-    \item \textbf{Temporal aspects:} Client business owners will use the system
-    daily, this means that the tasks like generating reports, tracking sales
-    will be easy to memorize. Furthermore these tasks should be efficient to
-    perform to avoid wasting time. Tasks like inventory management must be
-    error-free as they can place time pressure on the user during busy periods.
-    Furthermore this activity must be seperated into clear steps to avoid
-    confusion. It is also necessary to have real time update of inventory data
-    to avoid mistakes.
-    \item \textbf{Cooperation:} Client business owners will mostly use the
-    system individually, but they might need to share information with employees.
-    There should be a clear way to share information.
+% \begin{itemize}
+%     \item \textbf{Physical capabilities:} Client business owners can have
+%     different physical capabilities, some of them might have visual or hearing
+%     impairments. This means that our system must have different contrast modes,
+%     font sizes, and support for screen readers.
+%     \item \textbf{Mental capabilities:} Client business owners can have
+%     different levels of technical expertise, mostly ranging from intermediate to
+%     expert. We expect that they will be able to use sales tracking, inventory
+%     management, and report generation features without much difficulty.
+%     \item \textbf{Psychological capabilities:} Client business owners can be
+%     from various cultural backgrounds and have different language preferences.
+%     This means that our system must support multiple languages and be culturally
+%     neutral.
+% \end{itemize}
+
+% Now lets analyze the \textbf{activities} aspect of PACT.
+
+% \begin{itemize}
+%     \item \textbf{Temporal aspects:} Client business owners will use the system
+%     daily, this means that the tasks like generating reports, tracking sales
+%     will be easy to memorize. Furthermore these tasks should be efficient to
+%     perform to avoid wasting time. Tasks like inventory management must be
+%     error-free as they can place time pressure on the user during busy periods.
+%     Furthermore this activity must be seperated into clear steps to avoid
+%     confusion. It is also necessary to have real time update of inventory data
+%     to avoid mistakes.
+%     \item \textbf{Cooperation:} Client business owners will mostly use the
+%     system individually, but they might need to share information with employees.
+%     There should be a clear way to share information.
     
-    \item[] 
-    \begin{center}
-        \textcolor{red}{\textbf{(think deeper here, there is quite a lot of details to add)}}
-    \end{center}
+%     \item[] 
+%     \begin{center}
+%         \textcolor{red}{\textbf{(think deeper here, there is quite a lot of details to add)}}
+%     \end{center}
 
 
-\end{itemize}
+% \end{itemize}
 
-Now lets analyze the \textbf{context} aspect of PACT.
+% Now lets analyze the \textbf{context} aspect of PACT.
 
-\begin{itemize}
-    \item \textbf{Physical context:} Client business owners will use the system
-    in a variety of physical contexts, including in their office, at home, or
-    on the go. This means that our system should work well on different screen
-    sizes and be responsive to different input methods (mouse, touch, keyboard).
-    \item \textbf{Social context:} Client business owners will need to have administrative
-    rights to manage employees and business operations. There should be a clear
-    way to manage user roles and permissions.
-\end{itemize}
+% \begin{itemize}
+%     \item \textbf{Physical context:} Client business owners will use the system
+%     in a variety of physical contexts, including in their office, at home, or
+%     on the go. This means that our system should work well on different screen
+%     sizes and be responsive to different input methods (mouse, touch, keyboard).
+%     \item \textbf{Social context:} Client business owners will need to have administrative
+%     rights to manage employees and business operations. There should be a clear
+%     way to manage user roles and permissions.
+% \end{itemize}
 
-Now lets analyze the \textbf{technologies} aspect of PACT.
+% Now lets analyze the \textbf{technologies} aspect of PACT.
 
-\begin{itemize}
-    \item \textbf{Technical capabilities:} Client business owners will have
-    access to various devices (desktops, laptops, tablets, smartphones) and
-    operating systems (Windows, macOS, iOS, Android). Our system must be
-    compatible with these platforms and provide a consistent user experience.
-    \item \textbf{Software capabilities:} Client business owners may use
-    different software applications (CRM, ERP, Office Suite) alongside our
-    system. We should consider integration options and data exchange formats
-    (APIs, CSV, etc.) to facilitate smooth workflows.
-    \item \textbf{Network capabilities:} Client business owners will rely on
-    internet connectivity to access our system. We must ensure that our system
-    performs well under different network conditions (Wi-Fi, mobile data).
-\end{itemize}
+% \begin{itemize}
+%     \item \textbf{Technical capabilities:} Client business owners will have
+%     access to various devices (desktops, laptops, tablets, smartphones) and
+%     operating systems (Windows, macOS, iOS, Android). Our system must be
+%     compatible with these platforms and provide a consistent user experience.
+%     \item \textbf{Software capabilities:} Client business owners may use
+%     different software applications (CRM, ERP, Office Suite) alongside our
+%     system. We should consider integration options and data exchange formats
+%     (APIs, CSV, etc.) to facilitate smooth workflows.
+%     \item \textbf{Network capabilities:} Client business owners will rely on
+%     internet connectivity to access our system. We must ensure that our system
+%     performs well under different network conditions (Wi-Fi, mobile data).
+% \end{itemize}
 
-\subsubsection{Employees PACT analysis}
+% \subsubsection{Employees PACT analysis}
 
-Lets start with analyzing the \textbf{people} aspect of PACT. 
+% Lets start with analyzing the \textbf{people} aspect of PACT. 
 
-Now lets analyze the \textbf{activities} aspect of PACT.
+% Now lets analyze the \textbf{activities} aspect of PACT.
 
-Now lets analyze the \textbf{context} aspect of PACT.
+% Now lets analyze the \textbf{context} aspect of PACT.
 
-Now lets analyze the \textbf{technologies} aspect of PACT.
+% Now lets analyze the \textbf{technologies} aspect of PACT.
 
 
 
-\subsection{Secondary Stakeholders PACT analysis}
+% \subsection{Secondary Stakeholders PACT analysis}
 
-\subsubsection{Customers PACT analysis}
+% \subsubsection{Customers PACT analysis}
 
-Lets start with analyzing the \textbf{people} aspect of PACT. 
+% Lets start with analyzing the \textbf{people} aspect of PACT. 
 
-Now lets analyze the \textbf{activities} aspect of PACT.
+% Now lets analyze the \textbf{activities} aspect of PACT.
 
-Now lets analyze the \textbf{context} aspect of PACT.
+% Now lets analyze the \textbf{context} aspect of PACT.
 
-Now lets analyze the \textbf{technologies} aspect of PACT.
+% Now lets analyze the \textbf{technologies} aspect of PACT.
+
+
+
+
+% \subsection{Primary Stakeholders Needs}
+
+
+% Now that we know what are our primary and secondary stakeholders expectations,
+% we can take a look into what are their needs in more detail. Specifically into
+% how their needs will influence the design of our system.
+
+
+% \subsubsection{Client Business Owners Needs}
+
+% The main needs of the client business owners are to have a system where they 
+% can manage their business operations daily, track sales, manage inventory,
+% generate reports (taxes, profits, losses, etc.), and hire or fire employees.
+% This need is driven by the fact that business owners need to have a clear overview of their
+% business operations to make informed decisions and ensure the success of their
+% business.
+
+
+
+% The main needs of the client business owners are to have a system that is
+% \textbf{error-free}, \textbf{reliable} and \textbf{efficient}. Business owners will need to use the system daily to manage their employees,
+% track sales, manage inventory, and generate reports (taxes, profits, losses,
+% etc.). Therefore the system must be error-free to ensure that critical data like
+% report generation is not compromised. The system must also be reliable to ensure
+% that business operations are not disrupted and that business owners can trust
+% the system to perform as expected. Finally, the system must be efficient to
+% ensure that business owners can quickly and easily perform their tasks without
+% wasting time or effort for looking for features or navigating through complex
+% menus.
+
+% \subsubsection{Employees Needs}
+
+% The main need of the employees is to have a system that helps them process orders,
+% book appointments, and manage customer interactions. This need is driven by the
+% fact that employees need to be able to perform their tasks quickly and accurately
+% to ensure customer satisfaction and the smooth operation of the business.
+
+% The main needs of the employees are to have a system that is \textbf{easy to
+% learn}, \textbf{efficient} and \textbf{error-free}. Employees will need to use
+% the system daily to process orders, book appointments, and manage customer
+% interactions. Therefore the system must be easy to learn to ensure that
+% employees can quickly adapt to the system and become proficient in its use. The
+% system must also be efficient to ensure that employees can complete their tasks
+% in a timely manner without unnecessary delays. Finally, the system must be
+% error-free to ensure that employees can perform their tasks without costly mistakes
+% or disruptions.
+
+% \subsection{Secondary Stakeholders Needs}
+
+% \subsubsection{Customers Needs}
+
+% The main needs of the customers are to have a system that allows them to
+% easily place orders or book appointments, view menus or services, and receive
+% accurate information about the business. Moreover customers need easy to pay options. This need is driven by the fact that 
+% customers expect a seamless and convenient experience when interacting with
+% businesses, and a well-designed system can help meet these expectations.
+
+
+% The main needs of the customers are to have a system that is \textbf{effective}, \textbf{efficient},
+% \textbf{reliable} and \textbf{satisfying}. Customers will need to use the system
+% occasionally to place orders or book appointments. Therefore the system must be
+% effective to ensure that customers can easily find and use the features they
+% need. The system must also be efficient to ensure that customers can complete
+% their tasks quickly and without unnecessary delays. The system must be
+% reliable to ensure that customers can trust the system to perform as expected
+% and that their interactions with the business are not disrupted. Finally, the
+% system must be satisfying to ensure that customers have a positive experience
+% and are more likely to return to the business in the future.
+
+
+
+
+
 
 \printbibliography[title = {References and sources}]
 
-% \appendix
-% \renewcommand{\thesection}{Appendix \arabic{section}. }
-
-% \section{\phantom{Appendix} Examples of citations}
-% In the document \textit{bibliography.bib}, you need to add all the cited sources and after using the function \textit{\{\textbackslash cite\{name of the cited object\}\}} the corresponding source will be added to the list of literature sources.
-
-
-% \textit{bibliography.bib} provides examples of some of the most commonly cited types of sources:
-% \begin{itemize}
-%     \item web pages (\textit{@online}) \cite{PvzInternetinisPuslapis},
-%     \item datasets (\textit{@dataset}) \cite{dataset}
-%     \item articles (\textit{@article}) \cite{PvzStraipsnLt, PvzStraipsnEn}, 
-%     \item articles from conferences (\textit{@inproceedings}) \cite{PvzKonfLt, PvzKonfEn}, 
-%     \item books (\textit{@book}) \cite{PvzKnygLt, PvzKnygEn}, 
-%     \item theses (\textit{@thesis or mastersthesis/phdthesis} \cite{PvzMagistrLt, PvzPhdEn})
-%     \item electronic publications (\textit{@misc}) \cite{PvzElPubLt, PvzElPubEn}
-% \end{itemize}
-
-% Examples are also provided for ChatGPT citation, both in general \cite{chatgpt_bendrai} and for a specific conversation \cite{chatgpt_pokalbis}.
-
 \end{document}
+
