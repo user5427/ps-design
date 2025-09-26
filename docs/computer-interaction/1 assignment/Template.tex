@@ -342,6 +342,7 @@ create several critical problems:
     modify orders easily, or receive confirmation notifications leads to
     customer \textbf{dissatisfaction} and \textbf{frustration} as customers
     cannot make informed decisions or plan their time effectively.
+    \todocomment{ask PS design lecturer if users should be able to view that information or if the interface remains the same and simply the employees have access to that information}
 
     \item \textbf{For business owners:} Manual systems prevent access to crucial
     business data—owners \textbf{cannot easily} track popular items, peak hours, or
@@ -475,6 +476,7 @@ competitors).
 
 \subsection{Employee research}
 % some teams have 5 stories, maybe we need more?
+\noticecomment{Mention current competitors in the stories (not all stories, just some)}
 
 \subsubsection{Current users' activities}
 
@@ -494,6 +496,10 @@ mistakes inevitable and thus Marius spends extra time apologizing and remaking
 orders, which slows down the queue.
 
 \yellowcomment{identify problems and opportunities, identify the problem in the story, go immediately to the essence of the problem}
+
+\todocomment{problem: lost orders}
+
+
 % add "Description of current activity: " to the story
 % seperate problems and opportunities in seperate lines.
 % problems and opportunities have to be closelly related to the story.
@@ -514,6 +520,9 @@ locate the original booking. This takes time, breaks her concentration, and can
 leave callers waiting on the line. The salon offers no online booking facility,
 so all scheduling relies entirely on Lucille being available to answer the
 phone.
+
+\todocomment{if we say that ppl write in excel we need to specify that as a competitor}
+
 
 \subsubsubsection{Restaurant Manager Handling Discounts}
 
@@ -537,33 +546,40 @@ for future campaigns.
     pressure. Employees have varying technical familiarity - some may be
     comfortable with smartphones/PCs, others still rely on paper systems.
     Motivated by efficiency and error avoidance, however, they have to endure a
-    high cognitive load due to memorizing availability, prices, promotions.
+    high cognitive load due to memorizing availability, prices.
     \noticecomment{high cognitive load and memorization are activities characteristics}
+    \noticecomment{Perhaps add people of different ages. At the moment all of the employees are in their twenties}
     
+    \todocomment{apima tris tipus vartotoju, parasyti apie situos tipus}
+
     \textbf{Activities:} Key activities are taking and managing orders or
     booking and rescheduling appointments. It is necessary to communicate
     information to customers quickly and accurately, otherwise, employees have
     to resolve problems due to inadvertence.
 
     \yellowcomment{make sure that activities include characteristics}
+    \todocomment{nera tokiu veiklu kurios turi buti netiksliai padaramos}
     
     \textbf{Context:} Employees live in a fast-paced, noisy and time-sensitive
     environments, where they have constant interactions with both in-person and
     remote customers. Delays during rush hours cascade into customer
     dissatisfaction and therefore, there can be high-stress situations when
     errors occur or queues form.
+
+    \todocomment{employees work in different environments, not live in them}
+    \todocomment{rush hours are activity characteristics, not context}
     
     \textbf{Technologies:} Currently employees rely mostly on paper (sticky
     notes, diaries, printed lists). Point of Sale systems may exist, but are
     underutilized or lack integration of bookings/promotions.  
     \yellowcomment{POS systems do exist, make sure to include our competitors in some stories.}
+    \todocomment{write scenarios of these POS systems}
 \subsubsection{Needs of employees}
 
 \subsubsection{Usability objectives for employees}
 
 
 \subsection{Customer research}
-\noticecomment{Mention current competitors in the stories (not all stories, just some)}
 \subsubsection{Current users' activities}
 
 \subsubsubsection{Looking for a quick lunch}
@@ -587,6 +603,7 @@ gets through, only to learn that his preferred time slot has already been taken.
 The receptionist offers alternative appointments, but Felix is at work and
 cannot check his calendar straight away. Frustrated, he decides to book with
 another salon that can fit him in immediately.
+\todocomment{the employees UI should somehow influence the customers experience}
 
 \subsubsubsection{Redeeming a coffee promotion}
 
@@ -600,6 +617,7 @@ poorly organised.
 \noticecomment{the environment is not very clearly described}
 
 \subsubsection{PACT analysis of customers}
+\todocomment{PACT is not very important for customers, they are not using the system as much as employees, so we can be more general here}
 \textbf{People:} There is a variety of different-aged customers with diverse
 digital literacy: younger users expect seamless mobile-first interactions, while
 older customers prefer phone bookings or real-life interactions. 
@@ -649,6 +667,8 @@ the service. Without structured data, it is difficult for her to identify
 recurring issues (for example, slow service during specific time frames) and to
 train staff appropriately.
 
+\todocomment{specify that the owner is looking at the reviews after the first sentence}
+
 \subsubsubsection{Salon Owner Tracking Staff Performance}
 
 Nils, in his forties, runs a busy salon with six stylists. He tries to track
@@ -657,6 +677,7 @@ feedback. Calculating wages and commissions means hours spent combing through
 notes and receipts. When figures are challenged, he has no firm record to refer
 to, which not only heightens administrative burden but also sows discontent
 amongst the team.
+\todocomment{specify how he inputs the data}
 
 \subsubsection{PACT analysis of Client Business Owners}
     \textbf{People:} These are small to medium business owners, typically 30-50
@@ -665,12 +686,15 @@ amongst the team.
     owners are motivated by improving service quality, staying competitive, and
     reducing costs.
 
+    \todocomment{as an owner he can be more older}
+
     \textbf{Activities:} Main activities consist of tracking staff performance
     and calculating wages/commissions. Business owners also have to monitor and
     respond to customer feedback, and manage business performance indicators
     (sales, promotions, peak periods). The biggest hardships are making
     strategic decisions based on incomplete/fragmented information and handling
     administrative tasks manually without advanced technology.
+    \todocomment{which ones are common, which ones are rare, atomic, seperated into steps, etc.}
     \noticecomment{Examples of characteristics of activities: repetitive, concentration required, error-prone, separated into steps, etc.????}
 
     \textbf{Context:} Business owners work in competitive environments, where
@@ -679,7 +703,10 @@ amongst the team.
     structured data makes it difficult to spot trends or train staff
     effectively. This work also comes with social pressure from customers'
     expectations of professionalism and constant improvement.
-    \noticecomment{organizational context - different permissions or same?}
+    \todocomment{physical environment, sitting near PC, where does he work, he uses in the technologies spreadsheets, so he must be sitting somewhere.}
+    \todocomment{social context - does he work alone, with employees, with customers?}
+    \todocomment{organizational context - is he the only owner, does he have partners, does he have employees?}
+    \noticecomment{organizational context - different permissions or same? Doesnt apply here, i think.}
 
     \textbf{Technologies:} Currently business owners rely on paper diaries,
     manual notes and spreadsheets. They are using external platforms such as
@@ -687,6 +714,10 @@ amongst the team.
     or complexity barriers, there is a limited exposure to advanced digital
     solutions therefore, there are no dedicated analytics dashboards or
     automated tracking systems.
+
+    \todocomment{connectivity of internet not very important}
+    \todocomment{POS concurents could be mentioned here, what is he using currently now?}
+
 \subsubsection{Needs of Client Business Owners}
 
 \subsubsection{Usability objectives for Client Business Owners}
