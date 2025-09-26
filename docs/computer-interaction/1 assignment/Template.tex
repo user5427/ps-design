@@ -59,6 +59,13 @@
     \end{tcolorbox}
 }
 
+\newcommand{\suggestioncomment}[1]{%
+    \definecolor{lime}{RGB}{50,205,50}%
+    \begin{tcolorbox}[colback=lime!15, colframe=lime!60, arc=0pt, outer arc=0pt, boxrule=1pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
+        \textbf{\textcolor{lime!70!black}{SUGGESTION:}} #1
+    \end{tcolorbox}%
+}
+
 \usepackage[nottoc]{tocbibind}
 \usepackage{tocloft}
 
@@ -287,11 +294,12 @@ look into slides also and try to apply lecture material.
 
 \subsubsection*{Comments}
 
-\warningcomment{Test warning comment}
-\yellowcomment{Test comment}
-\todocomment{Test todo comment}
-\noticecomment{Test notice comment}
-\goodcomment{Test good comment}
+\warningcomment{This is a very important comment}
+\yellowcomment{This is a comment}
+\todocomment{This is a todo comment}
+\noticecomment{This is a notice comment}
+\goodcomment{This is a good comment}
+\suggestioncomment{This is a suggestion comment}
 
 Usage of comments in text is recommended as it helps to highlight problems and
 solutions. The Overleaf comments are often ignored, therefore, it is recommended
@@ -399,6 +407,10 @@ competitors).
     memorize constantly changing information (availability, pricing, specials),
     reduces the risk of errors in bookings and order processing, and allows for
     a more satisfying and efficient customer serving experience.
+    \warningcomment{from lecture: "So, you don't need to think of self-service,
+    maybe like Burger King or McDonald's", "...you can assume that all business
+    operations are performed by business employees. So, you don't need to worry
+    that much about customer accounts..."}
     \item \textbf{Customers} expect 24/7 convenience for booking and ordering,
     real-time availability information, effective order modifications, and
     reliable confirmation notifications that enable informed and satisfying
@@ -425,6 +437,8 @@ competitors).
 
 \textbf{Competitors:}
 \begin{itemize}
+    \yellowcomment{write more about competitors, what they offer, why they are not good enough in seperate sentences, specify more how our advantages are better than competitors} 
+    %  seperate each competitor into a bullet point
     \item \textbf{Square, Toast POS, Restaurant365} serve similar markets but
     often with complex, expensive solutions targeted at larger businesses. Small
     business owners currently using these platforms (or those considering them)
@@ -457,7 +471,10 @@ competitors).
 % Activities - what tasks do they perform, what are their goals, describe the characteristics of tasks
 % Context - where and when do they perform these tasks, what are the physical, social, cultural, organizational aspects of the environment
 % Technologies - what tools, devices, software do they use to perform their tasks.
+
+
 \subsection{Employee research}
+% some teams have 5 stories, maybe we need more?
 
 \subsubsection{Current users' activities}
 
@@ -475,6 +492,15 @@ wrong orders being prepared, which frustrates customers and wastes ingredients.
 Marius tries to keep the counter tidy, but the lack of a structured system makes
 mistakes inevitable and thus Marius spends extra time apologizing and remaking
 orders, which slows down the queue.
+
+\yellowcomment{identify problems and opportunities, identify the problem in the story, go immediately to the essence of the problem}
+% add "Description of current activity: " to the story
+% seperate problems and opportunities in seperate lines.
+% problems and opportunities have to be closelly related to the story.
+% problems and oppurtunities can be seperated in bullet points.
+
+% if you write oppurtunities make sure to highlight what that oppurtunity gives
+% to the user, what problem it solves.
 
 \subsubsubsection{Salon Receptionist Controlling Bookings}
 
@@ -512,11 +538,14 @@ for future campaigns.
     comfortable with smartphones/PCs, others still rely on paper systems.
     Motivated by efficiency and error avoidance, however, they have to endure a
     high cognitive load due to memorizing availability, prices, promotions.
+    \noticecomment{high cognitive load and memorization are activities characteristics}
     
     \textbf{Activities:} Key activities are taking and managing orders or
     booking and rescheduling appointments. It is necessary to communicate
     information to customers quickly and accurately, otherwise, employees have
     to resolve problems due to inadvertence.
+
+    \yellowcomment{make sure that activities include characteristics}
     
     \textbf{Context:} Employees live in a fast-paced, noisy and time-sensitive
     environments, where they have constant interactions with both in-person and
@@ -527,12 +556,14 @@ for future campaigns.
     \textbf{Technologies:} Currently employees rely mostly on paper (sticky
     notes, diaries, printed lists). Point of Sale systems may exist, but are
     underutilized or lack integration of bookings/promotions.  
+    \yellowcomment{POS systems do exist, make sure to include our competitors in some stories.}
 \subsubsection{Needs of employees}
 
 \subsubsection{Usability objectives for employees}
 
-\subsection{Customer research}
 
+\subsection{Customer research}
+\noticecomment{Mention current competitors in the stories (not all stories, just some)}
 \subsubsection{Current users' activities}
 
 \subsubsubsection{Looking for a quick lunch}
@@ -566,11 +597,13 @@ barista is unaware of the promotion and has to confirm it with the manager. This
 causes a delay at the counter and creates an awkward queue behind  her. The
 discount is eventually applied, but Sarah‑Louise leaves feeling the process was
 poorly organised.
+\noticecomment{the environment is not very clearly described}
 
 \subsubsection{PACT analysis of customers}
 \textbf{People:} There is a variety of different-aged customers with diverse
 digital literacy: younger users expect seamless mobile-first interactions, while
 older customers prefer phone bookings or real-life interactions. 
+\yellowcomment{not enough characteristics of people described here, specify how fast they make decisions, do they have any disabilities, etc. }
 
 \textbf{Activities:} Customers order food and drinks or book appointments, often
 trying to fit them to their daily schedule. Customers choose their options by
@@ -578,11 +611,15 @@ checking the promotions and offers, comparing availability, prices, and service
 quality. They are the ones interacting with the staff when digital systems are
 unavailable or unclear.
 
+\yellowcomment{no characteristics of activities described here}
+
 \textbf{Context:} Customers are in on-the-go environments, frequently
 interacting with the service during lunch breaks or between classes. They often
 have to stand in queues, call during office hours and wait for their
 orders/services. Customers' expectations are shaped by competitors and broader
 digital experiences (food delivery apps, online booking platforms).
+
+\noticecomment{on-the-go environments - specify it bit more? office environment, is it noisy, bright?}
 
 \textbf{Technologies:} There is a heavy reliance on smartphones and internet
 access for convenience, though currently limited to phone calls, in-person
@@ -598,6 +635,7 @@ application and other features missing in manual systems.
 \subsection{Client Business Owners Research (Secondary User Group)}
 
 \subsubsection{Current users' activities}
+\suggestioncomment{add more stories? it feels like we cannot have a deep analysis with just a few ones}
 
 \subsubsubsection{Restaurant Owner Handling Customer Feedback}
 
@@ -632,14 +670,16 @@ amongst the team.
     respond to customer feedback, and manage business performance indicators
     (sales, promotions, peak periods). The biggest hardships are making
     strategic decisions based on incomplete/fragmented information and handling
-    administrative tasks manually without advanced technology. 
-    
+    administrative tasks manually without advanced technology.
+    \noticecomment{Examples of characteristics of activities: repetitive, concentration required, error-prone, separated into steps, etc.????}
+
     \textbf{Context:} Business owners work in competitive environments, where
     work often blends strategic planning with hands-on problem solving.
     Information is spread across different informal channels, and the lack of
     structured data makes it difficult to spot trends or train staff
     effectively. This work also comes with social pressure from customers'
     expectations of professionalism and constant improvement.
+    \noticecomment{organizational context - different permissions or same?}
 
     \textbf{Technologies:} Currently business owners rely on paper diaries,
     manual notes and spreadsheets. They are using external platforms such as
@@ -697,15 +737,32 @@ amongst the team.
 
 % ____________________________
 
-% People - kokiomis salygomis veikia, ju fizines galimybes, darbo vieta, veikimo aplinka kur bus naudojama technologija, zmoniu ugis, aukstis, antropronetiniai dalykai? ivestis isvestis, klaviaturos ir t.t. Nera vidutinio vartotojo, universali technologija reiskia kad visiem patogu naudotis, zinoma yra tam tikri kompromisai, reikalavimai turi tilpti i budget. Pvz.: ekrano padetis, ryskumas, kontrastas, color blindness, motion sensitivity, hearing etc. etc. Musu varottoju tarpe jeigu yra vyresni zmones tai turime i tai atsizvelgti, mygtukai didesni ir t.t. Kokia turi buti darbo aplinka kad zmogus nepavargtu, nebutu broko, darbo vieta turi buti tokia kuri leistu islaikyti darbinguma.
+% People - kokiomis salygomis veikia, ju fizines galimybes, darbo vieta, veikimo
+% aplinka kur bus naudojama technologija, zmoniu ugis, aukstis, antropronetiniai
+% dalykai? ivestis isvestis, klaviaturos ir t.t. Nera vidutinio vartotojo,
+% universali technologija reiskia kad visiem patogu naudotis, zinoma yra tam
+% tikri kompromisai, reikalavimai turi tilpti i budget. Pvz.: ekrano padetis,
+% ryskumas, kontrastas, color blindness, motion sensitivity, hearing etc. etc.
+% Musu varottoju tarpe jeigu yra vyresni zmones tai turime i tai atsizvelgti,
+% mygtukai didesni ir t.t. Kokia turi buti darbo aplinka kad zmogus nepavargtu,
+% nebutu broko, darbo vieta turi buti tokia kuri leistu islaikyti darbinguma.
 
-% psihologinis erdviu suvokimas, kai kurie pasiklysta, kai kurie gerai orientuojasi erdvese. kalbos skirtumai, kai kam gali buti izeidzianti kalba, kai kam ne...
+% psihologinis erdviu suvokimas, kai kurie pasiklysta, kai kurie gerai
+% orientuojasi erdvese. kalbos skirtumai, kai kam gali buti izeidzianti kalba,
+% kai kam ne...
 
-% isiminimas, trumpalaikis isiminimas, sprendimu priemimas, komunikacija, paieska - mes turime sias veiklas kurioms kuriame technologijas.
+% isiminimas, trumpalaikis isiminimas, sprendimu priemimas, komunikacija,
+% paieska - mes turime sias veiklas kurioms kuriame technologijas.
 
-% socialiniai skirtumai - itakoja motyva pirkti nauja technologija, gali atsirasti stiprus motyvas, pvz bendrauti nuotoliniu budu, todel zmones ismoks tai. skirstosi tipai, begginer, inermediate, expert zmoniu. pvz bileteliu popieriniu nenupirksi, tai beggineriai turi tai naudoti... vidutiniskai patyre kai reikia tia naudoja o taip tai nenaudoja. profesionalai - kiekviena diena naudoja. beggineriu ir expertu poreikia yra labai skirtingi.
+% socialiniai skirtumai - itakoja motyva pirkti nauja technologija, gali
+% atsirasti stiprus motyvas, pvz bendrauti nuotoliniu budu, todel zmones ismoks
+% tai. skirstosi tipai, begginer, inermediate, expert zmoniu. pvz bileteliu
+% popieriniu nenupirksi, tai beggineriai turi tai naudoti... vidutiniskai patyre
+% kai reikia tia naudoja o taip tai nenaudoja. profesionalai - kiekviena diena
+% naudoja. beggineriu ir expertu poreikia yra labai skirtingi.
 
-% kad pradedantysis galetu naudotis technologija tai ji turi vesti uz rankos, pvz vedlys, jis vedamas uz rankos.
+% kad pradedantysis galetu naudotis technologija tai ji turi vesti uz rankos,
+% pvz vedlys, jis vedamas uz rankos.
 
 % ekspertai - jiem reikia greicio, juos vedlys erzins.
 
@@ -714,32 +771,54 @@ amongst the team.
 % jie visi turi skirtingus poreikius, reikia suprasti su kuo turime reikala.
 
 
-% Mental model - mintinis modelis, koki vaizda suformavo vartotojas savo galvoje, mes bandome tai sufprasti, tai suvokimas kas ir kaip gali naudoti technologijas. Mintinis modelis nepilnas, nestabilus, mes negalime visko prisiminti, kazkas isilaiko ilgalaikeje atmintyje, kazkas dingsta. Analizuojame o ka dabar naudoja vartotojai, analizuojame ju mintines zinias. Mintinis modelis kuriamas saveikaujant su sistemomis, su kokiomis sistemomis saveikauja toki ir turesime mintini modeli.
+% Mental model - mintinis modelis, koki vaizda suformavo vartotojas savo
+% galvoje, mes bandome tai sufprasti, tai suvokimas kas ir kaip gali naudoti
+% technologijas. Mintinis modelis nepilnas, nestabilus, mes negalime visko
+% prisiminti, kazkas isilaiko ilgalaikeje atmintyje, kazkas dingsta.
+% Analizuojame o ka dabar naudoja vartotojai, analizuojame ju mintines zinias.
+% Mintinis modelis kuriamas saveikaujant su sistemomis, su kokiomis sistemomis
+% saveikauja toki ir turesime mintini modeli.
 
-% Nustatymas vartotojo igudzius yra musu tikslas. kokio amziaus, lytis, fizines, issilavinimas, kulturinis, motivacines galimybes, tikslai, asmenybe.
-% Projektavimo tikslai turi susieti su tais skillais. musu tikslas kad vartotojai pilnai isnaudotu ka suprojektavome, norime kad is begginer greitai pereitu i intermediate.
+% Nustatymas vartotojo igudzius yra musu tikslas. kokio amziaus, lytis, fizines,
+% issilavinimas, kulturinis, motivacines galimybes, tikslai, asmenybe.
+% Projektavimo tikslai turi susieti su tais skillais. musu tikslas kad
+% vartotojai pilnai isnaudotu ka suprojektavome, norime kad is begginer greitai
+% pereitu i intermediate.
 
-% Pavyzdiziui kai pirma karta paleidziame programa, gali issokti gidas, padeti beginneriams, o kam nereikia tai gali uzdaryti, uzdaro vidutiniskai patyre. Ekspertam reikia kuo greiciau dirbti, kas stabdo (rankos kelimas nuo peles iki klaviaturos, galime sakyti kad viska darytu ant klaviaturos).
+% Pavyzdiziui kai pirma karta paleidziame programa, gali issokti gidas, padeti
+% beginneriams, o kam nereikia tai gali uzdaryti, uzdaro vidutiniskai patyre.
+% Ekspertam reikia kuo greiciau dirbti, kas stabdo (rankos kelimas nuo peles iki
+% klaviaturos, galime sakyti kad viska darytu ant klaviaturos).
 
 % kiek tu sluoksniu design reikia? tai papildomos islaidos ir t.t.
 
 
-% begineriam programa turi pasakyti ka ji gali daryti, pagrindiniai dalykai ka ji daro, begineriu nera daug bet jie yra ir pirmi naudotojai todel jiems reikia viska paaiskinti. po keliu kartu dauguma begineriu tampa intermediate.
-% intermediate svarbu matyti, isnaudoti visas funkcijas kurias jie zino kad yra, gebeti viska surasti, pazengusias funkcijas. GUI visas pagrindines ir pazengusias funkcijas rodo ir galima greitai surasti
-% Ekspertu nera daug, kazkam galbut greiciau reikia.
+% begineriam programa turi pasakyti ka ji gali daryti, pagrindiniai dalykai ka
+% ji daro, begineriu nera daug bet jie yra ir pirmi naudotojai todel jiems
+% reikia viska paaiskinti. po keliu kartu dauguma begineriu tampa intermediate.
+% intermediate svarbu matyti, isnaudoti visas funkcijas kurias jie zino kad yra,
+% gebeti viska surasti, pazengusias funkcijas. GUI visas pagrindines ir
+% pazengusias funkcijas rodo ir galima greitai surasti Ekspertu nera daug,
+% kazkam galbut greiciau reikia.
 
 % kuri viekla daznesne, ta turi buti arciau ekrano.
 
 
-% Universal usability - prieinamas visiems, ir neigaliems. Panaudojamumas + prieinamumas = universalumas. kas aktualu, kam kuriame sistema, i sita turime atsakyti.
+% Universal usability - prieinamas visiems, ir neigaliems. Panaudojamumas +
+% prieinamumas = universalumas. kas aktualu, kam kuriame sistema, i sita turime
+% atsakyti.
 
 
 
-% Reikia pamineti demographics, age, occupation, gender (jei reikia), disabilities. Motyvacija ismokti technologijas, jomis naudotis. Naudojamos technologijos ir prietaisai, IT lygmuo, skillai.
+% Reikia pamineti demographics, age, occupation, gender (jei reikia),
+% disabilities. Motyvacija ismokti technologijas, jomis naudotis. Naudojamos
+% technologijos ir prietaisai, IT lygmuo, skillai.
 
 % ____________________________
 
-% Veiklos - reikia ne specifines mineti, o laiko aspektu daznas ar retas, bendradariavimo aspektus, individualus ar organizaciniai, tos veiklos sudetingumas, pasekmes, ar kritines, kokio tipo turinys toje veikloje.
+% Veiklos - reikia ne specifines mineti, o laiko aspektu daznas ar retas,
+% bendradariavimo aspektus, individualus ar organizaciniai, tos veiklos
+% sudetingumas, pasekmes, ar kritines, kokio tipo turinys toje veikloje.
 
 % Daznis jos pirma charakteristika, jos trukme antra, laiko spaudimas, ar veikia
 % ramybes busenoje ar skubos. Ar tai viena atomine veikla ar zingsniai yra, ar
@@ -757,9 +836,12 @@ amongst the team.
 
 % ____________________________
 
-% Aplinka - fizine, kur vyksta ta veikla, patalpoje, uz patalpos, jeigu fizine aplinka lauke, tai skirtinga temperatura, kaip vartotojas su pirstinemis ar per lietu gali naudotis, apsvietimas, triuksmas ir t.t.
+% Aplinka - fizine, kur vyksta ta veikla, patalpoje, uz patalpos, jeigu fizine
+% aplinka lauke, tai skirtinga temperatura, kaip vartotojas su pirstinemis ar
+% per lietu gali naudotis, apsvietimas, triuksmas ir t.t.
 
-% Socialine aplinka - individuali, o gal grupine, ar privatumas aktualus, ar visi vienodu teisiu, ar yra super adminas.
+% Socialine aplinka - individuali, o gal grupine, ar privatumas aktualus, ar
+% visi vienodu teisiu, ar yra super adminas.
 
 %  Organizacinis kontekstas - teises ir t.t.
 
