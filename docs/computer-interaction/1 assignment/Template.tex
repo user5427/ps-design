@@ -12,6 +12,53 @@
 \usepackage{verbatim}
 \usepackage[hidelinks]{hyperref}
 \usepackage{color,algorithm,algorithmic}
+
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+
+\newcommand{\yellowcomment}[1]{%
+    \begin{tcolorbox}[colback=yellow!80, colframe=yellow!80, arc=0pt, outer arc=0pt, boxrule=0pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
+        \textbf{\textcolor{red}{COMMENT:}} #1
+    \end{tcolorbox}
+}
+
+% Alternative using colorbox with parbox for inline comments
+\newcommand{\inlineyellow}[1]{%
+    \colorbox{yellow!80}{\parbox{\dimexpr\textwidth-2\fboxsep}{%
+        \textbf{\textcolor{red}{COMMENT:}} #1%
+    }}%
+}
+
+% Even more obnoxious version with red border
+\newcommand{\warningcomment}[1]{%
+    \begin{tcolorbox}[colback=yellow!90, colframe=red, arc=0pt, outer arc=0pt, boxrule=2pt, left=5pt, right=5pt, top=5pt, bottom=5pt]
+        \Large\textbf{\textcolor{red}{FIX THIS: }} \normalsize #1
+    \end{tcolorbox}
+}
+
+\newcommand{\goodcomment}[1]{%
+    \begin{tcolorbox}[colback=green!20, colframe=green!60, arc=0pt, outer arc=0pt, boxrule=1pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
+        \textbf{\textcolor{green!70!black}{GOOD:}} #1
+    \end{tcolorbox}
+}
+
+\newcommand{\noticecomment}[1]{%
+    \begin{tcolorbox}[colback=blue!20, colframe=blue!60, arc=0pt, outer arc=0pt, boxrule=1pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
+        \textbf{\textcolor{blue!70!black}{NOTE:}} #1
+    \end{tcolorbox}
+}
+
+% Inline version for positive comments
+\newcommand{\inlinegreen}[1]{%
+    \colorbox{green!20}{\textbf{\textcolor{green!70!black}{✓ GOOD:}} #1}%
+}
+
+\newcommand{\todocomment}[1]{%
+    \begin{tcolorbox}[colback=red!20, colframe=red!60, arc=0pt, outer arc=0pt, boxrule=1pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
+        \textbf{\textcolor{orange!70!black}{TODO:}} #1
+    \end{tcolorbox}
+}
+
 \usepackage[nottoc]{tocbibind}
 \usepackage{tocloft}
 
@@ -178,20 +225,45 @@ should list your main competitive advantages over them. \checkmark
 
 \textbf{Current user activities}
 
-Watching how people do things is a great way to learn their goals and values, and come up with design insight. This is called user research. This assignment helps you train your eyes and ears to develop design ideas. Your goal is to uncover user needs, breakdowns, clever hacks, and opportunities for improvement. Begin by selecting a specific activity to observe.
+Watching how people do things is a great way to learn their goals and values,
+and come up with design insight. This is called user research. This assignment
+helps you train your eyes and ears to develop design ideas. Your goal is to
+uncover user needs, breakdowns, clever hacks, and opportunities for improvement.
+Begin by selecting a specific activity to observe.
 
-The description contains the user story that tells about the current user activities. Note that your service or product does not exist yet. Therefore, you must describe the existing activities, such as how your users achieve their goals with existing competitive products, and highlight the pain points and troubles. Then, indicate the problems and improvement opportunities (see the assignment outline).
+The description contains the user story that tells about the current user
+activities. Note that your service or product does not exist yet. Therefore, you
+must describe the existing activities, such as how your users achieve their
+goals with existing competitive products, and highlight the pain points and
+troubles. Then, indicate the problems and improvement opportunities (see the
+assignment outline).
 
-Describe at least 3 observations of current user activities for primary users, for the secondary – there can be fewer. Examples of activity descriptions:
+Describe at least 3 observations of current user activities for primary users,
+for the secondary – there can be fewer. Examples of activity descriptions:
 
 \begin{itemize}
-    \item \textbf{Story 1:} Ann is a clerk in her twenties, comes for a quick lunch. She wants to see dishes that are served within 15 min. She waits 10 min. for a waiter. The waiter says that only soup can be served in 15 min. Therefore Ann leaves the restaurant and goes for a fast food nearby.
+    \item \textbf{Story 1:} Ann is a clerk in her twenties, comes for a quick
+    lunch. She wants to see dishes that are served within 15 min. She waits 10
+    min. for a waiter. The waiter says that only soup can be served in 15 min.
+    Therefore Ann leaves the restaurant and goes for a fast food nearby.
     
-    \item \textbf{Story 2:} Andrew, a thirty-two-year-old restaurant client, who suffers from allergies, comes to a restaurant. He examines the menu. The menu is long, ingredients are mentioned in every dish. So, it takes about 5 minutes to choose a dish. Waiting for the dish takes 20 min. Andrew must hurry and eats quickly because he has to return to work on time.
+    \item \textbf{Story 2:} Andrew, a thirty-two-year-old restaurant client, who
+    suffers from allergies, comes to a restaurant. He examines the menu. The
+    menu is long, ingredients are mentioned in every dish. So, it takes about 5
+    minutes to choose a dish. Waiting for the dish takes 20 min. Andrew must
+    hurry and eats quickly because he has to return to work on time.
     
-    \item \textbf{Story 3:} Thirty-five-years-old Peter goes to a restaurant with his family. He noticed on Google Maps that a new restaurant was opening not far away. They spend time reading the menu. The café has a children's menu, but children's favorite dishes are missing. Children are bored because of missing the game area. The family chooses quick dishes from the menu.
+    \item \textbf{Story 3:} Thirty-five-years-old Peter goes to a restaurant
+    with his family. He noticed on Google Maps that a new restaurant was opening
+    not far away. They spend time reading the menu. The café has a children's
+    menu, but children's favorite dishes are missing. Children are bored because
+    of missing the game area. The family chooses quick dishes from the menu.
     
-    \item \textbf{Story 4:} Fourty-year-old Sara comes with her friends to a restaurant on Sunday. They are looking for a big table but see that the restaurant is almost full. They started to explore the TripAdvisor app on their phone for other restaurants phone numbers to ask whether they have a free big table for a group. \ldots
+    \item \textbf{Story 4:} Fourty-year-old Sara comes with her friends to a
+    restaurant on Sunday. They are looking for a big table but see that the
+    restaurant is almost full. They started to explore the TripAdvisor app on
+    their phone for other restaurants phone numbers to ask whether they have a
+    free big table for a group. \ldots
 \end{itemize}
 
 \textbf{How to check whether a story is correct?} A story should cover characteristics of peoples, activities, environment and technologies that are related to computerized activities. If any characteristic is missing, you should augment the story.
@@ -206,11 +278,24 @@ The project must contain at least 15 user needs. 3–5 usability objectives are 
 
 Provide here examples of successful user interface solutions of existing software that can be useful for specified user needs and usability objectives. Provide a screenshot of the design, the number of user needs, or the usability objective for which this solution would be beneficial. Images should have captions with concise explanations and references to the source, from which this image is taken. The text related to the image should contain cross-reference to the image. Provide at least 5 examples.
 
-\section*{Use of AI}
+\section*{Other}
+
+\subsubsection*{Use of AI}
 
 Just a little note: dont just copy the assignment text and expect good output,
 look into slides also and try to apply lecture material. 
 
+\subsubsection*{Comments}
+
+\warningcomment{Test warning comment}
+\yellowcomment{Test comment}
+\todocomment{Test todo comment}
+\noticecomment{Test notice comment}
+\goodcomment{Test good comment}
+
+Usage of comments in text is recommended as it helps to highlight problems and
+solutions. The Overleaf comments are often ignored, therefore, it is recommended
+to use the comments defined in this template.
 
 \section{Introduction}
 \subsection{Project title}
@@ -299,28 +384,6 @@ competitors).
   \end{tabular}
   \label{tab:stakeholders}
 \end{table}
-
-% \textbf{Primary Stakeholders} directly and frequently use the system. Client
-% business owners (restaurant/salon owners) operate the system daily. Employees
-% process orders and manage appointments through the application. Customers use
-% the system when placing orders or booking appointments.
-
-% \textbf{Secondary Stakeholders} are occasionally involved or interact via
-% others. 
-% Managers oversee operations and may need access to system statistics.
-
-% \textbf{Indirect (Tertiary) Stakeholders} influence purchase decisions and
-% benefit from the system. App business owners (our company's owners) profit from
-% the system's success. Business managers make decisions about adopting the
-% system.
-
-% \textbf{Competitors} represent existing market solutions. Users currently
-% employing Square, Toast POS, or similar platforms are potential adopters of our
-% system.
-
-% \textbf{Development and Maintenance Team} creates and maintains the system.
-% Sysadmins handle infrastructure and servers. Tech support staff resolve user
-% issues and provide assistance.
 
 % Nielsen‘s principles
 % 1. Learnability
@@ -443,7 +506,27 @@ This makes it difficult to assess the effectiveness of the offer or refine it
 for future campaigns.
 
 \subsubsection{PACT analysis of employees}
-
+    \textbf{People:} Mostly young to mid-career employees (baristas,
+    receptionists, restaurant managers), who often multitask under high
+    pressure. Employees have varying technical familiarity - some may be
+    comfortable with smartphones/PCs, others still rely on paper systems.
+    Motivated by efficiency and error avoidance, however, they have to endure a
+    high cognitive load due to memorizing availability, prices, promotions.
+    
+    \textbf{Activities:} Key activities are taking and managing orders or
+    booking and rescheduling appointments. It is necessary to communicate
+    information to customers quickly and accurately, otherwise, employees have
+    to resolve problems due to inadvertence.
+    
+    \textbf{Context:} Employees live in a fast-paced, noisy and time-sensitive
+    environments, where they have constant interactions with both in-person and
+    remote customers. Delays during rush hours cascade into customer
+    dissatisfaction and therefore, there can be high-stress situations when
+    errors occur or queues form.
+    
+    \textbf{Technologies:} Currently employees rely mostly on paper (sticky
+    notes, diaries, printed lists). Point of Sale systems may exist, but are
+    underutilized or lack integration of bookings/promotions.  
 \subsubsection{Needs of employees}
 
 \subsubsection{Usability objectives for employees}
@@ -485,6 +568,28 @@ discount is eventually applied, but Sarah‑Louise leaves feeling the process wa
 poorly organised.
 
 \subsubsection{PACT analysis of customers}
+\textbf{People:} There is a variety of different-aged customers with diverse
+digital literacy: younger users expect seamless mobile-first interactions, while
+older customers prefer phone bookings or real-life interactions. 
+
+\textbf{Activities:} Customers order food and drinks or book appointments, often
+trying to fit them to their daily schedule. Customers choose their options by
+checking the promotions and offers, comparing availability, prices, and service
+quality. They are the ones interacting with the staff when digital systems are
+unavailable or unclear.
+
+\textbf{Context:} Customers are in on-the-go environments, frequently
+interacting with the service during lunch breaks or between classes. They often
+have to stand in queues, call during office hours and wait for their
+orders/services. Customers' expectations are shaped by competitors and broader
+digital experiences (food delivery apps, online booking platforms).
+
+\textbf{Technologies:} There is a heavy reliance on smartphones and internet
+access for convenience, though currently limited to phone calls, in-person
+ordering, or static media posts. There are still no centralized, real-time
+booking/order management systems for many small businesses. Customers expect
+advanced digital systems with real-time availability updates, seamless discount
+application and other features missing in manual systems.
 
 \subsubsection{Needs of customers}
 
@@ -516,10 +621,62 @@ to, which not only heightens administrative burden but also sows discontent
 amongst the team.
 
 \subsubsection{PACT analysis of Client Business Owners}
+    \textbf{People:} These are small to medium business owners, typically 30-50
+    years old, balancing managerial, operational, and customer service roles.
+    Although they have limited time and often technical expertise, business
+    owners are motivated by improving service quality, staying competitive, and
+    reducing costs.
 
+    \textbf{Activities:} Main activities consist of tracking staff performance
+    and calculating wages/commissions. Business owners also have to monitor and
+    respond to customer feedback, and manage business performance indicators
+    (sales, promotions, peak periods). The biggest hardships are making
+    strategic decisions based on incomplete/fragmented information and handling
+    administrative tasks manually without advanced technology. 
+    
+    \textbf{Context:} Business owners work in competitive environments, where
+    work often blends strategic planning with hands-on problem solving.
+    Information is spread across different informal channels, and the lack of
+    structured data makes it difficult to spot trends or train staff
+    effectively. This work also comes with social pressure from customers'
+    expectations of professionalism and constant improvement.
+
+    \textbf{Technologies:} Currently business owners rely on paper diaries,
+    manual notes and spreadsheets. They are using external platforms such as
+    Google Maps, and TripAdvisor for customer feedback. However, due to budget
+    or complexity barriers, there is a limited exposure to advanced digital
+    solutions therefore, there are no dedicated analytics dashboards or
+    automated tracking systems.
 \subsubsection{Needs of Client Business Owners}
 
 \subsubsection{Usability objectives for Client Business Owners}
+
+
+% ------------------------ 09-25 pratybos
+
+% kai jau turesime poreikius, sekmes kriterijus, kiekvienam projektui pabandyti pazvalgyti esamus pavyzdzius, 
+% kazkuriam poreikiui ir sekmes kriterijui pasiulisime sita pavyzdi, UI negalioja vartotoju teises.
+
+% kita karta pristatysime visa poreikio specifikacija, dar vyks taip pat kaip
+% dabar, dar galesime aptarti, ir tik tada pries termina ikelsime i sistema
+
+% kiekvienas turi ikelti savo ta pati darba.
+
+% Needs ir usabilty objectives reikes kita karta, atsekamumo matricos reikes
+% atsekinesim kad kiekvienas poreikis is kazkur isvestas, nebus kazkokio scenarijo is kurio neisplauks nei poreikis, nei siekis,
+
+% sestadieni reikes ikelti.
+
+% ------------------------
+
+% primari ir secondary stakeholder kursime sasaja
+% poreikis - ka veiks vartotojas ir ka gaus ekrane
+
+
+
+
+% ------------------------
+
 
 
 % ------------------------
@@ -582,7 +739,7 @@ amongst the team.
 
 % ____________________________
 
-% Veiklos - reikia ne specifines mineti, o laiko apsketu daznas ar retas, bendradariavimo aspektus, individualus ar organizaciniai, tos veiklos sudetingumas, pasekmes, ar kritines, kokio tipo turinys toje veikloje.
+% Veiklos - reikia ne specifines mineti, o laiko aspektu daznas ar retas, bendradariavimo aspektus, individualus ar organizaciniai, tos veiklos sudetingumas, pasekmes, ar kritines, kokio tipo turinys toje veikloje.
 
 % Daznis jos pirma charakteristika, jos trukme antra, laiko spaudimas, ar veikia
 % ramybes busenoje ar skubos. Ar tai viena atomine veikla ar zingsniai yra, ar
@@ -625,190 +782,88 @@ amongst the team.
 % For details of what needs to be written in this section, please refer to the methodology requirements of the respective programme.
 
 
-% \section{PACT analysis}
+% ------------------------
+% User Studies
+% ------------------------
 
-% \begin{center}
-%     \textcolor{red}{\textbf{(rough draft, dont look too deep into it yet)}}
-% \end{center}
+% Suvokimo procesas - nelabai gali issivaizduoti, projekte vyksta kuryba.
+% Jeigu viskas patogu tai niekas nepastebi, jeigu kazkas nepatogu tai visi pastebi..
 
+% Yra PACT sistema kuri apibendrina viska. Patys bendriausi reikalavimai yra
+% vartotoju poreikiai, tai nevisai kaip reikalavimai. Poreikiai - ka vartotojas
+% nuveiks, ka matys sistemoje.
 
-% We will use the \textbf{PACT} framework to analyze the needs of our system
-% users. That means we will look into the people and their physical and mental
-% capabilities, the characteristics of the activities they perform with current
-% systems, context in which they perform these activities, and the technologies
-% they use and which can improve their experience.
-
-
-% \subsection{Primary Stakeholders PACT analysis}
-
-% \subsubsection{Client Business Owners PACT analysis}
-
-% Lets start with analyzing the \textbf{people} aspect of PACT. 
-
-% \begin{itemize}
-%     \item \textbf{Physical capabilities:} Client business owners can have
-%     different physical capabilities, some of them might have visual or hearing
-%     impairments. This means that our system must have different contrast modes,
-%     font sizes, and support for screen readers.
-%     \item \textbf{Mental capabilities:} Client business owners can have
-%     different levels of technical expertise, mostly ranging from intermediate to
-%     expert. We expect that they will be able to use sales tracking, inventory
-%     management, and report generation features without much difficulty.
-%     \item \textbf{Psychological capabilities:} Client business owners can be
-%     from various cultural backgrounds and have different language preferences.
-%     This means that our system must support multiple languages and be culturally
-%     neutral.
-% \end{itemize}
-
-% Now lets analyze the \textbf{activities} aspect of PACT.
-
-% \begin{itemize}
-%     \item \textbf{Temporal aspects:} Client business owners will use the system
-%     daily, this means that the tasks like generating reports, tracking sales
-%     will be easy to memorize. Furthermore these tasks should be efficient to
-%     perform to avoid wasting time. Tasks like inventory management must be
-%     error-free as they can place time pressure on the user during busy periods.
-%     Furthermore this activity must be seperated into clear steps to avoid
-%     confusion. It is also necessary to have real time update of inventory data
-%     to avoid mistakes.
-%     \item \textbf{Cooperation:} Client business owners will mostly use the
-%     system individually, but they might need to share information with employees.
-%     There should be a clear way to share information.
-    
-%     \item[] 
-%     \begin{center}
-%         \textcolor{red}{\textbf{(think deeper here, there is quite a lot of details to add)}}
-%     \end{center}
-
-
-% \end{itemize}
-
-% Now lets analyze the \textbf{context} aspect of PACT.
-
-% \begin{itemize}
-%     \item \textbf{Physical context:} Client business owners will use the system
-%     in a variety of physical contexts, including in their office, at home, or
-%     on the go. This means that our system should work well on different screen
-%     sizes and be responsive to different input methods (mouse, touch, keyboard).
-%     \item \textbf{Social context:} Client business owners will need to have administrative
-%     rights to manage employees and business operations. There should be a clear
-%     way to manage user roles and permissions.
-% \end{itemize}
-
-% Now lets analyze the \textbf{technologies} aspect of PACT.
-
-% \begin{itemize}
-%     \item \textbf{Technical capabilities:} Client business owners will have
-%     access to various devices (desktops, laptops, tablets, smartphones) and
-%     operating systems (Windows, macOS, iOS, Android). Our system must be
-%     compatible with these platforms and provide a consistent user experience.
-%     \item \textbf{Software capabilities:} Client business owners may use
-%     different software applications (CRM, ERP, Office Suite) alongside our
-%     system. We should consider integration options and data exchange formats
-%     (APIs, CSV, etc.) to facilitate smooth workflows.
-%     \item \textbf{Network capabilities:} Client business owners will rely on
-%     internet connectivity to access our system. We must ensure that our system
-%     performs well under different network conditions (Wi-Fi, mobile data).
-% \end{itemize}
-
-% \subsubsection{Employees PACT analysis}
-
-% Lets start with analyzing the \textbf{people} aspect of PACT. 
-
-% Now lets analyze the \textbf{activities} aspect of PACT.
-
-% Now lets analyze the \textbf{context} aspect of PACT.
-
-% Now lets analyze the \textbf{technologies} aspect of PACT.
+% Vartotojau nori kad processas butu sklandus, intuityvus <- negeras aprasymas,
+% ar cia bus mygtukas ar kazkas ekrane, cia yra labiau verslo lukesciai.
 
 
 
-% \subsection{Secondary Stakeholders PACT analysis}
+% Scenarijai turetu pateikti zingsnius kaip vartotojai dabar veikia, 
+% what
+% how
+% any problems /\<- visa sita jau padarem
 
-% \subsubsection{Customers PACT analysis}
-
-% Lets start with analyzing the \textbf{people} aspect of PACT. 
-
-% Now lets analyze the \textbf{activities} aspect of PACT.
-
-% Now lets analyze the \textbf{context} aspect of PACT.
-
-% Now lets analyze the \textbf{technologies} aspect of PACT.
-
+% ------------------------
+% Koki tyrima darom
+% yra kokybiniai ir kiekybiniai tyrimai
+% kiekybiniai - apklausos, anketos, statistika, daug zmoniu, galime apibendrinti visai populiacijai, bet gauname mazai izvalgu
+% kokybiniai - interviu, stebejimas, mazai zmoniu, gauname daug izvalgu, bet galime atsidurti klaidingoje situacijoje, negalime apibendrinti visai populiacijai
 
 
+% kiekybiniams reikia didelio biudzeto.
 
-% \subsection{Primary Stakeholders Needs}
-
-
-% Now that we know what are our primary and secondary stakeholders expectations,
-% we can take a look into what are their needs in more detail. Specifically into
-% how their needs will influence the design of our system.
+% kiekybiniame tyrime suzinome nuostatas, problemas su laiku pradeda kartotis info.
 
 
-% \subsubsection{Client Business Owners Needs}
-
-% The main needs of the client business owners are to have a system where they 
-% can manage their business operations daily, track sales, manage inventory,
-% generate reports (taxes, profits, losses, etc.), and hire or fire employees.
-% This need is driven by the fact that business owners need to have a clear overview of their
-% business operations to make informed decisions and ensure the success of their
-% business.
+% human centered design - suzinome prie ko zmones priprate ir atitinkamai
+% kuriame technologijas. kokios veiklos daznos, retos, danzesnes veiklos
+% pradiniame ekrane, retesnes kitame, etc.
 
 
-
-% The main needs of the client business owners are to have a system that is
-% \textbf{error-free}, \textbf{reliable} and \textbf{efficient}. Business owners will need to use the system daily to manage their employees,
-% track sales, manage inventory, and generate reports (taxes, profits, losses,
-% etc.). Therefore the system must be error-free to ensure that critical data like
-% report generation is not compromised. The system must also be reliable to ensure
-% that business operations are not disrupted and that business owners can trust
-% the system to perform as expected. Finally, the system must be efficient to
-% ensure that business owners can quickly and easily perform their tasks without
-% wasting time or effort for looking for features or navigating through complex
-% menus.
-
-% \subsubsection{Employees Needs}
-
-% The main need of the employees is to have a system that helps them process orders,
-% book appointments, and manage customer interactions. This need is driven by the
-% fact that employees need to be able to perform their tasks quickly and accurately
-% to ensure customer satisfaction and the smooth operation of the business.
-
-% The main needs of the employees are to have a system that is \textbf{easy to
-% learn}, \textbf{efficient} and \textbf{error-free}. Employees will need to use
-% the system daily to process orders, book appointments, and manage customer
-% interactions. Therefore the system must be easy to learn to ensure that
-% employees can quickly adapt to the system and become proficient in its use. The
-% system must also be efficient to ensure that employees can complete their tasks
-% in a timely manner without unnecessary delays. Finally, the system must be
-% error-free to ensure that employees can perform their tasks without costly mistakes
-% or disruptions.
-
-% \subsection{Secondary Stakeholders Needs}
-
-% \subsubsection{Customers Needs}
-
-% The main needs of the customers are to have a system that allows them to
-% easily place orders or book appointments, view menus or services, and receive
-% accurate information about the business. Moreover customers need easy to pay options. This need is driven by the fact that 
-% customers expect a seamless and convenient experience when interacting with
-% businesses, and a well-designed system can help meet these expectations.
+% PERSONAS - isgrynina visas iskalbas kalbant su tam tikra vartotoju grupe.
+% persona gaunama pakalbant bent su keliais atstovais is tos vartotoju grupes.
+% persona yra konkretus atstovas skirtingu vartotoju grupiu.
+% tikslai, prasmingos veiklos isskiriamos.
 
 
-% The main needs of the customers are to have a system that is \textbf{effective}, \textbf{efficient},
-% \textbf{reliable} and \textbf{satisfying}. Customers will need to use the system
-% occasionally to place orders or book appointments. Therefore the system must be
-% effective to ensure that customers can easily find and use the features they
-% need. The system must also be efficient to ensure that customers can complete
-% their tasks quickly and without unnecessary delays. The system must be
-% reliable to ensure that customers can trust the system to perform as expected
-% and that their interactions with the business are not disrupted. Finally, the
-% system must be satisfying to ensure that customers have a positive experience
-% and are more likely to return to the business in the future.
+% zmones kurie daug zino ir kurie nenaudoja mainstream technologijas yra geras
+% info saltinis. nereikia kalbeti su mainstream, uzkart galime suzinoti kas
+% blogai su tuo mainstream. Gausime gera izvalga, kokie trukumai su ta
+% mainstream technologija.
 
 
 
+% 1 setting goals - atlikti PACT analize 
+
+% 2 identifikuoti dalyvius, nuspresti is
+% ko rinkti info (suinteresuotu analize jau atlikome), probability sampling
+% (paimame atsitiktiniu budu zmones) arba non probability sampling (krastutiniu 
+% grupiu). Saturation sampling - su visais kalbame kol nebelieka naujos info.
+
+% 3 Relationship with participants - susitarti su vadovybe kad galime kalbinti
+% zmones, virsininkas turi pristatyti kad bus toks tyrimas, etc. etc. Informed
+% consent - pasiraso kad sutinka dalyvauti.
+
+% 4 Triangulation - vienas info saltinis mazai, turi buti bent keli scenarijai,
+% kad zinotume skirtingus poziurius, juos derintume.
+
+% 5 Pilot studies - pabandome su vienu ar keliais zmonemis, kad pamatytume ar
+% viskas ok, ar klausimai aiskus, ar suprantami.
+
+
+% Interviews
+
+% Pirma buna nestrukturizuoti, kuo toliau tuo labiau strukturuoti, tikslinames
+% funkcionalumus, pozymius.
+
+% semi strukturuoti - yra pagrindiniai klausimai, bet galima klausti ir papildomai
+
+% group inteviesws - diskusijos, su keliais kalbam.
+
+% vengti ilgu sakiniu, ar, ir, zargonu, vengti stumti i viena ar kita puse.
+
+% fokuso grupe - atstovai is skirtingu grupiu, kai isriskeja skirtingi
+% poziuriai. reikia kompromisiniu sprendimu.
 
 
 
