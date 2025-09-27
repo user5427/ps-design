@@ -1,0 +1,28 @@
+@startuml appointment_modification_flow
+!theme plain
+title Appointment Modification Business Flow
+
+start
+:Customer calls or walks in to the spa/salon;
+:Customer meets with the employee;
+:Customer requests to modify an existing appointment;
+:Employee asks for customer contact information (phone number, email);
+:Customer provides contact information;
+:Employee retrieves the appointment using the provided contact information;
+if (Appointment found?) then (yes)
+  :Employee discusses the requested changes with the customer (date, time, service, employee);
+  :Employee checks availability for the requested changes;
+  if (Changes available?) then (yes)
+    :Employee updates the appointment in the POS system;
+    :System sends an updated confirmation SMS/email to the customer;
+    stop
+  else (no)
+    :Suggest alternative options;
+    stop
+  endif
+else (no)
+  :Inform customer no appointment found;
+  stop
+endif
+
+@enduml

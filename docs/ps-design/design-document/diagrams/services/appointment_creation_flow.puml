@@ -1,0 +1,42 @@
+@startuml appointment_creation_flow
+!theme plain
+title Appointment Creation Business Flow
+
+start
+:Customer calls or walks in to the spa/salon;
+:Customer meets with the employee;
+:Customer requests a service;
+:Employee checks availability of the requested service;
+if (Service available?) then (yes)
+  :Employee asks when the customer would like to book the service;
+  :Customer provides a date and time;
+  :Employee checks availability for the requested date and time;
+  if (Date/time available?) then (yes)
+    :Employee asks if the customer has a preference for a specific employee;
+    :Customer provides a preference (or not);
+    if (Customer has preference?) then (yes)
+      :Employee checks availability of the requested employee;
+      if (Employee available?) then (yes)
+        :Continue to contact info;
+      else (no)
+        :Suggest alternative employee or time;
+        :Continue to contact info;
+      endif
+    else (no)
+      :Continue to contact info;
+    endif
+    :Employee asks for customer contact information (phone number, email);
+    :Customer provides contact information;
+    :Employee creates the appointment in the POS system;
+    :System sends a confirmation SMS/email to the customer;
+    stop
+  else (no)
+    :Suggest alternative date/time;
+    stop
+  endif
+else (no)
+  :Inform customer service is not available;
+  stop
+endif
+
+@enduml

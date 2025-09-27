@@ -1,0 +1,34 @@
+@startuml spa_salon_overview
+!theme plain
+title Spa/Salon Business Process Overview
+
+|Customer|
+start
+:Customer contacts spa/salon;
+
+|Employee|
+:Receive customer request;
+
+if (Request type?) then (New Appointment)
+  :Create Appointment Process;
+  note right: See appointment_creation diagrams
+elseif (Modify Appointment) then
+  :Modify Appointment Process;
+  note right: See appointment_modification diagrams
+elseif (Cancel Appointment) then  
+  :Cancel Appointment Process;
+  note right: See appointment_cancellation diagrams
+elseif (Service Visit) then
+  :Service Customer Process;
+  note right: See service_customer diagrams
+endif
+
+|System|
+:Update records;
+:Send notifications;
+
+|Customer|
+:Receive confirmation;
+stop
+
+@enduml
