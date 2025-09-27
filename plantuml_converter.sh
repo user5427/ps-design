@@ -47,9 +47,12 @@ echo "Output folder: $OUTPUT_FOLDER"
 # Create output directory if it doesn't exist
 mkdir -p "$OUTPUT_FOLDER"
 
-# Counter for processed files
-PROCESSED=0
-ERRORS=0
+# Counter for processed files (use temp files since we're in a subshell)
+TEMP_DIR=$(mktemp -d)
+PROCESSED_FILE="$TEMP_DIR/processed"
+ERRORS_FILE="$TEMP_DIR/errors"
+echo "0" > "$PROCESSED_FILE"
+echo "0" > "$ERRORS_FILE"
 
 # Function to process a single PlantUML file
 process_file() {
@@ -87,40 +90,67 @@ process_file() {
         
         if [ -f "$output_file" ]; then
             echo "  ✓ Created: $output_file"
-            ((PROCESSED++))
+            PROCESSED=$(cat "$PROCESSED_FILE")
+            echo $((PROCESSED + 1)) > "$PROCESSED_FILE"
         else
             echo "  ✗ Failed to create: $output_file"
-            ((ERRORS++))
+            ERRORS=$(cat "$ERRORS_FILE")
+            echo $((ERRORS + 1)) > "$ERRORS_FILE"
         fi
     else
         echo "  ✗ Error processing: $src_file"
-        ((ERRORS++))
+        ERRORS=$(cat "$ERRORS_FILE")
+        echo $((ERRORS + 1)) > "$ERRORS_FILE"
     fi
 }
 
-# Export the function so it can be used by find
+# Export the function and variables so they can be used by the subshell
 export -f process_file
 export SOURCE_FOLDER
 export OUTPUT_FOLDER
-export PROCESSED
-export ERRORS
+export PLANTUML_CMD
+export TEMP_DIR
+export PROCESSED_FILE
+export ERRORS_FILE
 
 echo "Searching for PlantUML files..."
 
+# Find and count all PlantUML files first
+TOTAL_FILES=$(find "$SOURCE_FOLDER" -type f \( -name "*.puml" -o -name "*.plantuml" -o -name "*.pu" \) | wc -l)
+echo "Found $TOTAL_FILES PlantUML files to process"
+
+# List all files that will be processed
+echo "Files found:"
+find "$SOURCE_FOLDER" -type f \( -name "*.puml" -o -name "*.plantuml" -o -name "*.pu" \) | while read -r file; do
+    rel_path=$(realpath --relative-to="$SOURCE_FOLDER" "$file")
+    echo "  - $rel_path"
+done
+
+echo ""
+echo "Starting conversion..."
+
 # Find all PlantUML files and process them
-while IFS= read -r -d '' file; do
+find "$SOURCE_FOLDER" -type f \( -name "*.puml" -o -name "*.plantuml" -o -name "*.pu" \) | while read -r file; do
     # Calculate relative path from source folder
     rel_path=$(realpath --relative-to="$SOURCE_FOLDER" "$file")
     process_file "$file" "$rel_path"
-done < <(find "$SOURCE_FOLDER" -type f \( -name "*.puml" -o -name "*.plantuml" -o -name "*.pu" \) -print0)
+done
 
 echo ""
 echo "Conversion completed!"
+
+# Read final counts
+PROCESSED=$(cat "$PROCESSED_FILE")
+ERRORS=$(cat "$ERRORS_FILE")
+
 echo "Files processed successfully: $PROCESSED"
 if [ $ERRORS -gt 0 ]; then
     echo "Files with errors: $ERRORS"
 fi
 echo "Output directory: $OUTPUT_FOLDER"
+
+# Clean up temp files
+rm -rf "$TEMP_DIR"
 
 # List the output structure
 echo ""

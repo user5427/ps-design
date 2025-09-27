@@ -592,6 +592,20 @@ Actions:
     \item Send confirmation notification
 \end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/diagrams/services/appointment_creation_flow.png}
+    \caption{Appointment Creation Flow Diagram}
+    \label{fig:appointment_creation_flow}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/diagrams/services/appointment_creation_sequence.png}
+    \caption{Appointment Creation Sequence Diagram}
+    \label{fig:appointment_creation_sequence}
+\end{figure}
+
 \subsubsection{Appointment modification business flow}
 
 Flow:
@@ -645,6 +659,20 @@ Actions:
     \item Send updated confirmation notification
 \end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/diagrams/services/appointment_modification_flow.png}
+    \caption{Appointment Modification Flow Diagram}
+    \label{fig:appointment_modification_flow}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/diagrams/services/appointment_modification_sequence.png}
+    \caption{Appointment Modification Sequence Diagram}
+    \label{fig:appointment_modification_sequence}
+\end{figure}
+
 \subsubsection{Cancel appointment business flow}
 Flow:
 \begin{itemize}
@@ -694,6 +722,20 @@ Actions:
     \item Send cancellation confirmation notification
 \end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/diagrams/services/appointment_cancellation_flow.png}
+    \caption{Appointment Cancellation Flow Diagram}
+    \label{fig:appointment_cancellation_flow}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/diagrams/services/appointment_cancellation_sequence.png}
+    \caption{Appointment Cancellation Sequence Diagram}
+    \label{fig:appointment_cancellation_sequence}
+\end{figure}
+
 
 \subsubsection{Service customer business flow}
 
@@ -702,11 +744,69 @@ Flow:
     \setlength{\itemsep}{2pt}
     \setlength{\parskip}{0pt}
     \setlength{\parsep}{0pt}
-        \item Customer arrives at the spa/salon for their scheduled appointment
+    \item Customer arrives at the spa/salon for their scheduled appointment
     \item Employee greets the customer and asks customer to confirm their appointment details
     \item Employee verifies the appointment details in the POS system
-    \item Employee directs the customer to the appropriate service area
+    \item Employee directs the customer to the appropriate service area and employee
+    \item Employee begins providing the scheduled service to the customer
+    \item Employee completes the service according to the appointment specifications
+    \item Employee asks the customer for the payment method 
+    \item Customer provides payment information (cash, card, etc.)
+    \item Employee processes the payment in the POS system
+    \item System confirms payment and updates the appointment status
+    \item Employee asks if the user would like a receipt
+    \item If yes, employee prints or emails the receipt to the customer
+    \item Customer departs
 \end{itemize}
+
+Tables/Entities:
+\begin{itemize}
+    \setlength{\itemsep}{2pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}
+    \item Customer
+    \item Employee
+    \item Service
+    \item Appointment
+    \item Payment
+    \item Spa/Salon (Business)
+\end{itemize}
+
+Components:
+\begin{itemize}
+    \setlength{\itemsep}{2pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}
+    \item Appointment Management (Appointment, Service)
+    \item Employee Management (Employee)
+    \item Payment Processing (Payment)
+    \item Notification System (Follow-up notifications)
+\end{itemize}
+
+Actions:
+\begin{itemize}
+    \setlength{\itemsep}{2pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}
+    \item Verify appointment details
+    \item Process payment
+    \item Mark service as completed
+    \item Generate receipt
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/diagrams/services/service_customer_flow.png}
+    \caption{Service Customer Flow Diagram}
+    \label{fig:service_customer_flow}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/diagrams/services/service_customer_sequence.png}
+    \caption{Service Customer Sequence Diagram}
+    \label{fig:service_customer_sequence}
+\end{figure}
 
 \subsection{Business Management}
 
