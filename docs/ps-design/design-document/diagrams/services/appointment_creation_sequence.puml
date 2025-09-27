@@ -1,0 +1,43 @@
+@startuml appointment_creation_sequence
+!theme plain
+title Appointment Creation Sequence Diagram
+
+actor Customer
+participant Employee
+participant "POS System" as POS
+participant "Notification System" as Notification
+
+Customer -> Employee: Calls or walks in
+Customer -> Employee: Requests a service
+Employee -> POS: Check service availability
+POS -> Employee: Service availability status
+
+alt Service available
+  Employee -> Customer: Ask preferred date/time
+  Customer -> Employee: Provide date/time
+  Employee -> POS: Check date/time availability
+  POS -> Employee: Date/time availability status
+  
+  alt Date/time available
+    Employee -> Customer: Ask for employee preference
+    Customer -> Employee: Provide preference (optional)
+    
+    opt Customer has preference
+      Employee -> POS: Check employee availability
+      POS -> Employee: Employee availability status
+    end
+    
+    Employee -> Customer: Ask for contact information
+    Customer -> Employee: Provide contact info
+    Employee -> POS: Create appointment
+    POS -> Employee: Appointment created confirmation
+    POS -> Notification: Trigger confirmation message
+    Notification -> Customer: Send SMS/email confirmation
+  else Date/time not available
+    Employee -> Customer: Suggest alternative times
+  end
+else Service not available
+  Employee -> Customer: Inform service unavailable
+end
+
+@enduml

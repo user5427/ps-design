@@ -1,0 +1,21 @@
+@startuml service_customer_flow
+!theme plain
+title Service Customer Business Flow
+
+start
+:Customer arrives at the spa/salon for their scheduled appointment;
+:Employee greets the customer and asks customer to confirm their appointment details;
+:Employee verifies the appointment details in the POS system;
+if (Appointment verified?) then (yes)
+  :Employee directs the customer to the appropriate service area;
+  :Employee performs the requested service;
+  :Employee marks the service as completed in the system;
+  :System updates records and triggers follow-up actions (e.g., feedback request, payment processing);
+  stop
+else (no)
+  :Employee addresses appointment discrepancy;
+  :Resolve issue or reschedule;
+  stop
+endif
+
+@enduml
