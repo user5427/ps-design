@@ -1,0 +1,35 @@
+@startuml appointment_modification_sequence
+!theme plain
+title Appointment Modification Sequence Diagram
+
+actor Customer
+participant Employee
+participant "POS System" as POS
+participant "Notification System" as Notification
+
+Customer -> Employee: Calls or walks in
+Customer -> Employee: Request to modify existing appointment
+Employee -> Customer: Ask for contact information
+Customer -> Employee: Provide contact info
+Employee -> POS: Retrieve appointment by contact info
+POS -> Employee: Return appointment details
+
+alt Appointment found
+  Employee -> Customer: Discuss requested changes
+  Customer -> Employee: Specify changes (date, time, service, employee)
+  Employee -> POS: Check availability for requested changes
+  POS -> Employee: Availability status
+  
+  alt Changes available
+    Employee -> POS: Update appointment
+    POS -> Employee: Update confirmation
+    POS -> Notification: Trigger updated confirmation
+    Notification -> Customer: Send updated SMS/email confirmation
+  else Changes not available
+    Employee -> Customer: Suggest alternative options
+  end
+else Appointment not found
+  Employee -> Customer: Inform no appointment found
+end
+
+@enduml

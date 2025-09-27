@@ -13,6 +13,48 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage{xcolor,algorithm,algorithmic}
 \definecolor{gray}{gray}{0.6}
+
+
+\usepackage{tcolorbox}
+
+\newcommand{\yellowcomment}[1]{%
+    \begin{tcolorbox}[colback=yellow!80, colframe=yellow!80, arc=0pt, outer arc=0pt, boxrule=0pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
+        \textbf{\textcolor{red}{COMMENT:}} #1
+    \end{tcolorbox}
+}
+
+\newcommand{\warningcomment}[1]{%
+    \begin{tcolorbox}[colback=yellow!90, colframe=red, arc=0pt, outer arc=0pt, boxrule=2pt, left=5pt, right=5pt, top=5pt, bottom=5pt]
+        \Large\textbf{\textcolor{red}{FIX THIS: }} \normalsize #1
+    \end{tcolorbox}
+}
+
+\newcommand{\goodcomment}[1]{%
+    \begin{tcolorbox}[colback=green!20, colframe=green!60, arc=0pt, outer arc=0pt, boxrule=1pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
+        \textbf{\textcolor{green!70!black}{GOOD:}} #1
+    \end{tcolorbox}
+}
+
+\newcommand{\noticecomment}[1]{%
+    \begin{tcolorbox}[colback=blue!20, colframe=blue!60, arc=0pt, outer arc=0pt, boxrule=1pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
+        \textbf{\textcolor{blue!70!black}{NOTE:}} #1
+    \end{tcolorbox}
+}
+
+\newcommand{\todocomment}[1]{%
+    \begin{tcolorbox}[colback=red!20, colframe=red!60, arc=0pt, outer arc=0pt, boxrule=1pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
+        \textbf{\textcolor{orange!70!black}{TODO:}} #1
+    \end{tcolorbox}
+}
+
+\newcommand{\suggestioncomment}[1]{%
+    \definecolor{lime}{RGB}{50,205,50}%
+    \begin{tcolorbox}[colback=lime!15, colframe=lime!60, arc=0pt, outer arc=0pt, boxrule=1pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
+        \textbf{\textcolor{lime!70!black}{SUGGESTION:}} #1
+    \end{tcolorbox}%
+}
+
+
 \usepackage[nottoc]{tocbibind}
 \usepackage{tocloft}
 \usepackage{longtable}
@@ -251,6 +293,27 @@ Tracking Progress &
 \end{itemize}
 \end{minipage} \\
 \end{longtable}
+
+\subsubsection{Document comments}
+Use the comment boxes below to communicate intent, assign action items, and keep track of unresolved issues. Always include who is responsible and, when relevant, a target date.
+
+Best practices:
+\begin{itemize}
+    \item Short, actionable messages: what, who, when.
+    \item Keep context: reference section, figure, or line numbers if needed.
+    \item Resolve or delete comments when the item is complete.
+    \item Prefer suggestions for non-blocking feedback; use warnings for critical fixes.
+\end{itemize}
+
+Examples:
+\warningcomment{This is a warning comment. Use it to highlight critical issues that need immediate attention.}
+\yellowcomment{This is a yellow comment. Use it for general comments or suggestions.}
+\todocomment{This is a to-do comment. Use it to list tasks that need to be completed.}
+\noticecomment{This is a notice comment. Use it to provide important information or reminders.}
+\goodcomment{This is a good comment. Use it to highlight well-done sections or practices.}
+\suggestioncomment{This is a suggestion comment. Use it to propose ideas or improvements.}
+
+
 
 
 \end{document}

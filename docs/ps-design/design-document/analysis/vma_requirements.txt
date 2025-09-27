@@ -1,0 +1,79 @@
+It is only possible to learn how to design larger IT systems by doing the work. In the first lab you will be practicing how to write an implementable technical specification and API Contract. 
+
+However, this project is going to be different from anything you wrote so far. Because you will have to implement what was designed. And to make things a tiny bit more interesting you will not be dogfooding your project. You will be implementing what your fellow student team designed and learning the hard way how to deal with incomplete and imprecise technical documentation.
+
+Grading will be done partially by the lecturer and partially by the implementing team. Every team will be asked to submit a written evaluation of the technical documentation submitted by another student team. 
+
+Suggested table of contents
+
+The suggested structure below is only a recommendation. You can decide to adopt a different flow as long as you cover everything that is relevant for the system under design. One good way of testing it is to designate one person on the team who will take on an implementer's hat and read through the document as if they will have to implement that document.
+
+    Intro
+    Business flows (with sequence diagrams or flow diagrams)
+    Package diagrams showing classes/modules of the system - high level architecture
+    Data model for entity used in the system (recommended class diagrams instead of ER diagrams)
+    API Contracts for the backend endpoints (with Swagger/Open API)
+        HTTP requests with all possible parameters
+        HTTP responses
+        HTTP error codes
+
+Submission requirements
+
+The team will have to prepare two documents:
+
+- A shared text document with all diagrams, descriptions and other relevant technical details needed. This document is shared with the lecturer and the final snapshot past submission deadline will be used for grading. You can use Word, Google Docs or Overleaf to share this document.
+
+- A plaintext document in YAML format that can be loaded into https://editor.swagger.io/. This document is put into your team’s repository and the link to your Git repo is provided by the team lead to lecturer.
+
+It is expected that your YAML file should load there without syntax errors. If the upload fails, only the visible parts of API Design will be graded.
+
+System-under-design business requirements
+
+We are simulating a Software as a Service startup that you will be running. You are creating software for small and medium businesses in catering (bars/cafe/restaurants) and beauty (barbers/hairdressers/SPA) sectors. Your system needs to support both functionalities; however, feature sets can be regulated by the plan your customers subscribed to.
+
+It is enough to design system that is only operated by business employees where the only input customer provides is payment and contact information for bookings.
+
+This list can be expanded/clarified by additional questions raised by students during the design process. It is not meant to be a complete list from the get-go.
+
+Order functionality
+
+    Employee can create an order
+    Employee can modify an open order (change items)
+    Employee cannot modify a closed/paid order
+    Employee can cancel an open (unpaid/not closed order)
+    Customer can pay the order by cash, gift card and credit/debit card
+        BEWARE: In Lab 2 every team will be asked to implement card payment integration with Stripe payment provider, so you might want to do extra research on how card payment flow works.
+    Each order should allow split checks (multiple payments).
+    Customer can add a tip to an order.
+    Employee can apply a discount to an order.
+    When order is closed the customer can get the final receipt with all costs, taxes, discounts and service charges calculated and presented
+        Different order items can have different taxes applied to them (food vs alcohol as an example)
+    Paid/closed orders are to be preserved indefinitely.
+    Closed orders can be refunded and marked as such.
+
+Services
+
+    Employee can make a reservation for a customer
+        Each reservation has time when booked, appointment time, employee, customer, service
+    Employee can cancel or modify an appointment upon customer request
+    BONUS - send SMS notification when appointment is created (I recommend AWS SMS functionality for that)
+
+System management functionality
+
+    BONUS: Inventory management (should be integrated with order management and have quantities reduced when bought)
+    Tax Management (create/edit/delete)
+        Change of the tax entry (like VAT) should not affect any historical records
+    Service charge/Tip/Gratuity Management
+        Change of the service charge item should not affect any historical records
+    Product/Menu Item Management (create/edit/delete)
+    Each product can have variations (e.g. coffee with milk, decaf, vegan milk)
+    Each Service has an employee associated with it
+    Discount Management
+        Discounts can be applied to a specific product or the whole order
+        Discounts can be time-limited
+    User Management (can create/delete/edit users)
+        Only business owner can edit employees/users of their business
+        SuperAdmin (IT Support) can edit anyone
+        All actions should be performed only by logged-in and authorized users
+    Merchant/Business management
+        Each merchant/business has an owner user, address, contact info (phone, email), name and other relevant details

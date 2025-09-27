@@ -1,0 +1,33 @@
+@startuml appointment_cancellation_sequence
+!theme plain
+title Appointment Cancellation Sequence Diagram
+
+actor Customer
+participant Employee
+participant "POS System" as POS
+participant "Notification System" as Notification
+
+Customer -> Employee: Calls or walks in
+Customer -> Employee: Request to cancel existing appointment
+Employee -> Customer: Ask for contact information
+Customer -> Employee: Provide contact info
+Employee -> POS: Retrieve appointment by contact info
+POS -> Employee: Return appointment details
+
+alt Appointment found
+  Employee -> Customer: Confirm cancellation request
+  Customer -> Employee: Confirm cancellation
+  
+  alt Customer confirms
+    Employee -> POS: Cancel appointment
+    POS -> Employee: Cancellation confirmation
+    POS -> Notification: Trigger cancellation confirmation
+    Notification -> Customer: Send cancellation SMS/email
+  else Customer declines
+    Employee -> Customer: Keep appointment active
+  end
+else Appointment not found
+  Employee -> Customer: Inform no appointment found
+end
+
+@enduml
