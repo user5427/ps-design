@@ -416,7 +416,7 @@ components and actions needed to implement these business flows.
 
 Client Seating (Available) &
 \begin{minipage}[t]{\linewidth}
-Client enters, employee checks seating via POS \& backend. If available, employee assigns a table and confirms with client.
+Employee checks seating via POS \& backend. If available, employee assigns a table and confirms with client.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
@@ -432,7 +432,7 @@ Client requests menu, places an order via employee. POS \& backend validate item
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
-Update Order &
+Modify Order &
 \begin{minipage}[t]{\linewidth}
 Client requests to update an existing order. Employee updates through POS, backend validates. On success, order is updated; on failure, errors are shown for correction.
 \end{minipage} \\[6pt]
@@ -446,7 +446,7 @@ Client requests to cancel an existing not completed order. Employee cancels thro
 
 Mark items as delivered for table &
 \begin{minipage}[t]{\linewidth}
-Employee selects table. From backend server retrieved order with items for table is displayed in POS. Employee selects items to mark as delivered. Employee cancels through POS, backend validates that it is not completed. On success, order is updated; on failure, errors are shown.
+The employee selects a table. The order with items are retrieved for that table, which is then displayed in the POS. The employee selects items to mark as delivered. The item status is updated in the backend server, and a confirmation is displayed in the POS.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
@@ -976,10 +976,134 @@ The system ensures that administrative changes (tax rates, discounts, service ch
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
 \end{longtable}
+\setcounter{secnumdepth}{5}
 \subsubsection{User \& Role Management}
 % related use cases: User Management, Manage Employees, Manage Users & Roles, Super Admin Access
+
+\paragraph{User Management}
+% Need to better think of what components and entities are involved and their names
+\begin{itemize}
+    \item \textbf{Flow}: \begin{enumerate}
+    \item Owner selects "Manage Users"
+    \item Owner creates/updates/deletes a user.
+    \item System validates ownership (can only edit their business).
+    \item System updates User Table.
+    \item System confirms operation.
+    \end{enumerate}
+    \item \textbf{Entities}: Owner, User System, Backend Server, User DB.
+    \item \textbf{Components \& Actions}: \begin{itemize}
+        \item UI (input user details / User System).
+        \item Auth Service (ownership validation).
+        \item User Service (CRUD operations)
+    \end{itemize}
+\end{itemize}
+
+\paragraph{Manage Employees}
+
+\begin{itemize}
+    \item \textbf{Flow}: \begin{enumerate}
+    \item Owner selects "Employees".
+    \item Owner creates/updates/deactivates employee account.
+    \item System validates uniqueness.
+    \item System updates Employee table.
+    \item System sends confirmation.
+    \end{enumerate}
+    \item \textbf{Entities}: Owner, Employee System, Backend Server, Employee DB.
+    \item \textbf{Components \& Actions}: \begin{itemize}
+        \item Employee Service (input employee details).
+        \item Auth Service (restrict to owner).
+    \end{itemize}
+\end{itemize}
+
+\paragraph{Manage Users \& Roles}
+
+\begin{itemize}
+    \item \textbf{Flow}: \begin{enumerate}
+    \item Owner selects "Roles".
+    \item Assigns role to employee (e.g. cashier).
+    \item System validates role assignment.
+    \item System updates Employee Roles table.
+    \item System confirms operation.
+    \end{enumerate}
+    \item \textbf{Entities}: Owner, Employee System, Backend Server, Role DB.
+    \item \textbf{Components \& Actions}: \begin{itemize}
+        \item Role Service.
+        \item Auth Service (restrict to owner).
+    \end{itemize}
+\end{itemize}
+
+\paragraph{Super Admin Access}
+
+\begin{itemize}
+    \item \textbf{Flow}: \begin{enumerate}
+    \item Super Admin logs in.
+    \item Selects business.
+    \item Views/edits users, settings.
+    \item System validates elevated permissions.
+    \item System updates relevant tables.
+    \end{enumerate}
+    \item \textbf{Entities}: Super Admin, System, Backend Server, User DB.
+    \item \textbf{Components \& Actions}: \begin{itemize}
+        \item Auth Service (restrict to owner).
+        \item User/Business Service.
+    \end{itemize}
+\end{itemize}
+
 \subsubsection{Product \& Service Management}
 % related use cases: Manage Products/Services, Manage Product Variations, Manage Modifiers, Variants
+\paragraph{Manage Products/Services}
+
+\begin{itemize}
+    \item \textbf{Flow}: \begin{enumerate}
+    \item Owner selects "Products/Services"..
+    \item Owner adds/edits/deactivates an item.
+    \item System validates input.
+    \item System updates Product/Service table.
+    \item System confirms update.
+    \end{enumerate}
+    \item \textbf{Entities}: Owner, System, Product/Service DB.
+    \item \textbf{Components \& Actions}: \begin{itemize}
+        \item Product Service (create/edit/deactivate).
+        \item Validation Service (ensure valid fields).
+    \end{itemize}
+\end{itemize}
+
+\paragraph{Manage Product Variations}
+
+\begin{itemize}
+    \item \textbf{Flow}: \begin{enumerate}
+    \item Owner selects product.
+    \item Adds/modifies variation.
+    \item System validates variation rules.
+    \item System updates Product\_Variation table.
+    \item System confirms update.
+    \end{enumerate}
+    \item \textbf{Entities}: Owner, System, Product DB, Variation DB.
+    \item \textbf{Components \& Actions}: \begin{itemize}
+        \item Variation Manager.
+        \item Validation Service.
+    \end{itemize}
+\end{itemize}
+
+\paragraph{Manage Modifiers/Variants}
+
+\begin{itemize}
+    \item \textbf{Flow}: \begin{enumerate}
+    \item Owner selects product.
+    \item Defines variant.
+    \item System validates rules.
+    \item System updates Variant table.
+    \item System confirms update.
+    \end{enumerate}
+    \item \textbf{Entities}: Owner, System, Product DB, Variation DB.
+    \item \textbf{Components \& Actions}: \begin{itemize}
+        \item Variation Manager.
+        \item Validation Service.
+    \end{itemize}
+\end{itemize}
+
+
+
 \subsubsection{Business \& Information Management}
 % related use cases: Manage Business Info
 \subsubsection{Inventory \& Taxes}
