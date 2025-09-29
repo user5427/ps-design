@@ -887,24 +887,6 @@ Customer or staff cancels an appointment; system frees the slot, applies cancell
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
-% Check availability &
-% \begin{minipage}[t]{\linewidth}
-% Verify employee and resource availability for requested time considering working hours, breaks and existing bookings; support searching for next available slots and preventing double-booking.
-% \end{minipage} \\[6pt]
-% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-
-% Send SMS reminder &
-% \begin{minipage}[t]{\linewidth}
-% Schedule and send SMS/email reminders (configurable templates and timing) before appointments; include retry and failure handling and opt‑out management.
-% \end{minipage} \\[6pt]
-% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-
-% Assign employee &
-% \begin{minipage}[t]{\linewidth}
-% Map employees to services they can perform and assign staff to bookings either manually or automatically based on skills and availability; support reassignment workflows.
-% \end{minipage} \\[6pt]
-% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-
 Service Customer &
 \begin{minipage}[t]{\linewidth}
     The customer gets the service done by the assigned employee; employee marks the service as completed in the system, which updates records and triggers any follow-up actions (e.g., feedback request, payment processing).
@@ -986,56 +968,68 @@ Actions:
 
 \subsubsection{Appointment modification business flow}
 
-Flow:
+\textbf{BASIC FLOW:}
+
+Customer calls or walks in to the spa/salon.
+Customer meets with the employee.
+Customer requests to modify an existing appointment.
+Employee asks for customer contact information (phone number, email).
+Customer provides contact information.
+Employee retrieves the appointment using the provided contact information.
+Employee discusses the requested changes with the customer (date, time, service, employee).
+Employee checks availability for the requested changes.
+Employee updates the appointment in the POS system.
+System sends an updated confirmation SMS/email to the customer.
+
+\textbf{ALTERNATIVE FLOW:}
+
 \begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Customer calls or walks in to the spa/salon
-    \item Customer meets with the employee
-    \item Customer requests to modify an existing appointment
-    \item Employee asks for customer contact information (phone number, email)
-    \item Customer provides contact information
-    \item Employee retrieves the appointment using the provided contact information
-    \item Employee discusses the requested changes with the customer (date, time, service, employee)
-    \item Employee checks availability for the requested changes
-    \item If available, employee updates the appointment in the POS system
-    \item System sends an updated confirmation SMS/email to the customer
+\item \textbf{No appointment found: } The employee cannot find an appointment matching the provided contact information.
+Employee informs the customer that no appointment was found. 
+\item \textbf{Slot taken: } The time slot or employee requested by the customer is not available.
+Employee informs the customer of the unavailability and suggests alternative options.
+Customer selects an alternative option.
 \end{itemize}
 
-Tables/Entities:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Customer
-    \item Employee
-    \item Service
-    \item Appointment
-    \item Spa/Salon (Business)
-\end{itemize}
 
-Components:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Appointment Management (Appointment, Employee, Service)
-    \item Employee Management (Employee)
-    \item Notification System (SMS/Email)
-\end{itemize}
 
-Actions:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Retrieve appointment
-    \item Check availability of service
-    \item Check availability of employee
-    \item Update appointment
-    \item Send updated confirmation notification
-\end{itemize}
+
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{tabular}{@{}l@{}}
+Customer \\
+Employee \\
+Service \\
+Appointment \\
+Spa/Salon (Business)
+\end{tabular}
+&
+\textbf{Components} \newline
+\begin{tabular}{@{}l@{}}
+Appointment Management \\(Appointment, Employee, Service)  \\
+Employee Management (Employee) \\
+Notification System (SMS/Email)
+\end{tabular}
+\\ \hline
+\textbf{Actions} \newline
+\begin{tabular}{@{}l@{}}
+Retrieve appointment \\
+Check availability of service \\
+Check availability of employee \\
+Update appointment \\
+Send updated confirmation notification
+\end{tabular}
+&
+% \textbf{Notes} \newline
+\begin{tabular}{@{}l@{}}
+% \small Reserved for additional details or future items.
+\end{tabular}
+\\ \hline
+\end{tabular}
+\end{center}
 
 \begin{figure}[H]
     \centering
@@ -1052,21 +1046,20 @@ Actions:
 \end{figure}
 
 \subsubsection{Cancel appointment business flow}
-Flow:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Customer calls or walks in to the spa/salon
-    \item Customer meets with the employee
-    \item Customer requests to cancel an existing appointment
-    \item Employee asks for customer contact information (phone number, email)
-    \item Customer provides contact information
-    \item Employee retrieves the appointment using the provided contact information
-    \item Employee confirms the cancellation with the customer
-    \item Employee cancels the appointment in the POS system
-    \item System sends a cancellation confirmation SMS/email to the customer
-\end{itemize}
+\textbf{BASICL FLOW:}
+Customer calls or walks in to the spa/salon
+Customer meets with the employee
+Customer requests to cancel an existing appointment
+Employee asks for customer contact information (phone number, email)
+Customer provides contact information
+Employee retrieves the appointment using the provided contact information
+Employee confirms the cancellation with the customer
+Employee cancels the appointment in the POS system
+System sends a cancellation confirmation SMS/email to the customer
+
+\textbf{ALTERNATIVE FLOWS:}
+\item \textbf{No appointment found: } The employee cannot find an appointment matching the provided contact information.
+Employee informs the customer that no appointment was found.
 
 Tables/Entities:
 \begin{itemize}
