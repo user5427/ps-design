@@ -1,0 +1,25 @@
+@startuml
+!theme plain
+
+actor Client
+actor Employee
+participant "POS System" as POS
+participant "Backend Server" as Server
+
+title Cancel Order
+
+Client -> Employee: Request order cancellation
+Employee -> POS: Cancel order
+POS -> Server: Cancel order
+
+alt Order not completed/paid
+    Server --> POS: Confirm cancellation
+    POS --> Employee: Show cancellation
+    Employee -> Client: Inform order canceled
+else Order already completed/paid
+    Server --> POS: Refuse cancellation
+    POS --> Employee: Show refusal
+    Employee -> Client: Inform cancellation not allowed
+end
+
+@enduml

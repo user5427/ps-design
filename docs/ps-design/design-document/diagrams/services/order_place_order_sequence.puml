@@ -1,0 +1,35 @@
+@startuml
+!theme plain
+
+actor Client
+actor Employee
+participant "POS System" as POS
+participant "Backend Server" as Server
+
+title Place order
+
+/'== Menu Presentation =='/
+Client -> Employee: Ask for menu
+Employee --> Client: Provide menu (physical/digital)
+
+/'== Order Request =='/
+Client -> Employee: Make order request
+Employee -> POS: Input order
+
+/'== Order Validation =='/
+POS -> Server: create order
+Server -> Server: Validate stock availability, attribute/variation combinations
+
+alt Validation Success
+    Server -> Server: Create pending order tied to Client's table
+    Server --> POS: Confirm order valid
+    POS --> Employee: Display order valid
+    Employee -> Client: Inform order confirmed
+
+else Validation Failure
+    Server --> POS: Return validation errors
+    POS --> Employee: Show errors
+    Employee -> Client: Ask for corrections
+end
+
+@enduml
