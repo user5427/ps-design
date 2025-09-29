@@ -1,0 +1,21 @@
+@startuml
+!theme plain
+
+actor Employee
+participant "POS System" as POS
+participant "Backend Server" as Server
+
+title Mark Items as Delivered for Table
+
+/'== Employee selects table and items =='/
+Employee -> POS: Select table
+POS -> Server: Retrieve open orders for table
+Server --> POS: Return list of items
+
+/'== Employee marks items as delivered =='/
+Employee -> POS: Mark selected items as delivered
+POS -> Server: Update item status to 'delivered'
+Server --> POS: Confirm items updated
+POS --> Employee: Display delivery confirmation
+
+@enduml

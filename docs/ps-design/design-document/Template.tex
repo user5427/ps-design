@@ -452,6 +452,384 @@ The employee selects a table. The order with items are retrieved for that table,
 
 \end{longtable}
 
+\subsubsection{Order client seating(available)}
+
+Flow:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Client enters the restaurant/bar.
+\item Employee greets the Client.
+\item Employee requests available seating options from the POS system.
+\item POS system queries the Backend Server for seating availability.
+\item Backend Server returns available seating options to the POS.
+\item POS displays seating options to the Employee.
+\item Employee suggests available seating options to the Client.
+\item Client chooses a seating option.
+\item Employee assigns the Client to a table using the POS system.
+\item POS system sends the table assignment to the Backend Server for saving and validation.
+\item If validation succeeds:
+\begin{itemize}
+\item Backend Server confirms the assignment to the POS.
+\item POS confirms table assignment to the Employee.
+\item Employee guides the Client to the assigned table.
+\end{itemize}
+\item If validation fails:
+\begin{itemize}
+\item Backend Server returns a failure message to the POS.
+\item POS notifies the Employee that assignment failed.
+\item Employee informs the Client that the table is unavailable and suggests alternatives or waiting.
+\end{itemize}
+\end{itemize}
+
+Tables/Entities:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Client
+\item Table
+\end{itemize}
+
+Components:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Seating Management
+\end{itemize}
+
+Actions:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Greet client
+\item Request available seating options
+\item Retrieve and display seating availability
+\item Assign client to table
+\item Validate table assignment (availability and conflicts)
+\item Confirm table assignment
+\item Notify failure and suggest alternatives
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/diagrams/services/order_client_seating_available.png}
+    \caption{Client Seating(available) Sequence Diagram}
+    \label{fig:client_seating_available_sequence}
+\end{figure}
+
+\subsubsection{Order client seating (not available) business flow}
+
+Flow:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Client enters the restaurant/bar.
+\item Employee greets the Client.
+\item Employee requests available seating options from the POS system.
+\item POS system queries the Backend Server for seating availability.
+\item Backend Server returns availability data indicating no tables are free.
+\item POS displays “no available seating” to the Employee.
+\item Employee informs the Client that no seating is currently available.
+\end{itemize}
+
+Tables/Entities:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Client
+\item Table
+\end{itemize}
+
+Components:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item POS System (Employee-facing system to check seating availability)
+\item Backend Server (handles seating availability queries)
+\item Seating Management (Tables + availability status)
+\item Employee Interface (to communicate availability to Client)
+\end{itemize}
+
+Actions:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Greet client
+\item Request seating availability
+\item Retrieve seating data
+\item Display “no available seating”
+\item Inform client that no seating is available
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/diagrams/services/order_client_seating_not_available_sequence.png}
+    \caption{Client Seating(not available) Sequence Diagram}
+    \label{fig:client_seating_not_available_sequence}
+\end{figure}
+
+\subsubsection{Place Order Business Flow}
+
+Flow:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Client asks the Employee for the menu.
+\item Employee provides the menu to the Client (physical or digital).
+\item Client makes an order request to the Employee.
+\item Employee inputs the order into the POS system.
+\item POS sends the order request to the Backend Server for validation and creation.
+\item Backend Server validates the request:
+\begin{itemize}
+\item Checks stock availability.
+\item Validates attribute or variation combinations (e.g., sizes, add-ons).
+\end{itemize}
+\item If validation succeeds:
+\begin{itemize}
+\item Backend Server creates a pending order linked to the Client’s table.
+\item Backend Server confirms the order to the POS.
+\item POS displays the order confirmation to the Employee.
+\item Employee informs the Client that the order has been confirmed.
+\end{itemize}
+\item If validation fails:
+\begin{itemize}
+\item Backend Server sends validation errors to the POS.
+\item POS displays the errors to the Employee.
+\item Employee informs the Client and requests corrections or adjustments.
+\end{itemize}
+\end{itemize}
+
+Tables/Entities:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Client
+\item Employee
+\item Menu
+\item Order
+\item Order Item 
+\item Inventory
+\end{itemize}
+
+Components:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Menu Management (Menu + Item availability)
+\item Order Management (Orders + Order Items)
+\end{itemize}
+
+Actions:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Provide menu
+\item Input order
+\item Validate stock availability
+\item Validate item variations/attributes
+\item Create pending order tied to Client’s table
+\item Confirm order success
+\item Return errors if validation fails
+\item Inform Client of result
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/diagrams/services/order_place_order_sequence.png}
+    \caption{Place Order Sequence Diagram}
+    \label{fig:place_order_sequence}
+\end{figure}
+
+\subsubsection{Update Order Business Flow}
+
+Flow:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Client requests an update to an existing order from the Employee.
+\item Employee initiates the update in the POS system.
+\item POS system sends the update request to the Backend Server for validation and processing.
+\item If the update is successful:
+\begin{itemize}
+\item Backend Server confirms the update to the POS.
+\item POS displays the updated order details to the Employee.
+\item Employee informs the Client that the update has been completed.
+\end{itemize}
+\item If the update fails:
+\begin{itemize}
+\item Backend Server returns validation errors to the POS.
+\item POS displays the errors to the Employee.
+\item Employee informs the Client and asks for corrections or adjustments.
+\end{itemize}
+\end{itemize}
+
+Tables/Entities:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Client
+\item Employee
+\item Order 
+\item Order Item 
+\end{itemize}
+
+Components:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Order Management (Orders + Order Items)
+\end{itemize}
+
+Actions:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Request order update
+\item Validate update request
+\item Apply changes to order
+\item Confirm update success
+\item Return validation errors if update fails
+\item Inform Client of results
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/diagrams/services/order_modify_order_sequence.png}
+    \caption{Modify Order Sequence Diagram}
+    \label{fig:modify_order_sequence}
+\end{figure}
+
+\subsubsection{Order cancellation}
+
+Flow:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Client requests an order cancellation from the Employee.
+\item Employee initiates cancellation in the POS system.
+\item POS system forwards the cancellation request to the Backend Server.
+\item If the order is not yet completed/paid:
+\begin{itemize}
+\item Backend Server confirms cancellation to the POS.
+\item POS shows successful cancellation to the Employee.
+\item Employee informs the Client that the order has been canceled.
+\end{itemize}
+\item If the order has already been completed/paid:
+\begin{itemize}
+\item Backend Server refuses the cancellation.
+\item POS shows the refusal message to the Employee.
+\item Employee informs the Client that the cancellation is not allowed.
+\end{itemize}
+\end{itemize}
+
+Tables/Entities:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Client
+\item Employee
+\item Order 
+\end{itemize}
+
+Components:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Order Management
+\end{itemize}
+
+Actions: 
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Request cancellation
+\item Validate order status (completed/paid or not)
+\item Cancel order (if eligible)
+\item Refuse cancellation (if already completed/paid)
+\item Inform Employee
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/diagrams/services/order_cancel_order_sequence.png}
+    \caption{Cancel Order Sequence Diagram}
+    \label{fig:cancel_order_sequence}
+\end{figure}
+
+\subsubsection{Mark Items as Delivered for Table Business Flow}
+
+Flow:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Employee selects a table in the POS system.
+\item POS system requests open orders for the selected table from the Backend Server.
+\item Backend Server returns a list of items associated with that table’s open orders.
+\item Employee selects specific items and marks them as delivered in the POS system.
+\item POS system sends an update request to the Backend Server, setting the status of the selected items to \texttt{delivered}.
+\item Backend Server confirms that the items’ statuses have been updated.
+\item POS system displays a delivery confirmation to the Employee.
+\end{itemize}
+
+Tables/Entities:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Employee
+\item Table 
+\item Order
+\item Order Item
+\end{itemize}
+
+Components:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Order Management
+\end{itemize}
+
+Actions:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Select table
+\item Retrieve open orders for table
+\item Display items to Employee
+\item Mark items as delivered
+\item Update item status in Backend Server
+\item Confirm update to Employee
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/diagrams/services/order_mark_items_delivered_sequence.png}
+    \caption{Cancel Order Sequence Diagram}
+    \label{fig:cancel_order_sequence}
+\end{figure}
 
 
 \subsection{Services Management (Spas/Salons)}
@@ -736,7 +1114,6 @@ Actions:
     \label{fig:appointment_cancellation_sequence}
 \end{figure}
 
-
 \subsubsection{Service customer business flow}
 
 Flow:
@@ -913,11 +1290,6 @@ Manage Modifiers/Variants &
 Admin can define product variants such as “latte with almond milk” or “spa service with aromatherapy add-on.” Variants allow customer customization at order time.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-Manage Modifiers/Variants &
-\begin{minipage}[t]{\linewidth}
-Admin can define product variants such as “latte with almond milk” or “spa service with aromatherapy add-on.” Variants allow customer customization at order timeAdmins can create and manage discount rules (percentage-based, fixed amount, seasonal campaigns, loyalty discounts).
-\end{minipage} \\[6pt]
-\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 Manage Discounts &
 \begin{minipage}[t]{\linewidth}
 Admins can create and manage discount rules (percentage-based, fixed amount, seasonal campaigns, loyalty discounts).
@@ -976,145 +1348,324 @@ The system ensures that administrative changes (tax rates, discounts, service ch
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
 \end{longtable}
-\setcounter{secnumdepth}{5}
-\subsubsection{User \& Role Management}
 % related use cases: User Management, Manage Employees, Manage Users & Roles, Super Admin Access
 
-\paragraph{User Management}
-% Need to better think of what components and entities are involved and their names
+\newpage
+\subsubsection{User Management Business Flow}
+
+Flow:
 \begin{itemize}
-    \item \textbf{Flow}: \begin{enumerate}
-    \item Owner selects "Manage Users"
-    \item Owner creates/updates/deletes a user.
-    \item System validates ownership (can only edit their business).
-    \item System updates User Table.
-    \item System confirms operation.
-    \end{enumerate}
-    \item \textbf{Entities}: Owner, User System, Backend Server, User DB.
-    \item \textbf{Components \& Actions}: \begin{itemize}
-        \item UI (input user details / User System).
-        \item Auth Service (ownership validation).
-        \item User Service (CRUD operations)
-    \end{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Owner logs into the system and navigates to the User Management section.
+\item Owner chooses an action: create new user, update existing user, or deactivate a user.
+\item System prompts for user details (name, email, role, business association, status).
+\item Owner provides or modifies the required details.
+\item System invokes the Auth Service to validate that the owner can only manage users of their own business.
+\item If validation passes, system executes the requested operation through the User Service:
+\begin{itemize}
+\item Create user → insert new record into User Table.
+\item Update user → modify existing record in User Table.
+\item Deactivate user → mark record as inactive (soft delete).
+\end{itemize}
+\item System commits changes to the database.
+\item System confirms the operation result to the owner (success or failure).
 \end{itemize}
 
-\paragraph{Manage Employees}
-
+Tables/Entities:
 \begin{itemize}
-    \item \textbf{Flow}: \begin{enumerate}
-    \item Owner selects "Employees".
-    \item Owner creates/updates/deactivates employee account.
-    \item System validates uniqueness.
-    \item System updates Employee table.
-    \item System sends confirmation.
-    \end{enumerate}
-    \item \textbf{Entities}: Owner, Employee System, Backend Server, Employee DB.
-    \item \textbf{Components \& Actions}: \begin{itemize}
-        \item Employee Service (input employee details).
-        \item Auth Service (restrict to owner).
-    \end{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Owner (Business Owner)
+\item User (employee or other system user tied to the business)
+\item Business (reference to ensure ownership validation)
+\item User Table (stores user records, roles, status)
+\item Auth Session (validates logged-in identity and permissions)
 \end{itemize}
 
-\paragraph{Manage Users \& Roles}
-
+Components:
 \begin{itemize}
-    \item \textbf{Flow}: \begin{enumerate}
-    \item Owner selects "Roles".
-    \item Assigns role to employee (e.g. cashier).
-    \item System validates role assignment.
-    \item System updates Employee Roles table.
-    \item System confirms operation.
-    \end{enumerate}
-    \item \textbf{Entities}: Owner, Employee System, Backend Server, Role DB.
-    \item \textbf{Components \& Actions}: \begin{itemize}
-        \item Role Service.
-        \item Auth Service (restrict to owner).
-    \end{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item User Interface (forms for inputting user details, displaying results)
+\item Auth Service (validates business ownership and permissions)
+\item User Service (handles create, update, deactivate logic)
+\item Database Layer (User Table persistence)
 \end{itemize}
 
-\paragraph{Super Admin Access}
-
+Actions:
 \begin{itemize}
-    \item \textbf{Flow}: \begin{enumerate}
-    \item Super Admin logs in.
-    \item Selects business.
-    \item Views/edits users, settings.
-    \item System validates elevated permissions.
-    \item System updates relevant tables.
-    \end{enumerate}
-    \item \textbf{Entities}: Super Admin, System, Backend Server, User DB.
-    \item \textbf{Components \& Actions}: \begin{itemize}
-        \item Auth Service (restrict to owner).
-        \item User/Business Service.
-    \end{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Navigate to User Management
+\item Select user action (create / update / deactivate)
+\item Input or edit user details
+\item Validate ownership and permissions
+\item Execute database transaction (insert / update / deactivate record)
+\item Confirm operation result to owner
 \end{itemize}
 
-\subsubsection{Product \& Service Management}
-% related use cases: Manage Products/Services, Manage Product Variations, Manage Modifiers, Variants
-\paragraph{Manage Products/Services}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/diagrams/business/bpmn_user_manage.png}
+    \caption{User Management Business Flow Diagram}
+    \label{fig:user_manage_flow}
+\end{figure}
 
+\subsubsection{Manage Products/Services Business Flow}
+
+Flow:
 \begin{itemize}
-    \item \textbf{Flow}: \begin{enumerate}
-    \item Owner selects "Products/Services"..
-    \item Owner adds/edits/deactivates an item.
-    \item System validates input.
-    \item System updates Product/Service table.
-    \item System confirms update.
-    \end{enumerate}
-    \item \textbf{Entities}: Owner, System, Product/Service DB.
-    \item \textbf{Components \& Actions}: \begin{itemize}
-        \item Product Service (create/edit/deactivate).
-        \item Validation Service (ensure valid fields).
-    \end{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Owner logs into the system and navigates to the Manage Products/Services section.
+\item Owner chooses an action: create new product/service, update details of an existing product/service, or deactivate an item.
+\item System prompts for product/service details (name, description, price, category, status).
+\item Owner provides or modifies the required details.
+\item System invokes the Auth Service to validate that the owner is authorized to manage only their business’s items.
+\item If validation passes, system executes the requested operation through the Product/Service Service:
+\begin{itemize}
+\item Create product/service → insert new record into Product/Service Table.
+\item Update product/service → modify existing record in Product/Service Table.
+\item Deactivate product/service → mark record as inactive (soft delete).
+\end{itemize}
+\item System commits changes to the database.
+\item System confirms the operation result to the owner (success or failure).
 \end{itemize}
 
-\paragraph{Manage Product Variations}
-
+Tables/Entities:
 \begin{itemize}
-    \item \textbf{Flow}: \begin{enumerate}
-    \item Owner selects product.
-    \item Adds/modifies variation.
-    \item System validates variation rules.
-    \item System updates Product\_Variation table.
-    \item System confirms update.
-    \end{enumerate}
-    \item \textbf{Entities}: Owner, System, Product DB, Variation DB.
-    \item \textbf{Components \& Actions}: \begin{itemize}
-        \item Variation Manager.
-        \item Validation Service.
-    \end{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Owner (Business Owner / Manager)
+\item Product/Service (the item being managed)
+\item Business (reference to ensure ownership validation)
+\item Product/Service Table (stores product/service records, categories, price, status)
+\item Auth Session (validates logged-in identity and permissions)
 \end{itemize}
 
-\paragraph{Manage Modifiers/Variants}
-
+Components:
 \begin{itemize}
-    \item \textbf{Flow}: \begin{enumerate}
-    \item Owner selects product.
-    \item Defines variant.
-    \item System validates rules.
-    \item System updates Variant table.
-    \item System confirms update.
-    \end{enumerate}
-    \item \textbf{Entities}: Owner, System, Product DB, Variation DB.
-    \item \textbf{Components \& Actions}: \begin{itemize}
-        \item Variation Manager.
-        \item Validation Service.
-    \end{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item User Interface (forms for product/service details, status changes)
+\item Auth Service (validates ownership and permissions)
+\item Product/Service Service (handles CRUD logic for products/services)
+\item Database Layer (Product/Service Table persistence)
 \end{itemize}
 
+Actions:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Navigate to Manage Products/Services
+\item Select item action (create / update / deactivate)
+\item Input or edit product/service details
+\item Validate ownership and permissions
+\item Execute database transaction (insert / update / deactivate record)
+\item Confirm operation result to owner
+\end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/diagrams/business/bpmn_products_services.png}
+    \caption{Manage Products/Services Business Flow Diagram}
+    \label{fig:product_service_manage_flow}
+\end{figure}
 
-\subsubsection{Business \& Information Management}
-% related use cases: Manage Business Info
-\subsubsection{Inventory \& Taxes}
-% related use cases: Manage Inventory (Optional), Manage Taxes
-\subsubsection{Discounts \& Charges}
-% related use cases: Manage Discounts, Time-Limited Discounts, ips
-\subsubsection{Reports}
-% related use cases: View Reports
+\subsubsection{Manage Product Variations Business Flow}
 
-\subsubsection{Cross-Domain}
-% related use cases: Login / Authentication, Logout, View History, Historical Data Consistency Check
+Flow:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Owner or authorized staff logs into the system and navigates to the Manage Product Variations section.
+\item Owner/staff selects an action: create new variation, update an existing variation, or delete/deactivate a variation.
+\item System prompts for variation details (name, type, category, associated product, status).
+\item Owner/staff provides or modifies variation details (e.g., size: small/medium/large; milk type: soy, almond; add-on: extra shot).
+\item System invokes the Auth Service to validate permissions and business ownership.
+\item If validation passes, system executes the requested operation through the Product Variation Service:
+\begin{itemize}
+\item Create variation → insert new record into Variation Table linked to a product.
+\item Update variation → modify existing record in Variation Table.
+\item Deactivate variation → mark record as inactive (soft delete).
+\end{itemize}
+\item System commits changes to the database.
+\item System confirms the operation result to the owner/staff (success or failure).
+\end{itemize}
+
+Tables/Entities:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Owner/Staff (business users with permissions)
+\item Product (base product associated with the variation)
+\item Product Variation (modifiers/options for the product)
+\item Business (reference for ownership validation)
+\item Product Variation Table (stores variation details, product linkage, status)
+\item Auth Session (validates user identity and role)
+\end{itemize}
+
+Components:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item User Interface (variation forms: add/edit/remove options)
+\item Auth Service (validates ownership and role permissions)
+\item Product Variation Service (CRUD operations for variations/modifiers)
+\item Database Layer (Variation Table persistence, product linkage)
+\end{itemize}
+
+Actions:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Navigate to Manage Product Variations
+\item Select variation action (create / update / deactivate)
+\item Input or edit variation details
+\item Validate ownership and permissions
+\item Execute database transaction (insert / update / deactivate variation)
+\item Confirm operation result to owner/staff
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/diagrams/business/bpmn_product_variations.png}
+    \caption{Manage Product Variations Business Flow Diagram}
+    \label{fig:product_variations_manage_flow}
+\end{figure}
+
+\subsubsection{Manage Employees Business Flow}
+Flow:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Owner logs into the system and navigates to the Manage Employees section.
+\item Owner chooses an action: create new employee, update existing employee details, or deactivate an employee account.
+\item System prompts for employee details (name, email, role, contact info, status).
+\item Owner provides or modifies the required details.
+\item System invokes the Auth Service to validate that the owner can only manage employees of their own
+business.
+\item If validation passes, system executes the requested operation through the Employee Service:
+\begin{itemize}
+\item Create employee → insert new record into Employee Table.
+\item Update employee → modify existing record in Employee Table.
+\item Deactivate employee → mark record as inactive (soft delete).
+\end{itemize}
+\item System commits changes to the database.
+\item System confirms the operation result to the owner (success or failure).
+\end{itemize}
+Tables/Entities:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Owner (Business Owner)
+\item Employee (the staff member being managed)
+\item Business (reference to ensure ownership validation)
+\item Employee Table (stores employee records, roles, status)
+\item Auth Session (validates logged-in identity and permissions)
+\end{itemize}
+Components:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item User Interface (forms for inputting employee details, displaying results)
+\item Auth Service (validates business ownership and permissions)
+\item Employee Service (handles create, update, deactivate logic)
+\item Database Layer (Employee Table persistence)
+\end{itemize}
+Actions:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\item Navigate to Manage Employees
+\item Select employee action (create / update / deactivate)
+\item Input or edit employee details
+\item Validate ownership and permissions
+\item Execute database transaction (insert / update / deactivate record)
+\item Confirm operation result to owner
+\end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/diagrams/business/bpmn_employee_manage.png}
+    \caption{Manage Employees Business Flow Diagram}
+    \label{fig:employee_manage_flow}
+\end{figure}
+
+\subsubsection{Manage Business Info Business Flow}
+
+Flow:
+\begin{itemize}
+    \setlength{\itemsep}{2pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}
+    \item Owner logs into the system and navigates to the Business Info section.
+    \item Owner selects an action: update business name, address, tax ID, contact information, or ownership details.
+    \item System displays current business information and prompts for changes.
+    \item Owner edits the desired fields and submits the update.
+    \item System invokes the Auth Service to validate that the owner is authorized to modify only their own business.
+    \item If validation passes, system updates the Business Table with the new information.
+    \item System commits changes to the database.
+    \item System confirms the operation result to the owner (success or failure).
+\end{itemize}
+
+Tables/Entities:
+\begin{itemize}
+    \setlength{\itemsep}{2pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}
+    \item Owner (Business Owner)
+    \item Business (stores business details)
+    \item Business Table (name, address, tax ID, contact info, owner)
+    \item Auth Session (validates logged-in identity and permissions)
+\end{itemize}
+
+Components:
+\begin{itemize}
+    \setlength{\itemsep}{2pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}
+    \item User Interface (forms for editing business info)
+    \item Auth Service (validates ownership and permissions)
+    \item Business Service (handles update logic)
+    \item Database Layer (Business Table persistence)
+\end{itemize}
+
+Actions:
+\begin{itemize}
+    \setlength{\itemsep}{2pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}
+    \item Navigate to Business Info section
+    \item Select info to update (name, address, tax ID, contact, owner)
+    \item Edit and submit changes
+    \item Validate ownership and permissions
+    \item Execute database transaction (update business record)
+    \item Confirm operation result to owner
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{docs/ps-design/design-document/diagrams/business/bpmn_business_info_manage.png}
+    \caption{Manage Business Info Business Flow Diagram}
+    \label{fig:business_info_manage_flow}
+\end{figure}
 
 \printbibliography[title = {References and sources}]
 
