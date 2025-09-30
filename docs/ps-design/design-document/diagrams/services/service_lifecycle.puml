@@ -1,0 +1,16 @@
+@startuml
+
+[*] --> CreateAppointment
+
+CreateAppointment --> Decision
+
+Decision --> ModifyAppointment : Modify
+ModifyAppointment --> Decision
+
+Decision --> CancelAppointment : Cancel
+CancelAppointment --> [*]
+
+Decision --> ServiceCustomer : Service
+ServiceCustomer --> [*]
+
+@enduml

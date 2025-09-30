@@ -320,59 +320,62 @@ to use the comments defined in this template.
 \subsection{Problem statement}
 
 Traditional methods of managing reservations and orders—such as handwritten
-appointment books, paper menus, phone-based booking, and manual order
-taking—create significant operational bottlenecks that directly impact business
-performance and stakeholder satisfaction. Reliance on outdated manual processes
-create several critical problems:
+appointment books, paper-based inventory tracking, manual payment processing,
+and physical order documentation—create significant operational bottlenecks that
+directly impact business performance and stakeholder satisfaction. Reliance on
+outdated manual processes for tracking orders, services, inventory, payments,
+and taxes create several critical problems:
 
 \begin{itemize}
     \item \textbf{For employees:} Manual order-taking and appointment booking
-    requires constant \textbf{memorization} of availability, pricing, and menu details.
-    Staff must physically check paper schedules or call to verify bookings,
-    leading to \textbf{errors}, double-bookings, and frustrated customers. During peak
-    periods (weekends, holidays, promotional events), employees become
-    \textbf{overwhelmed} managing multiple phone lines while \textbf{simultaneously serving}
-    in-person customers, resulting in poor service quality and increased stress.
+    requires constant \textbf{memorization} of availability, pricing, and menu
+    details. Staff must physically check paper schedules or call to verify
+    bookings, leading to \textbf{errors}, double-bookings, and frustrated
+    customers. During peak periods (weekends, holidays, promotional events),
+    employees become \textbf{overwhelmed} managing multiple phone lines while
+    \textbf{simultaneously serving} in-person customers, \textbf{calculating
+    totals}, resulting in poor service quality and increased stress.
 
-    \item \textbf{For customers:} Modern consumers expect the
-    \textbf{convenience} of online ordering and booking available 24/7, similar
-    to services like Square or Toast. When forced to call during business hours
-    or wait in line to place orders, customers often \textbf{abandon their
-    purchase intent}. The \textbf{inability} to view real-time availability,
-    modify orders easily, or receive confirmation notifications leads to
-    customer \textbf{dissatisfaction} and \textbf{frustration} as customers
-    cannot make informed decisions or plan their time effectively.
-    \todocomment{ask PS design lecturer if users should be able to view that information or if the interface remains the same and simply the employees have access to that information}
+    \item \textbf{For customers:} Manual paper-based systems create
+    \textbf{longer wait times} as employees must physically write orders, search
+    through paper schedules, and handle multiple forms or cards during each
+    transaction. Customers experience \textbf{increased likelihood} of lost or
+    incorrect orders due to handwriting errors, misplaced papers, or
+    miscommunication between staff members. The \textbf{slower service} caused
+    by employees manually searching orders, calculating totals, processing
+    appointments leads to customer \textbf{frustration} and
+    \textbf{dissatisfaction}, especially during busy periods when paper-based
+    workflows create bottlenecks.
+    % \todocomment{ask PS design lecturer if users should be able to view that information or if the interface remains the same and simply the employees have access to that information}
 
     \item \textbf{For business owners:} Manual systems prevent access to crucial
     business data—owners \textbf{cannot easily} track popular items, peak hours, or
     customer patterns. Inventory management relies on \textbf{guesswork}, leading to
-    waste or stockouts. Without automated processes, businesses require more
+    waste or stockouts. \textbf{Tax management} becomes complicated and
+    error-prone when relying on scattered paper receipts and handwritten
+    records. Without automated processes, businesses require more
     staff hours for administrative tasks that could be automated, increasing
     labor costs while \textbf{limiting growth potential}.
 \end{itemize}
-
-\textbf{Why this problem matters now:}
-
-The COVID-19 pandemic accelerated consumer adoption of digital ordering and
-contactless services. Customers now view online booking and ordering as standard
-expectations rather than luxury features. Businesses without these capabilities
-lose customers to competitors who offer digital convenience, even if their core
-service quality is superior.
 
 \textbf{Technical barriers:}
 
 Limited budgets and lack of technical expertise prevent these businesses from
 developing in-house solutions as these solutions are often expensive and complex.
 
-\textbf{Consequences of inaction:}
+\textbf{Why this problem matters and consequences of inaction:}
 
-Without accessible digital platforms, businesses experience reduced customer
-reach (losing tech‑savvy customers who prefer online interaction), decreased
-operational efficiency (staff spending time on manual tasks instead of customer
-service), higher recurring labor costs (requiring more staff for administrative
-work), and diminished competitive position (falling behind digitally-enabled
-competitors).
+These manual processes directly limit how much revenue a business can generate.
+When employees spend time on paperwork instead of serving customers, the
+business serves fewer people and makes less money. The problem gets worse
+during busy periods when potential customers leave due to long wait times,
+representing direct lost sales. Over time, businesses using manual systems
+fall further behind competitors who adopted digital tools—they cannot match
+their speed, cannot reduce their costs, and cannot grow at the same rate.
+Without change, the gap widens: competitors continue improving their
+efficiency while manual-dependent businesses remain stuck with the same
+limitations, eventually losing market share and facing reduced profitability
+that threatens long-term viability.
 
 
 \section{Stakeholder analysis}
@@ -406,25 +409,29 @@ competitors).
 \begin{itemize}
     \item \textbf{Employees} expect a system that eliminates the need to
     memorize constantly changing information (availability, pricing, specials),
-    reduces the risk of errors in bookings and order processing, and allows for
-    a more satisfying and efficient customer serving experience.
-    \warningcomment{from lecture: "So, you don't need to think of self-service,
-    maybe like Burger King or McDonald's", "...you can assume that all business
-    operations are performed by business employees. So, you don't need to worry
-    that much about customer accounts..."}
-    \item \textbf{Customers} expect 24/7 convenience for booking and ordering,
-    real-time availability information, effective order modifications, and
-    reliable confirmation notifications that enable informed and satisfying
-    decision-making. Furthermore customers expect to have similar convenience as
-    they have with other digital services.
+    allows calculating totals efficiently, reduces the risk of errors in
+    bookings and order processing, and allows for a more satisfying and
+    efficient customer serving experience.
+    % \warningcomment{from lecture: "So, you don't need to think of self-service,
+    % maybe like Burger King or McDonald's", "...you can assume that all business
+    % operations are performed by business employees. So, you don't need to worry
+    % that much about customer accounts..."}
+
 \end{itemize}
 
 \textbf{Secondary stakeholders:}
 \begin{itemize}
+    % o sitie primary? jie interactina su musu sistemos UI????
     \item \textbf{Client business owners} expect automated access to business
-    data (sales patterns, inventory levels, customer analytics) that are
+    data (sales patterns, inventory levels, customer analytics, tax information) that are
     error-free, reduced administrative overhead. They expect efficient systems
     that will reduce labor and allow them to focus on strategic decision-making.
+
+    \item \textbf{Customers} expect satisfying and efficient service with minimal wait
+    times during ordering and booking processes. They expect their orders and
+    appointments to be accurately recorded without errors or confusion.
+    Customers want reliable service where their bookings won't be lost
+    or double-booked due to manual record-keeping mistakes.
 \end{itemize}
 
 \textbf{Indirect (tertiary) stakeholders:}
@@ -436,19 +443,82 @@ competitors).
     expensive alternatives.
 \end{itemize}
 
+% \textbf{Competitors:}
+% \begin{itemize}
+%     \yellowcomment{write more about competitors, what they offer, why they are not good enough in seperate sentences, specify more how our advantages are better than competitors} 
+%     %  seperate each competitor into a bullet point
+%     \item \textbf{Square, Toast POS, Restaurant365, Excel} serve similar markets but
+%     often with complex, expensive solutions targeted at larger businesses. Small
+%     business owners currently using these platforms (or those considering them)
+%     expect affordable pricing and guides allowing quick onboarding
+%     without extensive technical training, and features that directly address the
+%     problems outlined above. Our competitive advantage lies in providing
+%     simplified, cost-effective solutions specifically designed for small to
+%     medium businesses that need core functionality without enterprise
+%     complexity.
+% \end{itemize}
+
 \textbf{Competitors:}
+\todocomment{UPDATED, NEED TO CHECK (and make shorter?)}
 \begin{itemize}
-    \yellowcomment{write more about competitors, what they offer, why they are not good enough in seperate sentences, specify more how our advantages are better than competitors} 
-    %  seperate each competitor into a bullet point
-    \item \textbf{Square, Toast POS, Restaurant365} serve similar markets but
-    often with complex, expensive solutions targeted at larger businesses. Small
-    business owners currently using these platforms (or those considering them)
-    expect affordable pricing and guides allowing quick onboarding
-    without extensive technical training, and features that directly address the
-    problems outlined above. Our competitive advantage lies in providing
-    simplified, cost-effective solutions specifically designed for small to
-    medium businesses that need core functionality without enterprise
-    complexity.
+    \item \textbf{Square:} Square offers a free basic POS system with no monthly
+    fees, appealing to small businesses starting out. However, Square is
+    designed as a general-purpose system for many business types—retail, cafes,
+    services—which means it lacks specialized features for specific industries.
+    Small businesses need industry-specific workflows (like appointment booking
+    for salons or table management for restaurants) that general systems cannot
+    provide efficiently. Square also charges transaction fees on every payment,
+    which adds up quickly for businesses with high transaction volumes.
+    
+    \textbf{Our advantages:} We provide industry-specific features tailored to
+    each business type without charging per-transaction fees. Our system is
+    designed from the ground up for the specific workflows of restaurants,
+    salons, and service businesses, not adapted from a generic platform.
+    
+    \item \textbf{Toast POS:} Toast is a restaurant-specific system with strong
+    features for food service operations. However, Toast requires significant
+    upfront investment in proprietary hardware (costing $494-$1,034) and monthly
+    software fees starting at \$69 for advanced features. This pricing model
+    puts it out of reach for many small restaurants operating on tight margins.
+    Toast's complexity also requires extensive training and setup time, creating
+    barriers for businesses without technical staff.
+    
+    \textbf{Our advantages:} We offer lower upfront costs by working with
+    standard devices businesses may already own. Our simplified interface
+    requires minimal training, allowing staff to start using the system
+    immediately without dedicated technical support or lengthy onboarding
+    processes.
+    
+    \item \textbf{Restaurant365:} Restaurant365 provides comprehensive
+    accounting and operations management with deep financial reporting
+    capabilities. However, it starts at $90-$249 per location per month, making
+    it expensive for single-location small businesses. The system is built for
+    restaurant groups managing multiple locations and complex accounting needs,
+    offering far more features than small businesses require. This complexity
+    makes it difficult to learn and overkill for businesses that simply need
+    basic order management and inventory tracking.
+    
+    \textbf{Our advantages:} We focus on core operational needs—order taking,
+    reservations, basic inventory—without expensive accounting modules that
+    small businesses do not need. Our pricing is accessible for single-location
+    businesses, and our simplified feature set means owners can understand and
+    use the system without accounting expertise.
+    
+    \item \textbf{Excel:} Many small businesses currently use Excel spreadsheets
+    to manually track orders, inventory, and schedules. Excel is familiar and
+    inexpensive, which explains its continued use. However, Excel requires
+    businesses to build their own systems from scratch, offers no automation for
+    repetitive tasks, and provides no real-time updates when multiple staff
+    members need access. Data entry errors are common because everything must be
+    typed manually, and there is no way to connect Excel directly to payment
+    processing or customer-facing ordering systems.
+    
+    \textbf{Our advantages:} We provide a ready-to-use system with built-in
+    templates for common business operations, eliminating the need to build
+    tracking systems from scratch. Our system automates repetitive tasks like
+    inventory calculations and sales reporting, reduces data entry errors
+    through dropdown menus and automated calculations, and allows multiple staff
+    members to access updated information in real-time.
 \end{itemize}
 
 \textbf{Development and maintenance team:}

@@ -1,0 +1,41 @@
+@startuml
+!define ICONIX
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor Customer as C
+actor Employee as E
+package "Services Management System" {
+  usecase "Create Appointment" as UC1
+  usecase "Modify Appointment" as UC2
+  usecase "Cancel Appointment" as UC3
+  usecase "Service Customer" as UC4
+  
+  usecase "Get Payment" as UC5
+  usecase "Mark Appointment\nDone" as UC6
+  
+  usecase "Send Confirmation" as UC7
+  usecase "Send Update\nNotification" as UC8
+  usecase "Send Cancellation\nNotification" as UC9
+}
+
+' Customer communicates with Employee
+C --> E : <<invokes>>\n(phone/in-person)
+
+' Employee invokes main use cases
+E -down-> UC1 : <<invokes>>
+E -down-> UC2 : <<invokes>>
+E -down-> UC3 : <<invokes>>
+E -down-> UC4 : <<invokes>>
+E -down-> UC5 : <<invokes>>
+E -down-> UC6 : <<invokes>>
+
+' Sequential flow between use cases
+UC1 .right.> UC7 : <<precedes>>
+UC2 .right.> UC8 : <<precedes>>
+UC3 .right.> UC9 : <<precedes>>
+UC4 .right.> UC5 : <<precedes>>
+UC5 .right.> UC6 : <<precedes>>
+
+@enduml
