@@ -1423,7 +1423,7 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{diagrams/business/bpmn_user_manage.png}
+    \includegraphics[width=1\textwidth]{images/diagrams/business/bpmn_user_manage.png}
     \caption{User Management Business Flow Diagram}
     \label{fig:user_manage_flow}
 \end{figure}
@@ -1488,7 +1488,7 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{diagrams/business/bpmn_products_services.png}
+    \includegraphics[width=1\textwidth]{images/diagrams/business/bpmn_products_services.png}
     \caption{Manage Products/Services Business Flow Diagram}
     \label{fig:product_service_manage_flow}
 \end{figure}
@@ -1554,7 +1554,7 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{diagrams/business/bpmn_product_variations.png}
+    \includegraphics[width=1\textwidth]{images/diagrams/business/bpmn_product_variations.png}
     \caption{Manage Product Variations Business Flow Diagram}
     \label{fig:product_variations_manage_flow}
 \end{figure}
@@ -1615,7 +1615,7 @@ Actions:
 \end{itemize}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{diagrams/business/bpmn_employee_manage.png}
+    \includegraphics[width=1\textwidth]{images/diagrams/business/bpmn_employee_manage.png}
     \caption{Manage Employees Business Flow Diagram}
     \label{fig:employee_manage_flow}
 \end{figure}
@@ -1674,10 +1674,109 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{diagrams/business/bpmn_business_info_manage.png}
+    \includegraphics[width=0.6\textwidth]{images/diagrams/business/bpmn_business_info_manage.png}
     \caption{Manage Business Info Business Flow Diagram}
     \label{fig:business_info_manage_flow}
 \end{figure}
+
+\subsection{Data Model}
+
+\subsubsection{Business Data Model}
+
+\paragraph{Design Decisions (Summary)}
+
+Below are the initial data design decisions for business and user account management. 
+\begin{itemize}
+    \item \textbf{User role-based access control (RBAC):} Roles group permissions, and users are assigned to roles. Also allow per-business role assignment.
+    \item \textbf{Identifiers and timestamps:} Use UUID primary keys and maintain \texttt{created} and \texttt{updated\_at} timestamps. This supports managing multiple businesses, potentially distributed across systems.
+    \item \textbf{Password security:} Store only hashed passwords. Include fields \texttt{password\_hash}, \texttt{password\_algo/version}, and \texttt{password\_changed\_at}. Do not store plaintext passwords or use reversible encryption.
+    \item \textbf{Audit logging:} Track login attempts, password resets, and administrator or manager actions.
+    \item \textbf{Support sessions or tokens:} Either server-side session store or JWT approach.
+    \item \textbf{Soft-delete:} For users with \textbf{is\_active} and \textbf{deleted\_at} attributes.
+\end{itemize}
+\textit{RBAC = Role-Based Access Control}
+
+\paragraph{Entities and Tables}  
+
+The database schema is organized into the following entities and supporting tables:  
+
+\begin{itemize}
+    \item \textbf{organization}  
+    \begin{itemize}
+        \item id (PK), name, metadata, created\_at, updated\_at
+    \end{itemize}
+    \item \textbf{businesses}  
+    \begin{itemize}
+        \item id (PK), organization\_id (FK), name, metadata, created\_at, updated\_at
+    \end{itemize}
+    \item \textbf{users}  
+    \begin{itemize}
+        \item id (PK), organization\_id (FK), business\_id (FK, optional), email, display\_name, username, 
+        password\_hash, password\_algo, password\_version, is\_active, email\_verified, last\_login\_at, 
+        failed\_login\_attempts, locked\_until, created\_at, updated\_at
+    \end{itemize}
+    \item \textbf{roles}  
+    \begin{itemize}
+        \item id (PK), name, description, created\_at
+    \end{itemize}
+    \item \textbf{permissions}  
+    \begin{itemize}
+        \item id (PK), name, description
+    \end{itemize}
+    \item \textbf{role\_permissions}  
+    \begin{itemize}
+        \item role\_id (FK), permission\_id (FK)
+    \end{itemize}
+    \item \textbf{user\_roles}  
+    \begin{itemize}
+        \item user\_id (FK), role\_id (FK), assigned\_by (FK), assigned\_at
+    \end{itemize}
+    \item \textbf{user\_business\_roles}  
+    \begin{itemize}
+        \item user\_id (FK), business\_id (FK), role\_id (FK), assigned\_by (FK), assigned\_at
+    \end{itemize}
+    \item \textbf{sessions}  
+    \begin{itemize}
+        \item id (PK), user\_id (FK), session\_token, user\_agent, ip, created\_at, last\_seen\_at, expires\_at, revoked
+    \end{itemize}
+    \item \textbf{password\_resets}  
+    \begin{itemize}
+        \item id (PK), user\_id (FK), reset\_token, expires\_at, used\_at
+    \end{itemize}
+    \item \textbf{audit\_logs}  
+    \begin{itemize}
+        \item id (PK), user\_id (subject, FK), actor\_id (FK), action, resource\_type, resource\_id, details, created\_at
+    \end{itemize}
+\end{itemize}
+
+\textit{PK = Primary Key,}
+\textit{FK = Foreign Key}
+
+\paragraph{Relationships}
+
+Below are the relationships between tables and entities in this schema.
+\begin{itemize}
+    \item \textbf{Organization $\rightarrow$ Businesses}. One organization can own many businesses. This models a parent company with multiple branches.
+    \item \textbf{Organization $\rightarrow$ Users}. One organization can have many users. Users are scoped to an organization.
+    \item \textbf{Businesses $\rightarrow$ Users (Optional)}. Users may also have a default \textbf{business\_id} to the business if are tied to one. But users don't have to be tied to a single business. They might be org-level (super admin or a lead manager).
+    \item \textbf{Businesses $\rightarrow$ User Store Roles}. A business can have many \textbf{user\_store\_roles}. This lets the assignment of roles to specific businesses.
+    \item \textbf{Users $\rightarrow$ Sessions}. One user can have many sessions (logins). Tracks IPs, session tokens, devices.
+    \item \textbf{Users $\rightarrow$ User Roles (Organization-wide)}. A user can have many roles at the organization level.
+    \item \textbf{Users $\rightarrow$ User Business Roles}. A user can have different roles in different businesses.
+    \item \textbf{Users $\rightarrow$ Audit Logs}. A user can generate many audit log entries as an actor. A user can also be the subject of audit logs.
+    \item \textbf{Roles $\rightarrow$ Role Permissions}. One role can have many permissions.
+    \item \textbf{Permissions $\rightarrow$ Role Permissions}. One permission can belong to many roles.
+    \item \textbf{Roles $\rightarrow$ User Roles}. A role can be assigned to many users throughout the organization.
+    \item \textbf{Roles $\rightarrow$ User Business Roles}. A role can be assigned to many users within a specific business.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/diagrams/business/data_model_business.png}
+    \caption{Business ER Diagram with Attributes}
+    \label{fig:business_er_diagram}
+\end{figure}
+This diagram represents different relationships between different entities as well as their attributes. 
 
 \printbibliography[title = {References and sources}]
 

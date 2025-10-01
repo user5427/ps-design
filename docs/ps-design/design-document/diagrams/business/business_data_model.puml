@@ -1,0 +1,123 @@
+@startuml
+!theme plain
+
+entity "organization" as organization {
+  *id : UUID <<PK>>
+  --
+  name : text
+  metadata : jsonb
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "businesses" as businesses {
+  *id : UUID <<PK>>
+  --
+  organization_id : UUID <<FK>>
+  name : text
+  metadata : jsonb
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "users" as users {
+  *id : UUID <<PK>>
+  --
+  organization_id : UUID <<FK>>
+  business_id : UUID <<FK>>  -- optional default
+  email : citext
+  display_name : text
+  username : text
+  password_hash : text
+  password_algo : text
+  password_version : int
+  is_active : bool
+  email_verified : bool
+  last_login_at : timestamp
+  failed_login_attempts : int
+  locked_until : timestamp
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "roles" as roles {
+  *id : UUID <<PK>>
+  --
+  name : text
+  description : text
+  created_at : timestamp
+}
+
+entity "permissions" as permissions {
+  *id : UUID <<PK>>
+  --
+  name : text
+  description : text
+}
+
+entity "role_permissions" as role_permissions {
+  *role_id : UUID <<FK>>
+  *permission_id : UUID <<FK>>
+}
+
+entity "user_roles" as user_roles {
+  *user_id : UUID <<FK>>
+  *role_id : UUID <<FK>>
+  --
+  assigned_by : UUID <<FK>>
+  assigned_at : timestamp
+}
+
+entity "user_business_roles" as user_business_roles {
+  *user_id : UUID <<FK>>
+  *business_id : UUID <<FK>>
+  *role_id : UUID <<FK>>
+  --
+  assigned_by : UUID <<FK>>
+  assigned_at : timestamp
+}
+
+entity "sessions" as sessions {
+  *id : UUID <<PK>>
+  --
+  user_id : UUID <<FK>>
+  session_token : text
+  user_agent : text
+  ip : inet
+  created_at : timestamp
+  last_seen_at : timestamp
+  expires_at : timestamp
+  revoked : bool
+}
+
+entity "audit_logs" as audit_logs {
+  *id : UUID <<PK>>
+  --
+  user_id : UUID <<FK>>   -- subject
+  actor_id : UUID <<FK>>  -- who performed the action
+  action : text
+  resource_type : text
+  resource_id : UUID
+  details : jsonb
+  created_at : timestamp
+}
+
+' --- Relationships ---
+organization ||--o{ businesses : "owns"
+organization ||--o{ users : "owns"
+businesses ||--o{ users : "default"
+businesses ||--o{ user_business_roles : "scoped"
+
+users ||--o{ sessions : "creates"
+users ||--o{ user_roles : "assigned"
+users ||--o{ user_business_roles : "assigned"
+users ||--o{ audit_logs : "subject"
+
+roles ||--o{ role_permissions : "maps"
+permissions ||--o{ role_permissions : "maps"
+roles ||--o{ user_roles : "assigned"
+roles ||--o{ user_business_roles : "assigned"
+
+users ||--o{ audit_logs : "actor"
+
+@enduml
