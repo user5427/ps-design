@@ -222,7 +222,7 @@ This list can be expanded/clarified by additional questions raised by students d
 
 %% Acknowledgements Section
 \sectionnonumnocontent{Acknowledgements}
-The author is thankful to the lecturer Vasilij Savin for his guidance and
+The authors are thankful to the lecturer Vasilij Savin for his guidance and
 support throughout the project.
 
 
@@ -516,7 +516,7 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/diagrams/services/order_client_seating_available.png}
+    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_client_seating_available.png}
     \caption{Client Seating(available) Sequence Diagram}
     \label{fig:client_seating_available_sequence}
 \end{figure}
@@ -571,7 +571,7 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/diagrams/services/order_client_seating_not_available_sequence.png}
+    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_client_seating_not_available_sequence.png}
     \caption{Client Seating(not available) Sequence Diagram}
     \label{fig:client_seating_not_available_sequence}
 \end{figure}
@@ -647,7 +647,7 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/diagrams/services/order_place_order_sequence.png}
+    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_place_order_sequence.png}
     \caption{Place Order Sequence Diagram}
     \label{fig:place_order_sequence}
 \end{figure}
@@ -710,7 +710,7 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/diagrams/services/order_modify_order_sequence.png}
+    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_modify_order_sequence.png}
     \caption{Modify Order Sequence Diagram}
     \label{fig:modify_order_sequence}
 \end{figure}
@@ -771,7 +771,7 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/diagrams/services/order_cancel_order_sequence.png}
+    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_cancel_order_sequence.png}
     \caption{Cancel Order Sequence Diagram}
     \label{fig:cancel_order_sequence}
 \end{figure}
@@ -826,9 +826,9 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/diagrams/services/order_mark_items_delivered_sequence.png}
-    \caption{Cancel Order Sequence Diagram}
-    \label{fig:cancel_order_sequence}
+    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_mark_items_delivered_sequence.png}
+    \caption{Mark Items as Delivered Sequence Diagram}
+    \label{fig:mark_items_delivered_sequence}
 \end{figure}
 
 
@@ -849,6 +849,7 @@ Actions:
 % Mark Service as Done | Record that the service has been completed.
 % ------------------------------------------------------------------------------
 
+\noticecomment{The employee that registers the customer doesnt necessarily need to service the customer themselves (think of spas). However smaller businesses (like haircut saloons) employees may both register and service the customer themselves.}
 
 We have identified the following use cases for the services management domain:
 
@@ -898,59 +899,70 @@ Service Customer &
 
 \subsubsection{Appointment creating business flow}
 
-Flow:
+\textbf{BASIC FLOW:}
+
+
+Customer calls or walks in to the spa/salon.
+Customer meets with the employee.
+Customer requests a service.
+Employee checks availability of the requested service.
+If available, the employee asks when the customer would like to book the service.
+Customer provides a date and time.
+Employee checks availability for the requested date and time.
+If available, employee asks if the customer has a preference for a specific employee.
+Customer provides a preference (or not).
+Employee checks availability of the requested employee (if any).
+Employee asks for customer contact information (phone number, email).
+Customer provides contact information.
+Employee creates the appointment in the POS system.
+System sends a confirmation SMS/email to the customer.
+
+\textbf{ALTERNATIVE FLOWS:}
 \begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Customer calls or walks in to the spa/salon
-    \item Customer meets with the employee
-    \item Customer requests a service
-    \item Employee checks availability of the requested service
-    \item If available, the employee asks when the customer would like to book the service
-    \item Customer provides a date and time
-    \item Employee checks availability for the requested date and time
-    \item If available, employee asks if the customer has a preference for a specific employee
-    \item Customer provides a preference (or not)
-    \item Employee checks availability of the requested employee (if any)
-    \item Employee asks for customer contact information (phone number, email)
-    \item Customer provides contact information
-    \item Employee creates the appointment in the POS system
-    \item System sends a confirmation SMS/email to the customer
+    \item \textbf{Service not available: } The requested service is not available at the spa/salon.
+    Employee informs the customer that the service is not available and suggests alternative services.
+    \item \textbf{Slot taken: } The time slot or employee requested by the customer is not available.
+    Employee informs the customer of the unavailability and suggests alternative options.
+    Customer selects an alternative option.
+    \item \textbf{Employee not available: } The specific employee requested by the customer is not available.
+    Employee informs the customer of the unavailability and suggests alternative employees.
+    Customer selects an alternative employee or opts for any available employee.
 \end{itemize}
 
-Tables/Entities:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Customer
-    \item Employee
-    \item Service
-    \item Appointment
-    \item Spa/Salon (Business)
-\end{itemize}
-
-Components:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Appointment Management (Appointment, Employee, Service)
-    \item Employee Management (Employee)
-    \item Notification System (SMS/Email)
-\end{itemize}
-
-Actions:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Check availability of service
-    \item Check availability of employee
-    \item Create appointment
-    \item Send confirmation notification
-\end{itemize}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{tabular}{@{}l@{}}
+Customer \\
+Employee \\
+Service \\
+Appointment \\
+Spa/Salon (Business)
+\end{tabular}
+&
+\textbf{Components} \newline
+\begin{tabular}{@{}l@{}}
+Appointment Management \\ (Appointment, Employee, Service) \\
+Employee Management (Employee) \\
+Notification System (SMS/Email)
+\end{tabular}
+\\ \hline
+\textbf{Actions} \newline
+\begin{tabular}{@{}l@{}}
+Check availability of service \\
+Check availability of employee \\
+Create appointment \\
+Send confirmation notification
+\end{tabular}
+&
+\begin{tabular}{@{}l@{}}
+% Reserved for additional details or future items.
+\end{tabular}
+\\ \hline
+\end{tabular}
+\end{center}
 
 \begin{figure}[H]
     \centering
@@ -958,6 +970,8 @@ Actions:
     \caption{Appointment Creation Flow Diagram}
     \label{fig:appointment_creation_flow}
 \end{figure}
+
+\noticecomment{the suggest alternative employee or time needs to also include text that customer can opt for any available employee or time slot}
 
 \begin{figure}[H]
     \centering
@@ -978,7 +992,7 @@ Customer provides contact information.
 Employee retrieves the appointment using the provided contact information.
 Employee discusses the requested changes with the customer (date, time, service, employee).
 Employee checks availability for the requested changes.
-Employee updates the appointment in the POS system.
+If available, employee updates the appointment in the POS system.
 System sends an updated confirmation SMS/email to the customer.
 
 \textbf{ALTERNATIVE FLOW:}
@@ -1047,51 +1061,53 @@ Send updated confirmation notification
 
 \subsubsection{Cancel appointment business flow}
 \textbf{BASICL FLOW:}
-Customer calls or walks in to the spa/salon
-Customer meets with the employee
-Customer requests to cancel an existing appointment
-Employee asks for customer contact information (phone number, email)
-Customer provides contact information
-Employee retrieves the appointment using the provided contact information
-Employee confirms the cancellation with the customer
-Employee cancels the appointment in the POS system
-System sends a cancellation confirmation SMS/email to the customer
+Customer calls or walks in to the spa/salon.
+Customer meets with the employee.
+Customer requests to cancel an existing appointment.
+Employee asks for customer contact information (phone number, email).
+Customer provides contact information.
+Employee retrieves the appointment using the provided contact information.
+Employee confirms the cancellation with the customer.
+Employee cancels the appointment in the POS system.
+System sends a cancellation confirmation SMS/email to the customer.
 
 \textbf{ALTERNATIVE FLOWS:}
-\item \textbf{No appointment found: } The employee cannot find an appointment matching the provided contact information.
+\textbf{No appointment found: } The employee cannot find an appointment matching the provided contact information.
 Employee informs the customer that no appointment was found.
 
-Tables/Entities:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Customer
-    \item Employee
-    \item Service
-    \item Appointment
-    \item Spa/Salon (Business)
-\end{itemize}
-
-Components:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Appointment Management (Appointment, Employee, Service)
-    \item Employee Management (Employee)
-    \item Notification System (SMS/Email)
-\end{itemize}
-
-Actions:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Retrieve appointment
-    \item Cancel appointment
-    \item Send cancellation confirmation notification
-\end{itemize}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{tabular}{@{}l@{}}
+Customer \\
+Employee \\
+Service \\
+Appointment \\
+Spa/Salon (Business)
+\end{tabular}
+&
+\textbf{Components} \newline
+\begin{tabular}{@{}l@{}}
+Appointment Management \\ (Appointment, Employee, Service) \\
+Employee Management (Employee) \\
+Notification System (SMS/Email)
+\end{tabular}
+\\ \hline
+\textbf{Actions} \newline
+\begin{tabular}{@{}l@{}}
+Retrieve appointment \\
+Cancel appointment \\
+Send cancellation confirmation notification
+\end{tabular}
+&
+\begin{tabular}{@{}l@{}}
+% \small Reserved for additional details or future items.
+\end{tabular}
+\\ \hline
+\end{tabular}
+\end{center}
 
 \begin{figure}[H]
     \centering
@@ -1109,60 +1125,62 @@ Actions:
 
 \subsubsection{Service customer business flow}
 
-Flow:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Customer arrives at the spa/salon for their scheduled appointment
-    \item Employee greets the customer and asks customer to confirm their appointment details
-    \item Employee verifies the appointment details in the POS system
-    \item Employee directs the customer to the appropriate service area and employee
-    \item Employee begins providing the scheduled service to the customer
-    \item Employee completes the service according to the appointment specifications
-    \item Employee asks the customer for the payment method 
-    \item Customer provides payment information (cash, card, etc.)
-    \item Employee processes the payment in the POS system
-    \item System confirms payment and updates the appointment status
-    \item Employee asks if the user would like a receipt
-    \item If yes, employee prints or emails the receipt to the customer
-    \item Customer departs
-\end{itemize}
+\textbf{BASIC FLOW:}
 
-Tables/Entities:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Customer
-    \item Employee
-    \item Service
-    \item Appointment
-    \item Payment
-    \item Spa/Salon (Business)
-\end{itemize}
+Customer arrives at the spa/salon for their scheduled appointment.
+Employee greets the customer and asks customer to confirm their appointment details.
+Employee verifies the appointment details in the POS system.
+Employee directs the customer to the appropriate service area and employee.
+Employee begins providing the scheduled service to the customer.
+Employee completes the service according to the appointment specifications.
+Employee asks the customer for the payment method.
+Customer provides payment information (cash, card, etc.).
+Employee processes the payment in the POS system.
+System confirms payment and updates the appointment status.
+Employee asks if the user would like a receipt.
+If yes, employee prints or emails the receipt to the customer.
+Customer departs.
 
-Components:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Appointment Management (Appointment, Service)
-    \item Employee Management (Employee)
-    \item Payment Processing (Payment)
-    \item Notification System (Follow-up notifications)
-\end{itemize}
+\textbf{ALTERNATIVE FLOWS:}
+\textbf{No appointment found: } The employee cannot find an appointment matching the provided contact information.
+Employee informs the customer that no appointment was found.
 
-Actions:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Verify appointment details
-    \item Process payment
-    \item Mark service as completed
-    \item Generate receipt
-\end{itemize}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{tabular}{@{}l@{}}
+Customer \\
+Employee \\
+Service \\
+Appointment \\
+Payment \\
+Spa/Salon (Business)
+\end{tabular}
+&
+\textbf{Components} \newline
+\begin{tabular}{@{}l@{}}
+Appointment Management \\ (Appointment, Service) \\
+Employee Management (Employee) \\
+Payment Processing (Payment) \\
+Notification System (Follow-up notifications)
+\end{tabular}
+\\ \hline
+\textbf{Actions} \newline
+\begin{tabular}{@{}l@{}}
+Verify appointment details \\
+Process payment \\
+Mark service as completed \\
+Generate receipt
+\end{tabular}
+&
+\begin{tabular}{@{}l@{}}
+% Reserved for additional notes or future items.
+\end{tabular}
+\\ \hline
+\end{tabular}
+\end{center}
 
 \begin{figure}[H]
     \centering
@@ -1170,6 +1188,8 @@ Actions:
     \caption{Service Customer Flow Diagram}
     \label{fig:service_customer_flow}
 \end{figure}
+
+\noticecomment{It says in the alternative flow employee addresses appointment discrepency, but in the flow it just says informs the customer. }
 
 \begin{figure}[H]
     \centering
@@ -1404,7 +1424,7 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/diagrams/business/bpmn_user_manage.png}
+    \includegraphics[width=1\textwidth]{images/diagrams/business/bpmn_user_manage.png}
     \caption{User Management Business Flow Diagram}
     \label{fig:user_manage_flow}
 \end{figure}
@@ -1469,7 +1489,7 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/diagrams/business/bpmn_products_services.png}
+    \includegraphics[width=1\textwidth]{images/diagrams/business/bpmn_products_services.png}
     \caption{Manage Products/Services Business Flow Diagram}
     \label{fig:product_service_manage_flow}
 \end{figure}
@@ -1535,7 +1555,7 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/diagrams/business/bpmn_product_variations.png}
+    \includegraphics[width=1\textwidth]{images/diagrams/business/bpmn_product_variations.png}
     \caption{Manage Product Variations Business Flow Diagram}
     \label{fig:product_variations_manage_flow}
 \end{figure}
@@ -1596,7 +1616,7 @@ Actions:
 \end{itemize}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/diagrams/business/bpmn_employee_manage.png}
+    \includegraphics[width=1\textwidth]{images/diagrams/business/bpmn_employee_manage.png}
     \caption{Manage Employees Business Flow Diagram}
     \label{fig:employee_manage_flow}
 \end{figure}
@@ -1655,10 +1675,117 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{docs/ps-design/design-document/diagrams/business/bpmn_business_info_manage.png}
+    \includegraphics[width=0.6\textwidth]{images/diagrams/business/bpmn_business_info_manage.png}
     \caption{Manage Business Info Business Flow Diagram}
     \label{fig:business_info_manage_flow}
 \end{figure}
+
+\subsection{Data Model}
+
+\subsubsection{Order Data Model}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{docs/ps-design/design-document/images/diagrams/orders/order_model_class.png}
+    \caption{Order Class Diagram}
+    \label{fig:order_class_diagram}
+\end{figure}
+
+\subsubsection{Business Data Model}
+
+\paragraph{Design Decisions (Summary)}
+
+Below are the initial data design decisions for business and user account management. 
+\begin{itemize}
+    \item \textbf{User role-based access control (RBAC):} Roles group permissions, and users are assigned to roles. Also allow per-business role assignment.
+    \item \textbf{Identifiers and timestamps:} Use UUID primary keys and maintain \texttt{created} and \texttt{updated\_at} timestamps. This supports managing multiple businesses, potentially distributed across systems.
+    \item \textbf{Password security:} Store only hashed passwords. Include fields \texttt{password\_hash}, \texttt{password\_algo/version}, and \texttt{password\_changed\_at}. Do not store plaintext passwords or use reversible encryption.
+    \item \textbf{Audit logging:} Track login attempts, password resets, and administrator or manager actions.
+    \item \textbf{Support sessions or tokens:} Either server-side session store or JWT approach.
+    \item \textbf{Soft-delete:} For users with \textbf{is\_active} and \textbf{deleted\_at} attributes.
+\end{itemize}
+\textit{RBAC = Role-Based Access Control}
+
+\paragraph{Entities and Tables}  
+
+The database schema is organized into the following entities and supporting tables:  
+
+\begin{itemize}
+    \item \textbf{organization}  
+    \begin{itemize}
+        \item id (PK), name, metadata, created\_at, updated\_at
+    \end{itemize}
+    \item \textbf{businesses}  
+    \begin{itemize}
+        \item id (PK), organization\_id (FK), name, metadata, created\_at, updated\_at
+    \end{itemize}
+    \item \textbf{users}  
+    \begin{itemize}
+        \item id (PK), organization\_id (FK), business\_id (FK, optional), email, display\_name, username, 
+        password\_hash, password\_algo, password\_version, is\_active, email\_verified, last\_login\_at, 
+        failed\_login\_attempts, locked\_until, created\_at, updated\_at
+    \end{itemize}
+    \item \textbf{roles}  
+    \begin{itemize}
+        \item id (PK), name, description, created\_at
+    \end{itemize}
+    \item \textbf{permissions}  
+    \begin{itemize}
+        \item id (PK), name, description
+    \end{itemize}
+    \item \textbf{role\_permissions}  
+    \begin{itemize}
+        \item role\_id (FK), permission\_id (FK)
+    \end{itemize}
+    \item \textbf{user\_roles}  
+    \begin{itemize}
+        \item user\_id (FK), role\_id (FK), assigned\_by (FK), assigned\_at
+    \end{itemize}
+    \item \textbf{user\_business\_roles}  
+    \begin{itemize}
+        \item user\_id (FK), business\_id (FK), role\_id (FK), assigned\_by (FK), assigned\_at
+    \end{itemize}
+    \item \textbf{sessions}  
+    \begin{itemize}
+        \item id (PK), user\_id (FK), session\_token, user\_agent, ip, created\_at, last\_seen\_at, expires\_at, revoked
+    \end{itemize}
+    \item \textbf{password\_resets}  
+    \begin{itemize}
+        \item id (PK), user\_id (FK), reset\_token, expires\_at, used\_at
+    \end{itemize}
+    \item \textbf{audit\_logs}  
+    \begin{itemize}
+        \item id (PK), user\_id (subject, FK), actor\_id (FK), action, resource\_type, resource\_id, details, created\_at
+    \end{itemize}
+\end{itemize}
+
+\textit{PK = Primary Key,}
+\textit{FK = Foreign Key}
+
+\paragraph{Relationships}
+
+Below are the relationships between tables and entities in this schema.
+\begin{itemize}
+    \item \textbf{Organization $\rightarrow$ Businesses}. One organization can own many businesses. This models a parent company with multiple branches.
+    \item \textbf{Organization $\rightarrow$ Users}. One organization can have many users. Users are scoped to an organization.
+    \item \textbf{Businesses $\rightarrow$ Users (Optional)}. Users may also have a default \textbf{business\_id} to the business if are tied to one. But users don't have to be tied to a single business. They might be org-level (super admin or a lead manager).
+    \item \textbf{Businesses $\rightarrow$ User Store Roles}. A business can have many \textbf{user\_store\_roles}. This lets the assignment of roles to specific businesses.
+    \item \textbf{Users $\rightarrow$ Sessions}. One user can have many sessions (logins). Tracks IPs, session tokens, devices.
+    \item \textbf{Users $\rightarrow$ User Roles (Organization-wide)}. A user can have many roles at the organization level.
+    \item \textbf{Users $\rightarrow$ User Business Roles}. A user can have different roles in different businesses.
+    \item \textbf{Users $\rightarrow$ Audit Logs}. A user can generate many audit log entries as an actor. A user can also be the subject of audit logs.
+    \item \textbf{Roles $\rightarrow$ Role Permissions}. One role can have many permissions.
+    \item \textbf{Permissions $\rightarrow$ Role Permissions}. One permission can belong to many roles.
+    \item \textbf{Roles $\rightarrow$ User Roles}. A role can be assigned to many users throughout the organization.
+    \item \textbf{Roles $\rightarrow$ User Business Roles}. A role can be assigned to many users within a specific business.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/diagrams/business/data_model_business.png}
+    \caption{Business Class Diagram with Attributes}
+    \label{fig:business_class_diagram}
+\end{figure}
+This diagram represents different relationships between different entities as well as their attributes. 
 
 \printbibliography[title = {References and sources}]
 
