@@ -353,14 +353,15 @@ and taxes create several critical problems:
 \begin{itemize}
     \item \textbf{For employees:} Manual order-taking and appointment booking
     requires constant \textbf{memorization} of availability, pricing, and menu
-    details. Staff must physically check paper schedules or call to verify
+    details. Staff must physically check excel/paper schedules or call to verify
     bookings, leading to \textbf{errors}, double-bookings, and frustrated
     customers. During peak periods (weekends, holidays, promotional events),
     employees become \textbf{overwhelmed} managing multiple phone lines while
     \textbf{simultaneously serving} in-person customers, \textbf{calculating
-    totals}, resulting in poor service quality and increased stress.
+    totals}, \textbf{managing inventory}, resulting in poor service quality and
+    increased stress.
 
-    \item \textbf{For customers:} Manual paper-based systems create
+    \item \textbf{For customers:} Manual excel/paper-based systems create
     \textbf{longer wait times} as employees must physically write orders, search
     through paper schedules, and handle multiple forms or cards during each
     transaction. Customers experience \textbf{increased likelihood} of lost or
@@ -373,13 +374,13 @@ and taxes create several critical problems:
     % \todocomment{ask PS design lecturer if users should be able to view that information or if the interface remains the same and simply the employees have access to that information}
 
     \item \textbf{For business owners:} Manual systems prevent access to crucial
-    business data—owners \textbf{cannot easily} track popular items, peak hours, or
-    customer patterns. Inventory management relies on \textbf{guesswork}, leading to
-    waste or stockouts. \textbf{Tax management} becomes complicated and
-    error-prone when relying on scattered paper receipts and handwritten
-    records. Without automated processes, businesses require more
-    staff hours for administrative tasks that could be automated, increasing
-    labor costs while \textbf{limiting growth potential}.
+    business data—owners \textbf{cannot easily} track popular items, peak hours,
+    or customer patterns. Inventory management and supply chain logistics relies
+    on \textbf{guesswork}, leading to waste or stockouts. \textbf{Tax
+    management} becomes complicated and error-prone when relying on scattered
+    paper receipts and handwritten records. Without automated processes,
+    businesses require more staff hours for administrative tasks that could be
+    automated, increasing labor costs while \textbf{limiting growth potential}.
 \end{itemize}
 
 \textbf{Technical barriers:}
@@ -433,9 +434,9 @@ that threatens long-term viability.
 \begin{itemize}
     \item \textbf{Employees} expect a system that eliminates the need to
     memorize constantly changing information (availability, pricing, specials),
-    allows calculating totals efficiently, reduces the risk of errors in
-    bookings and order processing, and allows for a more satisfying and
-    efficient customer serving experience.
+    allows calculating totals and managing inventory efficiently, reduces the
+    risk of errors in bookings and order processing, and allows for a more
+    satisfying and efficient customer serving experience.
     % \item \textcolor{gray}{\textbf{Employees} expect a system that removes the
     % need to memorize, provides quick access to changing information (item
     % availability, pricing, specials), automates calculations (discounts, split
@@ -700,6 +701,80 @@ for future campaigns.
     automatically applies them at the till to reduce errors and speed up service.
 \end{itemize}
 
+
+
+
+\subsubsubsection{Bakery Tracking Inventory Costs}
+\suggestioncomment{NEW STORY}
+Thomas, 26, manages inventory at a small artisan bakery that recently adopted
+Restaurant365 to handle inventory and finances. Thomas finds the system
+overwhelming. Every morning, he needs to log ingredient usage, but navigating
+through multiple accounting modules just to record that they used 5kg of flour
+takes several clicks through unfamiliar menu structures. The system sophisticated
+features, but Thomas simply needs to know when to reorder supplies. Last week,
+he spent 45 minutes trying to generate a basic inventory report for their weekly
+supplier order, clicking through dashboards he does not need. He used to use
+spreadsheets which were simpler for him.
+
+\textbf{PROBLEMS:}
+\begin{itemize}
+    \item Complex interface designed for enterprise needs creates confusion for simple daily tasks.
+    \item Time wasted navigating unnecessary financial modules to complete basic inventory functions.
+    \item Employee frustration from using overcomplicated tools for straightforward operational needs.
+\end{itemize}
+
+\textbf{OPPORTUNITIES:}
+\begin{itemize}
+    \item Provide an efficient and effective system focused on core operational tasks without
+    overwhelming accounting features that small businesses don't require.
+\end{itemize}
+
+\subsubsubsection{Café Counter Staff Calculating Orders During Morning Rush}
+\suggestioncomment{NEW STORY}
+Priya, 20, works morning shifts at a neighborhood café that recently adopted
+Square’s POS system to eliminate manual order-taking and speed up transactions.
+However, during the 8--9~AM rush, frequent Wi‑Fi drops cause the system to slow
+down or freeze, disrupting order flow. Without reliable offline functionality,
+Priya must revert to paper notes and mental math—exactly what the system was
+meant to replace. The queue backs up, customers leave, and Priya feels anxious
+each morning. Square’s low-cost appeal came at the expense of reliability and
+support, creating new operational stress instead of solving old manual
+bottlenecks.
+
+\textbf{PROBLEMS:}
+\begin{itemize}
+    \item Cloud-reliant POS halts during network issues, disrupting peak-hour transactions.
+    \item Manual fallback introduces errors, slows service, and frustrates customers.
+    \item Limited support and unreliable performance increase staff stress and cause lost revenue.
+\end{itemize}
+
+\textbf{OPPORTUNITIES:}
+\begin{itemize}
+    \item Adopt a POS with robust offline capabilities to ensure continuity during network outages.
+\end{itemize}
+
+\subsubsubsection{Salon Receptionist Locked Out by Computer Crash}
+\suggestioncomment{NEW STORY}
+
+Maya, 28, manages salon bookings in a single Excel file on the front‑desk computer.
+During Saturday’s rush the computer crashed with a blue screen, locking her out
+of the schedule. With no backup or printed copy she couldn’t confirm appointments
+or answer calls without risking double‑bookings. Frustrated customers left
+voicemails or walked out, and unsaved updates were lost when the system rebooted.
+
+\textbf{PROBLEMS:}
+\begin{itemize}
+    \item Single‑device reliance causes total breakdown during crashes.
+    \item Lost data and missed calls lead to scheduling errors and lost revenue.
+    \item No backup or multi‑access workflow prevents staff from continuing service when one device fails.
+\end{itemize}
+
+\textbf{OPPORTUNITIES:}
+\begin{itemize}
+    \item Use cloud‑based scheduling with autosave and multi‑device access to prevent data loss and allow continued service during device failures.
+    \item Maintain service continuity during outages via offline‑capable clients and automatic synchronization to increase reliability.
+\end{itemize}
+
 \subsubsection{PACT analysis of employees}
     \textbf{People:} Employees are mostly young to mid-career workers (baristas, receptionists, restaurant managers). They multitask under pressure, balancing customer interaction with operational tasks. Some are comfortable with smartphones and PCs. while other rely heavily on paper-based systems, showing varied levels of technical familiarity. They are motivated by efficiency: fewer errors and faster service lead to smoother operations and higher customer satisfaction. There are three types of employees: frontline employees (baristas, receptionists) who are constantly interacting with customers can often get frustrated dealing with plenty of paper orders that get lost or destroyed. Supervisors/managers oversee staff, they need better technology to make calculated decisions regarding discounts, handle exceptions etc. Support staff (kitchen staff, stylists) depend on accurate and timely information passed from the frontline, errors directly affect they output.
 
@@ -911,15 +986,91 @@ Customers need automated and reliable communication and service processes, when 
 
 \subsubsubsection{Restaurant Owner Handling Customer Feedback}
 
-Apolline, 39, owns a family restaurant in a popular tourist area. She values customer reviews and wants to use them to improve service, but checking them manually is slow and complaints can go unnoticed for days. Without structured, easily accessible data, it’s difficult for her to identify recurring issues (for example, slow service during specific time frames) and respond quickly.
+Apolline, 39, owns a family restaurant in a popular tourist area. She values
+customer reviews and wants to use them to improve service, but checking them
+manually is slow and complaints can go unnoticed for days. Without structured,
+easily accessible data, it’s difficult for her to identify recurring issues (for
+example, slow service during specific time frames) and respond quickly.
+
+\textbf{PROBLEMS:}
+\begin{itemize}
+    \item Manual checking of reviews across multiple platforms is time-consuming and complaints go unnoticed for extended periods.
+    \item Lack of structured data prevents identification of recurring issues and patterns.
+    \item Inability to respond quickly to customer feedback damages reputation and customer relationships.
+\end{itemize}
+\textbf{OPPORTUNITIES:}
+\begin{itemize}
+    \item Implement a centralized feedback management system that aggregates reviews from multiple sources.
+    \item Generate analytics to identify recurring issues and patterns in customer complaints.
+\end{itemize}
 
 \subsubsubsection{Salon Owner Tracking Staff Performance}
 
-Nils, in his forties, runs a busy salon with six stylists. He manually records stylist performance and client feedback in Excel spreadsheets. Mistakes in typing or saving entries are frequent, and without a reliable system containing accurate historical records, Nils cannot easily track improvements or recognize top performers, which negatively affects overall team management.
-% \todocomment{specify how he inputs the data}
+Nils, in his forties, runs a busy salon with six stylists. He manually records
+stylist performance and client feedback in Excel spreadsheets. Mistakes in
+typing or saving entries are frequent, and without a reliable system containing
+accurate historical records, Nils cannot easily track improvements or recognize
+top performers, which negatively affects overall team management.
+
+\textbf{PROBLEMS:}
+\begin{itemize}
+    \item Manual data entry in Excel spreadsheets leads to frequent typing and saving errors.
+    \item Lack of reliable historical records prevents effective tracking of staff improvements.
+    \item Inability to easily identify top performers undermines team motivation and management effectiveness.
+\end{itemize}
+\textbf{OPPORTUNITIES:}
+\begin{itemize}
+    \item Implement an automated performance tracking system that reduces manual data entry errors.
+    \item Provide reliable historical records with built-in reporting to easily track improvements over time.
+    \item Enable data-driven recognition of top performers to improve team morale and management decisions.
+\end{itemize}
 
 \subsubsubsection{Restaurant owner stuck in Excel spreadsheets}
-Maria, a 38-year-old owner of a small café, wanted to streamline her restaurant operations using Toast. However, the high costs and attempts to set it up without technical staff proved frustrating and unsuccessful. Instead, she reverted to using Excel, which is familiar and inexpensive. While Excel allows her to record sales and track basic information, it requires building her own systems from scratch, which is time consuming and prone to errors.
+Maria, a 38-year-old owner of a small café, wanted to streamline her restaurant
+operations using Toast. However, the high costs and attempts to set it up
+without technical staff proved frustrating and unsuccessful. Instead, she
+reverted to using Excel, which is familiar and inexpensive. While Excel allows
+her to record sales and track basic information, it requires building her own
+systems from scratch, which is time consuming and prone to errors.
+
+\textbf{PROBLEMS:}
+\begin{itemize}
+    \item High costs and technical complexity of enterprise solutions (like Toast) are prohibitive for small businesses.
+    \item Excel requires building custom tracking systems from scratch, which is time-consuming for business owners.
+    \item Manual Excel-based systems are error-prone and lack automation for repetitive tasks.
+    \item No integration between sales tracking and other business operations creates data silos.
+\end{itemize}
+\textbf{OPPORTUNITIES:}
+\begin{itemize}
+    \item Provide an affordable, easy-to-setup solution that doesn't require technical expertise.
+    \item Offer pre-built templates and workflows that eliminate the need to build systems from scratch.
+    \item Automate repetitive tasks like sales calculations and reporting to save time and reduce errors.
+    \item Integrate multiple business functions (sales, inventory, staff management) in one accessible platform.
+\end{itemize}
+
+\subsubsubsection{Deli Owner Unable to Track Inventory Patterns}
+\suggestioncomment{NEW STORY}
+Hassan, 41, runs a single-location deli and implemented Toast POS hoping to
+modernize his manual inventory tracking. Yet the enterprise-level platform
+overwhelms him with features meant for large chains—multi-location dashboards,
+accounting modules, and complex cost centers—burying the simple sales insights
+he needs. He still struggles to know what sells best, leading to waste and
+stockouts, despite paying £200 monthly. The system’s complexity, steep learning
+curve, and high cost leave Hassan nostalgic for his old paper logs, which at
+least felt manageable.
+
+\textbf{PROBLEMS:}
+\begin{itemize}
+    \item Overly complex system hides essential insights needed for small business decisions.
+    \item Time lost navigating irrelevant modules prevents effective inventory control.
+    \item High costs add financial pressure without solving core operational needs.
+\end{itemize}
+
+\textbf{OPPORTUNITIES:}
+\begin{itemize}
+    \item Provide simplified, insight-driven tools tailored for single-location operations.
+    \item Focus on actionable sales and inventory data without enterprise-level complexity.
+\end{itemize}
 
 \subsubsection{PACT analysis of Client Business Owners}
     \textbf{People:} These are small to medium business owners, typically 30-50
