@@ -646,16 +646,7 @@ orders, which slows down the queue.
 
 \subsubsubsection{Salon Receptionist Controlling Bookings}
 
-Lucille, in her twenties, is the receptionist at a busy, well‑known beauty
-salon. Throughout the day she fields a constant stream of phone calls to arrange
-appointments. Each booking is first written by hand in a paper diary, then later
-re‑entered into a spreadsheet. On busy days, at least one record is often missed
-or entered incorrectly, resulting in double bookings or missed appointments.
-When a client calls to reschedule, Lucille leafs through pages of the diary to
-locate the original booking. This takes time, breaks her concentration, and can
-leave callers waiting on the line. The salon offers no online booking system for employees,
-so all scheduling relies entirely on Lucille being able to manage the diary
-accurately.
+Lucille, a receptionist in her twenties, manages a constant stream of appointment calls at a busy beauty salon. She first records bookings by hand in a diary, then re‑enters them into a spreadsheet. On busy days, mistakes often occur, leading to double bookings or missed appointments. Rescheduling requires searching through the diary, which is time‑consuming and makes customers wait. The salon has no online booking system, so scheduling depends entirely on Lucille’s accuracy.
 
 \textbf{PROBLEMS:}
 
@@ -675,18 +666,7 @@ accurately.
 \subsubsubsection{Restaurant Manager Handling Discounts}
 
 
-Youmna, in her early twenties, manages a vibrant Lebanese restaurant on a busy
-high street. To attract customers during quieter weekday afternoons, the
-restaurant runs a “Taste of Lebanon” promotion, offering discounts on selected
-platters and traditional dishes. When diners ask about the offer, Youmna or the
-waiting staff consult a printed list of eligible dishes and manually work out
-the reduced price at the till. At busy times, this slows service. Occasionally,
-the discount is forgotten, prompting awkward conversations and amended bills; at
-other times, it is applied in error, reducing profit margins. To monitor the
-promotion, Youmna records discounted orders in a small ledger. However, during
-the rush, staff often forget to make entries, leaving the records incomplete.
-This makes it difficult to assess the effectiveness of the offer or refine it
-for future campaigns.
+Youmna, in her early twenties, manages a busy Lebanese restaurant. During weekday promotions, staff manually check eligible dishes and calculate discounts, which slows service and can lead to errors or missed entries. Discounted orders are recorded in a small ledger, but during busy periods, entries are sometimes skipped, making it difficult to evaluate the promotion’s effectiveness or refine it for future campaigns.
 
 \textbf{PROBLEMS:}
 
@@ -787,28 +767,30 @@ to resolve problems due to inadvertence. Regardless of their ranking, all employ
 
     
     \textbf{Context:} Employees work in a fast-paced, noisy and time-sensitive
-    environments, where they have constant interactions with both in-person and
-    remote customers. Errors cascade into customer
-    dissatisfaction which consume extra time and increase stress.
-
-    \todocomment{employees work in different environments, not live in them}
+environments, where they have constant interactions with both in-person and remote customers. Employees work in crowded spaces where handwritten notes can be smudged or lost. Constant phone calls and reliance on diaries make rescheduling time-consuming. Errors cascade into customer dissatisfaction, which consumes extra time and increase stress for staff.
     \todocomment{rush hours are activity characteristics, not context}
     
-    \textbf{Technologies:} Currently employees rely mostly on paper (sticky
-    notes, diaries, printed lists). Point of Sale systems may exist, but are
-    underutilized or lack integration of bookings/promotions.  
+    \textbf{Technologies:} Currently, employees rely mostly on paper-based systems (sticky notes, diaries, printed lists). While Point of Sale (POS) systems do exist, they are often underutilized or lack proper integration with bookings and promotions. In some businesses, Excel or spreadsheets act as makeshift digital tools, but these still require manual updates and duplicate data entry. In cafes, POS systems often only handle billing and do not integrate order-tracking, leading baristas to still use sticky notes. POS competitors may support discount application, but discounts must often be entered manually by staff, creating delays and errors. In other service-based fields, some competitors provide basic booking systems, but many lack real-time rescheduling features. 
+
     \yellowcomment{POS systems do exist, make sure to include our competitors in some stories.}
     \todocomment{write scenarios of these POS systems}
 \subsubsection{Needs of employees}
-Employees in customer-facing service roles need a centralized system to manage information and transactions efficiently using android tablet. 
+\begin{itemize}
+    \item[UN-01] An employee needs a way to record customer orders digitally to avoid damaging them in the fast-paced restaurant environment.
+    \item[UN-02] An employee needs a system to manage appointment bookings to avoid double bookings and missed clients while handling incoming calls and customer requests.
+    \item[UN-03] An employee needs a tool that automatically applies discounts to reduce pricing errors and speed up checkout during peak hours.
+    \item[UN-04] An employee needs the ability to quickly search for orders or bookings to resolve customer queries during ongoing service.
+    \item[UN-05] An employee needs a system that minimizes manual data entry to reduce errors and increase speed while servicing customers.
+\end{itemize}
+
 %because constantly memorizing and manually updating details leads to errors, slower service, and lower customer satisfaction.
 \subsubsection{Usability objectives for employees}
 \begin{itemize}
-    \item[OBJ-01] Employees should complete tasks (e.g., entering a booking, processing an order) in less time compared to the old method.
-    \item[OBJ-02] The system prevents employee errors (such as duplicate bookings or recording orders consisting of unavailable menu items) and provides clear messages.
-    \item[OBJ-03] Orders and bookings are recorded and processed with greater than 95\% accuracy.
-    \item[OBJ-04] Employees rate their experience with the system as more enjoyable and less frustrating compared to previous methods.
+    \item[OBJ-01] \textbf{Task time:} Employees should complete tasks (e.g., entering a booking, processing an order) in less time compared to the old method.
+    \item[OBJ-02] \textbf{Error numbers:} The system prevents employee errors (such as duplicate bookings or recording orders consisting of unavailable menu items) and provides clear messages.
+    \item[OBJ-03] \textbf{Employee satisfaction:} Employees rate their experience with the system as more enjoyable and less frustrating compared to previous methods.
 \end{itemize}
+
 
 \subsection{Customer research (Secondary User Group)}
 \subsubsection{Current users' activities}
@@ -969,14 +951,22 @@ advanced digital systems with real-time availability updates, seamless discount
 application and other features missing in manual systems.
 
 \subsubsection{Needs of customers}
-Customers need automated and reliable communication and service processes, when interacting with employees, so they can avoid delays, repeated confirmations, and confusion.
+\begin{itemize}
+    \item[UN-06] A customer needs an automated confirmation for booked appointments to be confident their booking is valid and avoid wasted trips while scheduling services at a spa or salon.
+    \item[UN-07] A customer needs errors in complex orders to be caught and corrected immediately to avoid delays and frustration while ordering items with multiple customizations.
+    \item[UN-08] A customer needs a quick and reliable booking process to reduce waiting times and avoid scheduling conflicts while calling or visiting a salon.
+    \item[UN-09] A customer needs promotions and discounts to be automatically recognized at checkout to receive offers without delay or embarrassment during promotional campaigns.
+    \item[UN-10]  A customer needs staff to have immediate access to menu preparation times in order to choose meals that fit within their limited time while visiting a cafe during a short break.
+   
+\end{itemize}
+
 %Customers need fast and reliable ordering and booking systems when placing orders or making reservations, so that they can avoid delays, mistakes, and lost records.
 
 \subsubsection{Usability objectives for customers}
 \begin{itemize}
-    \item[OBJ-05] Customers receive SMS confirmations without delays.
-    \item[OBJ-06] Customers are not delayed or inconvenienced by manual staff processes.
-    \item[OBJ-07] Customers can trust employees to perform their tasks accurately and reliably.
+    \item[OBJ-04] Customers receive SMS confirmations without delays.
+    \item[OBJ-05] Customers are not delayed or inconvenienced by manual staff processes.
+    \item[OBJ-06] Customers can trust employees to perform their tasks accurately and reliably.
 \end{itemize}
 
 \subsection{Client Business Owners Research (Secondary User Group)}
@@ -1112,7 +1102,14 @@ least felt manageable.
     \todocomment{POS concurents could be mentioned here, what is he using currently now?}
 
 \subsubsection{Needs of Client Business Owners}
-Small to medium-sized business owners in restaurants and salons need a centralized, reliable system to track customer feedback, staff performance, so that they can quickly identify recurring issues, monitor improvements, and make informed management decisions in their daily workflow (e.g. via computer or tablet).
+\begin{itemize}
+    \item[UN-11] A business owner needs a system to automatically collect and organize customer feedback to identify recurring issues and improve service quality while managing a restaurant or café.
+    \item[UN-12] A business owner needs a reliable method to track staff performance and client feedback to recognize top performers and monitor improvements while overseeing multiple employees in a salon or service business.
+    \item[UN-13] A business owner needs historical records of operations to make data-driven decisions and identify trends while managing the business.
+    \item[UN-14] A business owner needs an affordable, low-maintenance digital solution to manage operations efficiently without requiring technical expertise while running a small cafe, restaurant, or salon.
+    \item[UN-15] A business owner needs notifications for critical issues reported by customers to respond promptly and maintain customer satisfaction while performing day-to-day operational responsibilities.
+\end{itemize}
+
 
 \subsubsection{Usability objectives for Client Business Owners}
 \begin{itemize}
