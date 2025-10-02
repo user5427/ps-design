@@ -1,0 +1,172 @@
+@startuml
+!theme plain
+
+entity "organization" as organization {
+  *id : int <<PK>>
+  --
+  name : string
+  location : string
+  ...
+}
+
+entity "organization_table" as organization_table {
+  *id : int <<PK>>
+  --
+  organization_id : int <<FK>>
+  capacity : int
+}
+
+entity "client_order" as client_order {
+  *id : int <<PK>>
+  --
+  organization_id : int <<FK>>
+  organization_table_id : int <<FK>>  /'-- nullable if not dine-in'/
+  type : string <<enum>>   /'-- DINE_IN, TAKEAWAY'/
+  status : string <<enum>> /'-- PENDING, CONFIRMED, PREPARING, SERVED, CLOSED, CANCELLED'/
+  discount : float
+  created_at : datetime
+  updated_at : datetime
+  closed_at : datetime
+}
+
+entity "bill" as bill {
+  *id : int <<PK>>
+  --
+  order_id : int <<FK>>
+  tax : float
+  tip : float
+  method : string <<enum>> /'-- CARD, CASH'/
+  status : string <<enum>> /' -- OPEN, PAID, PARTIALLY_PAID'/
+}
+
+entity "bill_item" as bill_item {
+  *id : int <<PK>>
+  --
+  bill_id : int <<FK>>
+  order_item_id : int <<FK>>
+  quantity : int
+}
+
+entity "order_item" as order_item {
+  *id : int <<PK>>
+  --
+  order_id : int <<FK>>
+  menu_item_id : int <<FK>>
+  quantity : int
+  base_price : float
+  discount : float
+  status : string
+}
+
+entity "order_item_variation" as order_item_variation {
+  *order_item_id : int <<FK>>
+  *variation_group_item_id : int <<FK>>
+  --
+  price_adjustment : float
+  discount : float
+}
+
+entity "menu_item_category" as menu_item_category {
+  *id : int <<PK>>
+  --
+  name : string
+  parent_id : int <<FK>>
+  discount : float
+}
+
+entity "menu_item" as menu_item {
+  *id : int <<PK>>
+  --
+  organization_id : int <<FK>>
+  name : string
+  description : string
+  price : float
+  discount : float
+  item_category_id : int <<FK>>
+}
+
+entity "ingredient" as ingredient {
+  *id : int <<PK>>
+  --
+  organization_id : int <<FK>>
+  name : string
+  quantity : int
+  unit : string
+  updated_at : datetime
+}
+
+entity "menu_item_ingredient" as menu_item_ingredient {
+  *menu_item_id : int <<FK>>
+  *ingredient_id : int <<FK>>
+  --
+  quantity : int
+}
+
+entity "variation_group" as variation_group {
+  *id : int <<PK>>
+  --
+  organization_id : int <<FK>>
+  name : string
+  description : string
+  min_selection : int
+  max_selection : int
+}
+
+entity "variation_group_item" as variation_group_item {
+  *id : int <<PK>>
+  --
+  variation_group_id : int <<FK>>
+  name : string
+  description : string
+  price_adjustment : float
+  discount : float
+  default: boolean
+}
+
+entity "menu_item_variation" as menu_item_variation {
+  *menu_item_id : int <<FK>>
+  *variation_group_id : int <<FK>>
+}
+
+entity "variation_group_item_ingredient" as variation_group_item_ingredient {
+  *variation_group_item_id : int <<FK>>
+  *ingredient_id : int <<FK>>
+  --
+  quantity : int
+}
+
+' --- Relationships ---
+organization ||--o{ organization_table : "has"
+organization ||--o{ client_order : "receives"
+organization ||--o{ menu_item : "offers"
+organization ||--o{ ingredient : "owns"
+organization ||--o{ variation_group : "has"
+
+organization_table ||--o{ client_order : "has"
+
+client_order ||--o{ order_item : "contains"
+client_order ||--o{ bill : "generates"
+
+order_item ||--o{ order_item_variation : "has"
+order_item ||--o{ bill_item : "paid by"
+order_item ||--o{ menu_item : "from"
+
+order_item_variation ||--o{ variation_group_item : "chooses"
+
+bill ||--o{ bill_item : "includes"
+
+menu_item ||--o{ menu_item_ingredient : "requires"
+menu_item ||--o{ menu_item_variation : "supports"
+menu_item ||--o{ menu_item_category : "categorized"
+
+menu_item_variation ||--o{ variation_group : "has"
+
+menu_item_category ||--o{ menu_item_category : "parent_of"
+
+menu_item_ingredient ||--o{ ingredient : "uses"
+
+variation_group ||--o{ variation_group_item : "offers"
+variation_group_item ||--o{ variation_group_item_ingredient : "requires"
+variation_group_item_ingredient ||--o{ ingredient : "uses"
+
+@enduml

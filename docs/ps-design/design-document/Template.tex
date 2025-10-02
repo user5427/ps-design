@@ -222,7 +222,7 @@ This list can be expanded/clarified by additional questions raised by students d
 
 %% Acknowledgements Section
 \sectionnonumnocontent{Acknowledgements}
-The author is thankful to the lecturer Vasilij Savin for his guidance and
+The authors are thankful to the lecturer Vasilij Savin for his guidance and
 support throughout the project.
 
 
@@ -516,7 +516,7 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/services/order_client_seating_available.png}
+    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_client_seating_available.png}
     \caption{Client Seating(available) Sequence Diagram}
     \label{fig:client_seating_available_sequence}
 \end{figure}
@@ -571,7 +571,7 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/services/order_client_seating_not_available_sequence.png}
+    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_client_seating_not_available_sequence.png}
     \caption{Client Seating(not available) Sequence Diagram}
     \label{fig:client_seating_not_available_sequence}
 \end{figure}
@@ -647,7 +647,7 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/services/order_place_order_sequence.png}
+    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_place_order_sequence.png}
     \caption{Place Order Sequence Diagram}
     \label{fig:place_order_sequence}
 \end{figure}
@@ -710,7 +710,7 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/services/order_modify_order_sequence.png}
+    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_modify_order_sequence.png}
     \caption{Modify Order Sequence Diagram}
     \label{fig:modify_order_sequence}
 \end{figure}
@@ -771,7 +771,7 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/services/order_cancel_order_sequence.png}
+    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_cancel_order_sequence.png}
     \caption{Cancel Order Sequence Diagram}
     \label{fig:cancel_order_sequence}
 \end{figure}
@@ -826,7 +826,7 @@ Actions:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/services/order_mark_items_delivered_sequence.png}
+    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_mark_items_delivered_sequence.png}
     \caption{Mark Items as Delivered Sequence Diagram}
     \label{fig:mark_items_delivered_sequence}
 \end{figure}
@@ -849,6 +849,7 @@ Actions:
 % Mark Service as Done | Record that the service has been completed.
 % ------------------------------------------------------------------------------
 
+\noticecomment{The employee that registers the customer doesnt necessarily need to service the customer themselves (think of spas). However smaller businesses (like haircut saloons) employees may both register and service the customer themselves.}
 
 We have identified the following use cases for the services management domain:
 
@@ -1681,6 +1682,14 @@ Actions:
 
 \subsection{Data Model}
 
+\subsubsection{Order Data Model}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{docs/ps-design/design-document/images/diagrams/orders/order_model_class.png}
+    \caption{Order Class Diagram}
+    \label{fig:order_class_diagram}
+\end{figure}
+
 \subsubsection{Business Data Model}
 
 \paragraph{Design Decisions (Summary)}
@@ -1773,8 +1782,8 @@ Below are the relationships between tables and entities in this schema.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{images/diagrams/business/data_model_business.png}
-    \caption{Business ER Diagram with Attributes}
-    \label{fig:business_er_diagram}
+    \caption{Business Class Diagram with Attributes}
+    \label{fig:business_class_diagram}
 \end{figure}
 This diagram represents different relationships between different entities as well as their attributes. 
 
