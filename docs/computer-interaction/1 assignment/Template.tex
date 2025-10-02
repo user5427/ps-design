@@ -612,11 +612,6 @@ that threatens long-term viability.
 
 \subsubsubsection{Café Barista Managing Orders}
 
-% Character - info needs more details, 21 years old. but what else? height, weight, experience, is he a fast learner? good memorization skills?
-% Activities - takes orders at the counter. what are the characteristics of these tasks? (dont write the analysis of tasks, just describe the tasks, is it a complex task? does it require high concentration? is it repetitive? etc)
-% Context - busy cafe, morning rush, sticky notes, smudged notes
-% Technologies - just sticky notes
-% /\ potential improvments if the current stuff is enough.
 Marius, 21, works as a barista in a busy café. He takes orders at the counter
 and writes them on sticky notes for the kitchen. During the morning rush, notes
 sometimes fall to the floor or get smudged by spilled drinks. This leads to
@@ -625,10 +620,20 @@ Marius tries to keep the counter tidy, but the lack of a structured system makes
 mistakes inevitable and thus Marius spends extra time apologizing and remaking
 orders, which slows down the queue.
 
-\yellowcomment{identify problems and opportunities, identify the problem in the story, go immediately to the essence of the problem}
+% \yellowcomment{identify problems and opportunities, identify the problem in the story, go immediately to the essence of the problem}
 
-\todocomment{problem: lost orders}
+\textbf{PROBLEMS:}
 
+\begin{itemize}
+    \item Lost orders due to sticky notes falling or getting smudged
+    \item Time and inventory assets wasted on remaking incorrect orders
+\end{itemize}
+
+\textbf{OPPORTUNITIES:}
+
+\begin{itemize}
+    \item Implement a digital order management system to reduce reliance on sticky notes and minimize lost orders
+\end{itemize}
 
 % add "Description of current activity: " to the story
 % seperate problems and opportunities in seperate lines.
@@ -647,11 +652,23 @@ re‑entered into a spreadsheet. On busy days, at least one record is often miss
 or entered incorrectly, resulting in double bookings or missed appointments.
 When a client calls to reschedule, Lucille leafs through pages of the diary to
 locate the original booking. This takes time, breaks her concentration, and can
-leave callers waiting on the line. The salon offers no online booking facility,
-so all scheduling relies entirely on Lucille being available to answer the
-phone.
+leave callers waiting on the line. The salon offers no online booking system for employees,
+so all scheduling relies entirely on Lucille being able to manage the diary
+accurately.
 
-\todocomment{if we say that ppl write in excel we need to specify that as a competitor}
+\textbf{PROBLEMS:}
+
+\begin{itemize}
+    \item High risk of double bookings or missed appointments due to manual entry errors.
+    \item Time wasted searching for original bookings in the paper diary.
+\end{itemize}
+
+\textbf{OPPORTUNITIES:}
+\begin{itemize}
+    \item Implement a digital booking system to reduce manual entry errors and
+    makes searching for bookings efficient.
+\end{itemize}
+% \todocomment{if we say that ppl write in excel we need to specify that as a competitor}
 
 
 \subsubsubsection{Restaurant Manager Handling Discounts}
@@ -669,6 +686,19 @@ promotion, Youmna records discounted orders in a small ledger. However, during
 the rush, staff often forget to make entries, leaving the records incomplete.
 This makes it difficult to assess the effectiveness of the offer or refine it
 for future campaigns.
+
+\textbf{PROBLEMS:}
+
+\begin{itemize}
+    \item High risk of incorrect discounts being applied due to manual calculations.
+    \item Time wasted searching for eligible dishes on printed lists.
+    \item Incomplete records of discounted orders make it hard to assess promotion effectiveness.
+\end{itemize}
+\textbf{OPPORTUNITIES:}
+\begin{itemize}
+    \item Use a digital system that tracks what discounts are available and
+    automatically applies them at the till to reduce errors and speed up service.
+\end{itemize}
 
 \subsubsection{PACT analysis of employees}
     \textbf{People:} Mostly young to mid-career employees (baristas,
@@ -717,15 +747,27 @@ Employees in customer-facing service roles need a centralized system to manage i
 \subsection{Customer research (Secondary User Group)}
 \subsubsection{Current users' activities}
 
-\subsubsubsection{Looking for a quick lunch}
+\subsubsubsection{Spa Client Booking an Appointment}
+Ann, a student in her twenties, calls to book a spa appointment. The employee
+promises to send a confirmation by SMS, but since it’s done manually, the
+message does not arrive. Ann, unsure if the booking is valid, decides to go to
+the spa anyway. Upon arrival, she finds the spa busy and has to wait. The
+receptionist, unable to quickly verify her booking due to the manual system,
+asks Ann to wait while they check. After a long wait, Ann is told that she is
+late and must reschedule. Frustrated by the confusion and wasted trip, Ann
+decides to try a different spa next time.
 
+\subsubsubsection{Looking for a quick lunch}
 
 Annie, a 20‑year‑old university student, has a short break between lectures and
 only 30 minutes to eat. She visits a small café she has not tried before, hoping
-to find something quick. The menu gives no indication of preparation times, so
-she chooses a dish at random and waits nearly 10 minutes for a waiter to take
-her order. She is then told it will take 25 minutes to prepare. With little time
-left, Annie leaves and buys a takeaway wrap from a nearby chain instead.
+to find something quick. When she asks the server which dishes can be prepared
+quickly, the server is unsure and has to go to the kitchen to check with the
+chef. After waiting nearly 10 minutes, the server returns and tells her that
+only soup can be served within her timeframe, as the server had no quick way to
+access preparation time information. With little time left and disappointed by
+the limited options, Annie leaves and buys a takeaway wrap from a nearby chain
+instead.
 
 \newpage
 
@@ -733,23 +775,30 @@ left, Annie leaves and buys a takeaway wrap from a nearby chain instead.
 
 
 Felix, in his late forties, needs a haircut before a family gathering. He calls
-his usual barber, but the line is engaged. After several attempts, he finally
-gets through, only to learn that his preferred time slot has already been taken.
-The receptionist offers alternative appointments, but Felix is at work and
-cannot check his calendar straight away. Frustrated, he decides to book with
+his usual barber, but the line is engaged because the receptionist is handling
+another customer while simultaneously trying to answer phones. After several
+attempts, he finally gets through to the receptionist, who must manually flip
+through a paper diary to check availability. While the receptionist searches
+through multiple pages, Felix waits on the line for over three minutes. When
+the receptionist finally finds his preferred time slot, she realizes there is
+conflicting handwriting from another staff member and has to verify the booking
+by checking a second notebook. The confusion continues as she reads out
+alternative appointments, but Felix grows frustrated by the long wait and
+uncertainty caused by the disorganized paper system. He decides to book with
 another salon that can fit him in immediately.
-\todocomment{the employees UI should somehow influence the customers experience}
 
 \subsubsubsection{Redeeming a coffee promotion}
 
 
 Sarah‑Louise, 27, spots a “Buy One, Get One Free” coffee offer on a café’s
-social media page. She visits the café to take advantage of the deal, but the
-barista is unaware of the promotion and has to confirm it with the manager. This
-causes a delay at the counter and creates an awkward queue behind  her. The
-discount is eventually applied, but Sarah‑Louise leaves feeling the process was
-poorly organised.
-\noticecomment{the environment is not very clearly described}
+social media page. She visits the café to take advantage of the deal, but when
+she mentions the promotion at the counter, the barista is unaware of it and has
+to leave the register to find the manager for confirmation. Sarah‑Louise waits
+awkwardly as a queue forms behind her. After several minutes, the manager
+confirms the promotion and the barista manually recalculates the bill. The
+discount is eventually applied, but Sarah‑Louise leaves feeling embarrassed by
+the confusion and delay her order caused.
+% \noticecomment{the environment is not very clearly described}
 
 \subsubsection{PACT analysis of customers}
 \todocomment{PACT is not very important for customers, they are not using the system as much as employees, so we can be more general here}
