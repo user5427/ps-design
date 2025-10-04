@@ -628,13 +628,6 @@ orders, which slows down the queue.
     \item Implement a digital order management system to reduce reliance on sticky notes and minimize lost orders
 \end{itemize}
 
-% add "Description of current activity: " to the story
-% seperate problems and opportunities in seperate lines.
-% problems and opportunities have to be closelly related to the story.
-% problems and oppurtunities can be seperated in bullet points.
-
-% if you write oppurtunities make sure to highlight what that oppurtunity gives
-% to the user, what problem it solves.
 
 \subsubsubsection{Salon Receptionist Controlling Bookings}
 \label{subsubsubsec:salon-receptionist}
@@ -692,63 +685,28 @@ Thomas, 26, manages inventory at a small artisan bakery that recently adopted Re
     \item System updates inventory based on orders, allowing employees to see current stock levels and know when to reorder.
 \end{itemize}
 
-% \subsubsubsection{Café Counter Staff Unable to Set SMS Reminders}
-% \suggestioncomment{NEW STORY}
-% Priya, 20, works at a hair salon using Square POS. A customer booking a
-% haircut appointment asks for an SMS reminder before their appointment. Priya
-% searches the system but finds her workplace doesn't have the plan that includes
-% SMS reminders. She apologetically declines, leaving the customer disappointed
-% and worried about forgetting their appointment.
-
-% \textbf{PROBLEMS:}
-% \begin{itemize}
-%     \item Square POS lacks SMS reminder functionality on basic plans.
-%     \item Missing features reduce customer satisfaction and competitive advantage.
-% \end{itemize}
-% \textbf{OPPORTUNITIES:}
-% \begin{itemize}
-%     \item Offer SMS reminding to customer with all plans.
-% \end{itemize}
-
-% \subsubsubsection{Salon Receptionist Locked Out by Computer Crash}
-% \suggestioncomment{NEW STORY}
-
-% Maya, 28, manages salon bookings in a single Excel file on the front‑desk computer.
-% During Saturday’s rush the computer crashed with a blue screen, locking her out
-% of the schedule. With no backup or printed copy she couldn’t confirm appointments
-% or answer calls without risking double‑bookings. Frustrated customers left
-% voicemails or walked out, and unsaved updates were lost when the system rebooted.
-
-% \textbf{PROBLEMS:}
-% \begin{itemize}
-%     \item Single‑device reliance causes total breakdown during crashes.
-%     \item Lost data and missed calls lead to scheduling errors and lost revenue.
-%     \item No backup or multi‑access workflow prevents staff from continuing service when one device fails.
-% \end{itemize}
-
-% \textbf{OPPORTUNITIES:}
-% \begin{itemize}
-%     \item Use cloud‑based scheduling with autosave and multi‑device access to prevent data loss and allow continued service during device failures.
-%     \item Maintain service continuity during outages via offline‑capable clients and automatic synchronization to increase reliability.
-% \end{itemize}
 
 \subsubsection{PACT analysis of employees}
     \textbf{People:} Employees are mostly young to mid-career workers (baristas, receptionists, restaurant managers). They multitask under pressure, balancing customer interaction with operational tasks. Some are comfortable with smartphones and PCs. while other rely heavily on paper-based systems, showing varied levels of technical familiarity. They are motivated by efficiency: fewer errors and faster service lead to smoother operations and higher customer satisfaction. There are three types of employees: frontline employees (baristas, receptionists) who are constantly interacting with customers can often get frustrated dealing with plenty of paper orders that get lost or destroyed. Supervisors/managers oversee staff, they need better technology to make calculated decisions regarding discounts, handle exceptions etc. Support staff (kitchen staff, stylists) depend on accurate and timely information passed from the frontline, errors directly affect they output.
     
 
-    \textbf{Activities:} Key repetitive activities are taking and managing orders or 
-    booking and rescheduling appointments, all to make business as profitable as possible. It is necessary to communicate information to customers quickly, otherwise, employees have
-    to resolve problems due to inadvertence. Regardless of their ranking, all employees try to do they job as efficiently as possible, using the tools they have. Activities require a high cognitive load due to memorizing availability, prices, etc. In this field, regular activities demand problem solving as it is one of the key characteristics of employees as they encounter a plethora of different situations every day.
-
+    \textbf{Activities:} Employees regularly take and manage orders or book and
+    reschedule appointments throughout their shifts. They communicate with customers
+    about availability, prices, and service options, often handling multiple
+    requests simultaneously. These activities happen frequently with short
+    durations, creating constant time pressure especially during peak hours. Tasks
+    involve multiple steps (greeting, taking order, confirming, processing) where
+    employees can pause between customers but must complete each transaction.
+    Employees work both individually (appointment servicing) and coordinate with team members (kitchen staff), passing
+    information verbally or through notes. The activities are moderately complex as
+    they require checking availability, applying discounts, and handling exceptions,
+    with errors being critical since they directly impact customer satisfaction and
+    operations.
     
     \textbf{Context:} Employees work in a fast-paced, noisy and time-sensitive
 environments, where they have constant interactions with both in-person and remote customers. Employees work in crowded spaces where handwritten notes can be smudged or lost. Constant phone calls and reliance on diaries make rescheduling time-consuming. Errors cascade into customer dissatisfaction, which consumes extra time and increase stress for staff.
     
     \textbf{Technologies:} Currently, employees rely mostly on paper-based systems (sticky notes, diaries, printed lists). While Point of Sale (POS) systems do exist, they are often underutilized or lack proper integration with bookings and promotions. In some businesses, Excel or spreadsheets act as makeshift digital tools, but these still require manual updates and duplicate data entry. In cafes, POS systems often only handle billing and do not integrate order-tracking, leading baristas to still use sticky notes. POS competitors may support discount application, but discounts must often be entered manually by staff, creating delays and errors. In other service-based fields, some competitors provide basic booking systems, but many lack real-time rescheduling features. 
-
-% \noticecomment{poreikis - ka vartotojas veiks ir ka matys, iki procedurinio lygio reikia nusileisti}
-
-% \noticecomment{zemiau pateiktos projektavimo gaires}
 
 
 
@@ -892,7 +850,20 @@ process customized orders accurately and reliably.
 \textbf{People:} There is a variety of different-aged customers with diverse digital literacy: younger users expect seamless mobile-first interactions, while older customers prefer phone bookings or real-life interactions. The pace of customers orders varies individually, some make quick decisions or can be more spontaneous, while others need to think for longer and weigh their options. There are customers with disabilities who need special accessibility using technologies or have other comfortable options to use the service.
 % gali buti ir prie activities kad stresa kelia
 
-\textbf{Activities:} Customers regularly order food and drinks or book appointments, often trying to fit them to their daily schedule. Customers choose their options by checking the promotions and offers, comparing availability, prices, and service quality. They are the ones interacting with the staff, and unclear communication lead to errors. Some situations require quick decision making especially when there are other customers waiting in line, thus creating pressure to think faster.
+    \textbf{Activities:} Customers regularly order food and drinks or book
+    appointments, trying to fit them into tight schedules like lunch breaks or
+    between classes. They check availability, compare options, and communicate their
+    preferences to staff, sometimes requesting customizations or asking about
+    preparation times. These activities happen frequently throughout the day with
+    short durations, typically just a few minutes per interaction. Time pressure is
+    high when customers have limited break time or when queues form, requiring quick
+    decisions and fast service. The process involves multiple steps (inquiring,
+    choosing, ordering, waiting, confirming) where customers can pause but expect
+    prompt responses at each stage. Customers act individually but depend on staff
+    coordination to fulfill their requests accurately. Activities range from simple
+    (ordering a regular item) to complex (customizing orders, checking multiple
+    options), and errors are critical as they waste limited time, cause frustration,
+    and may result in lost business.
 
 \textbf{Context:} Customers are in on-the-go environments, frequently interacting with the service during lunch breaks or between classes. They often have to stand in queues, call during office hours and wait for their orders/services. Some use the service after work hours so they might be tired, therefore they prefer cozy, relaxing conditions. Customers' expectations are shaped by competitors and broader digital experiences (food delivery apps, online booking platforms).
 
@@ -999,7 +970,9 @@ Hassan, 41, runs a single-location deli and tried to modernize inventory trackin
 \end{itemize}
 
 \subsubsection{PACT analysis of Client Business Owners}
-    \textbf{People:} These are small to medium business owners, balancing managerial, operational, and customer service roles. Business owners’ can be different aged, thus they are all not equally technically advanced.
+    \textbf{People:} These are small to medium business owners, balancing
+    managerial, operational, and customer service roles. Business owners’ can be
+    different aged, thus they are all not equally technically advanced.
 
 Although they have limited time and often technical expertise, business
 
@@ -1007,26 +980,43 @@ owners are motivated by improving service quality, staying competitive, and
 
 reducing costs.
 
-    \textbf{Activities:} Main activities consist of tracking staff performance
-and calculating wages/commissions which are done weekly or monthly. Business owners also have to monitor and
-respond to customer feedback which is often a repetitive daily task, and carefully manage business performance indicators
-(sales, promotions, peak periods) that shape the direction of further work. The biggest hardships are making
-strategic concentration required decisions based on incomplete/fragmented information and handling
-administrative tasks manually without advanced technology.
+\textbf{Activities:} Business owners track staff performance, calculate wages
+and commissions, monitor customer feedback, and analyze business metrics like
+sales and peak periods. They make strategic decisions about promotions,
+staffing, and operations while handling administrative tasks manually. These
+activities vary in frequency: feedback monitoring happens daily, performance
+tracking weekly or monthly, and strategic planning periodically. Time pressure
+is moderate for routine tasks but can increase when dealing with budget
+decisions. Activities involve multiple steps (collecting data, analyzing
+patterns, making decisions, implementing changes) that can be paused and resumed
+over days or weeks. Owners work individually but sometimes coordinate with
+employees (inventory management). Complexity is high as activities are poorly
+defined, requiring navigation between fragmented information sources
+(spreadsheets, paper notes, review sites), and errors in data entry or analysis
+are critical as they lead to poor business decisions and financial losses.
 
-    \textbf{Context:} Business owners work in competitive environments, where work often blends strategic step-by-step planning with hands-on problem solving. The workplace of business owner is not only a desk in office, but they often have to inspect the flow of business on site. Depending of the scale of business they might have other employees working in the office with them, though it is not the same everywhere. The ones with more employees have ability to leave some of their work for assistants, while others have to balance traveling from business meetings, office and their business place itself. 
-Information is spread across different informal channels, and the lack of
-structured data makes it difficult to spot trends or train staff
-effectively. This work also comes with social pressure from customers'
-expectations of professionalism and constant improvement.
+    \textbf{Context:} Business owners work in competitive environments, where
+work often blends strategic step-by-step planning with hands-on problem solving.
+The workplace of business owner is not only a desk in office, but they often
+have to inspect the flow of business on site. Depending of the scale of business
+they might have other employees working in the office with them, though it is
+not the same everywhere. The ones with more employees have ability to leave some
+of their work for assistants, while others have to balance traveling from
+business meetings, office and their business place itself. Information is spread
+across different informal channels, and the lack of structured data makes it
+difficult to spot trends or train staff effectively. This work also comes with
+social pressure from customers' expectations of professionalism and constant
+improvement.
     % \noticecomment{organizational context - different permissions or same? Doesnt apply here, i think.}
 
     \textbf{Technologies:} Currently business owners rely on paper diaries,
-manual notes and spreadsheets. Some business owners try using Toast POS, though it is too expensive and technically difficult to be useful and they revert to Excel even with its clear lack of capability for real time bookings etc. They are also using external platforms such as
-Google Maps, and TripAdvisor for customer feedback. However, due to budget
-or complexity barriers, there is a limited exposure to advanced digital
-solutions therefore, there are no dedicated analytics dashboards or
-automated tracking systems.
+manual notes and spreadsheets. Some business owners try using Toast POS, though
+it is too expensive and technically difficult to be useful and they revert to
+Excel even with its clear lack of capability for real time bookings etc. They
+are also using external platforms such as Google Maps, and TripAdvisor for
+customer feedback. However, due to budget or complexity barriers, there is a
+limited exposure to advanced digital solutions therefore, there are no dedicated
+analytics dashboards or automated tracking systems.
 
 \subsubsection{Needs of Client Business Owners}
 \begin{itemize}
