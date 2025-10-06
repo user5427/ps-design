@@ -280,7 +280,7 @@ support throughout the project.
 % **Key Constraint:** The system must handle **both order-based (restaurants) and appointment-based (spas) businesses** with overlapping but distinct workflows.
 
 
-\section{Introduction}
+\section*{Introduction}
 This document outlines the software design for a multtenant SaaS platform
 aimed at small to medium business that consentrate on order delivery such as
 bars, restaurants and services such as spas and salons. The platform will
@@ -975,6 +975,8 @@ Send confirmation notification
 
 \noticecomment{the suggest alternative employee or time needs to also include text that customer can opt for any available employee or time slot}
 
+\suggestioncomment{Perhaps try to split this business flow into two different flows for the purpose of readability. Idea: two flows based on if date/time available}
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{images/diagrams/services/appointment_creation_sequence.png}
@@ -998,6 +1000,7 @@ If available, employee updates the appointment in the POS system.
 System sends an updated confirmation SMS/email to the customer.
 
 \textbf{ALTERNATIVE FLOW:}
+
 
 \begin{itemize}
 \item \textbf{No appointment found: } The employee cannot find an appointment matching the provided contact information.
@@ -1074,8 +1077,11 @@ Employee cancels the appointment in the POS system.
 System sends a cancellation confirmation SMS/email to the customer.
 
 \textbf{ALTERNATIVE FLOWS:}
-\textbf{No appointment found: } The employee cannot find an appointment matching the provided contact information.
-Employee informs the customer that no appointment was found.
+\begin{itemize}
+    \item \textbf{No appointment found: } The employee cannot find an appointment matching the provided contact information.
+    Employee informs the customer that no appointment was found.
+\end{itemize}
+
 
 \begin{center}
 \setlength{\tabcolsep}{8pt}
