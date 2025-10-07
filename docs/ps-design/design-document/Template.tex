@@ -54,6 +54,20 @@
     \end{tcolorbox}%
 }
 
+
+
+\newenvironment{mpitemlist}[1][\linewidth]{%
+    \begin{minipage}[t]{#1}%
+        \setlength{\leftmargini}{12pt}%
+        \begin{itemize}%
+            \setlength{\itemsep}{1pt}%
+            \setlength{\parskip}{0pt}%
+            \setlength{\parsep}{0pt}%
+}{%
+        \end{itemize}%
+    \end{minipage}\newline
+}
+
 \usepackage[nottoc]{tocbibind}
 \usepackage{tocloft}
 \usepackage{longtable}
@@ -485,36 +499,35 @@ Flow:
 \end{itemize}
 \end{itemize}
 
-Tables/Entities:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
 \item Client
 \item Table
-\end{itemize}
-
-Components:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
 \item Seating Management
-\end{itemize}
-
-Actions:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
-\item Greet client
-\item Request available seating options
-\item Retrieve and display seating availability
-\item Assign client to table
-\item Validate table assignment (availability and conflicts)
-\item Confirm table assignment
-\item Notify failure and suggest alternatives
-\end{itemize}
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
+    \item Greet client
+    \item Request available seating options
+    \item Retrieve and display seating availability
+    \item Assign client to table
+    \item Validate table assignment (availability and conflicts)
+    \item Confirm table assignment
+    \item Notify failure and suggest alternatives
+\end{mpitemlist}
+&
+\\ \hline
+\end{tabular}
+\end{center}
 
 \begin{figure}[H]
     \centering
@@ -539,37 +552,37 @@ Flow:
 \item Employee informs the Client that no seating is currently available.
 \end{itemize}
 
-Tables/Entities:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
-\item Client
-\item Table
-\end{itemize}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
+    \item Client
+    \item Table
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
+    \item POS System (Employee-facing system to check seating availability)
+    \item Backend Server (handles seating availability queries)
+    \item Seating Management (Tables + availability status)
+    \item Employee Interface (to communicate availability to Client)
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
+    \item Greet client
+    \item Request seating availability
+    \item Retrieve seating data
+    \item Display “no available seating”
+    \item Inform client that no seating is available
+\end{mpitemlist}
+&
 
-Components:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
-\item POS System (Employee-facing system to check seating availability)
-\item Backend Server (handles seating availability queries)
-\item Seating Management (Tables + availability status)
-\item Employee Interface (to communicate availability to Client)
-\end{itemize}
-
-Actions:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
-\item Greet client
-\item Request seating availability
-\item Retrieve seating data
-\item Display “no available seating”
-\item Inform client that no seating is available
-\end{itemize}
+\\ \hline
+\end{tabular}
+\end{center}
 
 \begin{figure}[H]
     \centering
@@ -610,33 +623,28 @@ Flow:
 \end{itemize}
 \end{itemize}
 
-Tables/Entities:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
 \item Client
 \item Employee
 \item Menu
 \item Order
-\item Order Item 
+\item Order Item
 \item Inventory
-\end{itemize}
-
-Components:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
 \item Menu Management (Menu + Item availability)
 \item Order Management (Orders + Order Items)
-\end{itemize}
-
-Actions:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
 \item Provide menu
 \item Input order
 \item Validate stock availability
@@ -645,7 +653,12 @@ Actions:
 \item Confirm order success
 \item Return errors if validation fails
 \item Inform Client of result
-\end{itemize}
+\end{mpitemlist}
+&
+
+\\ \hline
+\end{tabular}
+\end{center}
 
 \begin{figure}[H]
     \centering
@@ -678,37 +691,37 @@ Flow:
 \end{itemize}
 \end{itemize}
 
-Tables/Entities:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
 \item Client
 \item Employee
-\item Order 
-\item Order Item 
-\end{itemize}
-
-Components:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\item Order
+\item Order Item
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
 \item Order Management (Orders + Order Items)
-\end{itemize}
-
-Actions:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
 \item Request order update
 \item Validate update request
 \item Apply changes to order
 \item Confirm update success
 \item Return validation errors if update fails
 \item Inform Client of results
-\end{itemize}
+\end{mpitemlist}
+&
+
+\\ \hline
+\end{tabular}
+\end{center}
 
 \begin{figure}[H]
     \centering
@@ -741,35 +754,35 @@ Flow:
 \end{itemize}
 \end{itemize}
 
-Tables/Entities:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
 \item Client
 \item Employee
-\item Order 
-\end{itemize}
-
-Components:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\item Order
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
 \item Order Management
-\end{itemize}
-
-Actions: 
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
 \item Request cancellation
 \item Validate order status (completed/paid or not)
 \item Cancel order (if eligible)
 \item Refuse cancellation (if already completed/paid)
 \item Inform Employee
-\end{itemize}
+\end{mpitemlist}
+&
+
+\\ \hline
+\end{tabular}
+\end{center}
 
 \begin{figure}[H]
     \centering
@@ -794,37 +807,37 @@ Flow:
 \item POS system displays a delivery confirmation to the Employee.
 \end{itemize}
 
-Tables/Entities:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
 \item Employee
-\item Table 
+\item Table
 \item Order
 \item Order Item
-\end{itemize}
-
-Components:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
 \item Order Management
-\end{itemize}
-
-Actions:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
 \item Select table
 \item Retrieve open orders for table
 \item Display items to Employee
 \item Mark items as delivered
 \item Update item status in Backend Server
 \item Confirm update to Employee
-\end{itemize}
+\end{mpitemlist}
+&
+
+\\ \hline
+\end{tabular}
+\end{center}
 
 \begin{figure}[H]
     \centering
@@ -936,32 +949,30 @@ System sends a confirmation SMS/email to the customer.
 \begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
 \hline
 \textbf{Tables/Entities} \newline
-\begin{tabular}{@{}l@{}}
-Customer \\
-Employee \\
-Service \\
-Appointment \\
-Spa/Salon (Business)
-\end{tabular}
+\begin{mpitemlist}
+\item Customer
+\item Employee
+\item Service
+\item Appointment
+\item Spa/Salon (Business)
+\end{mpitemlist}
 &
 \textbf{Components} \newline
-\begin{tabular}{@{}l@{}}
-Appointment Management \\ (Appointment, Employee, Service) \\
-Employee Management (Employee) \\
-Notification System (SMS/Email)
-\end{tabular}
+\begin{mpitemlist}
+\item Appointment Management (Appointment, Employee, Service)
+\item Employee Management (Employee)
+\item Notification System (SMS/Email)
+\end{mpitemlist}
 \\ \hline
 \textbf{Actions} \newline
-\begin{tabular}{@{}l@{}}
-Check availability of service \\
-Check availability of employee \\
-Create appointment \\
-Send confirmation notification
-\end{tabular}
+\begin{mpitemlist}
+\item Check availability of service
+\item Check availability of employee
+\item Create appointment
+\item Send confirmation notification
+\end{mpitemlist}
 &
-\begin{tabular}{@{}l@{}}
-% Reserved for additional details or future items.
-\end{tabular}
+
 \\ \hline
 \end{tabular}
 \end{center}
@@ -1018,34 +1029,31 @@ Customer selects an alternative option.
 \begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
 \hline
 \textbf{Tables/Entities} \newline
-\begin{tabular}{@{}l@{}}
-Customer \\
-Employee \\
-Service \\
-Appointment \\
-Spa/Salon (Business)
-\end{tabular}
+\begin{mpitemlist}
+\item Customer
+\item Employee
+\item Service
+\item Appointment
+\item Spa/Salon (Business)
+\end{mpitemlist}
 &
 \textbf{Components} \newline
-\begin{tabular}{@{}l@{}}
-Appointment Management \\(Appointment, Employee, Service)  \\
-Employee Management (Employee) \\
-Notification System (SMS/Email)
-\end{tabular}
+\begin{mpitemlist}
+\item Appointment Management (Appointment, Employee, Service)
+\item Employee Management (Employee)
+\item Notification System (SMS/Email)
+\end{mpitemlist}
 \\ \hline
 \textbf{Actions} \newline
-\begin{tabular}{@{}l@{}}
-Retrieve appointment \\
-Check availability of service \\
-Check availability of employee \\
-Update appointment \\
-Send updated confirmation notification
-\end{tabular}
+\begin{mpitemlist}
+\item Retrieve appointment
+\item Check availability of service
+\item Check availability of employee
+\item Update appointment
+\item Send updated confirmation notification
+\end{mpitemlist}
 &
-% \textbf{Notes} \newline
-\begin{tabular}{@{}l@{}}
-% \small Reserved for additional details or future items.
-\end{tabular}
+
 \\ \hline
 \end{tabular}
 \end{center}
@@ -1088,31 +1096,29 @@ System sends a cancellation confirmation SMS/email to the customer.
 \begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
 \hline
 \textbf{Tables/Entities} \newline
-\begin{tabular}{@{}l@{}}
-Customer \\
-Employee \\
-Service \\
-Appointment \\
-Spa/Salon (Business)
-\end{tabular}
+\begin{mpitemlist}
+\item Customer
+\item Employee
+\item Service
+\item Appointment
+\item Spa/Salon (Business)
+\end{mpitemlist}
 &
 \textbf{Components} \newline
-\begin{tabular}{@{}l@{}}
-Appointment Management \\ (Appointment, Employee, Service) \\
-Employee Management (Employee) \\
-Notification System (SMS/Email)
-\end{tabular}
+\begin{mpitemlist}
+\item Appointment Management (Appointment, Employee, Service)
+\item Employee Management (Employee)
+\item Notification System (SMS/Email)
+\end{mpitemlist}
 \\ \hline
 \textbf{Actions} \newline
-\begin{tabular}{@{}l@{}}
-Retrieve appointment \\
-Cancel appointment \\
-Send cancellation confirmation notification
-\end{tabular}
+\begin{mpitemlist}
+\item Retrieve appointment
+\item Cancel appointment
+\item Send cancellation confirmation notification
+\end{mpitemlist}
 &
-\begin{tabular}{@{}l@{}}
-% \small Reserved for additional details or future items.
-\end{tabular}
+
 \\ \hline
 \end{tabular}
 \end{center}
@@ -1158,34 +1164,32 @@ Employee informs the customer that no appointment was found.
 \begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
 \hline
 \textbf{Tables/Entities} \newline
-\begin{tabular}{@{}l@{}}
-Customer \\
-Employee \\
-Service \\
-Appointment \\
-Payment \\
-Spa/Salon (Business)
-\end{tabular}
+\begin{mpitemlist}
+\item Customer
+\item Employee
+\item Service
+\item Appointment
+\item Payment
+\item Spa/Salon (Business)
+\end{mpitemlist}
 &
 \textbf{Components} \newline
-\begin{tabular}{@{}l@{}}
-Appointment Management \\ (Appointment, Service) \\
-Employee Management (Employee) \\
-Payment Processing (Payment) \\
-Notification System (Follow-up notifications)
-\end{tabular}
+\begin{mpitemlist}
+\item Appointment Management (Appointment, Service)
+\item Employee Management (Employee)
+\item Payment Processing (Payment)
+\item Notification System (Follow-up notifications)
+\end{mpitemlist}
 \\ \hline
 \textbf{Actions} \newline
-\begin{tabular}{@{}l@{}}
-Verify appointment details \\
-Process payment \\
-Mark service as completed \\
-Generate receipt
-\end{tabular}
+\begin{mpitemlist}
+\item Verify appointment details
+\item Process payment
+\item Mark service as completed
+\item Generate receipt
+\end{mpitemlist}
 &
-\begin{tabular}{@{}l@{}}
-% Reserved for additional notes or future items.
-\end{tabular}
+
 \\ \hline
 \end{tabular}
 \end{center}
@@ -1205,6 +1209,12 @@ Generate receipt
     \caption{Service Customer Sequence Diagram}
     \label{fig:service_customer_sequence}
 \end{figure}
+
+
+% ------------------------------------------------------------------------
+% PAYMENT STUFF
+% ------------------------------------------------------------------------
+
 
 \subsection{Payment}
 
@@ -1229,7 +1239,7 @@ The following sequence diagram illustrates the payment process, including split 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/payment/payment_flow.png}
+    \includegraphics[width=1\textwidth]{images/diagrams/payment/payment_flow.png}
     \caption{Payment Flow Sequence Diagram}
     \label{fig:payment_flow}
 \end{figure}
@@ -1422,41 +1432,41 @@ Flow:
 \item System confirms the operation result to the owner (success or failure).
 \end{itemize}
 
-Tables/Entities:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
 \item Owner (Business Owner)
 \item User (employee or other system user tied to the business)
 \item Business (reference to ensure ownership validation)
 \item User Table (stores user records, roles, status)
 \item Auth Session (validates logged-in identity and permissions)
-\end{itemize}
-
-Components:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
 \item User Interface (forms for inputting user details, displaying results)
 \item Auth Service (validates business ownership and permissions)
 \item User Service (handles create, update, deactivate logic)
 \item Database Layer (User Table persistence)
-\end{itemize}
-
-Actions:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
 \item Navigate to User Management
 \item Select user action (create / update / deactivate)
 \item Input or edit user details
 \item Validate ownership and permissions
 \item Execute database transaction (insert / update / deactivate record)
 \item Confirm operation result to owner
-\end{itemize}
+\end{mpitemlist}
+&
+
+\\ \hline
+\end{tabular}
+\end{center}
 
 \begin{figure}[H]
     \centering
@@ -1487,41 +1497,41 @@ Flow:
 \item System confirms the operation result to the owner (success or failure).
 \end{itemize}
 
-Tables/Entities:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
 \item Owner (Business Owner / Manager)
 \item Product/Service (the item being managed)
 \item Business (reference to ensure ownership validation)
 \item Product/Service Table (stores product/service records, categories, price, status)
 \item Auth Session (validates logged-in identity and permissions)
-\end{itemize}
-
-Components:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
 \item User Interface (forms for product/service details, status changes)
 \item Auth Service (validates ownership and permissions)
 \item Product/Service Service (handles CRUD logic for products/services)
 \item Database Layer (Product/Service Table persistence)
-\end{itemize}
-
-Actions:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
 \item Navigate to Manage Products/Services
 \item Select item action (create / update / deactivate)
 \item Input or edit product/service details
 \item Validate ownership and permissions
 \item Execute database transaction (insert / update / deactivate record)
 \item Confirm operation result to owner
-\end{itemize}
+\end{mpitemlist}
+&
+
+\\ \hline
+\end{tabular}
+\end{center}
 
 \begin{figure}[H]
     \centering
@@ -1552,42 +1562,42 @@ Flow:
 \item System confirms the operation result to the owner/staff (success or failure).
 \end{itemize}
 
-Tables/Entities:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
 \item Owner/Staff (business users with permissions)
 \item Product (base product associated with the variation)
 \item Product Variation (modifiers/options for the product)
 \item Business (reference for ownership validation)
 \item Product Variation Table (stores variation details, product linkage, status)
 \item Auth Session (validates user identity and role)
-\end{itemize}
-
-Components:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
 \item User Interface (variation forms: add/edit/remove options)
 \item Auth Service (validates ownership and role permissions)
 \item Product Variation Service (CRUD operations for variations/modifiers)
 \item Database Layer (Variation Table persistence, product linkage)
-\end{itemize}
-
-Actions:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
 \item Navigate to Manage Product Variations
 \item Select variation action (create / update / deactivate)
 \item Input or edit variation details
 \item Validate ownership and permissions
 \item Execute database transaction (insert / update / deactivate variation)
 \item Confirm operation result to owner/staff
-\end{itemize}
+\end{mpitemlist}
+&
+
+\\ \hline
+\end{tabular}
+\end{center}
 
 \begin{figure}[H]
     \centering
@@ -1617,39 +1627,48 @@ business.
 \item System commits changes to the database.
 \item System confirms the operation result to the owner (success or failure).
 \end{itemize}
-Tables/Entities:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+
+
+
+
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
 \item Owner (Business Owner)
 \item Employee (the staff member being managed)
 \item Business (reference to ensure ownership validation)
 \item Employee Table (stores employee records, roles, status)
 \item Auth Session (validates logged-in identity and permissions)
-\end{itemize}
-Components:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
 \item User Interface (forms for inputting employee details, displaying results)
 \item Auth Service (validates business ownership and permissions)
 \item Employee Service (handles create, update, deactivate logic)
 \item Database Layer (Employee Table persistence)
-\end{itemize}
-Actions:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
 \item Navigate to Manage Employees
 \item Select employee action (create / update / deactivate)
 \item Input or edit employee details
 \item Validate ownership and permissions
 \item Execute database transaction (insert / update / deactivate record)
 \item Confirm operation result to owner
-\end{itemize}
+\end{mpitemlist}
+&
+
+\\ \hline
+\end{tabular}
+\end{center}
+
+
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{images/diagrams/business/bpmn_employee_manage.png}
@@ -1674,40 +1693,40 @@ Flow:
     \item System confirms the operation result to the owner (success or failure).
 \end{itemize}
 
-Tables/Entities:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Owner (Business Owner)
-    \item Business (stores business details)
-    \item Business Table (name, address, tax ID, contact info, owner)
-    \item Auth Session (validates logged-in identity and permissions)
-\end{itemize}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
+\item Owner (Business Owner)
+\item Business (stores business details)
+\item Business Table (name, address, tax ID, contact info, owner)
+\item Auth Session (validates logged-in identity and permissions)
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
+\item User Interface (forms for editing business info)
+\item Auth Service (validates ownership and permissions)
+\item Business Service (handles update logic)
+\item Database Layer (Business Table persistence)
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
+\item Navigate to Business Info section
+\item Select info to update (name, address, tax ID, contact, owner)
+\item Edit and submit changes
+\item Validate ownership and permissions
+\item Execute database transaction (update business record)
+\item Confirm operation result to owner
+\end{mpitemlist}
+&
 
-Components:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item User Interface (forms for editing business info)
-    \item Auth Service (validates ownership and permissions)
-    \item Business Service (handles update logic)
-    \item Database Layer (Business Table persistence)
-\end{itemize}
-
-Actions:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Navigate to Business Info section
-    \item Select info to update (name, address, tax ID, contact, owner)
-    \item Edit and submit changes
-    \item Validate ownership and permissions
-    \item Execute database transaction (update business record)
-    \item Confirm operation result to owner
-\end{itemize}
+\\ \hline
+\end{tabular}
+\end{center}
 
 \begin{figure}[H]
     \centering
@@ -1716,17 +1735,38 @@ Actions:
     \label{fig:business_info_manage_flow}
 \end{figure}
 
-\subsection{Data Model}
+\section{GUIs}
 
-\subsubsection{Order Data Model}
+\subsection{Order GUI Mockups}
+\subsection{Service GUI Mockups}
+\subsection{Business Management GUI Mockups}
+
+\section{APIs}
+\subsection{Order APIs}
+\subsection{Service APIs}
+\subsection{Business Management APIs}
+
+\section{Package Structure}
+
+\subsection{Order Package Structure}
+\subsection{Service Package Structure}  
+\subsection{Business Management Package Structure}
+
+
+
+\section{Data Model}
+
+\subsection{Order Data Model}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.65\textwidth]{docs/ps-design/design-document/images/diagrams/orders/order_model_class.png}
+    \includegraphics[width=0.65\textwidth]{images/diagrams/orders/order_model_class.png}
     \caption{Order Class Diagram}
     \label{fig:order_class_diagram}
 \end{figure}
 
-\subsubsection{Business Data Model}
+\subsection{Service Data Model}
+
+\subsection{Business Data Model}
 
 \paragraph{Design Decisions (Summary)}
 
