@@ -22,9 +22,9 @@ alt Appointment found
   Customer -> Employee: Confirm cancellation
   
   alt Customer confirms
-    Employee -> POS: Cancel appointment
-    POS -> Backend: Update appointment status to cancelled
-    Backend -> POS: Confirm cancellation
+    Employee -> POS: Marks appointment as cancelled
+    POS -> Backend: Update appointment status
+    Backend -> POS: Confirm service status updated
     Backend -> Notification: Trigger cancellation message
     POS -> Employee: Cancellation confirmation
     Notification -> Customer: Send cancellation SMS/email

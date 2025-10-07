@@ -841,9 +841,9 @@ Flow:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_mark_items_delivered_sequence.png}
+    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_mark_table_items_delivered_sequence.png}
     \caption{Mark Items as Delivered Sequence Diagram}
-    \label{fig:mark_items_delivered_sequence}
+    \label{fig:mark_items_delivered_sequence}                   
 \end{figure}
 
 
@@ -1147,7 +1147,9 @@ Employee verifies the appointment details in the POS system.
 Employee directs the customer to the appropriate service area and employee.
 Employee begins providing the scheduled service to the customer.
 Employee completes the service according to the appointment specifications.
+Employee marks the service as completed in the POS system.
 Employee asks the customer for payment (see Payment section for details).
+System sends a follow-up SMS message informing that the service was completed successfully.
 
 
 \textbf{ALTERNATIVE FLOWS:}

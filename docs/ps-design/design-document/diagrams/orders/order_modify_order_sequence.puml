@@ -6,7 +6,7 @@ actor Employee
 participant "POS System" as POS
 participant "Backend Server" as Server
 
-title Update Order
+title Modify Order
 
 Client -> Employee: Request order update
 Employee -> POS: Update order
