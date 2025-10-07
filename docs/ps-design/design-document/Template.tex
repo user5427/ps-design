@@ -1206,6 +1206,34 @@ Generate receipt
     \label{fig:service_customer_sequence}
 \end{figure}
 
+\subsection{Payment}
+
+\subsubsection{Supported Payment Methods}
+\begin{itemize}
+\item Cash
+\item Gift card
+\item Credit/debit card (via Stripe)
+\end{itemize}
+
+\subsubsection{Key Business Rules}
+\begin{itemize}
+\item Split payments are supported: an order total can be paid by multiple parties and/or multiple payment methods.
+\item Employees can add tips and apply discounts during payment.
+\item Final receipts must include applicable taxes, tips, and discounts for each payment.
+\item Closed/paid orders are preserved for audit purposes and can be refunded (partial or total).
+\item Refund for card payments is processed through Stripe. For other methods, the status is updated in the system.
+\end{itemize}
+
+\subsubsection{Payment Flow}
+The following sequence diagram illustrates the payment process, including split payments, tips, and refunds.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/payment/payment_flow.png}
+    \caption{Payment Flow Sequence Diagram}
+    \label{fig:payment_flow}
+\end{figure}
+
 \subsection{Business Management}
 
 
