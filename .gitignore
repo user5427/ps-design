@@ -13,3 +13,4 @@ Template.toc
 *.synctex.gz
 *.pdf
 build
+*.md5
