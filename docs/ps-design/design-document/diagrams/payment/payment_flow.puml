@@ -1,38 +1,50 @@
 @startuml
 !theme plain
+
 actor Customer
+actor Employee
 participant "POS System" as POS
 participant "Backend Server" as Server
 participant "Stripe API" as Stripe
 
 == Payment Start ==
-Customer -> POS : Choose payment method (card / cash / gift card)
-POS -> Server : Create payment session
+Employee -> Customer        : Ask for payment method
+Customer -> Employee        : Choose payment method (card / cash / gift card)
+Employee -> POS             : Initialize payment session
+POS      -> Server          : Create payment session
 
 == Card Payment ==
-Server -> Stripe : Request payment intent
-Stripe -> Server : Return intent reference
-POS -> Customer : Request card details
-Customer -> Stripe : Enter card details
-Stripe -> Server : Send payment result
-Server -> POS : Update payment status
+
+Employee -> Customer        : Request card details
+Customer -> POS             : Enter card details
+POS      -> Server          : Process card payment
+Server   -> Stripe          : Request payment intent
+Stripe   -> Server          : Return intent reference
+Server   -> POS             : Update payment status
 
 == Cash / Gift Card ==
-Customer -> POS : Provide cash or gift card
-POS -> Server : Record payment
+Employee -> Customer        : Request cash or gift card
+Customer -> Employee        : Provide cash or gift card
+Employee -> POS             : Record payment
+POS      -> Server          : Save payment
 
 == Tip ==
-Customer -> POS : Add tip
-POS -> Server : Add tip to payment session
+Employee -> Customer        : Ask for tip
+Customer -> Employee        : Provide tip amount
+Employee -> POS             : Add tip to session
+POS      -> Server          : Save tip
 
 == Finalization ==
-Server -> Server : Generate receipt
-Server -> POS : Provide receipt
-POS -> Customer : Show / print receipt
+Server   -> Server          : Generate receipt
+Server   -> POS             : Provide receipt
+Employee -> Customer        : Show/print receipt
 
 == Refund (optional) ==
-POS -> Server : Request refund
-Server -> Stripe : Process refund (if card)
-Stripe -> Server : Return refund result
-Server -> POS : Update refund status
+Customer -> Employee        : Request refund
+Employee -> POS             : Initiate refund
+POS      -> Server          : Process refund request
+Server   -> Stripe          : Issue refund (if card)
+Stripe   -> Server          : Return refund result
+Server   -> POS             : Update refund status
+Employee -> Customer        : Confirm refund
 @enduml
