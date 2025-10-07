@@ -5,13 +5,15 @@ title Service Customer Sequence Diagram
 actor Customer
 participant Employee
 participant "POS System" as POS
+participant "Backend Server" as Backend
 participant "Service Area" as Service
-participant "Payment System" as Payment
 
 Customer -> Employee: Arrives for scheduled appointment
 Employee -> Customer: Greet and ask to confirm appointment details
 Customer -> Employee: Provide appointment details
 Employee -> POS: Verify appointment details
+POS -> Backend: Query appointment information
+Backend -> POS: Return appointment information
 POS -> Employee: Return appointment information
 
 alt Appointment verified
@@ -20,10 +22,10 @@ alt Appointment verified
   Employee -> Customer: Perform requested service
   Customer -> Employee: Receive service
   Employee -> POS: Mark service as completed
+  POS -> Backend: Update service status
+  Backend -> POS: Confirm service status updated
   POS -> Employee: Service completion confirmed
-  POS -> POS: Update records
-  POS -> Payment: Trigger payment processing (if applicable)
-  POS -> Customer: Trigger follow-up actions (feedback request)
+  Employee -> Customer: Ask for payment \n(see payment section for more details)
 else Appointment not verified
   Employee -> Customer: Address appointment discrepancy
   Employee -> POS: Resolve issue or reschedule
