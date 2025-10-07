@@ -5,6 +5,7 @@ title Appointment Modification Sequence Diagram
 actor Customer
 participant Employee
 participant "POS System" as POS
+participant "Backend Server" as Backend
 participant "Notification System" as Notification
 
 Customer -> Employee: Calls or walks in
@@ -12,18 +13,24 @@ Customer -> Employee: Request to modify existing appointment
 Employee -> Customer: Ask for contact information
 Customer -> Employee: Provide contact info
 Employee -> POS: Retrieve appointment by contact info
+POS -> Backend: Query appointment details
+Backend -> POS: Return appointment details
 POS -> Employee: Return appointment details
 
 alt Appointment found
   Employee -> Customer: Discuss requested changes
   Customer -> Employee: Specify changes (date, time, service, employee)
   Employee -> POS: Check availability for requested changes
+  POS -> Backend: Query availability for changes
+  Backend -> POS: Return availability status
   POS -> Employee: Availability status
   
   alt Changes available
     Employee -> POS: Update appointment
+    POS -> Backend: Save updated appointment details
+    Backend -> POS: Confirm appointment updated
+    Backend -> Notification: Trigger updated confirmation
     POS -> Employee: Update confirmation
-    POS -> Notification: Trigger updated confirmation
     Notification -> Customer: Send updated SMS/email confirmation
   else Changes not available
     Employee -> Customer: Suggest alternative options
