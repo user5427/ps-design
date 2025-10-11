@@ -1,0 +1,16 @@
+@startuml OrderCompletionInventory
+start
+
+:Order is completed;
+
+:Automatically reduce inventory quantities for sold items;
+
+if (Inventory < Threshold?) then (yes)
+    :Trigger low-stock alert
+    Can be a notification or dashboard warning;
+else (no)
+    :No alert needed;
+endif
+
+stop
+@enduml

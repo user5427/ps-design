@@ -1,0 +1,33 @@
+@startuml
+start
+
+:Owner/Staff logs in and navigates to Inventory Management;
+
+:Choose action:
+- Add new inventory item
+- Update stock levels
+- Deactivate inventory item;
+
+:System prompts for inventory details
+(product name, quantity, unit, threshold, status);
+
+:Owner/Staff provides or modifies details;
+
+:System invokes Auth Service to validate permissions;
+
+if (Validation Passed?) then (yes)
+    if (Action = Add?) then
+        :Insert new inventory record;
+    elseif (Action = Update?)
+        :Modify quantity for existing inventory item;
+    elseif (Action = Deactivate?)
+        :Mark inventory item as inactive;
+    endif
+    :Commit changes to database;
+    :Confirm operation result to owner/staff;
+else (no)
+    :Reject operation due to invalid permissions;
+endif
+
+stop
+@enduml

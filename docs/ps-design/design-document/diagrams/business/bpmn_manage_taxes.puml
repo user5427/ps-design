@@ -1,0 +1,31 @@
+@startuml ManageTaxesBPMN
+start
+
+:Admin logs in and navigates to Manage Taxes;
+
+:Choose action:
+- Create new tax rule
+- Update existing tax rate
+- Deactivate a tax rule;
+
+:System prompts for tax details
+(name, type, rate, applicable products/services, status);
+
+:Admin provides or modifies details;
+
+:System invokes Auth Service to validate permissions;
+
+if (Validation Passed?) then (yes)
+    if (Action = Create?) then (yes)
+        :Insert new tax rule into Tax Table;
+    elseif (Action = Update?) then (yes)
+        :Modify existing tax rule in Tax Table;
+    elseif (Action = Deactivate?) then (yes)
+        :Mark tax rule as inactive (soft delete);
+    endif
+
+    :Ensure historical transactions retain original tax rates;
+    :Commit changes to the database;
+    :Confirm operation result to admin;
+else (no)
+    :Reject operation due to invalid permissions;

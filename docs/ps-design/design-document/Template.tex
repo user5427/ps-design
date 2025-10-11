@@ -1236,7 +1236,7 @@ The following sequence diagram illustrates the payment process, including split 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{images/diagrams/payment/payment_flow.png}
+    \includegraphics[width=0.95\textwidth]{images/diagrams/payment/payment_flow.png}
     \caption{Payment Flow Sequence Diagram}
     \label{fig:payment_flow}
 \end{figure}
@@ -1732,6 +1732,269 @@ Flow:
     \label{fig:business_info_manage_flow}
 \end{figure}
 
+
+\subsubsection{Manage Inventory Business Flow (Optional)}
+
+Flow:
+\begin{itemize}
+    \setlength{\itemsep}{2pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}
+    \item Owner or authorized staff logs into the system and navigates to the Inventory Management section
+    \item Owner or authorized staff chooses an action: add new inventory item, update stock levels, or deactivate an inventory item.
+    \item System prompts for inventory details (product/ingredient name, quantity, unit, threshold for low stock, status).
+    \item Owner/staff provides or modifies the required details.
+    \item System invokes the Auth Service to validate permissions and business ownership.
+    \item If validation passes, system executes the requested operation through the Inventory Service:
+        \begin{itemize}
+            \item Add inventory item $\rightarrow$ insert new record into Inventory Table.
+            \item Update stock levels $\rightarrow$ modify quantity for existing inventory item.
+            \item Deactivate inventory item $\rightarrow$ mark record as inactive (soft delete).
+        \end{itemize}
+    \item When an order is placed and completed, the system automatically reduces inventory quantities for the sold items.
+    \item If inventory falls below the defined threshold, the system triggers a low-stock alert (notification or dashboard warning).
+    \item System commits changes to the database.
+    \item System confirms the operation result to the owner/staff (success or failure).
+    \end{itemize}
+
+    \begin{center}
+    \setlength{\tabcolsep}{8pt}
+    \begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+    \hline
+    \textbf{Tables/Entities} \newline
+    \begin{mpitemlist}
+    \item Owner/Staff (authorized business users)
+    \item Inventory Item (product/ingredient tracked)
+    \item Business (reference for ownership validation)
+    \item Inventory Table (stores item details, quantity, thresholds, status)
+    \item Auth Session (validates user identity and role)
+    \end{mpitemlist}
+    &
+    \textbf{Components} \newline
+    \begin{mpitemlist}
+    \item User Interface (inventory forms: add/edit/remove, stock alerts)
+    \item Auth Service (validates ownership and permissions)
+    \item Inventory Service (CRUD operations, automatic stock reduction)
+    \item Notification System (low-stock alerts)
+    \item Database Layer (Inventory Table persistence)
+    \end{mpitemlist}
+    \\ \hline
+    \textbf{Actions} \newline
+    \begin{mpitemlist}
+    \item Navigate to Inventory Management
+    \item Select inventory action (add / update / deactivate)
+    \item Input or edit inventory details
+    \item Validate ownership and permissions
+    \item Execute database transaction (insert / update / deactivate record)
+    \item Automatic stock reduction on order completion
+    \item Trigger low-stock alert if threshold reached
+    \item Confirm operation result to owner/staff
+    \end{mpitemlist}
+    &
+
+    \\ \hline
+    \end{tabular}
+    \end{center}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_inventory.png}
+    \caption{Manage Inventory Business Flow Diagram}
+    \label{fig:inventory_manage_flow}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_inventory_low_stocks.png}
+    \caption{Manage Inventory Business Low Stocks Notification Flow Diagram}
+    \label{fig:inventory_manage_low_stocks_flow}
+\end{figure}
+
+\subsubsection{Manage Taxes Business Flow}
+Flow:
+\begin{itemize}
+    \setlength{\itemsep}{2pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}
+    \item Admin logs into the system and navigates to the Manage Taxes section.
+    \item Admin chooses an action: create new tax rule, update an existing tax rate, or deactivate a tax rule.
+    \item System prompts for tax details (name, type, rate, applicable products/services, status).
+    \item Admin provides or modifies the required details.
+    \item System invokes the Auth Service to validate admin permissions.
+    \item If validation passes, system executes the requested operation through the Tax Service:
+        \begin{itemize}
+            \item Create tax rule $\rightarrow$ insert new record into Tax Table.
+            \item Update tax rule $\rightarrow$ modify existing record in Tax Table.
+            \item Deactivate tax rule $\rightarrow$ mark record as inactive (soft delete).
+        \end{itemize}
+    \item System ensures that changes only affect new transactions; historical records retain the original tax rates.
+    \item System commits changes to the database.
+    \item System confirms the operation result to the admin (success or failure).
+\end{itemize}
+
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
+\item Admin (authorized user)
+\item Tax Rule (tax details, rates, applicability)
+\item Product/Service (linked to tax rules)
+\item Tax Table (stores tax rules, rates, status)
+\item Auth Session (validates user identity and permissions)
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
+\item User Interface (tax rule forms: add/edit/deactivate)
+\item Auth Service (validates admin permissions)
+\item Tax Service (CRUD operations for tax rules)
+\item Database Layer (Tax Table persistence)
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
+\item Navigate to Manage Taxes
+\item Select tax action (create / update / deactivate)
+\item Input or edit tax details
+\item Validate permissions
+\item Execute database transaction (insert / update / deactivate tax rule)
+\item Ensure historical data is preserved
+\item Confirm operation result to admin
+\end{mpitemlist}
+&
+
+\\ \hline
+\end{tabular}
+\end{center}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_taxes.png}
+    \caption{Manage Taxes Business Flow Diagram}
+    \label{fig:tax_manage_flow}
+\end{figure}
+
+\subsubsection{Manage Users and Roles Business Flow}
+Flow:
+\begin{itemize}
+    \setlength{\itemsep}{2pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}
+    \item Owner logs into the system and navigates to the Manage Users and Roles section.
+    \item Owner selects an employee to assign or modify roles.
+    \item System displays available roles (e.g., manager, cashier, admin) and current assignments for the selected employee.
+    \item Owner chooses roles to assign or revoke for the employee.
+    \item System invokes the Auth Service to validate that the owner can only manage roles for users within their own business.
+    \item If validation passes, system updates the \texttt{user\_roles} or \texttt{user\_business\_roles} tables accordingly.
+    \item System commits changes to the database.
+    \item System confirms the operation result to the owner (success or failure).
+\end{itemize}
+
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
+\item Owner (Business Owner)
+\item Employee (user whose roles are managed)
+\item Role (manager, cashier, admin, etc.)
+\item Business (reference for ownership validation)
+\item user\_roles / user\_business\_roles (role assignments)
+\item Auth Session (validates logged-in identity and permissions)
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
+\item User Interface (role assignment forms)
+\item Auth Service (validates ownership and permissions)
+\item Role Management Service (handles assignment/revocation logic)
+\item Database Layer (role assignment persistence)
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
+\item Navigate to Manage Users and Roles
+\item Select employee
+\item Assign or revoke roles
+\item Validate ownership and permissions
+\item Update role assignments in database
+\item Confirm operation result to owner
+\end{mpitemlist}
+&
+
+\\ \hline
+\end{tabular}
+\end{center}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_roles.png}
+    \caption{Manage Users and Roles Business Flow Diagram}
+    \label{fig:user_roles_manage_flow}
+\end{figure}
+
+\subsubsection{Super Admin Access Business Flow}
+Flow:
+\begin{itemize}
+    \setlength{\itemsep}{2pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}
+    \item Super Admin logs into the system using elevated credentials.
+    \item Super Admin navigates to the business management section.
+    \item System displays a list of all businesses under the organization.
+    \item Super Admin selects a business for support or troubleshooting.
+    \item Super Admin can access and manage any business (user management, product/service management, employee management, business info, inventory, taxes, roles, etc.).
+    \item Super Admin performs required actions across businesses as needed.
+    \item All Super Admin actions are logged in the audit log for traceability.
+    \item Super Admin can switch between businesses as needed.
+    \item Super Admin logs out when finished.
+\end{itemize}
+
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
+\item Super Admin (system operator)
+\item Business (multiple per organization)
+\item User
+\item Audit Log
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
+\item Super Admin Interface (business-level access)
+\item Auth Service (validates Super Admin privileges)
+\item Business Management Services (full CRUD access)
+\item Audit Logging Service
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
+\item Log in as Super Admin
+\item Select business
+\item Access and manage businesses
+\item Perform management/support actions
+\item Log all actions for audit
+\item Log out
+\end{mpitemlist}
+&
+
+\\ \hline
+\end{tabular}
+\end{center}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_super_admin.png}
+    \caption{Super Admin Access Business Flow Diagram}
+    \label{fig:super_admin_access_flow}
+\end{figure}
+
+
 \section{GUIs}
 
 \subsection{Order GUI Mockups}
@@ -1765,7 +2028,7 @@ Flow:
 
 \subsection{Business Data Model}
 
-\paragraph{Design Decisions (Summary)}
+\subsubsection{Design Decisions (Summary)}
 
 Below are the initial data design decisions for business and user account management. 
 \begin{itemize}
@@ -1778,7 +2041,7 @@ Below are the initial data design decisions for business and user account manage
 \end{itemize}
 \textit{RBAC = Role-Based Access Control}
 
-\paragraph{Entities and Tables}  
+\subsubsection{Entities and Tables}  
 
 The database schema is organized into the following entities and supporting tables:  
 
@@ -1834,7 +2097,7 @@ The database schema is organized into the following entities and supporting tabl
 \textit{PK = Primary Key,}
 \textit{FK = Foreign Key}
 
-\paragraph{Relationships}
+\subsubsection{Relationships}
 
 Below are the relationships between tables and entities in this schema.
 \begin{itemize}

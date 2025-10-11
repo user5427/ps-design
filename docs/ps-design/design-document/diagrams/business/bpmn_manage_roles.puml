@@ -1,0 +1,23 @@
+@startuml ManageUsersRolesBPMN
+start
+
+:Owner logs in and navigates to Manage Users and Roles;
+
+:Select an employee to assign or modify roles;
+
+:System displays available roles and current assignments;
+
+:Owner chooses roles to assign or revoke;
+
+:System invokes Auth Service to validate ownership and permissions;
+
+if (Validation Passed?) then (yes)
+    :Update user_roles / user_business_roles tables;
+    :Commit changes to the database;
+    :Confirm operation result to owner;
+else (no)
+    :Reject operation due to invalid permissions;
+endif
+
+stop
+@enduml

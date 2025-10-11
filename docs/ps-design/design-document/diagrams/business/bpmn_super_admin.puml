@@ -1,0 +1,27 @@
+@startuml SuperAdminAccessBPMN
+start
+
+:Super Admin logs in using elevated credentials;
+
+:Navigate to Business Management section;
+
+:System displays list of all businesses under the organization;
+
+:Super Admin selects a business for support or troubleshooting;
+
+:Access and manage business:
+- User management
+- Product/Service management
+- Employee management
+- Inventory, taxes, roles, etc.;
+
+:Perform required actions across businesses as needed;
+
+:System logs all Super Admin actions in Audit Log;
+
+:Switch between businesses as needed;
+
+:Super Admin logs out;
+
+stop
+@enduml
