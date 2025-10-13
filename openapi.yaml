@@ -1,0 +1,789 @@
+openapi: 3.1.2
+info:
+  title: "SaaS Platform for Catering & Beauty Businesses API"
+  description: "API documentation for a SaaS platform. This API handles order management, service appointments, and business administration."
+  version: "1.0.0"
+servers:
+  # Replace with your actual server URLs when implementing!
+  - url: "https://api.your-saas.com/v1"
+    description: "Production Server"
+
+tags:
+  - name: "Authentication"
+    description: "Endpoints for user authentication."
+  - name: "Order Management"
+    description: "API for managing orders in bars and restaurants."
+  - name: "Service & Appointment Management"
+    description: "API for managing services and appointments in spas and salons."
+  - name: "Business Management"
+    description: "API for business owners and super admins to manage business settings."
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - "Authentication"
+      summary: "User Login"
+      description: "Authenticates a business user (employee/owner) and returns a JWT access token."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "employee@example.com"
+                password:
+                  type: string
+                  format: password
+                  example: "secure_password"
+      responses:
+        '200':
+          description: "Authentication successful. Returns access token and user info."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+        '400':
+          description: "Bad Request - Missing or invalid input."
+        '401':
+          description: "Unauthorized - Invalid credentials."
+
+  /businesses/{businessId}/orders:
+    get:
+      tags:
+        - "Order Management"
+      summary: "List Orders for a Business"
+      description: "Retrieves a paginated list of orders for a specific business, with optional filtering by status or table."
+      parameters:
+        - name: "businessId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: "The ID of the business."
+        - name: "status"
+          in: "query"
+          required: false
+          schema:
+            type: string
+            enum: [open, paid, cancelled, refunded]
+          description: "Filter orders by their status."
+        - name: "limit"
+          in: "query"
+          required: false
+          schema:
+            type: integer
+            default: 20
+          description: "Number of orders to return."
+        - name: "offset"
+          in: "query"
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: "Offset for pagination."
+      responses:
+        '200':
+          description: "A list of orders."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags:
+        - "Order Management"
+      summary: "Create a New Order"
+      description: "Creates a new order with items for a specific table."
+      parameters:
+        - name: "businessId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: "The ID of the business."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewOrder'
+      responses:
+        '201':
+          description: "Order created successfully."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetail'
+        '400':
+          description: "Bad Request - Invalid product ID, stock unavailability, or invalid variations."
+        '422':
+          description: "Unprocessable Entity - Validation errors in the request body."
+
+  /businesses/{businessId}/orders/{orderId}:
+    get:
+      tags:
+        - "Order Management"
+      summary: "Get Order Details"
+      description: "Retrieves the full details of a specific order by its ID."
+      parameters:
+        - name: "businessId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: "orderId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: "Detailed information about the order."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+        - "Order Management"
+      summary: "Update an Open Order"
+      description: "Modifies an existing open order, for example, by adding or removing items."
+      parameters:
+        - name: "businessId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: "orderId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewOrder'
+      responses:
+        '200':
+          description: "Order updated successfully."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetail'
+        '403':
+          description: "Forbidden - Cannot modify an order that is already paid or cancelled."
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /businesses/{businessId}/orders/{orderId}/payments:
+    post:
+      tags:
+        - "Order Management"
+      summary: "Process a Payment for an Order"
+      description: "Accepts a payment for an order. Supports split checks by allowing multiple payment calls."
+      parameters:
+        - name: "businessId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: "orderId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+      responses:
+        '200':
+          description: "Payment processed successfully. Returns final receipt if fully paid."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: "Bad Request - Payment amount exceeds amount due."
+
+  /businesses/{businessId}/appointments:
+    get:
+      tags:
+        - "Service & Appointment Management"
+      summary: "List Appointments"
+      description: "Retrieves a list of appointments for a specific business."
+      parameters:
+        - name: "businessId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: "date"
+          in: "query"
+          schema:
+            type: string
+            format: date
+          description: "Filter appointments by date (e.g., 2025-11-15)."
+        - name: "employeeId"
+          in: "query"
+          schema:
+            type: string
+            format: uuid
+          description: "Filter appointments by employee."
+      responses:
+        '200':
+          description: "A list of appointments."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Appointment'
+    post:
+      tags:
+        - "Service & Appointment Management"
+      summary: "Create an Appointment"
+      description: "Books a new service appointment for a customer."
+      parameters:
+        - name: "businessId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewAppointment'
+      responses:
+        '201':
+          description: "Appointment created successfully."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '409':
+          description: "Conflict - The requested time slot or employee is unavailable."
+          /businesses/{businessId}/appointments/{appointmentId}:
+    put:
+      tags:
+        - "Service & Appointment Management"
+      summary: "Modify an Appointment"
+      description: "Updates the details of an existing appointment, such as time, service, or assigned employee."
+      parameters:
+        - name: "businessId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: "appointmentId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAppointment'
+      responses:
+        '200':
+          description: "Appointment updated successfully."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: "Conflict - The requested new time slot or employee is unavailable."
+    delete:
+      tags:
+        - "Service & Appointment Management"
+      summary: "Cancel an Appointment"
+      description: "Cancels a scheduled appointment."
+      parameters:
+        - name: "businessId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: "appointmentId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: "Appointment cancelled successfully. No content returned."
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /businesses/{businessId}/services:
+    get:
+      tags:
+        - "Service & Appointment Management"
+      summary: "List Business Services"
+      description: "Retrieves a list of all services offered by the business."
+      parameters:
+        - name: "businessId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: "A list of services."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+
+  /businesses/{businessId}/users:
+    get:
+      tags:
+        - "Business Management"
+      summary: "List Users"
+      description: "Retrieves a list of all users (employees, owners) for a specific business. Requires Business Owner or Super Admin privileges."
+      parameters:
+        - name: "businessId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: "A list of users."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags:
+        - "Business Management"
+      summary: "Create a User"
+      description: "Creates a new user (employee) for the business. Requires Business Owner or Super Admin privileges."
+      parameters:
+        - name: "businessId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUser'
+      responses:
+        '201':
+          description: "User created successfully."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: "Conflict - A user with this email already exists."
+
+  /businesses/{businessId}/products:
+    get:
+      tags:
+        - "Business Management"
+      summary: "List Products"
+      description: "Retrieves a list of all products/menu items for a business."
+      parameters:
+        - name: "businessId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: "A list of products."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+    post:
+      tags:
+        - "Business Management"
+      summary: "Create a Product"
+      description: "Creates a new product or menu item for the business. Requires Business Owner or Super Admin privileges."
+      parameters:
+        - name: "businessId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewProduct'
+      responses:
+        '201':
+          description: "Product created successfully."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /businesses:
+    get:
+      tags:
+        - "Business Management"
+      summary: "List All Businesses (Super Admin)"
+      description: "Retrieves a list of all businesses in the system. Requires Super Admin privileges."
+      responses:
+        '200':
+          description: "A list of all businesses."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Business'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+components:
+  schemas:
+    AuthToken:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        tokenType:
+          type: string
+          example: "Bearer"
+        expiresIn:
+          type: integer
+          example: 3600
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            role:
+              type: string
+
+    Order:
+      type: object
+      properties:
+        orderId:
+          type: string
+          format: uuid
+        tableId:
+          type: integer
+        status:
+          type: string
+          enum: [open, paid, cancelled, refunded]
+        totalAmount:
+          type: number
+          format: float
+        createdAt:
+          type: string
+          format: date-time
+
+    OrderDetail:
+      allOf:
+        - $ref: '#/components/schemas/Order'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrderItem'
+            payments:
+              type: array
+              items:
+                $ref: '#/components/schemas/Payment'
+            discountsApplied:
+              type: array
+              items:
+                type: object 
+                properties:
+                  name:
+                    type: string
+                  amount:
+                    type: number
+                    format: float
+
+    NewOrder:
+      type: object
+      required:
+        - tableId
+        - items
+      properties:
+        tableId:
+          type: integer
+        items:
+          type: array
+          items:
+            type: object
+            required:
+              - productId
+              - quantity
+            properties:
+              productId:
+                type: string
+                format: uuid
+              quantity:
+                type: integer
+              variations:
+                type: array
+                items:
+                  type: string
+                  format: uuid
+                description: "List of IDs for product variations (e.g., milk type)."
+
+    OrderItem:
+      type: object
+      properties:
+        productId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        quantity:
+          type: integer
+        price:
+          type: number
+          format: float
+
+    Payment:
+      type: object
+      properties:
+        paymentId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          format: float
+        paymentMethod:
+          type: string
+          enum: [Cash, CreditCard, GiftCard]
+        paymentTimestamp:
+          type: string
+          format: date-time
+          
+    PaymentRequest:
+      type: object
+      required:
+        - amount
+        - paymentMethod
+      properties:
+        amount:
+          type: number
+          format: float
+        paymentMethod:
+          type: string
+          enum: [Cash, CreditCard, GiftCard]
+        tip:
+          type: number
+          format: float
+          default: 0
+        stripePaymentIntentId:
+          type: string
+          description: "Required only when paymentMethod is CreditCard."
+          
+    Receipt:
+      type: object
+      properties:
+        receiptId:
+          type: string
+          format: uuid
+        orderId:
+          type: string
+          format: uuid
+        totalPaid:
+          type: number
+          format: float
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        taxes:
+          type: number
+          format: float
+        discounts:
+          type: number
+          format: float
+        tip:
+          type: number
+          format: float
+        finalTotal:
+          type: number
+          format: float
+
+    Appointment:
+      type: object
+      properties:
+        appointmentId:
+          type: string
+          format: uuid
+        customerName:
+          type: string
+        serviceName:
+          type: string
+        employeeName:
+          type: string
+        appointmentTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [booked, completed, cancelled]
+
+    NewAppointment:
+      type: object
+      required:
+        - serviceId
+        - appointmentTime
+        - customer
+      properties:
+        serviceId:
+          type: string
+          format: uuid
+        employeeId:
+          type: string
+          format: uuid
+          description: "Optional, if customer requests a specific employee."
+        appointmentTime:
+          type: string
+          format: date-time
+        customer:
+          type: object
+          properties:
+            name:
+              type: string
+            phone:
+              type: string
+            email:
+              type: string
+              format: email
+              
+    UpdateAppointment:
+      type: object
+      properties:
+        serviceId:
+          type: string
+          format: uuid
+        employeeId:
+          type: string
+          format: uuid
+        appointmentTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [booked, completed, cancelled]
+
+    Business:
+      type: object
+      properties:
+        businessId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+        ownerUserId:
+          type: string
+          format: uuid
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+  responses:
+    Unauthorized:
+      description: "Unauthorized - Authentication token is missing or invalid."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: "Forbidden - The authenticated user does not have permission to perform this action."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: "Not Found - The requested resource could not be found."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
