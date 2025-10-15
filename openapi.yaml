@@ -74,20 +74,9 @@ paths:
           schema:
             $ref: '#/components/schemas/OrderStatus'
           description: "Filter orders by their status."
-        - name: "limit"
-          in: "query"
-          required: false
-          schema:
-            type: integer
-            default: 20
-          description: "Number of orders to return."
-        - name: "offset"
-          in: "query"
-          required: false
-          schema:
-            type: integer
-            default: 0
-          description: "Offset for pagination."
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationOffset'
+        - $ref: '#/components/parameters/Sort'
       responses:
         '200':
           description: "A list of orders."
@@ -256,6 +245,9 @@ paths:
             type: string
             format: uuid
           description: "Filter appointments by employee."
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationOffset'
+        - $ref: '#/components/parameters/Sort'
       responses:
         '200':
           description: "A list of appointments."
@@ -366,6 +358,9 @@ paths:
           schema:
             type: string
             format: uuid
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationOffset'
+        - $ref: '#/components/parameters/Sort' 
       responses:
         '200':
           description: "A list of services."
@@ -389,6 +384,24 @@ paths:
           schema:
             type: string
             format: uuid
+        - name: "role"
+          in: "query"
+          schema:
+            $ref: '#/components/schemas/UserRole'
+          description: "Filter users by their role."
+        - name: "accountStatus"
+          in: "query"
+          schema:
+            $ref: '#/components/schemas/UserAccountStatus'
+          description: "Filter users by their account status."
+        - name: "availabilityStatus"
+          in: "query"
+          schema:
+            $ref: '#/components/schemas/UserAvailabilityStatus'
+          description: "Filter users by their business availability."
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationOffset'
+        - $ref: '#/components/parameters/Sort'
       responses:
         '200':
           description: "A list of users."
@@ -443,6 +456,14 @@ paths:
           schema:
             type: string
             format: uuid
+        - name: "category"
+          in: "query"
+          schema:
+            type: string
+          description: "Filter products by category."
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationOffset'
+        - $ref: '#/components/parameters/Sort'
       responses:
         '200':
           description: "A list of products."
@@ -486,6 +507,10 @@ paths:
         - "Business Management"
       summary: "List All Businesses (Super Admin)"
       description: "Retrieves a list of all businesses in the system. Requires Super Admin privileges."
+      parameters:
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationOffset'
+        - $ref: '#/components/parameters/Sort'
       responses:
         '200':
           description: "A list of all businesses."
@@ -499,6 +524,33 @@ paths:
           $ref: '#/components/responses/Forbidden'
 
 components:
+  parameters:
+    PaginationLimit:
+      name: limit
+      in: query
+      description: "The number of items to return per page."
+      required: false
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+    PaginationOffset:
+      name: offset
+      in: query
+      description: "The number of items to skip before starting to collect the result set."
+      required: false
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    Sort:
+      name: sort
+      in: query
+      description: "The field to sort by. Prefix with '-' for descending order (e.g., '-createdAt')."
+      required: false
+      schema:
+        type: string
   schemas:
     # --- ENUMERATIONS ---
     OrderStatus:
@@ -517,6 +569,14 @@ components:
       type: string
       enum: [booked, completed, cancelled]
       description: "The status of an appointment."
+    UserAccountStatus:
+      type: string
+      enum: [pending_verification, active, suspended, deactivated]
+      description: "The technical status of the user's account."
+    UserAvailabilityStatus:
+      type: string
+      enum: [available, on_leave, unavailable]
+      description: "The user's availability for business operations like appointments. 'on_leave' is a generic state for vacation, sick leave, etc."
 
     # --- SHARED SCHEMAS ---
     Money:
@@ -527,7 +587,7 @@ components:
         - currency
       properties:
         amount:
-          type: decimal
+          type: number
           description: "The monetary amount as a decimal to maintain maximum precision."
           example: 19.93
         currency:
@@ -802,8 +862,10 @@ components:
           format: email
         role:
           $ref: '#/components/schemas/UserRole'
-        isActive:
-          type: boolean
+        accountStatus:
+          $ref: '#/components/schemas/UserAccountStatus'
+        availabilityStatus:
+          $ref: '#/components/schemas/UserAvailabilityStatus'
 
     NewUser:
       type: object
