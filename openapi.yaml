@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: "UniServe API"
   description: "API documentation for a SaaS platform. This API handles order management, service appointments, and business administration."
-  version: 1.0.0
+  version: 1.0.1
 servers:
   - url: https://api.uniserve.com/v1
     description: "Production Server"
@@ -42,49 +42,49 @@ paths:
     post:
       tags:
         - Auth
-      summary: Register a new user
-      description: Creates a new user account (typically a business owner) and returns an authentication token upon successful registration.
-      operationId: registerUser
+      summary: Register a new Business Owner
+      operationId: registerOwner
       requestBody:
-        description: User registration data
+        description: Business Owner registration data
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: "Annie"
-                surname:
-                  type: string
-                  example: "Felix"
-                email:
-                  type: string
-                  format: email
-                  example: "annie.felix@example.com"
-                password:
-                  type: string
-                  format: password
-                  example: "strong-password-123"
-              required:
-                - name
-                - surname
-                - email
-                - password
+              $ref: '#/components/schemas/OwnerRegisterRequest'
       responses:
         '201':
-          description: User successfully registered. Returns the new user object and auth tokens.
+          description: User successfully registered.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
         '400':
-          description: Invalid input data (e.g., email already exists, password too weak).
+          description: Invalid input data.
+
+  /auth/register/employee:
+    post:
+      tags:
+        - Auth
+      summary: Register as an Employee
+      description: Creates a new employee account using an invitation code.
+      operationId: registerEmployee
+      requestBody:
+        description: Employee registration data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeRegisterRequest'
+      responses:
+        '201':
+          description: Employee successfully registered.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid or expired invitation code.
+
 
   /auth/login:
     post:
@@ -144,34 +144,19 @@ paths:
                 $ref: '#/components/schemas/User'
         '401':
           description: Unauthorized.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
     patch:
       tags:
         - User
       summary: Update current user profile
-      description: Allows the authenticated user to update their own profile information (e.g., name, phone).
       operationId: updateCurrentUser
       security:
         - bearerAuth: []
       requestBody:
-        description: Fields to update for the user.
+        description: Fields to update for the user. All fields are optional.
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                surname:
-                  type: string
-                email:
-                  type: string
-                  format: email
-                phone:
-                  type: string
+              $ref: '#/components/schemas/UserUpdateMeRequest'
       responses:
         '200':
           description: User profile updated successfully.
@@ -179,24 +164,100 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        '400':
-          description: Invalid input data.
+    delete:
+      tags:
+        - User
+      summary: Delete current user account
+      description: Permanently deletes the account of the currently authenticated user.
+      operationId: deleteCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Account successfully deleted.
         '401':
           description: Unauthorized.
-  
-    delete:
-        tags:
-          - User
-        summary: Delete current user account
-        description: Deletes the authenticated user's account and all associated data.
-        operationId: deleteCurrentUser
-        security:
-          - bearerAuth: []
-        responses:
-          '204':
-            description: User account deleted successfully.
-          '401':
-            description: Unauthorized.
+  /me/invites:
+    get:
+      tags:
+        - User
+      summary: Get my pending invitations
+      description: Retrieves a list of pending co-owner or employee invitations for the current user.
+      operationId: getMyInvites
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of pending invitations.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invite'
+        '401':
+          description: Unauthorized.
+
+  /me/tasks:
+    get:
+      tags:
+        - Employee
+      summary: Get my tasks
+      description: Retrieves a list of tasks assigned to the currently authenticated user.
+      operationId: getMyTasks
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of tasks.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized.
+
+  /me/invites/{inviteId}/accept:
+    post:
+      tags:
+        - User
+      summary: Accept an invitation
+      operationId: acceptInvite
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: inviteId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Invitation accepted successfully.
+        '404':
+          description: Invitation not found or expired.
+
+  /me/invites/{inviteId}/decline:
+    post:
+      tags:
+        - User
+      summary: Decline an invitation
+      operationId: declineInvite
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: inviteId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Invitation declined successfully.
+        '404':
+          description: Invitation not found or expired.
 
   /businesses:
     get:
@@ -351,7 +412,7 @@ paths:
             default: 20
       responses:
         '200':
-          description: A list of employees.
+          description: A detailed list of employees.
           content:
             application/json:
               schema:
@@ -362,18 +423,119 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Employee'
+                      $ref: '#/components/schemas/EmployeeDetail' 
         '401':
           description: Unauthorized.
         '403':
           description: Forbidden.
 
+  /businesses/{businessId}/revenue:
+    get:
+      tags:
+        - Business
+      summary: Get business revenue report
+      description: Retrieves a daily revenue summary for the past week.
+      operationId: getBusinessRevenue
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of daily revenue totals.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RevenueReportItem'
+        '403':
+          description: Forbidden.
+
+  /businesses/{businessId}/co-owners:
+    get:
+      tags:
+        - Employee
+      summary: List co-owners of a business
+      operationId: listCoOwners
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of co-owners.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /businesses/{businessId}/jobs:
+    get:
+      tags:
+        - Employee
+      summary: List jobs in a business
+      operationId: listJobs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of jobs and their employee counts.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/JobDetail'
+    post:
+      tags:
+        - Employee
+      summary: Create a job
+      operationId: createJob
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateJobRequest'
+      responses:
+        '201':
+          description: Job created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+
   /businesses/{businessId}/employees/invite:
     post:
       tags:
         - Employee
-      summary: Invite an employee
-      description: Sends an invitation to a user to join the business as an employee with a specific job.
+      summary: Invite an employee with full details
+      description: Sends an invitation to a user with a specific job, location, roles, hours, and activities.
       operationId: inviteEmployee
       security:
         - bearerAuth: []
@@ -388,31 +550,18 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  format: email
-                job_id:
-                  type: integer
-              required:
-                - email
-                - job_id
+              $ref: '#/components/schemas/CreateEmployeeInviteRequest'
       responses:
         '200':
           description: Invitation sent successfully.
-        '401':
-          description: Unauthorized.
-        '403':
-          description: Forbidden.
 
   /businesses/{businessId}/employees/{userId}:
-    patch:
+    get:
       tags:
         - Employee
-      summary: Update an employee
-      description: Updates an employee's role, status, or other business-specific details.
-      operationId: updateEmployee
+      summary: Get employee details
+      description: Retrieves the current job title, salary, and employment status for a specific employee.
+      operationId: getEmployeeById
       security:
         - bearerAuth: []
       parameters:
@@ -426,36 +575,20 @@ paths:
           required: true
           schema:
             type: integer
-            description: The User ID of the employee to update.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                job_id:
-                  type: integer
-                status:
-                  type: string
-                  enum: [active, inactive]
       responses:
         '200':
-          description: Employee updated successfully.
+          description: Employee details retrieved successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Employee'
-        '401':
-          description: Unauthorized.
-        '403':
-          description: Forbidden.
+                $ref: '#/components/schemas/EmployeeDetail' 
         '404':
-          description: Employee not found in this business.
+          description: Employee not found.
     delete:
       tags:
         - Employee
       summary: Remove an employee
-      description: Removes an employee from the business. This may deactivate their account or remove their association.
+      description: Removes an employee's association from the business.
       operationId: removeEmployee
       security:
         - bearerAuth: []
@@ -473,12 +606,129 @@ paths:
       responses:
         '204':
           description: Employee successfully removed.
-        '401':
-          description: Unauthorized.
+
+  /businesses/{businessId}/employees/{userId}/job:
+    post:
+      tags:
+        - Employee
+      summary: Update an employee's job details
+      description: "Creates a new version of an employee's job status, salary, or location, effective from a specified date."
+      operationId: updateEmployeeJob
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: Provide a payload to update salary, location, or employment status. All fields are optional but `effective_from` is required.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeJob' 
+      responses:
+        '200':
+          description: Employee job details updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeJob'
+
+  /businesses/{businessId}/employees/{userId}/work-shift:
+    put:
+      tags:
+        - Employee
+      summary: Set or update an employee's work shift
+      description: "Replaces the entire weekly work schedule for an employee, effective from a specified date."
+      operationId: updateEmployeeWorkShift
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeWorkShiftUpdateRequest'
+      responses:
+        '200':
+          description: Work shift updated successfully.
+
+  /businesses/{businessId}/tasks/{taskId}:
+    delete:
+      tags:
+        - Employee
+      summary: Delete a task
+      operationId: deleteTask
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Task successfully deleted.
         '403':
           description: Forbidden.
         '404':
-          description: Employee not found.
+          description: Task not found.
+
+  /businesses/{businessId}/employees/{userId}/feedback/statistics:
+    get:
+      tags:
+        - Employee
+      summary: Get feedback statistics for an employee
+      description: "(Manager/Owner only) Retrieves aggregated feedback statistics, including average rating and ratings over time."
+      operationId: getEmployeeFeedbackStatistics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Feedback statistics retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackStatisticsResponse'
+        '403':
+          description: Forbidden.
+
   /businesses/{businessId}/menu/categories:
     get:
       tags:
@@ -1351,12 +1601,13 @@ paths:
           description: Appointment not found.
         '409':
           description: Conflict - The new time slot is unavailable.
+
   /businesses/{businessId}/locations:
     get:
       tags:
         - Location
       summary: List all business locations
-      description: Retrieves a list of all physical locations associated with a business.
+      description: Retrieves a list of all physical locations associated with a business, including employee counts.
       operationId: listLocations
       security:
         - bearerAuth: []
@@ -1368,19 +1619,18 @@ paths:
             type: integer
       responses:
         '200':
-          description: A list of business locations.
+          description: A list of business locations with details.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Location'
-                  
+                  $ref: '#/components/schemas/LocationDetail' 
     post:
       tags:
         - Location
       summary: Create a business location
-      description: Adds a new physical location to a business.
+      description: Adds a new physical location, including open hours and an optional seating plan for order-based businesses.
       operationId: createLocation
       security:
         - bearerAuth: []
@@ -1681,6 +1931,25 @@ paths:
 
   # SUPER-ADMIN ENDPOINTS
   /admin/taxes:
+    get:
+      tags:
+        - Admin
+      summary: Get all VAT Rates
+      description: "(Super-Admin only) Retrieves a list of all VAT rates in the system."
+      operationId: listVatRates
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of VAT rates.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VatRate'
+        '403':
+          description: Forbidden.
     post:
       tags:
         - Admin
@@ -1704,6 +1973,7 @@ paths:
                 $ref: '#/components/schemas/VatRate'
         '403':
           description: Forbidden - User is not a Super-Admin.
+
   /businesses/{businessId}/orders/{orderId}/bills:
     post:
       tags:
@@ -2026,6 +2296,37 @@ paths:
           description: Forbidden - The user is not the author of this message.
         '404':
           description: Message not found.
+
+  /countries:
+    get:
+      tags:
+        - Admin
+      summary: Get list of all countries
+      operationId: listCountries
+      responses:
+        '200':
+          description: A list of countries with their codes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Country'
+  /roles:
+    get:
+      tags:
+        - Admin
+      summary: Get list of all possible roles
+      operationId: listRoles
+      responses:
+        '200':
+          description: A list of definable job roles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
 
 
 components:
@@ -2585,12 +2886,14 @@ components:
         type_id:
           type: string
           enum: [order_based, appointment_based]
+        country_code_of_registration:
+          type: string
+          example: "LT"
         name:
           type: string
           example: "The Grand Cafe"
         description:
           type: string
-          nullable: true
         business_email:
           type: string
           format: email
@@ -2599,8 +2902,17 @@ components:
       required:
         - type_id
         - name
-        - business_email
-        - business_phone
+        - country_code_of_registration
+
+    RevenueReportItem:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        total:
+          type: number
+          format: decimal
       
     UpdateBusinessRequest:
       type: object
@@ -2762,6 +3074,7 @@ components:
         status:
           type: string
           enum: [CANCELLED] 
+
     CreateLocationRequest:
       type: object
       properties:
@@ -2773,6 +3086,15 @@ components:
           type: string
         postal_code:
           type: string
+        open_hours:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpenHour'
+        seating_plan:
+          type: array
+          description: "Required if the business is 'order_based'."
+          items:
+            $ref: '#/components/schemas/SeatingDefinition'
       required:
         - country
         - city
@@ -2814,14 +3136,11 @@ components:
         effective_from:
           type: string
           format: date-time
-        valid_until:
-          type: string
-          format: date-time
-          nullable: true
       required:
         - country_code
         - value
         - effective_from
+
     ProductUnit:
       type: object
       description: A global definition for a unit of measurement (e.g., kg, liter, piece).
@@ -2892,6 +3211,7 @@ components:
         - product_id
         - location_id
         - quantity
+
     Task:
       type: object
       properties:
@@ -2910,7 +3230,7 @@ components:
         assigned_employees:
           type: array
           items:
-            $ref: '#/components/schemas/Employee'
+            $ref: '#/components/schemas/EmployeeDetail' 
 
     CreateTaskRequest:
       type: object
@@ -2919,9 +3239,13 @@ components:
           type: string
         description:
           type: string
+          nullable: true
         due_time:
           type: string
           format: date-time
+        approximate_duration:
+          type: integer
+          description: "Estimated duration in minutes."
         employee_ids:
           type: array
           items:
@@ -2936,19 +3260,25 @@ components:
       properties:
         id:
           type: integer
-        author_id:
-          type: integer
-        receiver_id:
-          type: integer
+        author_name:
+          type: string
+          nullable: true
+          description: "Author's full name. Null if anonymous or if the viewer is the receiver and shouldn't see it."
+        receiver_name:
+          type: string
+          description: "Receiver's full name."
         description:
           type: string
         rating:
           type: integer
-          format: int32
-          minimum: 1
-          maximum: 5
         is_anonymous:
           type: boolean
+        can_receiver_see:
+          type: boolean
+        type:
+          type: string
+          enum: [employee, manager]
+          description: "Indicates if the feedback was given by a peer or a manager."
         created_at:
           type: string
           format: date-time
@@ -2964,10 +3294,14 @@ components:
           type: integer
         is_anonymous:
           type: boolean
+        can_receiver_see:
+          type: boolean
       required:
         - receiver_id
         - rating
         - description
+        - can_receiver_see
+
     EntityVersion:
       type: object
       description: "A schema representing the version history of an entity."
@@ -3044,3 +3378,292 @@ components:
           description: "The content of the message."
       required:
         - text
+
+    OwnerRegisterRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        surname:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        phone_number:
+          type: string
+        account_type:
+          type: string
+          enum: [business_owner]
+      required:
+        - name
+        - surname
+        - email
+        - password
+        - account_type
+
+    EmployeeRegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        invitation_code:
+          type: string
+      required:
+        - email
+        - password
+        - invitation_code
+
+    UserUpdateMeRequest:
+      type: object
+      description: "Fields for updating the current user's profile. All fields are optional."
+      properties:
+        name:
+          type: string
+        surname:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+
+    EmployeeDetail:
+      type: object
+      description: "Detailed employee information for list views."
+      properties:
+        user_id:
+          type: integer
+        name:
+          type: string
+        surname:
+          type: string
+        email:
+          type: string
+          format: email
+        job_title:
+          type: string
+        salary:
+          type: number
+          format: decimal
+        status:
+          type: string
+          enum: [active, inactive]
+
+    JobDetail:
+      type: object
+      description: "Job information with employee count."
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        employee_count:
+          type: integer
+
+    CreateJobRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+      required:
+        - title
+
+    Role:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+
+    WorkHourPeriod:
+      type: object
+      properties:
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+      required:
+        - start
+        - end
+
+    ActivityDefinition:
+      type: object
+      properties:
+        name:
+          type: string
+        min_time:
+          type: integer
+          description: "Minimum duration in minutes."
+        max_time:
+          type: integer
+          description: "Maximum duration in minutes."
+
+    CreateEmployeeInviteRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        job_id:
+          type: integer
+        location_id:
+          type: integer
+        role_id:
+          type: integer
+        work_hours:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkHourPeriod'
+        activities:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActivityDefinition'
+      required:
+        - email
+        - job_id
+        - location_id
+        - role_id
+
+    # --- LOCATION SCHEMAS (UPDATED/NEW) ---
+    OpenHour:
+      type: object
+      properties:
+        week_day:
+          type: string
+          enum: [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY]
+        start_at:
+          type: string
+          format: time
+          example: "09:00"
+        end_at:
+          type: string
+          format: time
+          example: "22:00"
+      required:
+        - week_day
+        - start_at
+        - end_at
+
+    SeatingDefinition:
+      type: object
+      properties:
+        pos_x:
+          type: integer
+        pos_y:
+          type: integer
+        capacity:
+          type: integer
+      required:
+        - pos_x
+        - pos_y
+        - capacity
+
+      # --- INVITE SCHEMA ---
+    Invite:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        description:
+          type: string
+        status:
+          type: string
+          enum: [pending, accepted, declined, expired]
+        business_name:
+          type: string
+        time_invited:
+          type: string
+          format: date-time
+
+    LocationDetail:
+      type: object
+      description: "Detailed location information including employee count."
+      properties:
+        id:
+          type: integer
+        business_id:
+          type: integer
+        country:
+          type: string
+        city:
+          type: string
+        street:
+          type: string
+        postal_code:
+          type: string
+        employee_count:
+          type: integer
+
+    EmployeeWorkShiftUpdateRequest:
+      type: object
+      description: "Request to update an employee's work hours, which creates a new version."
+      properties:
+        effective_from:
+          type: string
+          format: date-time
+        work_hours:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkHourPeriod'
+      required:
+        - effective_from
+        - work_hours
+
+    FeedbackStatisticsItem:
+      type: object
+      properties:
+        rating:
+          type: integer
+        datetime:
+          type: string
+          format: date-time
+    
+    FeedbackStatisticsResponse:
+      type: object
+      properties:
+        average_rating:
+          type: number
+          format: float
+        ratings_over_time:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeedbackStatisticsItem'
+
+    EmployeeJob:
+      type: object
+      description: "Represents an employee's job, salary, and status at a specific point in time (versioned)."
+      properties:
+        employee_id:
+          type: integer
+        effective_from:
+          type: string
+          format: date-time
+        job_id:
+          type: integer
+        location_id:
+          type: integer
+        salary:
+          type: number
+          format: decimal
+        status:
+          type: string
+          enum: [active, inactive, disabled]
+        edited_by:
+          type: integer
