@@ -1306,13 +1306,14 @@ paths:
           description: Item removed successfully.
         '409':
           description: Conflict - Order is not open.
-  /businesses/{businessId}/services:
+
+  /businesses/{businessId}/service-definitions:
     get:
       tags:
         - Service
-      summary: List all services
-      description: Retrieves a list of all services offered by a business.
-      operationId: listServices
+      summary: Get all Service Definitions
+      description: "Retrieves a list of all abstract service definitions for a business (without price or location)."
+      operationId: listServiceDefinitions
       security:
         - bearerAuth: []
       parameters:
@@ -1321,41 +1322,21 @@ paths:
           required: true
           schema:
             type: integer
-        - in: query
-          name: page
-          schema:
-            type: integer
-            default: 1
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            default: 20
       responses:
         '200':
-          description: A list of services.
+          description: A list of service definitions.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  pagination:
-                    $ref: '#/components/schemas/Pagination'
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Service'
-        '401':
-          description: Unauthorized.
-        '403':
-          description: Forbidden.
-          
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceDefinition'
     post:
       tags:
         - Service
-      summary: Create a new service
-      description: Adds a new service to the business's offerings.
-      operationId: createService
+      summary: Create a Service Definition
+      description: "Creates a new abstract service definition for the business."
+      operationId: createServiceDefinition
       security:
         - bearerAuth: []
       parameters:
@@ -1369,57 +1350,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateServiceRequest'
+              $ref: '#/components/schemas/CreateServiceDefinitionRequest'
       responses:
         '201':
-          description: Service created successfully.
+          description: Service definition created successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Service'
-        '400':
-          description: Invalid input data.
-        '401':
-          description: Unauthorized.
-        '403':
-          description: Forbidden.
+                $ref: '#/components/schemas/ServiceDefinition'
 
-  /businesses/{businessId}/services/{serviceId}:
-    get:
-      tags:
-        - Service
-      summary: Get a service by ID
-      description: Retrieves the details of a single service.
-      operationId: getServiceById
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: businessId
-          in: path
-          required: true
-          schema:
-            type: integer
-        - name: serviceId
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Successful retrieval of service details.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Service'
-        '404':
-          description: Service not found.
-          
+  /businesses/{businessId}/service-definitions/{serviceId}:
     patch:
       tags:
         - Service
-      summary: Update a service
-      description: Updates the details of an existing service.
-      operationId: updateService
+      summary: Update a Service Definition
+      description: "Updates the name, description, or duration of a service definition."
+      operationId: updateServiceDefinition
       security:
         - bearerAuth: []
       parameters:
@@ -1434,30 +1380,114 @@ paths:
           schema:
             type: integer
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateServiceRequest'
+              $ref: '#/components/schemas/UpdateServiceDefinitionRequest'
       responses:
         '200':
-          description: Service updated successfully.
+          description: Service definition updated successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Service'
+                $ref: '#/components/schemas/ServiceDefinition'
         '404':
-          description: Service not found.
-          
-    delete:
+          description: Service definition not found.
+
+  # --- Location-Specific Service Management ---
+  /businesses/{businessId}/locations/{locationId}/services:
+    post:
       tags:
         - Service
-      summary: Delete a service
-      description: Deletes a service from the business.
-      operationId: deleteService
+      summary: Add a Service to a Location
+      description: "Makes a service definition available at a specific location with a given status."
+      operationId: addLocationService
       security:
         - bearerAuth: []
       parameters:
         - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddLocationServiceRequest'
+      responses:
+        '201':
+          description: Service successfully added to location.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationService'
+
+  /businesses/{businessId}/locations/{locationId}/services/{serviceId}:
+    patch:
+      tags:
+        - Service
+      summary: Update a Location Service
+      description: "Updates the status (enabled/disabled) of a service at a specific location."
+      operationId: updateLocationService
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: serviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLocationServiceRequest'
+      responses:
+        '200':
+          description: Location service updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationService'
+        '404':
+          description: The specified service is not offered at this location.
+
+  # --- Employee-Specific Service Management ---
+  /businesses/{businessId}/locations/{locationId}/services/{serviceId}/employees:
+    get:
+      tags:
+        - Service
+      summary: Get Employees for a Location Service
+      description: "Retrieves a list of all employees assigned to perform a specific service at a specific location."
+      operationId: getLocationServiceEmployees
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationId
           in: path
           required: true
           schema:
@@ -1468,10 +1498,53 @@ paths:
           schema:
             type: integer
       responses:
-        '204':
-          description: Service deleted successfully.
-        '404':
-          description: Service not found.
+        '200':
+          description: A list of assigned employees with their details.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmployeeServiceAssignment'
+    post:
+      tags:
+        - Service
+      summary: Assign an Employee to a Service
+      description: "Assigns an employee to be able to perform a specific service at a location."
+      operationId: addEmployeeToService
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: serviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddEmployeeToServiceRequest'
+      responses:
+        '201':
+          description: Employee successfully assigned to the service.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeServiceAssignment'
+        '409':
+          description: Conflict - Employee is already assigned to this service.   
 
   # APPOINTMENT ENDPOINTS
   /businesses/{businessId}/appointments:
@@ -3136,6 +3209,9 @@ components:
         duration:
           type: integer
           description: Actual duration, may differ from service default.
+        block_duration:
+          type: integer
+          description: Block duration tells for how long to block the time after the service so the employee can get ready for next appointment.
         status:
           type: string
           enum: [RESERVED, UPCOMING, SERVING, AWAITING_PAYMENT, PAID, CANCELLED]
@@ -4136,7 +4212,6 @@ components:
             employee_service_id:
               type: integer
     
-    # --- Schemas for complex Menu Item creation/update ---
     VariationItemProductRequest:
       type: object
       properties:
@@ -4194,7 +4269,6 @@ components:
         - status
         - items
 
-    # --- Schemas for new Inventory responses ---
     InventoryProductDefinitionResponse:
       type: object
       properties:
@@ -4276,3 +4350,107 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/MenuItemVariationGroup'
+    ServiceDefinition:
+      type: object
+      description: "An abstract definition of a service, without price or location."
+      properties:
+        id:
+          type: integer
+        business_id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        duration:
+          type: integer
+          description: "Default duration in minutes."
+
+    LocationService:
+      type: object
+      description: "Represents a service definition being offered at a specific location."
+      properties:
+        id:
+          type: integer
+        service_id:
+          type: integer
+        location_id:
+          type: integer
+        status:
+          type: string
+          enum: [enabled, disabled]
+          
+    EmployeeServiceAssignment:
+      type: object
+      description: "The detailed response object for an employee assigned to a location-specific service."
+      properties:
+        employee_id:
+          type: integer
+        employee_name:
+          type: string
+        employee_email:
+          type: string
+          format: email
+        employee_job_title:
+          type: string
+        location_name:
+          type: string
+        location_service_status:
+          type: string
+          enum: [enabled, disabled]
+
+    # --- Request Body Schemas ---
+    CreateServiceDefinitionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        duration:
+          type: integer
+      required:
+        - name
+        - duration
+        
+    UpdateServiceDefinitionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        duration:
+          type: integer
+
+    AddLocationServiceRequest:
+      type: object
+      properties:
+        service_id:
+          type: integer
+          description: "The ID of the service definition to offer at this location."
+        status:
+          type: string
+          enum: [enabled, disabled]
+      required:
+        - service_id
+        - status
+
+    UpdateLocationServiceRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [enabled, disabled]
+      required:
+        - status
+        
+    AddEmployeeToServiceRequest:
+      type: object
+      properties:
+        employee_id:
+          type: integer
+      required:
+        - employee_id
