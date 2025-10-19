@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: "UniServe API"
   description: "API documentation for a SaaS platform. This API handles order management, service appointments, and business administration."
@@ -2895,6 +2895,15 @@ components:
         - name
         - surname
         - email
+      example:
+        id: 101
+        user_type_id: owner
+        name: "John"
+        surname: "Doe"
+        email: "john.doe@example.com"
+        phone: "+37060000000"
+        time_created: "2025-09-01T10:00:00Z"
+        time_updated: "2025-10-01T09:15:00Z"
 
     # BUSINESS & EMPLOYEE SCHEMAS
     Business:
@@ -2954,6 +2963,10 @@ components:
       required:
         - user_id
         - business_id
+      example:
+        id: 1
+        user_id: 101
+        business_id: 55
         
     Employee:
       type: object
@@ -2976,6 +2989,12 @@ components:
         - user_id
         - business_id
         - status
+      example:
+        id: 88
+        user_id: 102
+        business_id: 55
+        joined_at: "2025-07-15T08:30:00Z"
+        status: active
 
     Job:
       type: object
@@ -2992,6 +3011,11 @@ components:
         description:
           type: string
           nullable: true
+      example:
+        id: 10
+        business_id: 55
+        name: "Waiter"
+        description: "Front-of-house service staff"
         
     # LOCATION SCHEMAS
     Location:
@@ -3014,6 +3038,15 @@ components:
             type: string
           postal_code:
             type: string
+        example:
+          id: 11
+          version_id: 3
+          version_active: true
+          business_id: 55
+          country_code: "LT"
+          city: "Vilnius"
+          street: "Gedimino pr. 1"
+          postal_code: "LT-01103"
 
     LocationSeating:
       type: object
@@ -3037,6 +3070,12 @@ components:
         - capacity
         - x_pos
         - y_pos
+      example:
+        id: 200
+        location_id: 11
+        capacity: 4
+        x_pos: 5
+        y_pos: 3
 
     # CATERING (MENU & ORDER) SCHEMAS
     MenuItemCategory:
@@ -3054,6 +3093,11 @@ components:
           type: integer
           nullable: true
           description: For creating category hierarchies.
+      example:
+        id: 301
+        business_id: 55
+        name: "Main Courses"
+        parent_id: null
           
     MenuItem:
       type: object
@@ -3083,6 +3127,16 @@ components:
           type: string
           format: uri
           nullable: true
+      example:
+        id: 501
+        location_id: 11
+        category_id: 301
+        price_id: 9001
+        name: "Margherita Pizza"
+        description: "Classic pizza with tomato, mozzarella and basil"
+        status: ENABLED
+        preparation_duration: 15
+        image_url: "https://cdn.example.com/menu/margherita.jpg"
           
     MenuItemVariationGroup:
       type: object
@@ -3140,6 +3194,13 @@ components:
           type: string
           readOnly: true
           enum: [OPEN, PAID, CANCELLED, REFUNDED]
+      example:
+        id: 7001
+        location_seating_id: 200
+        actioned_by: 102
+        created_at: "2025-10-18T12:00:00Z"
+        closed_at: null
+        status: OPEN
 
     OrderItem:
       type: object
@@ -3156,6 +3217,12 @@ components:
         status:
           type: string
           enum: [NOT_STARTED, IN_PROGRESS, READY, DELIVERED]
+      example:
+        id: 8001
+        order_id: 7001
+        menu_item_id: 501
+        quantity: 2
+        status: IN_PROGRESS
           
     OrderBill:
       type: object
@@ -3174,6 +3241,12 @@ components:
         created_at:
           type: string
           format: date-time
+      example:
+        id: 9001
+        order_id: 7001
+        discount_id: null
+        tip_amount: 3.50
+        created_at: "2025-10-18T13:05:00Z"
 
     # APPOINTMENT SCHEMAS
     Service:
@@ -3195,6 +3268,13 @@ components:
         duration:
           type: integer
           description: Service duration in minutes.
+      example:
+        id: 42
+        business_id: 55
+        price_id: 12001
+        name: "Men's Haircut"
+        description: "Classic men's haircut with wash"
+        duration: 30
           
     Appointment:
       type: object
@@ -3224,6 +3304,16 @@ components:
         status:
           type: string
           enum: [RESERVED, UPCOMING, SERVING, AWAITING_PAYMENT, PAID, CANCELLED]
+      example:
+        id: 6001
+        employee_service_id: 321
+        customer_name: "Alex Smith"
+        customer_email: "alex@example.com"
+        customer_phone: "+37061234567"
+        start_time: "2025-10-20T09:00:00Z"
+        duration: 45
+        block_duration: 15
+        status: RESERVED
 
     # PAYMENT & DISCOUNT SCHEMAS
     Payment:
@@ -3254,6 +3344,15 @@ components:
         created_at:
           type: string
           format: date-time
+      example:
+        id: 10001
+        order_bill_id: 9001
+        appointment_bill_id: null
+        actioned_by: 102
+        method: CASH
+        status: SUCCEEDED
+        charge_id: null
+        created_at: "2025-10-18T13:06:30Z"
           
     Refund:
       type: object
@@ -3281,6 +3380,15 @@ components:
         created_at:
           type: string
           format: date-time
+      example:
+        id: 11001
+        payment_id: 10001
+        actioned_by: 102
+        amount: 5.00
+        reason: "Customer returned item"
+        status: SUCCEEDED
+        refund_id: "rfnd_12345"
+        created_at: "2025-10-18T14:00:00Z"
           
     Discount:
       type: object
@@ -3313,6 +3421,16 @@ components:
         disabled:
           type: boolean
           default: false
+      example:
+        id: 12001
+        business_id: 55
+        location_id: null
+        value: 10
+        is_percentage: true
+        is_total_discount: true
+        valid_from: "2025-10-01T00:00:00Z"
+        valid_to: "2025-11-01T00:00:00Z"
+        disabled: false
     AuthResponse:
       type: object
       properties:
@@ -3324,6 +3442,14 @@ components:
       required:
         - accessToken
         - user
+      example:
+        accessToken: "eyJhbGciOi..."
+        user:
+          id: 101
+          user_type_id: owner
+          name: "John"
+          surname: "Doe"
+          email: "john.doe@example.com"
 
     CreateBusinessRequest:
       type: object
@@ -3348,6 +3474,13 @@ components:
         - type_id
         - name
         - country_code_of_registration
+      example:
+        type_id: order_based
+        country_code_of_registration: "LT"
+        name: "The Corner Bistro"
+        description: "A cozy place for lunch and dinner."
+        business_email: "contact@cornerbistro.com"
+        business_phone: "+37052000000"
 
     RevenueReportItem:
       type: object
@@ -3358,6 +3491,9 @@ components:
         total:
           type: number
           format: decimal
+      example:
+        date: "2025-10-18"
+        total: 542.35
       
     UpdateBusinessRequest:
       type: object
@@ -3372,6 +3508,11 @@ components:
           format: email
         business_phone:
           type: string
+      example:
+        name: "The Corner Bistro+"
+        description: "Expanded terrace seating"
+        business_email: "hello@cornerbistro.com"
+        business_phone: "+37052000001"
     CreateMenuCategoryRequest:
       type: object
       properties:
@@ -3382,6 +3523,9 @@ components:
           nullable: true
       required:
         - name
+      example:
+        name: "Desserts"
+        parent_id: 301
     UpdateMenuCategoryRequest:
       type: object
       properties:
@@ -3390,6 +3534,9 @@ components:
         parent_id:
           type: integer
           nullable: true
+      example:
+        name: "Hot Drinks"
+        parent_id: null
 
     CreateMenuItemRequest:
       type: object
@@ -3426,6 +3573,28 @@ components:
         - category_id
         - initial_price
         - currency_code
+      example:
+        name: "Cappuccino"
+        description: "Espresso with steamed milk and foam"
+        category_id: 305
+        initial_price: 2.50
+        currency_code: "EUR"
+        estimated_duration: 5
+        products:
+          - product_id: 41
+            quantity: 0.2
+        variation_groups:
+          - name: "Milk Options"
+            status: enabled
+            min_selection: 0
+            max_selection: 1
+            items:
+              - name: "Oat Milk"
+                price_adjustment: 0.3
+                status: enabled
+                products:
+                  - product_id: 77
+                    quantity: 0.2
 
     UpdateMenuItemRequest:
       type: object
@@ -3449,6 +3618,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/VariationGroupRequest'
+      example:
+        name: "Cappuccino Deluxe"
+        description: "Added chocolate sprinkle"
+        category_id: 305
+        estimated_duration: 6
 
     CreateOrderItemRequest:
       type: object
@@ -3465,6 +3639,10 @@ components:
       required:
         - menu_item_id
         - quantity
+      example:
+        menu_item_id: 501
+        quantity: 2
+        variation_ids: [901, 902]
     CreateServiceRequest:
       type: object
       properties:
@@ -3486,6 +3664,12 @@ components:
         - duration
         - price
         - currency
+      example:
+        name: "Basic Pedicure"
+        description: "Nail shaping and polish"
+        duration: 45
+        price: 25.00
+        currency: EUR
 
     UpdateServiceRequest:
       type: object
@@ -3496,6 +3680,10 @@ components:
           type: string
         duration:
           type: integer
+      example:
+        name: "Basic Pedicure+"
+        description: "Includes quick massage"
+        duration: 50
 
     CreateAppointmentRequest:
       type: object
@@ -3520,6 +3708,13 @@ components:
         - customer_name
         - customer_phone
         - start_time
+      example:
+        service_id: 42
+        employee_id: 102
+        customer_name: "Alex Smith"
+        customer_email: "alex@example.com"
+        customer_phone: "+37061234567"
+        start_time: "2025-10-20T09:00:00Z"
 
     UpdateAppointmentRequest:
       type: object
@@ -3532,6 +3727,10 @@ components:
         status:
           type: string
           enum: [CANCELLED] 
+      example:
+        employee_id: 103
+        start_time: "2025-10-20T10:00:00Z"
+        status: CANCELLED
 
     CreateLocationRequest:
       type: object
@@ -3565,6 +3764,19 @@ components:
         - country
         - city
         - street
+      example:
+        country: "Lithuania"
+        city: "Vilnius"
+        street: "Gedimino pr. 1"
+        postal_code: "LT-01103"
+        open_hours:
+          - week_day: MONDAY
+            start_at: "09:00"
+            end_at: "18:00"
+        seating_plan:
+          - pos_x: 1
+            pos_y: 1
+            capacity: 4
 
     CreateDiscountRequest:
       type: object
@@ -3590,6 +3802,13 @@ components:
         - is_percentage
         - is_total_discount
         - valid_from
+      example:
+        location_id: null
+        value: 15
+        is_percentage: true
+        is_total_discount: false
+        valid_from: "2025-10-01T00:00:00Z"
+        valid_to: "2025-12-31T00:00:00Z"
 
     CreateVatRateRequest:
       type: object
@@ -3602,6 +3821,10 @@ components:
         effective_from:
           type: string
           format: date-time
+      example:
+        country_code: "LT"
+        value: 21.0
+        effective_from: "2025-01-01T00:00:00Z"
       required:
         - country_code
         - value
@@ -3624,6 +3847,10 @@ components:
         - id
         - name
         - short_name
+      example:
+        id: 1
+        name: "Kilogram"
+        short_name: "kg"
 
     Product:
       type: object
@@ -3645,6 +3872,11 @@ components:
         - business_id
         - product_unit_id
         - name
+      example:
+        id: 41
+        business_id: 55
+        product_unit_id: 1
+        name: "Milk"
 
     InventoryProduct:
       type: object
@@ -3677,6 +3909,14 @@ components:
         - product_id
         - location_id
         - quantity
+      example:
+        id: 30001
+        product_id: 41
+        location_id: 11
+        quantity: 8.5
+        expiration_date: "2025-11-01"
+        created_at: "2025-10-18T07:00:00Z"
+        created_by: 102
 
     Task:
       type: object
@@ -3697,6 +3937,20 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/EmployeeDetail' 
+      example:
+        id: 5010
+        name: "Clean coffee machine"
+        description: "Run cleaning cycle and wipe surfaces"
+        due_time: "2025-10-19T20:00:00Z"
+        status: pending
+        assigned_employees:
+          - user_id: 102
+            name: "Lucille"
+            surname: "Ponty"
+            email: "lucille@uniserve.com"
+            job_title: "Head Waiter"
+            salary: 2500
+            status: active
 
     CreateTaskRequest:
       type: object
@@ -3720,6 +3974,12 @@ components:
         - name
         - due_time
         - employee_ids
+      example:
+        name: "Inventory count"
+        description: "Count milk and flour stocks"
+        due_time: "2025-10-20T08:00:00Z"
+        approximate_duration: 60
+        employee_ids: [102, 103]
 
     Feedback:
       type: object
@@ -3749,6 +4009,16 @@ components:
         created_at:
           type: string
           format: date-time
+      example:
+        id: 70001
+        author_name: null
+        receiver_name: "Lucille Ponty"
+        description: "Excellent teamwork during rush hour."
+        rating: 5
+        is_anonymous: true
+        can_receiver_see: true
+        type: employee
+        created_at: "2025-10-18T18:30:00Z"
 
     CreateFeedbackRequest:
       type: object
@@ -3768,6 +4038,12 @@ components:
         - rating
         - description
         - can_receiver_see
+      example:
+        receiver_id: 102
+        description: "Handled a difficult customer professionally."
+        rating: 4
+        is_anonymous: false
+        can_receiver_see: true
 
     EntityVersion:
       type: object
@@ -3803,6 +4079,19 @@ components:
         started_at:
           type: string
           format: date-time
+      example:
+        id: 1
+        sender:
+          id: 101
+          name: "John"
+          surname: "Doe"
+          email: "john.doe@example.com"
+        receiver:
+          id: 102
+          name: "Lucille"
+          surname: "Ponty"
+          email: "lucille@uniserve.com"
+        started_at: "2025-10-18T09:00:00Z"
 
     Message:
       type: object
@@ -3823,6 +4112,13 @@ components:
           type: string
           format: date-time
           nullable: true
+      example:
+        id: 10
+        chat_id: 1
+        sender_id: 101
+        text: "Hey, can you open earlier tomorrow?"
+        created_at: "2025-10-18T09:01:00Z"
+        read_at: null
 
     CreateChatRequest:
       type: object
@@ -3836,6 +4132,9 @@ components:
       required:
         - receiver_id
         - text
+      example:
+        receiver_id: 102
+        text: "Hi, interested in discussing the new menu"
 
     CreateMessageRequest:
       type: object
@@ -3845,22 +4144,29 @@ components:
           description: "The content of the message."
       required:
         - text
+      example:
+        text: "Sure, let's talk at 3 PM."
 
     OwnerRegisterRequest:
       type: object
       properties:
         name:
           type: string
+          example: "Marcella"
         surname:
           type: string
+          example: "Clarke"
         email:
           type: string
           format: email
+          example: "marcella.clarke@example.com"
         password:
           type: string
           format: password
+          example: "securepassword123"
         phone_number:
           type: string
+          example: "+37052000000"
         account_type:
           type: string
           enum: [business_owner]
@@ -3870,6 +4176,13 @@ components:
         - email
         - password
         - account_type
+      example:
+        name: "Maria"
+        surname: "Lopez"
+        email: "maria@example.com"
+        password: "StrongP@ssw0rd"
+        phone_number: "+37060000011"
+        account_type: business_owner
 
     EmployeeRegisterRequest:
       type: object
@@ -3886,6 +4199,10 @@ components:
         - email
         - password
         - invitation_code
+      example:
+        email: "new.employee@example.com"
+        password: "AnotherP@ss1"
+        invitation_code: "INV-ABCD-1234"
 
     UserUpdateMeRequest:
       type: object
@@ -3900,6 +4217,11 @@ components:
           format: email
         phone:
           type: string
+      example:
+        name: "John"
+        surname: "Doe"
+        email: "johnny.d@example.com"
+        phone: "+37060000001"
 
     EmployeeDetail:
       type: object
@@ -3927,6 +4249,14 @@ components:
         status:
           type: string
           enum: [active, inactive]
+      example:
+        user_id: 102
+        name: "Lucille"
+        surname: "Ponty"
+        email: "lucille@uniserve.com"
+        job_title: "Head Waiter"
+        salary: 2500.00
+        status: active
 
     JobDetail:
       type: object
@@ -3940,6 +4270,10 @@ components:
         employee_count:
           type: integer
           example: 5
+      example:
+        id: 10
+        title: "Waiter"
+        employee_count: 5
 
     CreateJobRequest:
       type: object
@@ -3977,6 +4311,9 @@ components:
       required:
         - start
         - end
+      example:
+        start: "2025-10-19T09:00:00Z"
+        end: "2025-10-19T17:00:00Z"
 
     ActivityDefinition:
       type: object
@@ -3989,6 +4326,10 @@ components:
         max_time:
           type: integer
           description: "Maximum duration in minutes."
+      example:
+        name: "Cleaning"
+        min_time: 15
+        max_time: 60
 
     CreateEmployeeInviteRequest:
       type: object
@@ -4015,6 +4356,18 @@ components:
         - job_id
         - location_id
         - role_id
+      example:
+        email: "candidate@example.com"
+        job_id: 10
+        location_id: 11
+        role_id: 2
+        work_hours:
+          - start: "2025-10-19T09:00:00Z"
+            end: "2025-10-19T17:00:00Z"
+        activities:
+          - name: "Cleaning"
+            min_time: 15
+            max_time: 60
 
     # --- LOCATION SCHEMAS (UPDATED/NEW) ---
     OpenHour:
@@ -4031,6 +4384,10 @@ components:
           type: string
           format: time
           example: "22:00"
+      example:
+        week_day: MONDAY
+        start_at: "09:00"
+        end_at: "22:00"
       required:
         - week_day
         - start_at
@@ -4049,6 +4406,10 @@ components:
         - pos_x
         - pos_y
         - capacity
+      example:
+        pos_x: 1
+        pos_y: 1
+        capacity: 4
 
       # --- INVITE SCHEMA ---
     Invite:
@@ -4069,6 +4430,13 @@ components:
         time_invited:
           type: string
           format: date-time
+      example:
+        id: 55
+        email: "invitee@example.com"
+        description: "Join our team as a waiter."
+        status: pending
+        business_name: "The Corner Bistro"
+        time_invited: "2025-10-18T12:00:00Z"
 
     LocationDetail:
       type: object
@@ -4093,6 +4461,14 @@ components:
         employee_count:
           type: integer
           example: 4
+      example:
+        id: 11
+        business_id: 55
+        country: "Lithuania"
+        city: "Vilnius"
+        street: "Naugarduko g. 24"
+        postal_code: "LT-03225"
+        employee_count: 4
 
     EmployeeWorkShiftUpdateRequest:
       type: object
@@ -4108,6 +4484,11 @@ components:
       required:
         - effective_from
         - work_hours
+      example:
+        effective_from: "2025-10-21T00:00:00Z"
+        work_hours:
+          - start: "2025-10-21T09:00:00Z"
+            end: "2025-10-21T17:00:00Z"
 
     FeedbackStatisticsItem:
       type: object
@@ -4117,6 +4498,9 @@ components:
         datetime:
           type: string
           format: date-time
+      example:
+        rating: 5
+        datetime: "2025-10-18T12:00:00Z"
     
     FeedbackStatisticsResponse:
       type: object
@@ -4128,6 +4512,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FeedbackStatisticsItem'
+      example:
+        average_rating: 4.6
+        ratings_over_time:
+          - rating: 5
+            datetime: "2025-10-18T12:00:00Z"
+          - rating: 4
+            datetime: "2025-10-19T12:00:00Z"
 
     EmployeeJob:
       type: object
@@ -4150,6 +4541,14 @@ components:
           enum: [active, inactive, disabled]
         edited_by:
           type: integer
+      example:
+        employee_id: 102
+        effective_from: "2025-10-21T00:00:00Z"
+        job_id: 10
+        location_id: 11
+        salary: 2400.00
+        status: active
+        edited_by: 101
 
     Permission:
       type: object
@@ -4160,6 +4559,10 @@ components:
           type: string
         description:
           type: string
+      example:
+        id: 1
+        name: "manage_employees"
+        description: "Allows managing employees and roles"
 
     CoOwnerPermissionUpdateRequest:
       type: object
@@ -4170,6 +4573,8 @@ components:
             type: integer
       required:
         - permission_ids
+      example:
+        permission_ids: [1, 2, 3]
 
     BillDiscountCreateRequest:
       type: object
@@ -4189,6 +4594,11 @@ components:
         - value
         - is_percentage
         - valid_from
+      example:
+        value: 10
+        is_percentage: true
+        valid_from: "2025-10-01T00:00:00Z"
+        valid_to: "2025-11-01T00:00:00Z"
 
     BillDiscountUpdateRequest:
       type: object
@@ -4205,6 +4615,12 @@ components:
           format: date-time
         disabled:
           type: boolean
+      example:
+        value: 5
+        is_percentage: false
+        valid_from: "2025-10-10T00:00:00Z"
+        valid_to: "2025-10-20T00:00:00Z"
+        disabled: true
 
     MenuItemDiscountCreateRequest:
       allOf:
@@ -4253,6 +4669,9 @@ components:
       required:
         - product_id
         - quantity
+      example:
+        product_id: 41
+        quantity: 0.2
 
     VariationItemRequest:
       type: object
@@ -4275,6 +4694,14 @@ components:
         - name
         - price_adjustment
         - status
+      example:
+        name: "Oat Milk"
+        description: "Milk alternative"
+        price_adjustment: 0.3
+        status: enabled
+        products:
+          - product_id: 77
+            quantity: 0.2
 
     VariationGroupRequest:
       type: object
@@ -4298,6 +4725,19 @@ components:
         - name
         - status
         - items
+      example:
+        name: "Milk Options"
+        description: "Choose your milk"
+        status: enabled
+        min_selection: 0
+        max_selection: 1
+        items:
+          - name: "Oat Milk"
+            price_adjustment: 0.3
+            status: enabled
+            products:
+              - product_id: 77
+                quantity: 0.2
 
     InventoryProductDefinitionResponse:
       type: object
@@ -4307,6 +4747,9 @@ components:
         unit:
           type: string
           example: "kg"
+      example:
+        name: "Flour"
+        unit: "kg"
 
     InventoryStockResponse:
       type: object
@@ -4320,6 +4763,11 @@ components:
           format: float
         unit:
           type: string
+      example:
+        product_name: "Milk"
+        location_name: "Vilnius Downtown"
+        quantity: 8.5
+        unit: "l"
 
     InventoryStockChangeResponse:
       type: object
@@ -4350,6 +4798,17 @@ components:
         created_by_user_name:
           type: string
           description: "Full name of the employee or 'System' if null."
+      example:
+        product_id: 41
+        product_name: "Milk"
+        location_id: 11
+        location_name: "Vilnius Downtown"
+        quantity: -1.0
+        unit: "l"
+        expiration_date: null
+        created_at: "2025-10-18T07:30:00Z"
+        created_by_user_id: 102
+        created_by_user_name: "Lucille Ponty"
 
     MenuItemResponse:
         type: object
@@ -4380,6 +4839,21 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/MenuItemVariationGroup'
+        example:
+          id: 501
+          name: "Cappuccino"
+          description: "Espresso with steamed milk and foam"
+          category_name: "Hot Drinks"
+          price_value: 2.5
+          status: available
+          estimated_preparation_time: 5
+          image_url: "https://cdn.example.com/menu/cappuccino.jpg"
+          variations:
+            - id: 1
+              menu_item_id: 501
+              name: "Milk Options"
+              min_selection: 0
+              max_selection: 1
     ServiceDefinition:
       type: object
       description: "An abstract definition of a service, without price or location."
@@ -4396,6 +4870,12 @@ components:
         duration:
           type: integer
           description: "Default duration in minutes."
+      example:
+        id: 3
+        business_id: 55
+        name: "Shave"
+        description: "Hot towel shave"
+        duration: 20
 
     LocationService:
       type: object
@@ -4410,6 +4890,11 @@ components:
         status:
           type: string
           enum: [enabled, disabled]
+      example:
+        id: 100
+        service_id: 3
+        location_id: 11
+        status: enabled
           
     EmployeeServiceAssignment:
       type: object
@@ -4429,6 +4914,13 @@ components:
         location_service_status:
           type: string
           enum: [enabled, disabled]
+      example:
+        employee_id: 102
+        employee_name: "Lucille Ponty"
+        employee_email: "lucille@uniserve.com"
+        employee_job_title: "Hairdresser"
+        location_name: "Vilnius Downtown"
+        location_service_status: enabled
 
     # --- Request Body Schemas ---
     CreateServiceDefinitionRequest:
@@ -4444,6 +4936,10 @@ components:
       required:
         - name
         - duration
+      example:
+        name: "Shave"
+        description: "Hot towel shave"
+        duration: 20
         
     UpdateServiceDefinitionRequest:
       type: object
@@ -4454,6 +4950,10 @@ components:
           type: string
         duration:
           type: integer
+      example:
+        name: "Shave+"
+        description: "With aftershave"
+        duration: 25
 
     AddLocationServiceRequest:
       type: object
@@ -4467,6 +4967,9 @@ components:
       required:
         - service_id
         - status
+      example:
+        service_id: 3
+        status: enabled
 
     UpdateLocationServiceRequest:
       type: object
@@ -4476,6 +4979,8 @@ components:
           enum: [enabled, disabled]
       required:
         - status
+      example:
+        status: disabled
         
     AddEmployeeToServiceRequest:
       type: object
@@ -4484,3 +4989,5 @@ components:
           type: integer
       required:
         - employee_id
+      example:
+        employee_id: 102
