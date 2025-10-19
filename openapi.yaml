@@ -2217,7 +2217,7 @@ paths:
       tags:
         - Inventory
       summary: Get inventory stock change history
-      description: Retrieves a historical log of all inventory movements (additions, usages).
+      description: "Retrieves a historical log of all inventory movements (e.g., +10kg from a supply order, -0.5kg used in a recipe). Provides a full audit trail for inventory."
       operationId: getInventoryStockChanges
       security:
         - bearerAuth: []
@@ -2777,8 +2777,10 @@ components:
         code:
           type: integer
           format: int32
+          example: 404
         message:
           type: string
+          example: "Resource not found."
       required:
         - code
         - message
@@ -2896,6 +2898,13 @@ components:
 
     # BUSINESS & EMPLOYEE SCHEMAS
     Business:
+      example:
+        type_id: "order_based"
+        country_code_of_registration: "LT"
+        name: "The Corner Bistro"
+        description: "A cozy place for lunch and dinner."
+        business_email: "contact@cornerbistro.com"
+        business_phone: "+37052000000"
       type: object
       properties:
         id:
@@ -3529,14 +3538,22 @@ components:
       properties:
         country:
           type: string
+          example: "Lithuania"
         city:
           type: string
+          example: "Vilnius"
         street:
           type: string
+          example: "Gedimino pr. 1"
         postal_code:
           type: string
+          example: "LT-01103"
         open_hours:
           type: array
+          example:
+            - day_of_week: 1
+              open_time: "09:00"
+              close_time: "18:00"
           items:
             $ref: '#/components/schemas/OpenHour'
         seating_plan:
@@ -3718,6 +3735,7 @@ components:
           description: "Receiver's full name."
         description:
           type: string
+          example: "The most amazing dish ever!"
         rating:
           type: integer
         is_anonymous:
@@ -3891,16 +3909,21 @@ components:
           type: integer
         name:
           type: string
+          example: "Lucille"
         surname:
           type: string
+          example: "Ponty"
         email:
           type: string
           format: email
+          example: "lucille@uniserve.com"
         job_title:
           type: string
+          example: "Head Waiter"
         salary:
           type: number
           format: decimal
+          example: 2500.00
         status:
           type: string
           enum: [active, inactive]
@@ -3913,8 +3936,10 @@ components:
           type: integer
         title:
           type: string
+          example: "Waiter"
         employee_count:
           type: integer
+          example: 5
 
     CreateJobRequest:
       type: object
@@ -4055,14 +4080,19 @@ components:
           type: integer
         country:
           type: string
+          example: "Lithuania"
         city:
           type: string
+          example: "Vilnius"
         street:
           type: string
+          example: "Naugarduko g. 24"
         postal_code:
           type: string
+          example: "LT-03225"
         employee_count:
           type: integer
+          example: 4
 
     EmployeeWorkShiftUpdateRequest:
       type: object
