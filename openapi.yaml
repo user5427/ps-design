@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: "UniServe API"
   description: "API documentation for a SaaS platform. This API handles order management, service appointments, and business administration."
-  version: 1.0.1
+  version: 1.0.2
 servers:
   - url: https://api.uniserve.com/v1
     description: "Production Server"
@@ -1081,7 +1081,7 @@ paths:
             default: 20
       responses:
         '200':
-          description: A list of orders.
+          description: A detailed list of orders.
           content:
             application/json:
               schema:
@@ -1092,12 +1092,12 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Order'
+                      $ref: '#/components/schemas/OrderDetailResponse' 
     post:
       tags:
         - Order
-      summary: Create a new order
-      description: Creates a new, empty order assigned to a specific table (seating).
+      summary: Create a new order with items
+      description: Creates a new order assigned to a specific table and populates it with an initial list of items and variations.
       operationId: createOrder
       security:
         - bearerAuth: []
@@ -1112,19 +1112,14 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                location_seating_id:
-                  type: integer
-              required:
-                - location_seating_id
+              $ref: '#/components/schemas/CreateOrderWithItemsRequest'
       responses:
         '201':
           description: Order created successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Order'
+                $ref: '#/components/schemas/OrderDetailResponse' 
 
   /businesses/{businessId}/orders/{orderId}:
     get:
@@ -1152,15 +1147,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Order' 
+                $ref: '#/components/schemas/OrderDetailResponse' # <-- Use new detailed schema
         '404':
           description: Order not found.
     patch:
       tags:
         - Order
-      summary: Update order status
-      description: Updates the status of an order (e.g., to CANCELLED). Cannot be used to close a paid order.
-      operationId: updateOrderStatus
+      summary: Update order seating
+      description: "Updates the assigned seating for an open order. To cancel an order, use the DELETE method."
+      operationId: updateOrderSeating
       security:
         - bearerAuth: []
       parameters:
@@ -1181,20 +1176,43 @@ paths:
             schema:
               type: object
               properties:
-                status:
-                  type: string
-                  enum: [CANCELLED]
+                seating_id:
+                  type: integer
               required:
-                - status
+                - seating_id
       responses:
         '200':
-          description: Order status updated.
+          description: Order seating updated.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Order'
+                $ref: '#/components/schemas/OrderDetailResponse'
         '409':
           description: Conflict - Cannot modify a closed or paid order.
+    delete:
+      tags:
+        - Order
+      summary: Cancel an order
+      description: "Cancels an open, unpaid order."
+      operationId: cancelOrder
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Order successfully cancelled.
+        '409':
+          description: "Conflict: Order is already paid or closed."
 
   /businesses/{businessId}/orders/{orderId}/items:
     post:
@@ -1236,8 +1254,8 @@ paths:
     patch:
       tags:
         - Order
-      summary: Update an order item
-      description: Updates the quantity or status of an item within an open order.
+      summary: Update an order item status
+      description: "Updates the status of an item within an open order (e.g., marks it as 'READY'). Quantity cannot be changed here."
       operationId: updateOrderItem
       security:
         - bearerAuth: []
@@ -1263,18 +1281,18 @@ paths:
             schema:
               type: object
               properties:
-                quantity:
-                  type: integer
                 status:
                   type: string
                   enum: [NOT_STARTED, IN_PROGRESS, READY, DELIVERED]
+              required:
+                - status
       responses:
         '200':
-          description: Item updated successfully.
+          description: Item status updated successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OrderItem'
+                $ref: '#/components/schemas/OrderItemDetail'
         '409':
           description: Conflict - Order is not open.
     delete:
@@ -1394,6 +1412,28 @@ paths:
                 $ref: '#/components/schemas/ServiceDefinition'
         '404':
           description: Service definition not found.
+    delete:
+      tags:
+        - Service
+      summary: Delete a Service Definition
+      description: "Permanently deletes a service definition from the business. Fails if the service is currently offered at any location."
+      operationId: deleteServiceDefinition
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: serviceId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '204':
+          description: Service definition deleted successfully.
+        '409':
+          description: "Conflict: Cannot delete because the service is in use at one or more locations."     
 
   # --- Location-Specific Service Management ---
   /businesses/{businessId}/locations/{locationId}/services:
@@ -1470,6 +1510,32 @@ paths:
                 $ref: '#/components/schemas/LocationService'
         '404':
           description: The specified service is not offered at this location.
+    delete:
+      tags:
+        - Service
+      summary: Remove a Service from a Location
+      description: "Stops a service from being offered at a specific location. Fails if employees are still assigned to it at this location."
+      operationId: removeLocationService
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: serviceId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '204':
+          description: Service successfully removed from the location.
+        '409':
+          description: "Conflict: Cannot remove because employees are still assigned to this service at this location."
 
   # --- Employee-Specific Service Management ---
   /businesses/{businessId}/locations/{locationId}/services/{serviceId}/employees:
@@ -1545,6 +1611,66 @@ paths:
                 $ref: '#/components/schemas/EmployeeServiceAssignment'
         '409':
           description: Conflict - Employee is already assigned to this service.   
+
+  /businesses/{businessId}/locations/{locationId}/services/{serviceId}/employees/{employeeId}:
+    delete:
+      tags:
+        - Service
+      summary: Un-assign an Employee from a Service
+      description: "Removes an employee's assignment to perform a specific service at a location."
+      operationId: removeEmployeeFromService
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: serviceId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: employeeId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '204':
+          description: Employee successfully unassigned from the service.
+
+  /businesses/{businessId}/locations/{locationId}/seating:
+    get:
+      tags:
+        - Location
+      summary: Get seating plan for a location
+      description: "Retrieves the seating plan for a specific location, indicating which tables are currently available."
+      operationId: getLocationSeating
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of seating spots.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LocationSeatingResponse'
 
   # APPOINTMENT ENDPOINTS
   /businesses/{businessId}/appointments:
@@ -3155,6 +3281,13 @@ components:
         max_selection:
           type: integer
           default: 1
+      description: "A group of mutually selectable variations for a menu item (e.g., milk type)."
+      example:
+        id: 1
+        menu_item_id: 501
+        name: "Milk Options"
+        min_selection: 0
+        max_selection: 1
           
     MenuItemVariation:
       type: object
@@ -3170,6 +3303,12 @@ components:
         name:
           type: string
           example: "Oat Milk"
+      description: "An individual choice inside a variation group which may adjust the base price."
+      example:
+        id: 901
+        menu_item_variation_group_id: 1
+        price_id: 91001
+        name: "Oat Milk"
 
     Order:
       type: object
@@ -4064,6 +4203,12 @@ components:
         updated_by:
           type: integer
           nullable: true
+      example:
+        id: 12
+        valid_from: "2025-10-01T00:00:00Z"
+        valid_to: null
+        created_by: 101
+        updated_by: null
     # MESSAGING SCHEMAS
     Chat:
       type: object
@@ -4280,10 +4425,15 @@ components:
       properties:
         title:
           type: string
+          description: "Human-friendly job title to display (e.g., Waiter)."
         description:
           type: string
+          description: "Optional details about responsibilities or scope."
       required:
         - title
+      example:
+        title: "Waiter"
+        description: "Responsible for taking orders and serving customers."
 
     Role:
       type: object
@@ -4991,3 +5141,166 @@ components:
         - employee_id
       example:
         employee_id: 102
+    LocationSeatingResponse:
+      type: object
+      description: "Public view of seating at a location, including availability."
+      properties:
+        id:
+          type: integer
+        position_x:
+          type: integer
+        position_y:
+          type: integer
+        capacity:
+          type: integer
+        is_available:
+          type: boolean
+      example:
+        id: 200
+        position_x: 5
+        position_y: 3
+        capacity: 4
+        is_available: true
+
+    OrderVariationDetail:
+      type: object
+      description: "Selected variation attached to an order item."
+      properties:
+        variation_id:
+          type: integer
+        variation_name:
+          type: string
+      example:
+        variation_id: 901
+        variation_name: "Oat Milk"
+
+    OrderItemDetail:
+      type: object
+      description: "Detailed order item with status, timing, and selected variations."
+      properties:
+        menu_item_id:
+          type: integer
+        menu_item_name:
+          type: string
+        quantity:
+          type: integer
+        item_status:
+          type: string
+          enum: [NOT_STARTED, IN_PROGRESS, READY, DELIVERED]
+        estimated_duration:
+          type: integer
+          description: "Preparation time in minutes."
+        total_cost:
+          type: number
+          format: decimal
+        variations:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderVariationDetail'
+      example:
+        menu_item_id: 501
+        menu_item_name: "Cappuccino"
+        quantity: 2
+        item_status: READY
+        estimated_duration: 5
+        total_cost: 5.60
+        variations:
+          - variation_id: 901
+            variation_name: "Oat Milk"
+
+    OrderSeatingDetail:
+      type: object
+      description: "The seating spot assigned to the order."
+      properties:
+        id:
+          type: integer
+        position_x:
+          type: integer
+        position_y:
+          type: integer
+        capacity:
+          type: integer
+      example:
+        id: 200
+        position_x: 5
+        position_y: 3
+        capacity: 4
+
+    OrderDetailResponse:
+      type: object
+      description: "A comprehensive view of an order, including all nested details."
+      properties:
+        seating:
+          $ref: '#/components/schemas/OrderSeatingDetail'
+        total_cost:
+          type: number
+          format: decimal
+        started_at:
+          type: string
+          format: date-time
+        order_status:
+          type: string
+          enum: [OPEN, PAID, CANCELLED, REFUNDED]
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemDetail'
+      example:
+        seating:
+          id: 200
+          position_x: 5
+          position_y: 3
+          capacity: 4
+        total_cost: 12.10
+        started_at: "2025-10-18T12:00:00Z"
+        order_status: OPEN
+        items:
+          - menu_item_id: 501
+            menu_item_name: "Cappuccino"
+            quantity: 2
+            item_status: READY
+            estimated_duration: 5
+            total_cost: 5.60
+            variations:
+              - variation_id: 901
+                variation_name: "Oat Milk"
+
+    CreateOrderItemWithVariationsRequest:
+      type: object
+      properties:
+        menu_item_id:
+          type: integer
+        quantity:
+          type: integer
+        variations:
+          type: array
+          items:
+            type: integer # Array of variation_id
+      required:
+        - menu_item_id
+        - quantity
+      description: "Order item payload including selected variation IDs."
+      example:
+        menu_item_id: 501
+        quantity: 2
+        variations: [901]
+
+    CreateOrderWithItemsRequest:
+      type: object
+      properties:
+        seating_id:
+          type: integer
+        menu_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateOrderItemWithVariationsRequest'
+      required:
+        - seating_id
+        - menu_items
+      description: "Creates an order for a specific seating with initial items and their variations."
+      example:
+        seating_id: 200
+        menu_items:
+          - menu_item_id: 501
+            quantity: 2
+            variations: [901]
