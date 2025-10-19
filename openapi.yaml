@@ -34,6 +34,8 @@ tags:
     description: Operations for creating and managing discounts.
   - name: Admin
     description: Super-admin operations like managing taxes and system-wide settings.
+  - name: Messaging
+    description: Operations for managing chats and messages.
 
 paths:
   /auth/register:
@@ -1848,6 +1850,165 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Feedback'
+  /chats:
+    get:
+      tags:
+        - Messaging
+      summary: List user's chats
+      description: Retrieves a paginated list of chats in which the authenticated user is a participant.
+      operationId: listChats
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: A list of chats was successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Chat'
+        '401':
+          description: Unauthorized.
+
+    post:
+      tags:
+        - Messaging
+      summary: Start a new chat
+      description: Creates a new chat with a specified user and sends the initial message.
+      operationId: createChat
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChatRequest'
+      responses:
+        '201':
+          description: Chat created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chat'
+        '404':
+          description: The specified recipient user was not found.
+
+  /chats/{chatId}/messages:
+    get:
+      tags:
+        - Messaging
+      summary: Get messages for a chat
+      description: Retrieves a paginated list of messages for a specific chat.
+      operationId: getChatMessages
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Successfully retrieved the list of messages.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+        '403':
+          description: Forbidden - The user does not have permission to view this chat.
+        '404':
+          description: Chat not found.
+
+    post:
+      tags:
+        - Messaging
+      summary: Send a message to a chat
+      description: Sends a new message to an existing chat.
+      operationId: sendMessage
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMessageRequest'
+      responses:
+        '201':
+          description: Message sent successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '403':
+          description: Forbidden - The user is not a participant in this chat.
+        '404':
+          description: Chat not found.
+
+  /messages/{messageId}:
+    delete:
+      tags:
+        - Messaging
+      summary: Delete a message
+      description: Deletes a message. Only the user who sent the message is allowed to delete it.
+      operationId: deleteMessage
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Message was successfully deleted.
+        '403':
+          description: Forbidden - The user is not the author of this message.
+        '404':
+          description: Message not found.
 
 
 components:
@@ -2809,3 +2970,60 @@ components:
         updated_by:
           type: integer
           nullable: true
+    # MESSAGING SCHEMAS
+    Chat:
+      type: object
+      properties:
+        id:
+          type: integer
+        sender:
+          description: "A summary of the user who initiated the chat."
+          $ref: '#/components/schemas/User'
+        receiver:
+          description: "A summary of the user who received the initial message."
+          $ref: '#/components/schemas/User'
+        started_at:
+          type: string
+          format: date-time
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+        chat_id:
+          type: integer
+        sender_id:
+          type: integer
+          description: "The ID of the user who sent the message."
+        text:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        read_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    CreateChatRequest:
+      type: object
+      properties:
+        receiver_id:
+          type: integer
+          description: "The User ID of the recipient of the first message."
+        text:
+          type: string
+          description: "The content of the initial message."
+      required:
+        - receiver_id
+        - text
+
+    CreateMessageRequest:
+      type: object
+      properties:
+        text:
+          type: string
+          description: "The content of the message."
+      required:
+        - text
