@@ -1930,11 +1930,12 @@ components:
         country_code:
           type: string
           example: "LT"
+          description: "ISO 3166 Code"
         value:
           type: number
           format: decimal
           example: 21.0
-        valid_from:
+        effective_from:
           type: string
           format: date-time
         valid_until:
@@ -2633,7 +2634,7 @@ components:
         value:
           type: number
           format: decimal
-        valid_from:
+        effective_from:
           type: string
           format: date-time
         valid_until:
@@ -2643,7 +2644,7 @@ components:
       required:
         - country_code
         - value
-        - valid_from
+        - effective_from
     ProductUnit:
       type: object
       description: A global definition for a unit of measurement (e.g., kg, liter, piece).
