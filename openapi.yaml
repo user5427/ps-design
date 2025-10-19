@@ -1989,16 +1989,17 @@ components:
         id:
           type: integer
           readOnly: true
-        created_by:
+        version_id:
           type: integer
-          readOnly: true
-          description: User ID of the creator.
+        version_active:
+          type: boolean
+        country_code_of_registration:
+          type: string
         type_id:
           type: string
           enum: [order_based, appointment_based]
         name:
           type: string
-          example: "The Grand Cafe"
         description:
           type: string
           nullable: true
@@ -2073,26 +2074,25 @@ components:
         
     # LOCATION SCHEMAS
     Location:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        business_id:
-          type: integer
-        country:
-          type: string
-        city:
-          type: string
-        street:
-          type: string
-        postal_code:
-          type: string
-      required:
-        - business_id
-        - country
-        - city
-        - street
+        type: object
+        properties:
+          id:
+            type: integer
+            readOnly: true
+          version_id:
+            type: integer
+          version_active:
+            type: boolean
+          business_id:
+            type: integer
+          country_code:
+            type: string
+          city:
+            type: string
+          street:
+            type: string
+          postal_code:
+            type: string
 
     LocationSeating:
       type: object
@@ -2205,9 +2205,9 @@ components:
         location_seating_id:
           type: integer
           nullable: true
-        created_by:
+        actioned_by:
           type: integer
-          description: Employee user ID.
+          description: "Employee user ID who created or last modified the order."
         created_at:
           type: string
           format: date-time
@@ -2244,15 +2244,12 @@ components:
           readOnly: true
         order_id:
           type: integer
-        total_amount:
-          type: number
-          format: decimal
+        discount_id:
+          type: integer
+          nullable: true
         tip_amount:
           type: number
           format: decimal
-        currency:
-          type: string
-          example: "EUR"
         created_at:
           type: string
           format: date-time
@@ -2317,9 +2314,9 @@ components:
         appointment_bill_id:
           type: integer
           nullable: true
-        total_amount:
-          type: number
-          format: decimal
+        actioned_by:
+          type: integer
+          description: "Employee who processed the payment."
         method:
           type: string
           enum: [CASH, CREDIT_CARD, GIFT_CARD]
@@ -2341,6 +2338,8 @@ components:
           type: integer
           readOnly: true
         payment_id:
+          type: integer
+        actioned_by:
           type: integer
         amount:
           type: number
@@ -2791,3 +2790,22 @@ components:
         - receiver_id
         - rating
         - description
+    EntityVersion:
+      type: object
+      description: "A schema representing the version history of an entity."
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        valid_from:
+          type: string
+          format: date-time
+        valid_to:
+          type: string
+          format: date-time
+          nullable: true
+        created_by:
+          type: integer
+        updated_by:
+          type: integer
+          nullable: true
