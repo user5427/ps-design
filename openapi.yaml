@@ -385,6 +385,36 @@ paths:
         '404':
           description: Business not found.
 
+  /businesses/{businessId}/co-owners/{userId}/permissions:
+    patch:
+      tags:
+        - Employee
+      summary: Update a co-owner's permissions
+      description: "(Owner only) Sets the assigned permissions for a co-owner."
+      operationId: updateCoOwnerPermissions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoOwnerPermissionUpdateRequest'
+      responses:
+        '200':
+          description: Permissions updated successfully.
+
   /businesses/{businessId}/employees:
     get:
       tags:
@@ -1760,36 +1790,13 @@ paths:
                 $ref: '#/components/schemas/Refund'
 
   # DISCOUNT MANAGEMENT ENDPOINTS
-  /businesses/{businessId}/discounts:
-    get:
-      tags:
-        - Discount
-      summary: List all discounts
-      description: Retrieves all discounts for a specific business, including global and location-specific ones.
-      operationId: listDiscounts
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: businessId
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: A list of discounts.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Discount'
+  /businesses/{businessId}/bill-discounts:
     post:
       tags:
         - Discount
-      summary: Create a discount
-      description: Creates a new discount for a business.
-      operationId: createDiscount
+      summary: Create a Bill Discount
+      description: Creates a new discount that applies to an entire bill (order or appointment total).
+      operationId: createBillDiscount
       security:
         - bearerAuth: []
       parameters:
@@ -1803,16 +1810,306 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateDiscountRequest'
+              $ref: '#/components/schemas/BillDiscountCreateRequest'
       responses:
         '201':
-          description: Discount created successfully.
+          description: Bill discount created successfully.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Discount'
+        '403':
+          description: Forbidden.
 
-  # INVENTORY MANAGEMENT ENDPOINTS 
+  /businesses/{businessId}/bill-discounts/{discountId}:
+    patch:
+      tags:
+        - Discount
+      summary: Update a Bill Discount
+      description: Updates the details of an existing bill discount, including its active status.
+      operationId: updateBillDiscount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: discountId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BillDiscountUpdateRequest'
+      responses:
+        '200':
+          description: Bill discount updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discount'
+        '404':
+          description: Discount not found.
+
+  # --- Menu Item Specific Discounts ---
+  /businesses/{businessId}/menu-item-discounts:
+    post:
+      tags:
+        - Discount
+      summary: Create a Menu Item Discount
+      description: Creates a new discount that applies only to a specific menu item.
+      operationId: createMenuItemDiscount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MenuItemDiscountCreateRequest'
+      responses:
+        '201':
+          description: Menu item discount created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discount'
+        '403':
+          description: Forbidden.
+
+  /businesses/{businessId}/menu-item-discounts/{discountId}:
+    patch:
+      tags:
+        - Discount
+      summary: Update a Menu Item Discount
+      description: Updates the details of an existing menu item discount.
+      operationId: updateMenuItemDiscount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: discountId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MenuItemDiscountUpdateRequest'
+      responses:
+        '200':
+          description: Menu item discount updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discount'
+        '404':
+          description: Discount not found.
+
+  # --- Service Specific Discounts ---
+  /businesses/{businessId}/service-discounts:
+    post:
+      tags:
+        - Discount
+      summary: Create a Service Discount
+      description: Creates a new discount that applies only to a specific service.
+      operationId: createServiceDiscount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceDiscountCreateRequest'
+      responses:
+        '201':
+          description: Service discount created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discount'
+        '403':
+          description: Forbidden.
+
+  /businesses/{businessId}/service-discounts/{discountId}:
+    patch:
+      tags:
+        - Discount
+      summary: Update a Service Discount
+      description: Updates the details of an existing service discount.
+      operationId: updateServiceDiscount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: discountId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceDiscountUpdateRequest'
+      responses:
+        '200':
+          description: Service discount updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discount'
+        '404':
+          description: Discount not found.
+  /businesses/{businessId}/locations/{locationId}/revenue:
+    get:
+      tags:
+        - Location
+      summary: Get location revenue report
+      description: Retrieves a daily revenue summary for the past week for a specific location.
+      operationId: getLocationRevenue
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of daily revenue totals.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RevenueReportItem'
+        '403':
+          description: Forbidden.
+
+  /businesses/{businessId}/locations/{locationId}/employees:
+    get:
+      tags:
+        - Employee
+      summary: List employees by location
+      description: Retrieves a list of employees assigned to a specific location.
+      operationId: listLocationEmployees
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of employees.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmployeeDetail'
+        '403':
+          description: Forbidden.
+
+  /businesses/{businessId}/menu:
+    get:
+      tags:
+        - Menu
+      summary: Get the full menu for a business
+      operationId: getBusinessMenu
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of all menu items for the business.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuItemResponse'
+
+  /businesses/{businessId}/locations/{locationId}/menu:
+    get:
+      tags:
+        - Menu
+      summary: Get the menu for a specific location
+      operationId: getLocationMenu
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of menu items for the location.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuItemResponse'
+
+  # INVENTORY MANAGEMENT ENDPOINTS
   /businesses/{businessId}/inventory:
     get:
       tags:
@@ -1832,29 +2129,73 @@ paths:
           in: query
           schema:
             type: integer
-          description: "Filter inventory for a specific location. If omitted, returns for all locations."
       responses:
         '200':
-          description: A list of current inventory levels.
+          description: A list of current inventory stock levels.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    product:
-                      $ref: '#/components/schemas/Product'
-                    location_id:
-                      type: integer
-                    total_quantity:
-                      type: number
-                      format: float
-                    last_updated:
-                      type: string
-                      format: date-time
+                  $ref: '#/components/schemas/InventoryStockResponse'
+
+  /businesses/{businessId}/inventory/stock-changes:
+    get:
+      tags:
+        - Inventory
+      summary: Get inventory stock change history
+      description: Retrieves a historical log of all inventory movements (additions, usages).
+      operationId: getInventoryStockChanges
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: location_id
+          schema:
+            type: integer
+        - in: query
+          name: product_id
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A historical log of stock changes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InventoryStockChangeResponse'
 
   /businesses/{businessId}/inventory/products:
+    get:
+      tags:
+        - Inventory
+      summary: List all inventory product definitions
+      description: "Retrieves a list of all raw product definitions for a business (e.g., Flour, Sugar, etc.)."
+      operationId: listInventoryProductDefinitions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of product definitions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InventoryProductDefinitionResponse'
     post:
       tags:
         - Inventory
@@ -2327,6 +2668,25 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Role'
+
+  /permissions:
+    get:
+      tags:
+        - Admin
+      summary: Get list of all permissions
+      description: "(Owner/Admin) Retrieves a list of all assignable permissions in the system."
+      operationId: listPermissions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of permissions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Permission'
 
 
 components:
@@ -2949,48 +3309,61 @@ components:
     CreateMenuItemRequest:
       type: object
       properties:
-        location_id:
-          type: integer
-        category_id:
-          type: integer
         name:
           type: string
         description:
           type: string
-          nullable: true
-        status:
-          type: string
-          enum: [ENABLED, DISABLED]
-        preparation_duration:
+        category_id:
           type: integer
-        price:
+        initial_price:
           type: number
           format: decimal
-        currency:
+        currency_code:
           type: string
-          example: EUR
+          example: "EUR"
+        estimated_duration:
+          type: integer
+          description: "Time in minutes."
+        image:
+          type: string
+          format: binary
+          description: "Image file upload."
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationItemProductRequest'
+        variation_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationGroupRequest'
       required:
-        - location_id
-        - category_id
         - name
-        - status
-        - price
-        - currency
+        - category_id
+        - initial_price
+        - currency_code
 
     UpdateMenuItemRequest:
       type: object
       properties:
-        category_id:
-          type: integer
         name:
           type: string
         description:
           type: string
-        status:
-          type: string
-          enum: [ENABLED, DISABLED]
-        preparation_duration:
+        category_id:
           type: integer
+        estimated_duration:
+          type: integer
+        image:
+          type: string
+          format: binary
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationItemProductRequest'
+        variation_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationGroupRequest'
 
     CreateOrderItemRequest:
       type: object
@@ -3486,6 +3859,10 @@ components:
           type: string
         description:
           type: string
+      example: 
+        id: 1
+        title: "Waiter"
+        description: "Responsible for taking orders and serving customers."
 
     WorkHourPeriod:
       type: object
@@ -3667,3 +4044,235 @@ components:
           enum: [active, inactive, disabled]
         edited_by:
           type: integer
+
+    Permission:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+
+    CoOwnerPermissionUpdateRequest:
+      type: object
+      properties:
+        permission_ids:
+          type: array
+          items:
+            type: integer
+      required:
+        - permission_ids
+
+    BillDiscountCreateRequest:
+      type: object
+      properties:
+        value:
+          type: number
+        is_percentage:
+          type: boolean
+        valid_from:
+          type: string
+          format: date-time
+        valid_to:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - value
+        - is_percentage
+        - valid_from
+
+    BillDiscountUpdateRequest:
+      type: object
+      properties:
+        value:
+          type: number
+        is_percentage:
+          type: boolean
+        valid_from:
+          type: string
+          format: date-time
+        valid_to:
+          type: string
+          format: date-time
+        disabled:
+          type: boolean
+
+    MenuItemDiscountCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/BillDiscountCreateRequest'
+        - type: object
+          properties:
+            menu_item_id:
+              type: integer
+          required:
+            - menu_item_id
+
+    MenuItemDiscountUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/BillDiscountUpdateRequest'
+        - type: object
+          properties:
+            menu_item_id:
+              type: integer
+
+    ServiceDiscountCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/BillDiscountCreateRequest'
+        - type: object
+          properties:
+            employee_service_id:
+              type: integer
+          required:
+            - employee_service_id
+
+    ServiceDiscountUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/BillDiscountUpdateRequest'
+        - type: object
+          properties:
+            employee_service_id:
+              type: integer
+    
+    # --- Schemas for complex Menu Item creation/update ---
+    VariationItemProductRequest:
+      type: object
+      properties:
+        product_id:
+          type: integer
+        quantity:
+          type: number
+          format: float
+      required:
+        - product_id
+        - quantity
+
+    VariationItemRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price_adjustment:
+          type: number
+          format: decimal
+        status:
+          type: string
+          enum: [enabled, disabled]
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationItemProductRequest'
+      required:
+        - name
+        - price_adjustment
+        - status
+
+    VariationGroupRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [enabled, disabled]
+        min_selection:
+          type: integer
+        max_selection:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationItemRequest'
+      required:
+        - name
+        - status
+        - items
+
+    # --- Schemas for new Inventory responses ---
+    InventoryProductDefinitionResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        unit:
+          type: string
+          example: "kg"
+
+    InventoryStockResponse:
+      type: object
+      properties:
+        product_name:
+          type: string
+        location_name:
+          type: string
+        quantity:
+          type: number
+          format: float
+        unit:
+          type: string
+
+    InventoryStockChangeResponse:
+      type: object
+      properties:
+        product_id:
+          type: integer
+        product_name:
+          type: string
+        location_id:
+          type: integer
+        location_name:
+          type: string
+        quantity:
+          type: number
+          format: float
+        unit:
+          type: string
+        expiration_date:
+          type: string
+          format: date
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        created_by_user_id:
+          type: integer
+          nullable: true
+        created_by_user_name:
+          type: string
+          description: "Full name of the employee or 'System' if null."
+
+    MenuItemResponse:
+        type: object
+        description: "Detailed view of a menu item for responses."
+        properties:
+          id:
+            type: integer
+          name:
+            type: string
+          description:
+            type: string
+          category_name:
+            type: string
+          price_value:
+            type: number
+            format: decimal
+          status:
+            type: string
+            enum: [available, not_available, disabled]
+            description: "Calculated status based on inventory and item setting."
+          estimated_preparation_time:
+            type: integer
+            description: "Time in minutes."
+          image_url:
+            type: string
+            format: uri
+          variations:
+            type: array
+            items:
+              $ref: '#/components/schemas/MenuItemVariationGroup'
