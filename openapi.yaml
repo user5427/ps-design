@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: "UniServe API"
   description: "API documentation for a SaaS platform. This API handles order management, service appointments, and business administration."
-  version: 1.0.2
+  version: 1.0.3
 servers:
   - url: https://api.uniserve.com/v1
     description: "Production Server"
@@ -104,7 +104,7 @@ paths:
                 email:
                   type: string
                   format: email
-                  example: "annie.felix@example.com"
+                  example: "kasia.sawicka@example.com"
                 password:
                   type: string
                   format: password
@@ -2896,6 +2896,7 @@ components:
   schemas:
     Error:
       type: object
+      description: "Standard error payload returned on failure."
       properties:
         code:
           type: integer
@@ -2907,9 +2908,13 @@ components:
       required:
         - code
         - message
+      example:
+        code: 401
+        message: "Unauthorized access."
     
     Pagination:
       type: object
+      description: "Metadata for paginated list responses."
       properties:
         totalItems:
           type: integer
@@ -2923,10 +2928,16 @@ components:
         pageSize:
           type: integer
           example: 10
+      example:
+        totalItems: 150
+        totalPages: 15
+        currentPage: 1
+        pageSize: 10
 
     # APPLICATION & GLOBAL SCHEMAS
     Country:
       type: object
+      description: "A country with ISO code and human-readable name."
       properties:
         code:
           type: string
@@ -2938,9 +2949,13 @@ components:
       required:
         - code
         - name
+      example:
+        code: "LT"
+        name: "Lithuania"
         
     Currency:
       type: object
+      description: "A currency identified by ISO 4217 code, name, and symbol."
       properties:
         code:
           type: string
@@ -2956,6 +2971,10 @@ components:
         - code
         - name
         - symbol
+      example:
+        code: "EUR"
+        name: "Euro"
+        symbol: "€"
         
     VatRate:
       type: object
@@ -2979,10 +2998,17 @@ components:
           type: string
           format: date-time
           nullable: true
+      example:
+        id: 10
+        country_code: "LT"
+        value: 21.0
+        effective_from: "2025-01-01T00:00:00Z"
+        valid_until: null
 
     # USER & AUTH SCHEMAS
     User:
       type: object
+      description: "A platform user with profile and contact details."
       properties:
         id:
           type: integer
@@ -2992,14 +3018,14 @@ components:
           enum: [owner, employee, admin]
         name:
           type: string
-          example: "John"
+          example: "Victor"
         surname:
           type: string
-          example: "Doe"
+          example: "Almeida"
         email:
           type: string
           format: email
-          example: "john.doe@example.com"
+          example: "victor.almeida@example.com"
         phone:
           type: string
           nullable: true
@@ -3021,9 +3047,9 @@ components:
       example:
         id: 101
         user_type_id: owner
-        name: "John"
-        surname: "Doe"
-        email: "john.doe@example.com"
+        name: "Victor"
+        surname: "Almeida"
+        email: "victor.almeida@example.com"
         phone: "+37060000000"
         time_created: "2025-09-01T10:00:00Z"
         time_updated: "2025-10-01T09:15:00Z"
@@ -3033,11 +3059,12 @@ components:
       example:
         type_id: "order_based"
         country_code_of_registration: "LT"
-        name: "The Corner Bistro"
-        description: "A cozy place for lunch and dinner."
-        business_email: "contact@cornerbistro.com"
+        name: "Blue Juniper Eatery"
+        description: "Seasonal plates and artisan desserts."
+        business_email: "hello@bluejunipereatery.com"
         business_phone: "+37052000000"
       type: object
+      description: "A business entity registered on the platform (either order-based or appointment-based)."
       properties:
         id:
           type: integer
@@ -3143,6 +3170,7 @@ components:
     # LOCATION SCHEMAS
     Location:
         type: object
+        description: "Represents a physical business location (address only; see LocationDetail for enriched view)."
         properties:
           id:
             type: integer
@@ -3203,6 +3231,7 @@ components:
     # CATERING (MENU & ORDER) SCHEMAS
     MenuItemCategory:
       type: object
+      description: "A category in the business menu used to organize items (supports hierarchy)."
       properties:
         id:
           type: integer
@@ -3224,6 +3253,7 @@ components:
           
     MenuItem:
       type: object
+      description: "A sellable menu item available at a location, optionally with variations."
       properties:
         id:
           type: integer
@@ -3309,6 +3339,7 @@ components:
 
     Order:
       type: object
+      description: "A customer order opened at a seating (table) until it's paid or cancelled."
       properties:
         id:
           type: integer
@@ -3340,6 +3371,7 @@ components:
 
     OrderItem:
       type: object
+      description: "A single line item in an order, referencing a menu item and quantity."
       properties:
         id:
           type: integer
@@ -3362,6 +3394,7 @@ components:
           
     OrderBill:
       type: object
+      description: "The computed bill for an order, including tip and optional discount."
       properties:
         id:
           type: integer
@@ -3387,6 +3420,7 @@ components:
     # APPOINTMENT SCHEMAS
     Service:
       type: object
+      description: "A concrete, priced service offered by a business."
       properties:
         id:
           type: integer
@@ -3414,6 +3448,7 @@ components:
           
     Appointment:
       type: object
+      description: "A booked service appointment for a customer with a specific employee."
       properties:
         id:
           type: integer
@@ -3443,8 +3478,8 @@ components:
       example:
         id: 6001
         employee_service_id: 321
-        customer_name: "Alex Smith"
-        customer_email: "alex@example.com"
+        customer_name: "Saule Pasteque"
+        customer_email: "saule.pasteque@example.com"
         customer_phone: "+37061234567"
         start_time: "2025-10-20T09:00:00Z"
         duration: 45
@@ -3454,6 +3489,7 @@ components:
     # PAYMENT & DISCOUNT SCHEMAS
     Payment:
       type: object
+      description: "A payment record for an order or appointment bill."
       properties:
         id:
           type: integer
@@ -3492,6 +3528,7 @@ components:
           
     Refund:
       type: object
+      description: "A refund issued for a previously completed payment."
       properties:
         id:
           type: integer
@@ -3528,6 +3565,7 @@ components:
           
     Discount:
       type: object
+      description: "A configurable discount that can apply globally, per location, or to specific items/services."
       properties:
         id:
           type: integer
@@ -3569,6 +3607,7 @@ components:
         disabled: false
     AuthResponse:
       type: object
+      description: "The authentication response including access token and user profile."
       properties:
         accessToken:
           type: string
@@ -3583,12 +3622,13 @@ components:
         user:
           id: 101
           user_type_id: owner
-          name: "John"
-          surname: "Doe"
-          email: "john.doe@example.com"
+          name: "Mara"
+          surname: "Kovacs"
+          email: "mara.kovacs@example.com"
 
     CreateBusinessRequest:
       type: object
+      description: "Payload to register a new business on the platform."
       properties:
         type_id:
           type: string
@@ -3620,6 +3660,7 @@ components:
 
     RevenueReportItem:
       type: object
+      description: "A single day entry in a revenue report."
       properties:
         date:
           type: string
@@ -3633,6 +3674,7 @@ components:
       
     UpdateBusinessRequest:
       type: object
+      description: "Fields to update basic business information."
       properties:
         name:
           type: string
@@ -3651,6 +3693,7 @@ components:
         business_phone: "+37052000001"
     CreateMenuCategoryRequest:
       type: object
+      description: "Create a new menu category; supports hierarchical nesting via parent_id."
       properties:
         name:
           type: string
@@ -3664,6 +3707,7 @@ components:
         parent_id: 301
     UpdateMenuCategoryRequest:
       type: object
+      description: "Update menu category fields like name or parent assignment."
       properties:
         name:
           type: string
@@ -3676,6 +3720,7 @@ components:
 
     CreateMenuItemRequest:
       type: object
+      description: "Create a new menu item with initial price, products, and variations."
       properties:
         name:
           type: string
@@ -3734,6 +3779,7 @@ components:
 
     UpdateMenuItemRequest:
       type: object
+      description: "Update attributes of an existing menu item."
       properties:
         name:
           type: string
@@ -3762,6 +3808,7 @@ components:
 
     CreateOrderItemRequest:
       type: object
+      description: "Add a menu item to an order, optionally with variation IDs."
       properties:
         menu_item_id:
           type: integer
@@ -3781,6 +3828,7 @@ components:
         variation_ids: [901, 902]
     CreateServiceRequest:
       type: object
+      description: "Request payload to create a concrete service with price and currency."
       properties:
         name:
           type: string
@@ -3809,6 +3857,7 @@ components:
 
     UpdateServiceRequest:
       type: object
+      description: "Request payload to update a service's basic attributes."
       properties:
         name:
           type: string
@@ -3823,6 +3872,7 @@ components:
 
     CreateAppointmentRequest:
       type: object
+      description: "Request to book a new appointment with a specific employee-service at a date/time."
       properties:
         employee_service_id:
           type: integer
@@ -3849,9 +3899,19 @@ components:
         - phone
         - datetime
         - duration     
+      example:
+        employee_service_id: 444
+        name: "Zara"
+        surname: "Nordin"
+        email: "zara.nordin@example.com"
+        phone: "+37061123456"
+        datetime: "2025-11-05T14:30:00Z"
+        duration: 40
+        block_duration: 10
 
     CreateLocationRequest:
       type: object
+      description: "Create a business location with address, hours, and optional seating."
       properties:
         country:
           type: string
@@ -3898,6 +3958,7 @@ components:
 
     CreateDiscountRequest:
       type: object
+      description: "Create a discount that may apply business-wide or per location."
       properties:
         location_id:
           type: integer
@@ -3930,6 +3991,7 @@ components:
 
     CreateVatRateRequest:
       type: object
+      description: "Define a VAT rate for a country effective from a specific date."
       properties:
         country_code:
           type: string
@@ -4038,6 +4100,7 @@ components:
 
     Task:
       type: object
+      description: "A task to be executed by one or more employees within a business."
       properties:
         id:
           type: integer
@@ -4063,15 +4126,16 @@ components:
         status: pending
         assigned_employees:
           - user_id: 102
-            name: "Lucille"
-            surname: "Ponty"
-            email: "lucille@uniserve.com"
+            name: "Noor"
+            surname: "Haddad"
+            email: "noor.haddad@example.com"
             job_title: "Head Waiter"
             salary: 2500
             status: active
 
     CreateTaskRequest:
       type: object
+      description: "Request to create a new task and assign employees with an optional estimate."
       properties:
         name:
           type: string
@@ -4101,6 +4165,7 @@ components:
 
     Feedback:
       type: object
+      description: "Peer or manager feedback about an employee, with optional anonymity."
       properties:
         id:
           type: integer
@@ -4130,7 +4195,7 @@ components:
       example:
         id: 70001
         author_name: null
-        receiver_name: "Lucille Ponty"
+        receiver_name: "Noor Haddad"
         description: "Excellent teamwork during rush hour."
         rating: 5
         is_anonymous: true
@@ -4140,6 +4205,7 @@ components:
 
     CreateFeedbackRequest:
       type: object
+      description: "Submit feedback about an employee with rating and visibility options."
       properties:
         receiver_id:
           type: integer
@@ -4191,6 +4257,7 @@ components:
     # MESSAGING SCHEMAS
     Chat:
       type: object
+      description: "A conversation between two users."
       properties:
         id:
           type: integer
@@ -4207,18 +4274,19 @@ components:
         id: 1
         sender:
           id: 101
-          name: "John"
-          surname: "Doe"
-          email: "john.doe@example.com"
+          name: "Casper"
+          surname: "Jelinek"
+          email: "casper.jelinek@example.com"
         receiver:
           id: 102
-          name: "Lucille"
-          surname: "Ponty"
-          email: "lucille@uniserve.com"
+          name: "Noor"
+          surname: "Haddad"
+          email: "noor.haddad@example.com"
         started_at: "2025-10-18T09:00:00Z"
 
     Message:
       type: object
+      description: "A single message posted in a chat."
       properties:
         id:
           type: integer
@@ -4246,6 +4314,7 @@ components:
 
     CreateChatRequest:
       type: object
+      description: "Start a chat by specifying the receiver and initial message text."
       properties:
         receiver_id:
           type: integer
@@ -4262,6 +4331,7 @@ components:
 
     CreateMessageRequest:
       type: object
+      description: "Send a message in an existing chat."
       properties:
         text:
           type: string
@@ -4273,17 +4343,18 @@ components:
 
     OwnerRegisterRequest:
       type: object
+      description: "Registration payload for a new business owner account."
       properties:
         name:
           type: string
-          example: "Marcella"
+          example: "Youmna"
         surname:
           type: string
-          example: "Clarke"
+          example: "Derrida"
         email:
           type: string
           format: email
-          example: "marcella.clarke@example.com"
+          example: "youmna.derrida@example.com"
         password:
           type: string
           format: password
@@ -4301,15 +4372,16 @@ components:
         - password
         - account_type
       example:
-        name: "Maria"
-        surname: "Lopez"
-        email: "maria@example.com"
+        name: "Youmna"
+        surname: "Derrida"
+        email: "youmna.derrida@example.com"
         password: "StrongP@ssw0rd"
         phone_number: "+37060000011"
         account_type: business_owner
 
     EmployeeRegisterRequest:
       type: object
+      description: "Registration payload for a new employee using an invitation code."
       properties:
         email:
           type: string
@@ -4342,9 +4414,9 @@ components:
         phone:
           type: string
       example:
-        name: "John"
-        surname: "Doe"
-        email: "johnny.d@example.com"
+        name: "Ivy"
+        surname: "Nakamura"
+        email: "ivy.nakamura@example.com"
         phone: "+37060000001"
 
     EmployeeDetail:
@@ -4355,14 +4427,14 @@ components:
           type: integer
         name:
           type: string
-          example: "Lucille"
+          example: "Noor"
         surname:
           type: string
-          example: "Ponty"
+          example: "Haddad"
         email:
           type: string
           format: email
-          example: "lucille@uniserve.com"
+          example: "noor.haddad@example.com"
         job_title:
           type: string
           example: "Head Waiter"
@@ -4375,9 +4447,9 @@ components:
           enum: [active, inactive]
       example:
         user_id: 102
-        name: "Lucille"
-        surname: "Ponty"
-        email: "lucille@uniserve.com"
+        name: "Noor"
+        surname: "Haddad"
+        email: "noor.haddad@example.com"
         job_title: "Head Waiter"
         salary: 2500.00
         status: active
@@ -4416,6 +4488,7 @@ components:
 
     Role:
       type: object
+      description: "An assignable role that groups permissions for business users."
       properties:
         id:
           type: integer
@@ -4430,6 +4503,7 @@ components:
 
     WorkHourPeriod:
       type: object
+      description: "A time window representing when work is scheduled."
       properties:
         start:
           type: string
@@ -4462,6 +4536,7 @@ components:
 
     CreateEmployeeInviteRequest:
       type: object
+      description: "Invite details for onboarding an employee with role, location, and activities."
       properties:
         email:
           type: string
@@ -4501,6 +4576,7 @@ components:
     # --- LOCATION SCHEMAS (UPDATED/NEW) ---
     OpenHour:
       type: object
+      description: "Opening hours for a given weekday."
       properties:
         week_day:
           type: string
@@ -4524,6 +4600,7 @@ components:
 
     SeatingDefinition:
       type: object
+      description: "A table/seating coordinate and capacity used to build a seating plan."
       properties:
         pos_x:
           type: integer
@@ -4543,6 +4620,7 @@ components:
       # --- INVITE SCHEMA ---
     Invite:
       type: object
+      description: "An invitation sent to a prospective employee to join a business."
       properties:
         id:
           type: integer
@@ -4561,10 +4639,10 @@ components:
           format: date-time
       example:
         id: 55
-        email: "invitee@example.com"
+        email: "kaya.sethi@example.com"
         description: "Join our team as a waiter."
         status: pending
-        business_name: "The Corner Bistro"
+        business_name: "Rivermint Brasserie"
         time_invited: "2025-10-18T12:00:00Z"
 
     LocationDetail:
@@ -4580,6 +4658,7 @@ components:
           example: "Lithuania"
         city:
           type: string
+          description: "An assignable role that groups permissions for business users."
           example: "Vilnius"
         street:
           type: string
@@ -4681,6 +4760,7 @@ components:
 
     Permission:
       type: object
+      description: "A granular capability that can be assigned via roles or directly."
       properties:
         id:
           type: integer
@@ -4695,6 +4775,7 @@ components:
 
     CoOwnerPermissionUpdateRequest:
       type: object
+      description: "Request to replace a co-owner's permission set."
       properties:
         permission_ids:
           type: array
@@ -4707,6 +4788,7 @@ components:
 
     BillDiscountCreateRequest:
       type: object
+      description: "Create a discount applicable to an entire bill (order or appointment)."
       properties:
         value:
           type: number
@@ -4731,6 +4813,7 @@ components:
 
     BillDiscountUpdateRequest:
       type: object
+      description: "Update fields for an existing bill-wide discount."
       properties:
         value:
           type: number
@@ -4760,6 +4843,13 @@ components:
               type: integer
           required:
             - menu_item_id
+      description: "Create a discount that targets a specific menu item."
+      example:
+        value: 10
+        is_percentage: true
+        valid_from: "2025-10-01T00:00:00Z"
+        valid_to: "2025-10-31T23:59:59Z"
+        menu_item_id: 501
 
     MenuItemDiscountUpdateRequest:
       allOf:
@@ -4768,6 +4858,14 @@ components:
           properties:
             menu_item_id:
               type: integer
+      description: "Update a discount that targets a specific menu item."
+      example:
+        value: 5
+        is_percentage: true
+        valid_from: "2025-10-10T00:00:00Z"
+        valid_to: "2025-10-20T23:59:59Z"
+        disabled: false
+        menu_item_id: 501
 
     ServiceDiscountCreateRequest:
       allOf:
@@ -4778,6 +4876,13 @@ components:
               type: integer
           required:
             - employee_service_id
+      description: "Create a discount for a particular employee's service."
+      example:
+        value: 15
+        is_percentage: true
+        valid_from: "2025-10-05T00:00:00Z"
+        valid_to: "2025-10-31T23:59:59Z"
+        employee_service_id: 321
 
     ServiceDiscountUpdateRequest:
       allOf:
@@ -4786,9 +4891,18 @@ components:
           properties:
             employee_service_id:
               type: integer
+      description: "Update a discount for a particular employee's service."
+      example:
+        value: 7.5
+        is_percentage: false
+        valid_from: "2025-10-15T00:00:00Z"
+        valid_to: "2025-11-01T00:00:00Z"
+        disabled: true
+        employee_service_id: 321
     
     VariationItemProductRequest:
       type: object
+      description: "Ingredient reference and quantity for a variation option."
       properties:
         product_id:
           type: integer
@@ -4804,6 +4918,7 @@ components:
 
     VariationItemRequest:
       type: object
+      description: "An individual option inside a variation group (may adjust price)."
       properties:
         name:
           type: string
@@ -4834,6 +4949,7 @@ components:
 
     VariationGroupRequest:
       type: object
+      description: "A group of related variation options and selection rules."
       properties:
         name:
           type: string
@@ -4870,6 +4986,7 @@ components:
 
     InventoryProductDefinitionResponse:
       type: object
+      description: "A simple product definition used in inventory listings."
       properties:
         name:
           type: string
@@ -4882,6 +4999,7 @@ components:
 
     InventoryStockResponse:
       type: object
+      description: "Aggregated stock quantity for a product at a location."
       properties:
         product_name:
           type: string
@@ -4900,6 +5018,7 @@ components:
 
     InventoryStockChangeResponse:
       type: object
+      description: "An audit log entry describing a product stock change."
       properties:
         product_id:
           type: integer
@@ -4937,7 +5056,7 @@ components:
         expiration_date: null
         created_at: "2025-10-18T07:30:00Z"
         created_by_user_id: 102
-        created_by_user_name: "Lucille Ponty"
+        created_by_user_name: "Noor Haddad"
 
     MenuItemResponse:
         type: object
@@ -5047,10 +5166,23 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/WorkHourPeriod'
+      example:
+        employee_id: 208
+        employee_name: "Mateo Alvarez"
+        employee_email: "mateo.alvarez@example.com"
+        employee_job_title: "Senior Stylist"
+        location_name: "Aurora Salon — Old Town"
+        location_service_status: enabled
+        available_times:
+          - start: "2025-11-03T08:00:00Z"
+            end: "2025-11-03T12:00:00Z"
+          - start: "2025-11-03T13:00:00Z"
+            end: "2025-11-03T16:00:00Z"
 
     # --- Request Body Schemas ---
     CreateServiceDefinitionRequest:
       type: object
+      description: "Create an abstract service definition (no price/location)."
       properties:
         name:
           type: string
@@ -5069,6 +5201,7 @@ components:
         
     UpdateServiceDefinitionRequest:
       type: object
+      description: "Update an abstract service definition's basic fields."
       properties:
         name:
           type: string
@@ -5083,6 +5216,7 @@ components:
 
     AddLocationServiceRequest:
       type: object
+      description: "Offer an existing service definition at a specific location."
       properties:
         service_id:
           type: integer
@@ -5099,6 +5233,7 @@ components:
 
     UpdateLocationServiceRequest:
       type: object
+      description: "Enable or disable a service offered at a location."
       properties:
         status:
           type: string
@@ -5110,6 +5245,7 @@ components:
         
     AddEmployeeToServiceRequest:
       type: object
+      description: "Assign an employee to perform a service at a location."
       properties:
         employee_id:
           type: integer
@@ -5293,6 +5429,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/WorkHourPeriod'
+      example:
+        business_id: 77
+        business_name: "Orion Bakery"
+        work_periods:
+          - start: "2025-11-02T06:00:00Z"
+            end: "2025-11-02T14:00:00Z"
+          - start: "2025-11-03T10:00:00Z"
+            end: "2025-11-03T18:00:00Z"
 
     EmployeeUpdateRequest:
       type: object
@@ -5312,6 +5456,11 @@ components:
           enum: [active, inactive, disabled]
       required:
         - effective_from
+      example:
+        effective_from: "2025-11-01T00:00:00Z"
+        salary: 2650.00
+        location_id: 11
+        employment_status: active
 
     AppointmentDetailResponse:
       type: object
@@ -5354,6 +5503,23 @@ components:
         discount:
           type: number
           format: decimal
+      example:
+        id: 6101
+        service_name: "Men's Haircut"
+        employee_id: 102
+        employee_name: "Noor Haddad"
+        location_id: 11
+        location_name: "Rivermint Brasserie — Atrium"
+        customer_name: "Elodie Marin"
+        customer_email: "elodie.marin@example.com"
+        customer_phone: "+37061234567"
+        start_time: "2025-10-21T09:00:00Z"
+        duration: 30
+        block_duration: 15
+        status: RESERVED
+        price: 25.00
+        price_id: 12001
+        discount: 0
 
     AppointmentBillDetailResponse:
       allOf:
@@ -5368,9 +5534,31 @@ components:
             created_at:
               type: string
               format: date-time
+      description: "Appointment details extended with billing information."
+      example:
+        id: 6101
+        service_name: "Men's Haircut"
+        employee_id: 102
+        employee_name: "Noor Haddad"
+        location_id: 11
+        location_name: "Rivermint Brasserie — Atrium"
+        customer_name: "Elodie Marin"
+        customer_email: "elodie.marin@example.com"
+        customer_phone: "+37061234567"
+        start_time: "2025-10-21T09:00:00Z"
+        duration: 30
+        block_duration: 15
+        status: PAID
+        price: 25.00
+        price_id: 12001
+        discount: 0
+        appointment_bill_id: 91501
+        tip: 3.00
+        created_at: "2025-10-21T09:45:00Z"
 
     OrderBillItemDetail:
       type: object
+      description: "A single billed menu item with quantity, discounts, and selected variations."
       properties:
         bill_item_id:
           type: integer
@@ -5394,9 +5582,19 @@ components:
               price_adjustment:
                 type: number
                 format: decimal
+      example:
+        bill_item_id: 1
+        menu_item_name: "Cappuccino"
+        quantity: 2
+        total_cost: 5.60
+        discount: 0
+        variations:
+          - variation_name: "Oat Milk"
+            price_adjustment: 0.30
 
     OrderBillDetailResponse:
       type: object
+      description: "Detailed bill information for an order, including items and totals."
       properties:
         bill_id:
           type: integer
@@ -5423,9 +5621,28 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OrderBillItemDetail'
+      example:
+        bill_id: 9001
+        total_cost: 12.10
+        tip: 2.00
+        vat_rate: 21.0
+        discount: 0
+        created_at: "2025-10-18T13:05:00Z"
+        location_name: "Rivermint Brasserie"
+        location_id: 11
+        items:
+          - bill_item_id: 1
+            menu_item_name: "Cappuccino"
+            quantity: 2
+            total_cost: 5.60
+            discount: 0
+            variations:
+              - variation_name: "Oat Milk"
+                price_adjustment: 0.30
 
     UpdateAppointmentRequest:
       type: object
+      description: "Modify customer details, duration, or cancel an appointment."
       properties:
         customer_name:
           type: string
@@ -5443,6 +5660,14 @@ components:
         status:
           type: string
           enum: [CANCELLED]
+      example:
+        customer_name: "Elodie"
+        customer_surname: "Marin"
+        customer_email: "elodie.marin@example.com"
+        customer_phone: "+37061234567"
+        duration: 35
+        block_duration: 10
+        status: CANCELLED
 
     EmployeeJobUpdateRequest:
       type: object
@@ -5476,3 +5701,5 @@ components:
         effective_from: "2026-01-01T00:00:00Z"
         salary: 2800.50
         job_id: 11
+        location_id: 12
+        status: active
