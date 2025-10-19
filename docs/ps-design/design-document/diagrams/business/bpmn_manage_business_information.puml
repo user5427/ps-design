@@ -1,0 +1,32 @@
+@startuml
+|User|
+start
+:Log in to UniServe;
+:Navigate either to Business or Specific business page;
+if (Creating new business?) then (yes)
+  :Enter name and description;
+  :Select business type (order / appointment);
+  :Choose specific type (restaurant, bar, spa...);
+  :Select country;
+  :Click "Create";
+  if (Validation successful?) then (yes)
+    :System saves business;
+    :Show toast success message;
+  else (no)
+    :Show validation errors;
+  endif
+else (Editing existing business)
+  :Modify fields as needed;
+  :Click "Save Changes";
+  if (Validation successful?) then (yes)
+    :System updates business;
+    :Show confirmation;
+    :Show success toast message;
+  else (no)
+    :Show error message;
+  endif
+endif
+
+:Return to Manage Businesses;
+stop
+@enduml

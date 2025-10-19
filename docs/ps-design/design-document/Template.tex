@@ -131,288 +131,74 @@
 \onehalfspacing
 
 
-\section*{Check list \checkmark}
-
-The suggested structure below is only a recommendation. You can decide to adopt a different flow as long as you cover everything that is relevant for the system under design. One good way of testing it is to designate one person on the team who will take on an implementer's hat and read through the document as if they will have to implement that document.
-
-\begin{enumerate}
-    \item Intro
-    \item Business flows (with sequence diagrams or flow diagrams)
-    \item Package diagrams showing classes/modules of the system - high level architecture
-    \item Data model for entity used in the system (recommended class diagrams instead of ER diagrams)
-    \item API Contracts for the backend endpoints (with Swagger/Open API)
-    \begin{itemize}
-        \item HTTP requests with all possible parameters
-        \item HTTP responses
-        \item HTTP error codes
-    \end{itemize}
-\end{enumerate}
-
-\subsection*{Submission Requirements}
-
-The team will have to prepare two documents:
-
+\warningcomment{
 \begin{itemize}
-    \item \textbf{A shared text document} with all diagrams, descriptions and other relevant technical details needed. This document is shared with the lecturer and the final snapshot past submission deadline will be used for grading. You can use Word, Google Docs or Overleaf to share this document.
-    
-    \item \textbf{A plaintext document in YAML format} that can be loaded into \href{https://editor.swagger.io/}{https://editor.swagger.io/}. This document is put into your team's repository and the link to your Git repo is provided by the team lead to lecturer.
+    \item mazinkit teksto kieki, pagalvokit ar patys turedami sia dokumentacija skaitytumete ta visa teksta
+    \item diagramose nevaizduojame sistemos vidaus
+    \item visi flows turi BUTI paremti grafine sasaja, jeigu to nera tai labai sunku isitikinti ar business flows nesusikerta su kita sistemos logika
+    \item Duomenu modeliui aprasyti naudokite latex lenteles, ne teksta, teksta sunku skaityti.
+    \item duomenu modelis turi buti pagristas business flowsais ar GUI pavydziais.
+    \item reiketu apriboti dokumento ilgi, nuspresti kiek.
 \end{itemize}
+}
 
-It is expected that your YAML file should load there without syntax errors. If the upload fails, only the visible parts of API Design will be graded.
+\warningcomment{Nenaudoti chatgpt, tekstas gaunasi nuobodus, atsiranda daug faktiniu klaidu}
 
-\subsection*{System-under-design Business Requirements}
-
-We are simulating a Software as a Service startup that you will be running. You are creating software for small and medium businesses in catering (bars/cafe/restaurants) and beauty (barbers/hairdressers/SPA) sectors. Your system needs to support both functionalities; however, feature sets can be regulated by the plan your customers subscribed to.
-
-It is enough to design system that is only operated by business employees where the only input customer provides is payment and contact information for bookings.
-
-This list can be expanded/clarified by additional questions raised by students during the design process. It is not meant to be a complete list from the get-go.
-
-\subsubsection*{Order Functionality}
-
-\begin{itemize}
-    \item Employee can create an order
-    \item Employee can modify an open order (change items)
-    \item Employee cannot modify a closed/paid order
-    \item Employee can cancel an open (unpaid/not closed order)
-    \item Customer can pay the order by cash, gift card and credit/debit card
-    \begin{itemize}
-        \item \textbf{BEWARE:} In Lab 2 every team will be asked to implement card payment integration with Stripe payment provider, so you might want to do extra research on how card payment flow works.
-    \end{itemize}
-    \item Each order should allow split checks (multiple payments).
-    \item Customer can add a tip to an order.
-    \item Employee can apply a discount to an order.
-    \item When order is closed the customer can get the final receipt with all costs, taxes, discounts and service charges calculated and presented
-    \begin{itemize}
-        \item Different order items can have different taxes applied to them (food vs alcohol as an example)
-    \end{itemize}
-    \item Paid/closed orders are to be preserved indefinitely.
-    \item Closed orders can be refunded and marked as such.
-\end{itemize}
-
-\subsubsection*{Services}
-
-\begin{itemize}
-    \item Employee can make a reservation for a customer
-    \begin{itemize}
-        \item Each reservation has time when booked, appointment time, employee, customer, service
-    \end{itemize}
-    \item Employee can cancel or modify an appointment upon customer request
-    \item \textbf{BONUS} - send SMS notification when appointment is created (I recommend AWS SMS functionality for that)
-\end{itemize}
-
-\subsubsection*{System Management Functionality}
-
-\begin{itemize}
-    \item \textbf{BONUS:} Inventory management (should be integrated with order management and have quantities reduced when bought)
-    \item Tax Management (create/edit/delete)
-    \begin{itemize}
-        \item Change of the tax entry (like VAT) should not affect any historical records
-    \end{itemize}
-    \item Service charge/Tip/Gratuity Management
-    \begin{itemize}
-        \item Change of the service charge item should not affect any historical records
-    \end{itemize}
-    \item Product/Menu Item Management (create/edit/delete)
-    \item Each product can have variations (e.g. coffee with milk, decaf, vegan milk)
-    \item Each Service has an employee associated with it
-    \item Discount Management
-    \begin{itemize}
-        \item Discounts can be applied to a specific product or the whole order
-        \item Discounts can be time-limited
-    \end{itemize}
-    \item User Management (can create/delete/edit users)
-    \begin{itemize}
-        \item Only business owner can edit employees/users of their business
-        \item SuperAdmin (IT Support) can edit anyone
-        \item All actions should be performed only by logged-in and authorized users
-    \end{itemize}
-    \item Merchant/Business management
-    \begin{itemize}
-        \item Each merchant/business has an owner user, address, contact info (phone, email), name and other relevant details
-    \end{itemize}
-\end{itemize}
-
-
-%% Acknowledgements Section
-\sectionnonumnocontent{Acknowledgements}
-The authors are thankful to the lecturer Vasilij Savin for his guidance and
-support throughout the project.
-
-
-% Lets first give some context to copilot
-% #  **Business Management System - Project Summary**
-
-% ##  **Project Overview**
-% Building a **multi-tenant SaaS platform** for small service businesses (bars, restaurants, spas, salons) to manage their operations, appointments, orders, and payments in one unified system.
-
-% ##  **Core Business Domains**
-
-% ### ️ **Order Management** (Bars/Restaurants)
-% - **Table-based ordering** with real-time modifications
-% - **Split bills**, tips, discounts, and multiple payment methods
-% - **Menu management** with item variations (e.g., coffee types, milk options)
-% - **Inventory tracking** and stock management
-
-% ###  **Services Management** (Spas/Salons)  
-% - **Appointment scheduling** with time slot booking
-% - **Employee availability** and conflict prevention
-% - **Service catalog** (massages, haircuts, treatments)
-% - **SMS notifications** for confirmations and reminders
-
-% ## ️ **Technical Requirements**
-
-% ### **Multi-tenancy Architecture**
-% - Single database supporting **multiple businesses**
-% - Data isolation between different business tenants
-% - Super admin access for system management
-
-% ### **Data Model Criticalities**
-% - **Historical data preservation** (price/tax changes must NOT affect past records)
-% - **Soft deletion** instead of physical data removal
-% - **Calculated fields** handled in application layer, not database
-
-% ### **Key Integration Points**
-% - **Payment processing** (Stripe integration)
-% - **SMS gateway** for appointment notifications
-% - **Role-based authentication** (Customer, Employee, Manager, Admin)
-
-% ##  **Current Focus: Business Flow Division**
-% We're analyzing and documenting business workflows across **4 functional domains**:
-% 1. **Core Service Delivery & Booking**
-% 2. **Customer & Business Management** 
-% 3. **Communication & Operations**
-% 4. **Payments & Analytics**
-
-% ##  **Academic Context**
-% This is for a **software design course** where we're creating technical specifications before implementation. The project emphasizes **proper documentation, data modeling, and API design** following software engineering best practices.
-
-% ##  **Current Task**
-% Dividing business flow documentation among team members while maintaining **consistency, clear boundaries, and minimal dependencies** between work streams.
-
-% ---
-% **Key Constraint:** The system must handle **both order-based (restaurants) and appointment-based (spas) businesses** with overlapping but distinct workflows.
+\noticecomment{dokumento struktura: sections 1,2,3 naudojame isskaidyti funkcionalumo sritis (pvz orders, serving, login, management), subsection naudojame pazymeti GUI, business flows, package diagrams, data model, api contract.}
 
 
 \section*{Introduction}
-This document outlines the software design for a multtenant SaaS platform
-aimed at small to medium business that consentrate on order delivery such as
-bars, restaurants and services such as spas and salons. The platform will
-provide a unified system for managing operations, appointments, orders, and
-payments.
+This document focuses on what kind of software is needed for order and appointment based businesses to manage their operations without any hiccups.
 
-
-% ========================================================================
-% FUNCTIONAL DOMAIN SEPARATION
-% ========================================================================
-
-% ------------------------------------------------------------------------
-% DOMAIN INTERACTIONS
-% ------------------------------------------------------------------------
-
-% RESTAURANT ↔ MANAGEMENT
-% - Employee assignments to tables/shifts
-% - Financial data aggregation
-% - Customer profile updates
-
-% SERVICES ↔ MANAGEMENT
-% - Employee scheduling and availability
-% - Appointment revenue tracking
-% - Customer service history
-
-% RESTAURANT ↔ SERVICES (for hybrid businesses)
-% - Shared customer profiles
-% - Combined service packages
-% - Unified payment processing
-
-% NOTE: This separation allows each domain to be developed independently
-% while maintaining clear integration points for businesses that operate
-% across multiple domains.
-
-\section{Business Flows}
-
-We will first start with business flows by describing the business process we are automating. We will
-seperate the business flows into 3 main domains for clarity:
+The structure of the document is:
 \begin{itemize}
-    \item Order Management (Bars/Restaurants)
-    \item Services Management (Spas/Salons)
-    \item Business Management
-\end{itemize}
-These domains will communicate in this simple way:
-\begin{itemize}
-    \item Order Management <-> Business Management
-    \item Services Management <-> Business Management
+    \item Introduciton
+    \item Functionallity \begin{itemize}
+        \item GUI
+        \item Business flow(s)
+        \item Package diagram(s)
+        \item Data model    
+    \end{itemize}
+    \item API Contracts
+    \item Conclusion
 \end{itemize}
 
-We will try to write the business flows and then identify the entities,
-components and actions needed to implement these business flows.
+Note: after making 80+ Figma GUI wire-frames we realized that there is really no limit to the domain size of this application. While we did cover all the essential functionality, there is still a lot of questions left to solve. Here are some of them that we encountered:
+\begin{itemize}
+    \item How product supply chains work? How our system integrates that? (For inventory management)
+    \item What to do in case payment system (Stripe) goes down? How will the system manage that?
+    \item etc.
+\end{itemize}
+And there are way way more things to take in consideration! But writing all these things out would make this document huge and unreadable. Highlighting this problem we want to show not that this document lacks some features (or to put simply sucks) but that simply the design of these systems goes way beyond the scope of what we can capture in this course. Therefore we will limit ourselves mostly to those 80+ GUIs that we made, especially focusing on the GUIs that feature creating and updating forms.
 
-% example of how to analyze a business flow
-% Autoshop business flow
+While making the GUIs we also noticed that in the future the client could always require more features to be added such as:
+\begin{itemize}
+    \item LLM chat support
+    \item etc.
+\end{itemize}
+As a result, we will try to make the system as future proof as possible.
 
-%     • Client arrives at the autoshop
-%     • Mechanic engages new client and asks about the reason for the visit
-%     • Client fills in the intake form (contact info, car plates, VIN, complaints/issues, etc)
-%     • Mechanic gives initial estimate for time and cost of the fix
-%     • Client accepts the quote and gives car keys to the mechanic
-%     • Mechanic moves car to the parking lot for cars awaiting repairs
-%     • Mechanic initiates repairs (possible uncovering additional issues)
-%     • Mechanic orders required spare parts OR Mechanics retrieves needed parts from storage
-%     • Mechanic contacts client and provides new estimate for cost and time of repairs
-%     • Client approves the update quote
-%     • Mechanic completes the repairs
-%     • Mechanic moves car to the parking lot of cars awaiting pick up.
-%     • Client arrives, pays for the repairs and departs
-%     • Mechanic adds closing notes to the fix order and closes the order
+So why so many GUIs wire-frames? After trying to write this document for the first time using only text for describing how users interact with the system we kind of failed. After that failure we decided that it would be ideal to simply use Figma and quickly prototype as much GUIs as possible for all features. This would allow each team member quickly to understand how their colleges understand the business problem and if there are any problems with that understanding. It also served as a great way to ensure consistency between system components. We hope that the reader will appreciate our huge effort put into these GUIs and that their job will be easier.
 
-% Tables/Entities
-% Car
-% Employee
-% Service? Repair Type performed
-% Repairs by order
-% Spare parts
-% Autoshop
-% Inventory
+\section*{Important links}
+Before you start it would be ideal if you familiarized your self with GUIs. This will help you to better understand the workings of the system, what data is passed around and how users interact with our system.
 
-% Components
-% Order Management (Order, Payments)
-% Employee Management
-% Inventory (Spare parts, Inventory)
-% Catalogue/Offering (Service? Repair Type performed, Repairs by order)
+You can use the link below to explore the prototypes in Figma, just simply click anywhere and Figma will show you what buttons and navigation links are clickable with pulsing animation.
+
+\href{https://www.figma.com/design/IpiyOU6rDdMWJAuKfbXnuQ/HCI-2025-mockups?node-id=0-1&t=qFGqf8yRbP1gP6IJ-1}{Figma prototypes}
 
 
-% Actions
-% Client fills in the intake form
-% Client accepts the quote
-% Client approves the update quote
-% Client pays for the repairs
 
+
+\section{Functionality}
+We will discuss here the GUIs of the application, business flows, package diagrams and data model.
 
 \subsection{Order Management (Bars/Restaurants)}
 
+
+\noticecomment{Client order = seating + placing menu items + payment}
+
 \noticecomment{In a real system, you might need to consider how orders are communicated (e.g., a screen in the kitchen, notifications), but this is left as a design decision for the team.}
-
-% ------------------------------------------------------------------------------
-% ORDER DOMAIN
-% (Related to bars, restaurants, cafes — places where customers place orders for items like food and drinks)
-%
-% Use Case          | Description
-% ------------------|--------------------------------------------------------------------
-% Create Order      | Employee creates a new order for a customer (e.g., at a table).
-% Modify Order      | Add, remove, or update items in an open order.
-% Close Order       | Finalize the order when the customer is done.
-% Pay Order         | Process payment (cash, card, gift card, split payment).
-% Apply Discount    | Specify discounts can be applied to specific products OR entire orders
-% Add Tip           | Allow the customer to add a tip to the bill.
-% Cancel Order      | Cancel an open order before payment.
-% Refund Order      | Process a refund for a paid order (e.g., due to complaint).
-% Print Receipt     | Generate a final receipt with items, taxes, discounts, and totals.
-% Split Check       | Split the bill among multiple customers.
-% Handle Different Tax Rates per Item | Apply different tax rates (e.g., food vs. alcohol).
-% Refund Order      | Process refund for closed/paid orders and mark them as refunded.
-% Preserve Historical Orders | Keep closed/paid orders indefinitely without modification
-% ------------------------------------------------------------------------------
-
 
 \begin{longtable}{p{0.25\linewidth} p{0.70\linewidth}}
 \caption{Use cases for the Order Management domain} \\
@@ -432,19 +218,19 @@ components and actions needed to implement these business flows.
 
 Client Seating (Available) &
 \begin{minipage}[t]{\linewidth}
-Employee checks seating via POS \& backend. If available, employee assigns a table and confirms with client.
+Employee checks seating via POS. If available, employee assigns a table and confirms with client.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
 Client Seating (Not Available) &
 \begin{minipage}[t]{\linewidth}
-Employee checks seating via POS \& backend, finds no seats available, and informs client.
+Employee checks seating via POS, finds no seats available, and informs client.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
 Place Order &
 \begin{minipage}[t]{\linewidth}
-Client requests menu, places an order via employee. POS \& backend validate items, stock, and combinations. If valid, client confirms; else corrections are requested.
+Client requests menu, places an order via employee. If order is valid, client confirms, else corrections are requested.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
@@ -468,66 +254,8 @@ The employee selects a table. The order with items are retrieved for that table,
 
 \end{longtable}
 
-\subsubsection{Order client seating(available)}
+\subsubsection{Order client seating (available)}
 
-Flow:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
-\item Client enters the restaurant/bar.
-\item Employee greets the Client.
-\item Employee requests available seating options from the POS system.
-\item POS system queries the Backend Server for seating availability.
-\item Backend Server returns available seating options to the POS.
-\item POS displays seating options to the Employee.
-\item Employee suggests available seating options to the Client.
-\item Client chooses a seating option.
-\item Employee assigns the Client to a table using the POS system.
-\item POS system sends the table assignment to the Backend Server for saving and validation.
-\item If validation succeeds:
-\begin{itemize}
-\item Backend Server confirms the assignment to the POS.
-\item POS confirms table assignment to the Employee.
-\item Employee guides the Client to the assigned table.
-\end{itemize}
-\item If validation fails:
-\begin{itemize}
-\item Backend Server returns a failure message to the POS.
-\item POS notifies the Employee that assignment failed.
-\item Employee informs the Client that the table is unavailable and suggests alternatives or waiting.
-\end{itemize}
-\end{itemize}
-
-\begin{center}
-\setlength{\tabcolsep}{8pt}
-\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
-\hline
-\textbf{Tables/Entities} \newline
-\begin{mpitemlist}
-\item Client
-\item Table
-\end{mpitemlist}
-&
-\textbf{Components} \newline
-\begin{mpitemlist}
-\item Seating Management
-\end{mpitemlist}
-\\ \hline
-\textbf{Actions} \newline
-\begin{mpitemlist}
-    \item Greet client
-    \item Request available seating options
-    \item Retrieve and display seating availability
-    \item Assign client to table
-    \item Validate table assignment (availability and conflicts)
-    \item Confirm table assignment
-    \item Notify failure and suggest alternatives
-\end{mpitemlist}
-&
-\\ \hline
-\end{tabular}
-\end{center}
 
 \begin{figure}[H]
     \centering
@@ -538,52 +266,6 @@ Flow:
 
 \subsubsection{Order client seating (not available) business flow}
 
-Flow:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
-\item Client enters the restaurant/bar.
-\item Employee greets the Client.
-\item Employee requests available seating options from the POS system.
-\item POS system queries the Backend Server for seating availability.
-\item Backend Server returns availability data indicating no tables are free.
-\item POS displays “no available seating” to the Employee.
-\item Employee informs the Client that no seating is currently available.
-\end{itemize}
-
-\begin{center}
-\setlength{\tabcolsep}{8pt}
-\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
-\hline
-\textbf{Tables/Entities} \newline
-\begin{mpitemlist}
-    \item Client
-    \item Table
-\end{mpitemlist}
-&
-\textbf{Components} \newline
-\begin{mpitemlist}
-    \item POS System (Employee-facing system to check seating availability)
-    \item Backend Server (handles seating availability queries)
-    \item Seating Management (Tables + availability status)
-    \item Employee Interface (to communicate availability to Client)
-\end{mpitemlist}
-\\ \hline
-\textbf{Actions} \newline
-\begin{mpitemlist}
-    \item Greet client
-    \item Request seating availability
-    \item Retrieve seating data
-    \item Display “no available seating”
-    \item Inform client that no seating is available
-\end{mpitemlist}
-&
-
-\\ \hline
-\end{tabular}
-\end{center}
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_client_seating_not_available_sequence.png}
@@ -592,73 +274,6 @@ Flow:
 \end{figure}
 
 \subsubsection{Place Order Business Flow}
-
-Flow:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
-\item Client asks the Employee for the menu.
-\item Employee provides the menu to the Client (physical or digital).
-\item Client makes an order request to the Employee.
-\item Employee inputs the order into the POS system.
-\item POS sends the order request to the Backend Server for validation and creation.
-\item Backend Server validates the request:
-\begin{itemize}
-\item Checks stock availability.
-\item Validates attribute or variation combinations (e.g., sizes, add-ons).
-\end{itemize}
-\item If validation succeeds:
-\begin{itemize}
-\item Backend Server creates a pending order linked to the Client’s table.
-\item Backend Server confirms the order to the POS.
-\item POS displays the order confirmation to the Employee.
-\item Employee informs the Client that the order has been confirmed.
-\end{itemize}
-\item If validation fails:
-\begin{itemize}
-\item Backend Server sends validation errors to the POS.
-\item POS displays the errors to the Employee.
-\item Employee informs the Client and requests corrections or adjustments.
-\end{itemize}
-\end{itemize}
-
-\begin{center}
-\setlength{\tabcolsep}{8pt}
-\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
-\hline
-\textbf{Tables/Entities} \newline
-\begin{mpitemlist}
-\item Client
-\item Employee
-\item Menu
-\item Order
-\item Order Item
-\item Inventory
-\end{mpitemlist}
-&
-\textbf{Components} \newline
-\begin{mpitemlist}
-\item Menu Management (Menu + Item availability)
-\item Order Management (Orders + Order Items)
-\end{mpitemlist}
-\\ \hline
-\textbf{Actions} \newline
-\begin{mpitemlist}
-\item Provide menu
-\item Input order
-\item Validate stock availability
-\item Validate item variations/attributes
-\item Create pending order tied to Client’s table
-\item Confirm order success
-\item Return errors if validation fails
-\item Inform Client of result
-\end{mpitemlist}
-&
-
-\\ \hline
-\end{tabular}
-\end{center}
 
 \begin{figure}[H]
     \centering
@@ -669,59 +284,6 @@ Flow:
 
 \subsubsection{Update Order Business Flow}
 
-Flow:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
-\item Client requests an update to an existing order from the Employee.
-\item Employee initiates the update in the POS system.
-\item POS system sends the update request to the Backend Server for validation and processing.
-\item If the update is successful:
-\begin{itemize}
-\item Backend Server confirms the update to the POS.
-\item POS displays the updated order details to the Employee.
-\item Employee informs the Client that the update has been completed.
-\end{itemize}
-\item If the update fails:
-\begin{itemize}
-\item Backend Server returns validation errors to the POS.
-\item POS displays the errors to the Employee.
-\item Employee informs the Client and asks for corrections or adjustments.
-\end{itemize}
-\end{itemize}
-
-\begin{center}
-\setlength{\tabcolsep}{8pt}
-\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
-\hline
-\textbf{Tables/Entities} \newline
-\begin{mpitemlist}
-\item Client
-\item Employee
-\item Order
-\item Order Item
-\end{mpitemlist}
-&
-\textbf{Components} \newline
-\begin{mpitemlist}
-\item Order Management (Orders + Order Items)
-\end{mpitemlist}
-\\ \hline
-\textbf{Actions} \newline
-\begin{mpitemlist}
-\item Request order update
-\item Validate update request
-\item Apply changes to order
-\item Confirm update success
-\item Return validation errors if update fails
-\item Inform Client of results
-\end{mpitemlist}
-&
-
-\\ \hline
-\end{tabular}
-\end{center}
 
 \begin{figure}[H]
     \centering
@@ -730,59 +292,8 @@ Flow:
     \label{fig:modify_order_sequence}
 \end{figure}
 
-\subsubsection{Order cancellation}
+\subsubsection{Order Cancellation Business Flow}
 
-Flow:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
-\item Client requests an order cancellation from the Employee.
-\item Employee initiates cancellation in the POS system.
-\item POS system forwards the cancellation request to the Backend Server.
-\item If the order is not yet completed/paid:
-\begin{itemize}
-\item Backend Server confirms cancellation to the POS.
-\item POS shows successful cancellation to the Employee.
-\item Employee informs the Client that the order has been canceled.
-\end{itemize}
-\item If the order has already been completed/paid:
-\begin{itemize}
-\item Backend Server refuses the cancellation.
-\item POS shows the refusal message to the Employee.
-\item Employee informs the Client that the cancellation is not allowed.
-\end{itemize}
-\end{itemize}
-
-\begin{center}
-\setlength{\tabcolsep}{8pt}
-\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
-\hline
-\textbf{Tables/Entities} \newline
-\begin{mpitemlist}
-\item Client
-\item Employee
-\item Order
-\end{mpitemlist}
-&
-\textbf{Components} \newline
-\begin{mpitemlist}
-\item Order Management
-\end{mpitemlist}
-\\ \hline
-\textbf{Actions} \newline
-\begin{mpitemlist}
-\item Request cancellation
-\item Validate order status (completed/paid or not)
-\item Cancel order (if eligible)
-\item Refuse cancellation (if already completed/paid)
-\item Inform Employee
-\end{mpitemlist}
-&
-
-\\ \hline
-\end{tabular}
-\end{center}
 
 \begin{figure}[H]
     \centering
@@ -793,51 +304,6 @@ Flow:
 
 \subsubsection{Mark Items as Delivered for Table Business Flow}
 
-Flow:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
-\item Employee selects a table in the POS system.
-\item POS system requests open orders for the selected table from the Backend Server.
-\item Backend Server returns a list of items associated with that table’s open orders.
-\item Employee selects specific items and marks them as delivered in the POS system.
-\item POS system sends an update request to the Backend Server, setting the status of the selected items to \texttt{delivered}.
-\item Backend Server confirms that the items’ statuses have been updated.
-\item POS system displays a delivery confirmation to the Employee.
-\end{itemize}
-
-\begin{center}
-\setlength{\tabcolsep}{8pt}
-\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
-\hline
-\textbf{Tables/Entities} \newline
-\begin{mpitemlist}
-\item Employee
-\item Table
-\item Order
-\item Order Item
-\end{mpitemlist}
-&
-\textbf{Components} \newline
-\begin{mpitemlist}
-\item Order Management
-\end{mpitemlist}
-\\ \hline
-\textbf{Actions} \newline
-\begin{mpitemlist}
-\item Select table
-\item Retrieve open orders for table
-\item Display items to Employee
-\item Mark items as delivered
-\item Update item status in Backend Server
-\item Confirm update to Employee
-\end{mpitemlist}
-&
-
-\\ \hline
-\end{tabular}
-\end{center}
 
 \begin{figure}[H]
     \centering
@@ -863,6 +329,7 @@ Flow:
 % Assign Employee      | Assign a specialist to a service.
 % Mark Service as Done | Record that the service has been completed.
 % ------------------------------------------------------------------------------
+\noticecomment{Dont forget SMS messages}
 
 \noticecomment{The employee that registers the customer doesnt necessarily need to service the customer themselves (think of spas). However smaller businesses (like haircut saloons) employees may both register and service the customer themselves.}
 
@@ -914,35 +381,7 @@ Service Customer &
 
 \subsubsection{Appointment creating business flow}
 
-\textbf{BASIC FLOW:}
 
-
-Customer calls or walks in to the spa/salon.
-Customer meets with the employee.
-Customer requests a service.
-Employee starts appointment creating and checks availability of the requested service.
-If available, the employee asks when the customer would like to book the service.
-Customer provides a date and time.
-Employee checks availability for the requested date and time.
-If available, employee asks if the customer has a preference for a specific employee.
-Customer provides a preference (or not).
-Employee checks availability of the requested employee (if any).
-Employee asks for customer contact information (phone number, email).
-Customer provides contact information.
-Employee creates the appointment in the POS system.
-System sends a confirmation SMS/email to the customer.
-
-\textbf{ALTERNATIVE FLOWS:}
-\begin{itemize}
-    \item \textbf{Service not available: } The requested service is not available at the spa/salon.
-    Employee informs the customer that the service is not available and suggests alternative services.
-    \item \textbf{Slot taken: } The time slot or employee requested by the customer is not available.
-    Employee informs the customer of the unavailability and suggests alternative options.
-    Customer selects an alternative option.
-    \item \textbf{Employee not available: } The specific employee requested by the customer is not available.
-    Employee informs the customer of the unavailability and suggests alternative employees.
-    Customer selects an alternative employee or opts for any available employee.
-\end{itemize}
 
 \begin{center}
 \setlength{\tabcolsep}{8pt}
@@ -950,26 +389,17 @@ System sends a confirmation SMS/email to the customer.
 \hline
 \textbf{Tables/Entities} \newline
 \begin{mpitemlist}
-\item Customer
-\item Employee
-\item Service
-\item Appointment
-\item Spa/Salon (Business)
+
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-\item Appointment Management (Appointment, Employee, Service)
-\item Employee Management (Employee)
-\item Notification System (SMS/Email)
+
 \end{mpitemlist}
 \\ \hline
 \textbf{Actions} \newline
 \begin{mpitemlist}
-\item Check availability of service
-\item Check availability of employee
-\item Create appointment
-\item Send confirmation notification
+
 \end{mpitemlist}
 &
 
@@ -977,50 +407,9 @@ System sends a confirmation SMS/email to the customer.
 \end{tabular}
 \end{center}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/services/appointment_creation_flow.png}
-    \caption{Appointment Creation Flow Diagram}
-    \label{fig:appointment_creation_flow}
-\end{figure}
-
-\noticecomment{the suggest alternative employee or time needs to also include text that customer can opt for any available employee or time slot}
-
-\suggestioncomment{Perhaps try to split this business flow into two different flows for the purpose of readability. Idea: two flows based on if date/time available}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/services/appointment_creation_sequence.png}
-    \caption{Appointment Creation Sequence Diagram}
-    \label{fig:appointment_creation_sequence}
-\end{figure}
 
 \subsubsection{Appointment modification business flow}
 
-\textbf{BASIC FLOW:}
-
-Customer calls or walks in to the spa/salon.
-Customer meets with the employee.
-Customer requests to modify an existing appointment.
-Employee asks for customer contact information (phone number, email).
-Customer provides contact information.
-Employee retrieves the appointment using the provided contact information.
-Employee discusses the requested changes with the customer (date, time, service, employee).
-Employee checks availability for the requested changes.
-If available, employee updates the appointment in the POS system.
-System sends an updated confirmation SMS/email to the customer.
-
-\textbf{ALTERNATIVE FLOW:}
-
-
-\begin{itemize}
-\item \textbf{No appointment found: } The employee cannot find an appointment matching the provided contact information.
-Employee informs the customer that no appointment was found. 
-\item \textbf{Slot taken: } The time slot or employee requested by the customer is not available.
-Employee informs the customer of the unavailability and suggests alternative options.
-Customer selects an alternative option.
-\end{itemize}
-
 
 
 
@@ -1030,27 +419,17 @@ Customer selects an alternative option.
 \hline
 \textbf{Tables/Entities} \newline
 \begin{mpitemlist}
-\item Customer
-\item Employee
-\item Service
-\item Appointment
-\item Spa/Salon (Business)
+
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-\item Appointment Management (Appointment, Employee, Service)
-\item Employee Management (Employee)
-\item Notification System (SMS/Email)
+
 \end{mpitemlist}
 \\ \hline
 \textbf{Actions} \newline
 \begin{mpitemlist}
-\item Retrieve appointment
-\item Check availability of service
-\item Check availability of employee
-\item Update appointment
-\item Send updated confirmation notification
+
 \end{mpitemlist}
 &
 
@@ -1058,37 +437,9 @@ Customer selects an alternative option.
 \end{tabular}
 \end{center}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/services/appointment_modification_flow.png}
-    \caption{Appointment Modification Flow Diagram}
-    \label{fig:appointment_modification_flow}
-\end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/services/appointment_modification_sequence.png}
-    \caption{Appointment Modification Sequence Diagram}
-    \label{fig:appointment_modification_sequence}
-\end{figure}
 
 \subsubsection{Cancel appointment business flow}
-\textbf{BASICL FLOW:}
-Customer calls or walks in to the spa/salon.
-Customer meets with the employee.
-Customer requests to cancel an existing appointment.
-Employee asks for customer contact information (phone number, email).
-Customer provides contact information.
-Employee retrieves the appointment using the provided contact information.
-Employee confirms the cancellation with the customer.
-Employee cancels the appointment in the POS system.
-System sends a cancellation confirmation SMS/email to the customer.
-
-\textbf{ALTERNATIVE FLOWS:}
-\begin{itemize}
-    \item \textbf{No appointment found: } The employee cannot find an appointment matching the provided contact information.
-    Employee informs the customer that no appointment was found.
-\end{itemize}
 
 
 \begin{center}
@@ -1097,25 +448,17 @@ System sends a cancellation confirmation SMS/email to the customer.
 \hline
 \textbf{Tables/Entities} \newline
 \begin{mpitemlist}
-\item Customer
-\item Employee
-\item Service
-\item Appointment
-\item Spa/Salon (Business)
+
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-\item Appointment Management (Appointment, Employee, Service)
-\item Employee Management (Employee)
-\item Notification System (SMS/Email)
+
 \end{mpitemlist}
 \\ \hline
 \textbf{Actions} \newline
 \begin{mpitemlist}
-\item Retrieve appointment
-\item Cancel appointment
-\item Send cancellation confirmation notification
+
 \end{mpitemlist}
 &
 
@@ -1123,38 +466,11 @@ System sends a cancellation confirmation SMS/email to the customer.
 \end{tabular}
 \end{center}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/services/appointment_cancellation_flow.png}
-    \caption{Appointment Cancellation Flow Diagram}
-    \label{fig:appointment_cancellation_flow}
-\end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/services/appointment_cancellation_sequence.png}
-    \caption{Appointment Cancellation Sequence Diagram}
-    \label{fig:appointment_cancellation_sequence}
-\end{figure}
+
 
 \subsubsection{Service customer business flow}
 
-\textbf{BASIC FLOW:}
-
-Customer arrives at the spa/salon for their scheduled appointment.
-Employee greets the customer and asks customer to confirm their appointment details.
-Employee verifies the appointment details in the POS system.
-Employee directs the customer to the appropriate service area and employee.
-Employee begins providing the scheduled service to the customer.
-Employee completes the service according to the appointment specifications.
-Employee marks the service as completed in the POS system.
-Employee asks the customer for payment (see Payment section for details).
-System sends a follow-up SMS message informing that the service was completed successfully.
-
-
-\textbf{ALTERNATIVE FLOWS:}
-\textbf{No appointment found: } The employee cannot find an appointment matching the provided contact information.
-Employee informs the customer that no appointment was found.
 
 \begin{center}
 \setlength{\tabcolsep}{8pt}
@@ -1162,28 +478,17 @@ Employee informs the customer that no appointment was found.
 \hline
 \textbf{Tables/Entities} \newline
 \begin{mpitemlist}
-\item Customer
-\item Employee
-\item Service
-\item Appointment
-\item Payment
-\item Spa/Salon (Business)
+
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-\item Appointment Management (Appointment, Service)
-\item Employee Management (Employee)
-\item Payment Processing (Payment)
-\item Notification System (Follow-up notifications)
+
 \end{mpitemlist}
 \\ \hline
 \textbf{Actions} \newline
 \begin{mpitemlist}
-\item Verify appointment details
-\item Process payment
-\item Mark service as completed
-\item Generate receipt
+
 \end{mpitemlist}
 &
 
@@ -1191,21 +496,8 @@ Employee informs the customer that no appointment was found.
 \end{tabular}
 \end{center}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/services/service_customer_flow.png}
-    \caption{Service Customer Flow Diagram}
-    \label{fig:service_customer_flow}
-\end{figure}
 
-\noticecomment{It says in the alternative flow employee addresses appointment discrepency, but in the flow it just says informs the customer. }
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/services/service_customer_sequence.png}
-    \caption{Service Customer Sequence Diagram}
-    \label{fig:service_customer_sequence}
-\end{figure}
 
 
 % ------------------------------------------------------------------------
@@ -1301,68 +593,118 @@ User Management &
 The business owner can create, update, or deactivate users within their own business. They cannot modify accounts belonging to other businesses.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-Manage Products \\ and Services &
+Manage Employee Information &
 \begin{minipage}[t]{\linewidth}
-The business owner or authorized staff can add new products/services, edit details (name, price, category), or deactivate them (e.g., coffee, massage type).
+The Owner or Co-Owner views and modifies an employee’s information, performance, or feedback data.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-Manage Product Variations &
+Manage Co-Owner Information &
 \begin{minipage}[t]{\linewidth}
-The business owner or staff can define or edit product modifiers, such as size (small/medium/large), add-ons or other options.
+The Owner manages Co-Owners within the business. They can modify their permissions (e.g., access to employee management or financial data) or remove them entirely from the business.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-Manage Employees &
+Manage Jobs &
 \begin{minipage}[t]{\linewidth}
-The business owner can create new employee accounts, update employee details (role, contact, availability), or deactivate accounts.
+The owner or co-owner creates or modifies job roles for employees within a business. A job includes a name, description, assigned role, and an activity timetable specifying minimum and maximum durations for tasks.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-Manage Business Info &
+Manage Locations &
 \begin{minipage}[t]{\linewidth}
-The business owner can update business details such as the name, address, tax ID, contact information, or ownership information.
+The owner or co-owner manages business locations. A location includes address, open hours, and a seating plan represented as a grid with labeled tables (e.g., 2A, 5A, 1B). Locations can be created, modified, or deleted.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-Manage Inventory (Optional) &
+Manage Businesses &
 \begin{minipage}[t]{\linewidth}
-The business can track and update stock levels of ingredients or products. System automatically reduces inventory when items are sold, and can alert when stock is low.
+The user views a list of their owned and co-owned businesses, opens a selected business to manage it, or creates a new one.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-Manage Taxes &
+Create or Edit Business &
 \begin{minipage}[t]{\linewidth}
-Admins can configure tax rules and rates (e.g., VAT, sales tax) for products or services. Updates affect only new transactions; historical data remains unchanged.
-\end{minipage} \\[6pt]
-\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-Manage Users \\ and Roles &
-\begin{minipage}[t]{\linewidth}
-The business owner can assign system roles (manager, cashier, admin, etc.) to employees, controlling access rights and permissions within the system.
-\end{minipage} \\[6pt]
-\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-Super Admin Access &
-\begin{minipage}[t]{\linewidth}
-A system operator (Super Admin) can access any business account in the system for technical support, troubleshooting, or emergency fixes.
-\end{minipage} \\[6pt]
-\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-Manage Modifiers/Variants &
-\begin{minipage}[t]{\linewidth}
-Admin can define product variants such as “latte with almond milk” or “spa service with aromatherapy add-on.” Variants allow customer customization at order time.
-\end{minipage} \\[6pt]
-\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-Manage Discounts &
-\begin{minipage}[t]{\linewidth}
-Admins can create and manage discount rules (percentage-based, fixed amount, seasonal campaigns, loyalty discounts).
-\end{minipage} \\[6pt]
-\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-Manage Service Charges/Tips &
-\begin{minipage}[t]{\linewidth}
-Admins can configure rules for applying service charges or gratuities. Updates only apply to future transactions, ensuring historical data remains intact.
-\end{minipage} \\[6pt]
-\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-Time-Limited Discounts &
-\begin{minipage}[t]{\linewidth}
-Admins can create discounts restricted to a specific timeframe (e.g., happy hour, seasonal promotions). The system enforces validity automatically.
+The user creates a new business by entering details such as name, description, type, specific type, and country, or edits an existing one through the business management view.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% Manage Products \\ and Services &
+% \begin{minipage}[t]{\linewidth}
+% The business owner or authorized staff can add new products/services, edit details (name, price, category), or deactivate them (e.g., coffee, massage type).
+% \end{minipage} \\[6pt]
+% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+% Manage Product Variations &
+% \begin{minipage}[t]{\linewidth}
+% The business owner or staff can define or edit product modifiers, such as size (small/medium/large), add-ons or other options.
+% \end{minipage} \\[6pt]
+% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+% Manage Employees &
+% \begin{minipage}[t]{\linewidth}
+% The business owner can create new employee accounts, update employee details (role, contact, availability), or deactivate accounts.
+% \end{minipage} \\[6pt]
+% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+% Manage Business Info &
+% \begin{minipage}[t]{\linewidth}
+% The business owner can update business details such as the name, address, tax ID, contact information, or ownership information.
+% \end{minipage} \\[6pt]
+% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+% Manage Inventory (Optional) &
+% \begin{minipage}[t]{\linewidth}
+% The business can track and update stock levels of ingredients or products. System automatically reduces inventory when items are sold, and can alert when stock is low.
+% \end{minipage} \\[6pt]
+% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+% Manage Taxes &
+% \begin{minipage}[t]{\linewidth}
+% Admins can configure tax rules and rates (e.g., VAT, sales tax) for products or services. Updates affect only new transactions; historical data remains unchanged.
+% \end{minipage} \\[6pt]
+% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+% Manage Users \\ and Roles &
+% \begin{minipage}[t]{\linewidth}
+% The business owner can assign system roles (manager, cashier, admin, etc.) to employees, controlling access rights and permissions within the system.
+% \end{minipage} \\[6pt]
+% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+% Super Admin Access &
+% \begin{minipage}[t]{\linewidth}
+% A system operator (Super Admin) can access any business account in the system for technical support, troubleshooting, or emergency fixes.
+% \end{minipage} \\[6pt]
+% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+% Manage Modifiers/Variants &
+% \begin{minipage}[t]{\linewidth}
+% Admin can define product variants such as “latte with almond milk” or “spa service with aromatherapy add-on.” Variants allow customer customization at order time.
+% \end{minipage} \\[6pt]
+% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+% Manage Discounts &
+% \begin{minipage}[t]{\linewidth}
+% Admins can create and manage discount rules (percentage-based, fixed amount, seasonal campaigns, loyalty discounts).
+% \end{minipage} \\[6pt]
+% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+% Manage Service Charges/Tips &
+% \begin{minipage}[t]{\linewidth}
+% Admins can configure rules for applying service charges or gratuities. Updates only apply to future transactions, ensuring historical data remains intact.
+% \end{minipage} \\[6pt]
+% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+% Time-Limited Discounts &
+% \begin{minipage}[t]{\linewidth}
+% Admins can create discounts restricted to a specific timeframe (e.g., happy hour, seasonal promotions). The system enforces validity automatically.
+% \end{minipage} \\[6pt]
+% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+
 \end{longtable}
+
+
+
+
+
 
 We have identified the following Cross-Domain Use cases for the Business management domain:
 \vspace{1cm}
@@ -1392,16 +734,16 @@ Logout &
 Employees securely end their session. The system clears active tokens/sessions and confirms logout Users (customers, employees, or admins) can view past orders, appointments, or reports. This ensures transparency and auditability.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-View Historical Data, Consistency Check &
-\begin{minipage}[t]{\linewidth}
-Users (customers, employees, or admins) can view past orders, appointments, or reports. This ensures transparency and auditability.
-\end{minipage} \\[6pt]
-\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-Historical Data Consistency Check &
-\begin{minipage}[t]{\linewidth}
-The system ensures that administrative changes (tax rates, discounts, service charges) apply only to new transactions, without modifying historical order or appointment records.
-\end{minipage} \\[6pt]
-\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+% View Historical Data, Consistency Check &
+% \begin{minipage}[t]{\linewidth}
+% Users (customers, employees, or admins) can view past orders, appointments, or reports. This ensures transparency and auditability.
+% \end{minipage} \\[6pt]
+% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+% Historical Data Consistency Check &
+% \begin{minipage}[t]{\linewidth}
+% The system ensures that administrative changes (tax rates, discounts, service charges) apply only to new transactions, without modifying historical order or appointment records.
+% \end{minipage} \\[6pt]
+% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
 \end{longtable}
 % related use cases: User Management, Manage Employees, Manage Users & Roles, Super Admin Access
@@ -1409,720 +751,486 @@ The system ensures that administrative changes (tax rates, discounts, service ch
 \newpage
 \subsubsection{User Management Business Flow}
 
-Flow:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
-\item Owner logs into the system and navigates to the User Management section.
-\item Owner chooses an action: create new user, update existing user, or deactivate a user.
-\item System prompts for user details (name, email, role, business association, status).
-\item Owner provides or modifies the required details.
-\item System invokes the Auth Service to validate that the owner can only manage users of their own business.
-\item If validation passes, system executes the requested operation through the User Service:
-\begin{itemize}
-\item Create user → insert new record into User Table.
-\item Update user → modify existing record in User Table.
-\item Deactivate user → mark record as inactive (soft delete).
-\end{itemize}
-\item System commits changes to the database.
-\item System confirms the operation result to the owner (success or failure).
-\end{itemize}
-
 \begin{center}
 \setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.3}
 \begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
 \hline
-\textbf{Tables/Entities} \newline
+\textbf{Tables / Entities} \newline
 \begin{mpitemlist}
-\item Owner (Business Owner)
-\item User (employee or other system user tied to the business)
-\item Business (reference to ensure ownership validation)
-\item User Table (stores user records, roles, status)
-\item Auth Session (validates logged-in identity and permissions)
+\item \textbf{Owner} – represents the business owner managing users.
+\item \textbf{User} – represents employees or co-owners tied to a business.
+\item \textbf{Business} – links users to the correct business context.
+\item \textbf{User Table} – stores all user data, including roles, status, and associations.
+\item \textbf{Auth Session} – identifies and validates logged-in users and their permissions.
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-\item User Interface (forms for inputting user details, displaying results)
-\item Auth Service (validates business ownership and permissions)
-\item User Service (handles create, update, deactivate logic)
-\item Database Layer (User Table persistence)
+\item \textbf{User Interface} – pages and forms for inviting, generating codes, searching, and managing users.
+\item \textbf{Auth Service} – validates ownership and permissions for each action.
+\item \textbf{User Service} – executes create, update, and deactivate logic.
+\item \textbf{Database Layer} – persists and retrieves user data.
 \end{mpitemlist}
 \\ \hline
-\textbf{Actions} \newline
+\textbf{User Actions} \newline
 \begin{mpitemlist}
-\item Navigate to User Management
-\item Select user action (create / update / deactivate)
-\item Input or edit user details
-\item Validate ownership and permissions
-\item Execute database transaction (insert / update / deactivate record)
-\item Confirm operation result to owner
+\item Log in to the system.
+\item Navigate to \textit{Business → Specific Business → Employees}.
+\item Choose between inviting, generating code, or managing existing employees.
+\item Fill in forms or search employee records.
+\item Confirm actions and receive immediate feedback.
 \end{mpitemlist}
 &
-
+\textbf{System Reactions} \newline
+\begin{mpitemlist}
+\item Validate the user’s permissions and business ownership via the Auth Service.
+\item Execute the requested operation through the User Service.
+\item Commit changes to the database.
+\item Return operation result to the UI (toast messages or errors).
+\end{mpitemlist}
 \\ \hline
 \end{tabular}
 \end{center}
 
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{images/diagrams/business/bpmn_user_manage.png}
-    \caption{User Management Business Flow Diagram}
+    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_user_manage.png}
+    \caption{Employee Management Business Flow Diagram}
+    \label{fig:user_manage_flow}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_user_manage_coowner.png}
+    \caption{Co-Owner Management Business Flow Diagram}
     \label{fig:user_manage_flow}
 \end{figure}
 
-\subsubsection{Manage Products/Services Business Flow}
-
-Flow:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
-\item Owner logs into the system and navigates to the Manage Products/Services section.
-\item Owner chooses an action: create new product/service, update details of an existing product/service, or deactivate an item.
-\item System prompts for product/service details (name, description, price, category, status).
-\item Owner provides or modifies the required details.
-\item System invokes the Auth Service to validate that the owner is authorized to manage only their business’s items.
-\item If validation passes, system executes the requested operation through the Product/Service Service:
-\begin{itemize}
-\item Create product/service → insert new record into Product/Service Table.
-\item Update product/service → modify existing record in Product/Service Table.
-\item Deactivate product/service → mark record as inactive (soft delete).
-\end{itemize}
-\item System commits changes to the database.
-\item System confirms the operation result to the owner (success or failure).
-\end{itemize}
-
+\subsubsection{Manage Employee Information Business Flow}
 \begin{center}
 \setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.3}
 \begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
 \hline
-\textbf{Tables/Entities} \newline
+\textbf{Tables / Entities} \newline
 \begin{mpitemlist}
-\item Owner (Business Owner / Manager)
-\item Product/Service (the item being managed)
-\item Business (reference to ensure ownership validation)
-\item Product/Service Table (stores product/service records, categories, price, status)
-\item Auth Session (validates logged-in identity and permissions)
+\item \textbf{Owner / Co-Owner} – represents the business management roles responsible for viewing or modifying employee data.
+\item \textbf{Employee} – represents staff members whose data, performance, and feedback are being managed.
+\item \textbf{Business} – links employees to the correct business context under which they operate.
+\item \textbf{Employee Table} – stores information about salary, position, work hours, and employment status.
+\item \textbf{Performance Data} – tracks employee task completion and inventory changes.
+\item \textbf{Feedback Data} – stores ratings and written feedback given by managers or coworkers.
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-\item User Interface (forms for product/service details, status changes)
-\item Auth Service (validates ownership and permissions)
-\item Product/Service Service (handles CRUD logic for products/services)
-\item Database Layer (Product/Service Table persistence)
+\item \textbf{Employee Management UI} – interface for viewing, modifying, and navigating employee information, performance, and feedback pages.
+\item \textbf{Auth Service} – validates access permissions for Owners and Co-Owners.
+\item \textbf{Employee Service} – handles data retrieval, modification, and validation of employee details.
+\item \textbf{Analytics Service} – retrieves and aggregates employee performance metrics.
+\item \textbf{Feedback Service} – fetches ratings and written reviews related to the employee.
+\item \textbf{Database Layer} – stores and retrieves all related employee, performance, and feedback records.
 \end{mpitemlist}
 \\ \hline
-\textbf{Actions} \newline
+\textbf{User Actions} \newline
 \begin{mpitemlist}
-\item Navigate to Manage Products/Services
-\item Select item action (create / update / deactivate)
-\item Input or edit product/service details
-\item Validate ownership and permissions
-\item Execute database transaction (insert / update / deactivate record)
-\item Confirm operation result to owner
-\end{mpitemlist}
-&
-
-\\ \hline
-\end{tabular}
-\end{center}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{images/diagrams/business/bpmn_products_services.png}
-    \caption{Manage Products/Services Business Flow Diagram}
-    \label{fig:product_service_manage_flow}
-\end{figure}
-
-\subsubsection{Manage Product Variations Business Flow}
-
-Flow:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
-\item Owner or authorized staff logs into the system and navigates to the Manage Product Variations section.
-\item Owner/staff selects an action: create new variation, update an existing variation, or delete/deactivate a variation.
-\item System prompts for variation details (name, type, category, associated product, status).
-\item Owner/staff provides or modifies variation details (e.g., size: small/medium/large; milk type: soy, almond; add-on: extra shot).
-\item System invokes the Auth Service to validate permissions and business ownership.
-\item If validation passes, system executes the requested operation through the Product Variation Service:
-\begin{itemize}
-\item Create variation → insert new record into Variation Table linked to a product.
-\item Update variation → modify existing record in Variation Table.
-\item Deactivate variation → mark record as inactive (soft delete).
-\end{itemize}
-\item System commits changes to the database.
-\item System confirms the operation result to the owner/staff (success or failure).
-\end{itemize}
-
-\begin{center}
-\setlength{\tabcolsep}{8pt}
-\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
-\hline
-\textbf{Tables/Entities} \newline
-\begin{mpitemlist}
-\item Owner/Staff (business users with permissions)
-\item Product (base product associated with the variation)
-\item Product Variation (modifiers/options for the product)
-\item Business (reference for ownership validation)
-\item Product Variation Table (stores variation details, product linkage, status)
-\item Auth Session (validates user identity and role)
-\end{mpitemlist}
-&
-\textbf{Components} \newline
-\begin{mpitemlist}
-\item User Interface (variation forms: add/edit/remove options)
-\item Auth Service (validates ownership and role permissions)
-\item Product Variation Service (CRUD operations for variations/modifiers)
-\item Database Layer (Variation Table persistence, product linkage)
-\end{mpitemlist}
-\\ \hline
-\textbf{Actions} \newline
-\begin{mpitemlist}
-\item Navigate to Manage Product Variations
-\item Select variation action (create / update / deactivate)
-\item Input or edit variation details
-\item Validate ownership and permissions
-\item Execute database transaction (insert / update / deactivate variation)
-\item Confirm operation result to owner/staff
-\end{mpitemlist}
-&
-
-\\ \hline
-\end{tabular}
-\end{center}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{images/diagrams/business/bpmn_product_variations.png}
-    \caption{Manage Product Variations Business Flow Diagram}
-    \label{fig:product_variations_manage_flow}
-\end{figure}
-
-\subsubsection{Manage Employees Business Flow}
-Flow:
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
-\item Owner logs into the system and navigates to the Manage Employees section.
-\item Owner chooses an action: create new employee, update existing employee details, or deactivate an employee account.
-\item System prompts for employee details (name, email, role, contact info, status).
-\item Owner provides or modifies the required details.
-\item System invokes the Auth Service to validate that the owner can only manage employees of their own
-business.
-\item If validation passes, system executes the requested operation through the Employee Service:
-\begin{itemize}
-\item Create employee → insert new record into Employee Table.
-\item Update employee → modify existing record in Employee Table.
-\item Deactivate employee → mark record as inactive (soft delete).
-\end{itemize}
-\item System commits changes to the database.
-\item System confirms the operation result to the owner (success or failure).
-\end{itemize}
-
-
-
-
-\begin{center}
-\setlength{\tabcolsep}{8pt}
-\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
-\hline
-\textbf{Tables/Entities} \newline
-\begin{mpitemlist}
-\item Owner (Business Owner)
-\item Employee (the staff member being managed)
-\item Business (reference to ensure ownership validation)
-\item Employee Table (stores employee records, roles, status)
-\item Auth Session (validates logged-in identity and permissions)
-\end{mpitemlist}
-&
-\textbf{Components} \newline
-\begin{mpitemlist}
-\item User Interface (forms for inputting employee details, displaying results)
-\item Auth Service (validates business ownership and permissions)
-\item Employee Service (handles create, update, deactivate logic)
-\item Database Layer (Employee Table persistence)
-\end{mpitemlist}
-\\ \hline
-\textbf{Actions} \newline
-\begin{mpitemlist}
-\item Navigate to Manage Employees
-\item Select employee action (create / update / deactivate)
-\item Input or edit employee details
-\item Validate ownership and permissions
-\item Execute database transaction (insert / update / deactivate record)
-\item Confirm operation result to owner
-\end{mpitemlist}
-&
-
-\\ \hline
-\end{tabular}
-\end{center}
-
-
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{images/diagrams/business/bpmn_employee_manage.png}
-    \caption{Manage Employees Business Flow Diagram}
-    \label{fig:employee_manage_flow}
-\end{figure}
-
-\subsubsection{Manage Business Info Business Flow}
-
-Flow:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Owner logs into the system and navigates to the Business Info section.
-    \item Owner selects an action: update business name, address, tax ID, contact information, or ownership details.
-    \item System displays current business information and prompts for changes.
-    \item Owner edits the desired fields and submits the update.
-    \item System invokes the Auth Service to validate that the owner is authorized to modify only their own business.
-    \item If validation passes, system updates the Business Table with the new information.
-    \item System commits changes to the database.
-    \item System confirms the operation result to the owner (success or failure).
-\end{itemize}
-
-\begin{center}
-\setlength{\tabcolsep}{8pt}
-\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
-\hline
-\textbf{Tables/Entities} \newline
-\begin{mpitemlist}
-\item Owner (Business Owner)
-\item Business (stores business details)
-\item Business Table (name, address, tax ID, contact info, owner)
-\item Auth Session (validates logged-in identity and permissions)
-\end{mpitemlist}
-&
-\textbf{Components} \newline
-\begin{mpitemlist}
-\item User Interface (forms for editing business info)
-\item Auth Service (validates ownership and permissions)
-\item Business Service (handles update logic)
-\item Database Layer (Business Table persistence)
-\end{mpitemlist}
-\\ \hline
-\textbf{Actions} \newline
-\begin{mpitemlist}
-\item Navigate to Business Info section
-\item Select info to update (name, address, tax ID, contact, owner)
-\item Edit and submit changes
-\item Validate ownership and permissions
-\item Execute database transaction (update business record)
-\item Confirm operation result to owner
-\end{mpitemlist}
-&
-
-\\ \hline
-\end{tabular}
-\end{center}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{images/diagrams/business/bpmn_business_info_manage.png}
-    \caption{Manage Business Info Business Flow Diagram}
-    \label{fig:business_info_manage_flow}
-\end{figure}
-
-
-\subsubsection{Manage Inventory Business Flow (Optional)}
-
-Flow:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Owner or authorized staff logs into the system and navigates to the Inventory Management section
-    \item Owner or authorized staff chooses an action: add new inventory item, update stock levels, or deactivate an inventory item.
-    \item System prompts for inventory details (product/ingredient name, quantity, unit, threshold for low stock, status).
-    \item Owner/staff provides or modifies the required details.
-    \item System invokes the Auth Service to validate permissions and business ownership.
-    \item If validation passes, system executes the requested operation through the Inventory Service:
-        \begin{itemize}
-            \item Add inventory item $\rightarrow$ insert new record into Inventory Table.
-            \item Update stock levels $\rightarrow$ modify quantity for existing inventory item.
-            \item Deactivate inventory item $\rightarrow$ mark record as inactive (soft delete).
-        \end{itemize}
-    \item When an order is placed and completed, the system automatically reduces inventory quantities for the sold items.
-    \item If inventory falls below the defined threshold, the system triggers a low-stock alert (notification or dashboard warning).
-    \item System commits changes to the database.
-    \item System confirms the operation result to the owner/staff (success or failure).
+\item Log in to the system.
+\item Navigate to \textit{Business → Employees}.
+\item Select \textit{Manage Employee} and search for a specific employee.
+\item Choose one of the following actions:
+    \begin{itemize}
+        \item Modify Information (update salary, hours, or employment status)
+        \item View Performance (inspect graphs and metrics)
+        \item View Feedback (read and filter ratings and reviews)
     \end{itemize}
-
-    \begin{center}
-    \setlength{\tabcolsep}{8pt}
-    \begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
-    \hline
-    \textbf{Tables/Entities} \newline
-    \begin{mpitemlist}
-    \item Owner/Staff (authorized business users)
-    \item Inventory Item (product/ingredient tracked)
-    \item Business (reference for ownership validation)
-    \item Inventory Table (stores item details, quantity, thresholds, status)
-    \item Auth Session (validates user identity and role)
-    \end{mpitemlist}
-    &
-    \textbf{Components} \newline
-    \begin{mpitemlist}
-    \item User Interface (inventory forms: add/edit/remove, stock alerts)
-    \item Auth Service (validates ownership and permissions)
-    \item Inventory Service (CRUD operations, automatic stock reduction)
-    \item Notification System (low-stock alerts)
-    \item Database Layer (Inventory Table persistence)
-    \end{mpitemlist}
-    \\ \hline
-    \textbf{Actions} \newline
-    \begin{mpitemlist}
-    \item Navigate to Inventory Management
-    \item Select inventory action (add / update / deactivate)
-    \item Input or edit inventory details
-    \item Validate ownership and permissions
-    \item Execute database transaction (insert / update / deactivate record)
-    \item Automatic stock reduction on order completion
-    \item Trigger low-stock alert if threshold reached
-    \item Confirm operation result to owner/staff
-    \end{mpitemlist}
-    &
-
-    \\ \hline
-    \end{tabular}
-    \end{center}
-
+\item Save any modifications and confirm the changes.
+\end{mpitemlist}
+&
+\textbf{System Reactions} \newline
+\begin{mpitemlist}
+\item Authenticate and verify that the user has permission to manage the employee.
+\item Load and display the selected employee’s data.
+\item Execute updates or retrieve requested information through the respective services.
+\item Persist modifications in the database.
+\item Return a visual confirmation (toast message) or error if the operation fails.
+\item Refresh the employee profile view with updated data.
+\end{mpitemlist}
+\\ \hline
+\end{tabular}
+\end{center}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_inventory.png}
-    \caption{Manage Inventory Business Flow Diagram}
-    \label{fig:inventory_manage_flow}
-\end{figure}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_inventory_low_stocks.png}
-    \caption{Manage Inventory Business Low Stocks Notification Flow Diagram}
-    \label{fig:inventory_manage_low_stocks_flow}
+    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_employee.png}
+    \caption{Employee Information Management Business Flow Diagram}
+    \label{fig:user_manage_flow}
 \end{figure}
 
-\subsubsection{Manage Taxes Business Flow}
-Flow:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Admin logs into the system and navigates to the Manage Taxes section.
-    \item Admin chooses an action: create new tax rule, update an existing tax rate, or deactivate a tax rule.
-    \item System prompts for tax details (name, type, rate, applicable products/services, status).
-    \item Admin provides or modifies the required details.
-    \item System invokes the Auth Service to validate admin permissions.
-    \item If validation passes, system executes the requested operation through the Tax Service:
-        \begin{itemize}
-            \item Create tax rule $\rightarrow$ insert new record into Tax Table.
-            \item Update tax rule $\rightarrow$ modify existing record in Tax Table.
-            \item Deactivate tax rule $\rightarrow$ mark record as inactive (soft delete).
-        \end{itemize}
-    \item System ensures that changes only affect new transactions; historical records retain the original tax rates.
-    \item System commits changes to the database.
-    \item System confirms the operation result to the admin (success or failure).
-\end{itemize}
+\subsubsection{Manage Co-Owner Information Business Flow}
 
 \begin{center}
 \setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.3}
 \begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
 \hline
-\textbf{Tables/Entities} \newline
+\textbf{Tables / Entities} \newline
 \begin{mpitemlist}
-\item Admin (authorized user)
-\item Tax Rule (tax details, rates, applicability)
-\item Product/Service (linked to tax rules)
-\item Tax Table (stores tax rules, rates, status)
-\item Auth Session (validates user identity and permissions)
+\item \textbf{Owner} – represents the business owner with full control over co-owner management.
+\item \textbf{Co-Owner} – represents a secondary manager with assigned permissions.
+\item \textbf{Business} – links co-owners and permissions to the corresponding business.
+\item \textbf{Permissions Table} – defines access levels such as managing employees or viewing finances.
+\item \textbf{Auth Session} – authenticates the logged-in Owner and verifies access control.
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-\item User Interface (tax rule forms: add/edit/deactivate)
-\item Auth Service (validates admin permissions)
-\item Tax Service (CRUD operations for tax rules)
-\item Database Layer (Tax Table persistence)
+\item \textbf{Owner Management UI} – interface for selecting, editing, or removing co-owners.
+\item \textbf{Auth Service} – validates the Owner’s authority and permission scopes.
+\item \textbf{Co-Owner Service} – processes permission updates and removal operations.
+\item \textbf{Database Layer} – stores relationships between Owners, Co-Owners, and assigned permissions.
+\item \textbf{Notification System} – provides success or error feedback to the user.
 \end{mpitemlist}
 \\ \hline
-\textbf{Actions} \newline
+\textbf{User Actions} \newline
 \begin{mpitemlist}
-\item Navigate to Manage Taxes
-\item Select tax action (create / update / deactivate)
-\item Input or edit tax details
-\item Validate permissions
-\item Execute database transaction (insert / update / deactivate tax rule)
-\item Ensure historical data is preserved
-\item Confirm operation result to admin
+\item Log in to UniServe.
+\item Navigate to \textit{Business → Owners}.
+\item Select a Co-Owner from the list.
+\item Choose to \textit{Modify Permissions} or \textit{Remove from Business}.
+\item If modifying, toggle permissions and click \textit{Save}.
+\item Confirm any removal actions.
+\item Return to the Owners list or dashboard.
 \end{mpitemlist}
 &
-
+\textbf{System Reactions} \newline
+\begin{mpitemlist}
+\item Validate Owner authorization through the Auth Service.
+\item Load selected Co-Owner data and associated permissions.
+\item Apply updates or execute removal through the Co-Owner Service.
+\item Commit changes to the database.
+\item Display confirmation or error toast message.
+\item Update the interface with the current state of Co-Owners.
+\end{mpitemlist}
 \\ \hline
 \end{tabular}
 \end{center}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_taxes.png}
-    \caption{Manage Taxes Business Flow Diagram}
-    \label{fig:tax_manage_flow}
+    \includegraphics[width=0.6\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_coowner_information.png}
+    \caption{Co-Owner Information Management Business Flow Diagram}
+    \label{fig:manage_co_owner_information_business_flow}
 \end{figure}
 
-\subsubsection{Manage Users and Roles Business Flow}
-Flow:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Owner logs into the system and navigates to the Manage Users and Roles section.
-    \item Owner selects an employee to assign or modify roles.
-    \item System displays available roles (e.g., manager, cashier, admin) and current assignments for the selected employee.
-    \item Owner chooses roles to assign or revoke for the employee.
-    \item System invokes the Auth Service to validate that the owner can only manage roles for users within their own business.
-    \item If validation passes, system updates the \texttt{user\_roles} or \texttt{user\_business\_roles} tables accordingly.
-    \item System commits changes to the database.
-    \item System confirms the operation result to the owner (success or failure).
-\end{itemize}
-
+\subsubsection{Manage Jobs Business Flow}
 \begin{center}
 \setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.3}
 \begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
 \hline
-\textbf{Tables/Entities} \newline
+\textbf{Tables / Entities} \newline
 \begin{mpitemlist}
-\item Owner (Business Owner)
-\item Employee (user whose roles are managed)
-\item Role (manager, cashier, admin, etc.)
-\item Business (reference for ownership validation)
-\item user\_roles / user\_business\_roles (role assignments)
-\item Auth Session (validates logged-in identity and permissions)
+\item \textbf{Business} – represents the company owning job definitions.
+\item \textbf{Job} – stores job metadata such as name, description, and associated role.
+\item \textbf{Timetable} – defines activity steps with minimum and maximum durations.
+\item \textbf{User} – owner or co-owner managing job entries.
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-\item User Interface (role assignment forms)
-\item Auth Service (validates ownership and permissions)
-\item Role Management Service (handles assignment/revocation logic)
-\item Database Layer (role assignment persistence)
+\item \textbf{Job Management UI} – interface for creating or editing job details.
+\item \textbf{Job Service} – handles creation, validation, and updates of job data.
+\item \textbf{Timetable Manager} – manages per-job activity scheduling.
+\item \textbf{Auth Service} – checks user permission to manage jobs.
+\item \textbf{Database Layer} – persists job and timetable entities.
 \end{mpitemlist}
 \\ \hline
-\textbf{Actions} \newline
+\textbf{User Actions} \newline
 \begin{mpitemlist}
-\item Navigate to Manage Users and Roles
-\item Select employee
-\item Assign or revoke roles
-\item Validate ownership and permissions
-\item Update role assignments in database
-\item Confirm operation result to owner
+\item Navigate to “Jobs”.
+\item Create or edit a job.
+\item Fill in details and add timetable activities.
+\item Save the job.
 \end{mpitemlist}
 &
+\textbf{System Reactions} \newline
+\begin{mpitemlist}
+\item Validate form data.
+\item Persist or update job records.
+\item Display feedback to user (success or error).
+\item Refresh job list view.
+\end{mpitemlist}
+\\ \hline
+\end{tabular}
+\end{center}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_jobs.png}
+    \caption{Job Management Business Flow Diagram}
+    \label{fig:manage_jobs_business_flow}
+\end{figure}
 
+\subsubsection{Manage Locations Business Flow}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables / Entities} \newline
+\begin{mpitemlist}
+\item \textbf{Business} – represents the company managing multiple branches or locations.
+\item \textbf{Location} – stores name, address, and operating details.
+\item \textbf{Seating Plan} – defines the layout of tables in a grid format (e.g., 2A, 1B).
+\item \textbf{User} – owner or co-owner who manages locations.
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
+\item \textbf{Location Management UI} – interface for creating, editing, or deleting locations.
+\item \textbf{Seating Plan Editor} – grid editor for table positioning.
+\item \textbf{Location Service} – handles creation, updates, and deletion of location records.
+\item \textbf{Auth Service} – ensures only authorized users can manage locations.
+\item \textbf{Database Layer} – persists location and seating plan data.
+\end{mpitemlist}
+\\ \hline
+\textbf{User Actions} \newline
+\begin{mpitemlist}
+\item Navigate to “Locations”.
+\item Add, edit, or delete a location.
+\item Input name, address, hours, and seating plan.
+\item Save or confirm deletion.
+\end{mpitemlist}
+&
+\textbf{System Reactions} \newline
+\begin{mpitemlist}
+\item Validate and persist data.
+\item Update or remove location records.
+\item Show success or error message.
+\item Refresh the list of locations.
+\end{mpitemlist}
+\\ \hline
+\end{tabular}
+\end{center}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_locations.png}
+    \caption{Location Management Business Flow Diagram}
+    \label{fig:manage_locations_business_flow}
+\end{figure}
+
+\subsubsection{Manage Businesses Business Flow}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables / Entities} \newline
+\begin{mpitemlist}
+\item \textbf{User} – represents the logged-in person.
+\item \textbf{Business} – contains business details such as name, description, type, and country.
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
+\item \textbf{Business Management UI} – displays owned and co-owned businesses.
+\item \textbf{Business Service} – fetches user-related businesses from the database.
+\item \textbf{Navigation Controller} – handles transitions to business management or creation views.
+\end{mpitemlist}
+\\ \hline
+\textbf{User Actions} \newline
+\begin{mpitemlist}
+\item View list of owned and co-owned businesses.
+\item Open a specific business.
+\item Create a new business.
+\end{mpitemlist}
+&
+\textbf{System Reactions} \newline
+\begin{mpitemlist}
+\item Retrieve business list from backend.
+\item Display businesses with open buttons.
+\item Redirect to business creation or details view.
+\end{mpitemlist}
 \\ \hline
 \end{tabular}
 \end{center}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_roles.png}
-    \caption{Manage Users and Roles Business Flow Diagram}
-    \label{fig:user_roles_manage_flow}
+    \includegraphics[width=0.6\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_businesses.png}
+    \caption{Manage Businesses Business Flow Diagram}
+    \label{fig:manage_businesses_flow}
 \end{figure}
-
-\subsubsection{Super Admin Access Business Flow}
-Flow:
-\begin{itemize}
-    \setlength{\itemsep}{2pt}
-    \setlength{\parskip}{0pt}
-    \setlength{\parsep}{0pt}
-    \item Super Admin logs into the system using elevated credentials.
-    \item Super Admin navigates to the business management section.
-    \item System displays a list of all businesses under the organization.
-    \item Super Admin selects a business for support or troubleshooting.
-    \item Super Admin can access and manage any business (user management, product/service management, employee management, business info, inventory, taxes, roles, etc.).
-    \item Super Admin performs required actions across businesses as needed.
-    \item All Super Admin actions are logged in the audit log for traceability.
-    \item Super Admin can switch between businesses as needed.
-    \item Super Admin logs out when finished.
-\end{itemize}
-
+\subsubsection{Create or Edit Business Flow}
 \begin{center}
 \setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.3}
 \begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
 \hline
-\textbf{Tables/Entities} \newline
+\textbf{Tables / Entities} \newline
 \begin{mpitemlist}
-\item Super Admin (system operator)
-\item Business (multiple per organization)
-\item User
-\item Audit Log
+\item \textbf{Business} – stores business metadata such as name, description, type, specific type, and country.
+\item \textbf{User} – the creator or editor of the business.
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-\item Super Admin Interface (business-level access)
-\item Auth Service (validates Super Admin privileges)
-\item Business Management Services (full CRUD access)
-\item Audit Logging Service
+\item \textbf{Business Creation UI} – form for entering and editing business details.
+\item \textbf{Business Service} – validates and persists business data.
+\item \textbf{Auth Service} – checks that user has permission to create or edit businesses.
+\item \textbf{Database Layer} – saves or updates business records.
 \end{mpitemlist}
 \\ \hline
-\textbf{Actions} \newline
+\textbf{User Actions} \newline
 \begin{mpitemlist}
-\item Log in as Super Admin
-\item Select business
-\item Access and manage businesses
-\item Perform management/support actions
-\item Log all actions for audit
-\item Log out
+\item Fill in name, description, and type.
+\item Choose specific type and country.
+\item Create or save changes.
 \end{mpitemlist}
 &
-
+\textbf{System Reactions} \newline
+\begin{mpitemlist}
+\item Validate input fields.
+\item Persist new or updated business data.
+\item Show feedback to user.
+\item Redirect to Manage Businesses page.
+\end{mpitemlist}
 \\ \hline
 \end{tabular}
 \end{center}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_super_admin.png}
-    \caption{Super Admin Access Business Flow Diagram}
-    \label{fig:super_admin_access_flow}
+    \includegraphics[width=0.6\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_business_information.png}
+    \caption{Create or Edit Business Business Flow Diagram}
+    \label{fig:manage_businesses_flow}
 \end{figure}
 
 
-\section{GUIs}
-
-\subsection{Order GUI Mockups}
-\subsection{Service GUI Mockups}
-\subsection{Business Management GUI Mockups}
 
 \section{APIs}
-\subsection{Order APIs}
-\subsection{Service APIs}
-\subsection{Business Management APIs}
 
-\section{Package Structure}
+Present as an openapi.yaml file. PR: \url{https://github.com/user5427/ps-design/pull/7}
 
-\subsection{Order Package Structure}
-\subsection{Service Package Structure}  
-\subsection{Business Management Package Structure}
+% \todocomment{Sort/filter/pagination. Decide on the details and add to the yaml.}
 
+% \todocomment{Auth: currently uses JWT access tokens. Write in here why we chose this approach, the pros/cons and possible alternatives.}
+
+For authentication, we selected a stateless strategy using JSON Web Tokens (JWT). Statelessness is ideal for scaling our decoupled frontend and backend APIs without complex session management. While a powerful identity provider like Keycloak was considered, it was deferred due to its significant infrastructure and implementation complexity. JWT offers the best balance of scalability and simplicity for the project's current scope.
 
 
-\section{Data Model}
 
-\subsection{Order Data Model}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\textwidth]{images/diagrams/orders/order_model_class.png}
-    \caption{Order Class Diagram}
-    \label{fig:order_class_diagram}
-\end{figure}
 
-\subsection{Service Data Model}
+% \section{Data Model}
 
-\subsection{Business Data Model}
+% \yellowcomment{better to specify in each order/service/managing/and other functionality domain separately}
 
-\subsubsection{Design Decisions (Summary)}
+% \subsection{Order Data Model}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.65\textwidth]{images/diagrams/orders/order_model_class.png}
+%     \caption{Order Class Diagram}
+%     \label{fig:order_class_diagram}
+% \end{figure}
 
-Below are the initial data design decisions for business and user account management. 
-\begin{itemize}
-    \item \textbf{User role-based access control (RBAC):} Roles group permissions, and users are assigned to roles. Also allow per-business role assignment.
-    \item \textbf{Identifiers and timestamps:} Use UUID primary keys and maintain \texttt{created} and \texttt{updated\_at} timestamps. This supports managing multiple businesses, potentially distributed across systems.
-    \item \textbf{Password security:} Store only hashed passwords. Include fields \texttt{password\_hash}, \texttt{password\_algo/version}, and \texttt{password\_changed\_at}. Do not store plaintext passwords or use reversible encryption.
-    \item \textbf{Audit logging:} Track login attempts, password resets, and administrator or manager actions.
-    \item \textbf{Support sessions or tokens:} Either server-side session store or JWT approach.
-    \item \textbf{Soft-delete:} For users with \textbf{is\_active} and \textbf{deleted\_at} attributes.
-\end{itemize}
-\textit{RBAC = Role-Based Access Control}
+% \subsection{Service Data Model}
 
-\subsubsection{Entities and Tables}  
+% \subsection{Business Data Model}
 
-The database schema is organized into the following entities and supporting tables:  
+% \subsubsection{Design Decisions (Summary)}
 
-\begin{itemize}
-    \item \textbf{organization}  
-    \begin{itemize}
-        \item id (PK), name, metadata, created\_at, updated\_at
-    \end{itemize}
-    \item \textbf{businesses}  
-    \begin{itemize}
-        \item id (PK), organization\_id (FK), name, metadata, created\_at, updated\_at
-    \end{itemize}
-    \item \textbf{users}  
-    \begin{itemize}
-        \item id (PK), organization\_id (FK), business\_id (FK, optional), email, display\_name, username, 
-        password\_hash, password\_algo, password\_version, is\_active, email\_verified, last\_login\_at, 
-        failed\_login\_attempts, locked\_until, created\_at, updated\_at
-    \end{itemize}
-    \item \textbf{roles}  
-    \begin{itemize}
-        \item id (PK), name, description, created\_at
-    \end{itemize}
-    \item \textbf{permissions}  
-    \begin{itemize}
-        \item id (PK), name, description
-    \end{itemize}
-    \item \textbf{role\_permissions}  
-    \begin{itemize}
-        \item role\_id (FK), permission\_id (FK)
-    \end{itemize}
-    \item \textbf{user\_roles}  
-    \begin{itemize}
-        \item user\_id (FK), role\_id (FK), assigned\_by (FK), assigned\_at
-    \end{itemize}
-    \item \textbf{user\_business\_roles}  
-    \begin{itemize}
-        \item user\_id (FK), business\_id (FK), role\_id (FK), assigned\_by (FK), assigned\_at
-    \end{itemize}
-    \item \textbf{sessions}  
-    \begin{itemize}
-        \item id (PK), user\_id (FK), session\_token, user\_agent, ip, created\_at, last\_seen\_at, expires\_at, revoked
-    \end{itemize}
-    \item \textbf{password\_resets}  
-    \begin{itemize}
-        \item id (PK), user\_id (FK), reset\_token, expires\_at, used\_at
-    \end{itemize}
-    \item \textbf{audit\_logs}  
-    \begin{itemize}
-        \item id (PK), user\_id (subject, FK), actor\_id (FK), action, resource\_type, resource\_id, details, created\_at
-    \end{itemize}
-\end{itemize}
+% Below are the initial data design decisions for business and user account management. 
+% \begin{itemize}
+%     \item \textbf{User role-based access control (RBAC):} Roles group permissions, and users are assigned to roles. Also allow per-business role assignment.
+%     \item \textbf{Identifiers and timestamps:} Use UUID primary keys and maintain \texttt{created} and \texttt{updated\_at} timestamps. This supports managing multiple businesses, potentially distributed across systems.
+%     \item \textbf{Password security:} Store only hashed passwords. Include fields \texttt{password\_hash}, \texttt{password\_algo/version}, and \texttt{password\_changed\_at}. Do not store plaintext passwords or use reversible encryption.
+%     \item \textbf{Audit logging:} Track login attempts, password resets, and administrator or manager actions.
+%     \item \textbf{Support sessions or tokens:} Either server-side session store or JWT approach.
+%     \item \textbf{Soft-delete:} For users with \textbf{is\_active} and \textbf{deleted\_at} attributes.
+% \end{itemize}
+% \textit{RBAC = Role-Based Access Control}
 
-\textit{PK = Primary Key,}
-\textit{FK = Foreign Key}
+% \subsubsection{Entities and Tables}  
 
-\subsubsection{Relationships}
+% The database schema is organized into the following entities and supporting tables:  
 
-Below are the relationships between tables and entities in this schema.
-\begin{itemize}
-    \item \textbf{Organization $\rightarrow$ Businesses}. One organization can own many businesses. This models a parent company with multiple branches.
-    \item \textbf{Organization $\rightarrow$ Users}. One organization can have many users. Users are scoped to an organization.
-    \item \textbf{Businesses $\rightarrow$ Users (Optional)}. Users may also have a default \textbf{business\_id} to the business if are tied to one. But users don't have to be tied to a single business. They might be org-level (super admin or a lead manager).
-    \item \textbf{Businesses $\rightarrow$ User Store Roles}. A business can have many \textbf{user\_store\_roles}. This lets the assignment of roles to specific businesses.
-    \item \textbf{Users $\rightarrow$ Sessions}. One user can have many sessions (logins). Tracks IPs, session tokens, devices.
-    \item \textbf{Users $\rightarrow$ User Roles (Organization-wide)}. A user can have many roles at the organization level.
-    \item \textbf{Users $\rightarrow$ User Business Roles}. A user can have different roles in different businesses.
-    \item \textbf{Users $\rightarrow$ Audit Logs}. A user can generate many audit log entries as an actor. A user can also be the subject of audit logs.
-    \item \textbf{Roles $\rightarrow$ Role Permissions}. One role can have many permissions.
-    \item \textbf{Permissions $\rightarrow$ Role Permissions}. One permission can belong to many roles.
-    \item \textbf{Roles $\rightarrow$ User Roles}. A role can be assigned to many users throughout the organization.
-    \item \textbf{Roles $\rightarrow$ User Business Roles}. A role can be assigned to many users within a specific business.
-\end{itemize}
+% \begin{itemize}
+%     \item \textbf{organization}  
+%     \begin{itemize}
+%         \item id (PK), name, metadata, created\_at, updated\_at
+%     \end{itemize}
+%     \item \textbf{businesses}  
+%     \begin{itemize}
+%         \item id (PK), organization\_id (FK), name, metadata, created\_at, updated\_at
+%     \end{itemize}
+%     \item \textbf{users}  
+%     \begin{itemize}
+%         \item id (PK), organization\_id (FK), business\_id (FK, optional), email, display\_name, username, 
+%         password\_hash, password\_algo, password\_version, is\_active, email\_verified, last\_login\_at, 
+%         failed\_login\_attempts, locked\_until, created\_at, updated\_at
+%     \end{itemize}
+%     \item \textbf{roles}  
+%     \begin{itemize}
+%         \item id (PK), name, description, created\_at
+%     \end{itemize}
+%     \item \textbf{permissions}  
+%     \begin{itemize}
+%         \item id (PK), name, description
+%     \end{itemize}
+%     \item \textbf{role\_permissions}  
+%     \begin{itemize}
+%         \item role\_id (FK), permission\_id (FK)
+%     \end{itemize}
+%     \item \textbf{user\_roles}  
+%     \begin{itemize}
+%         \item user\_id (FK), role\_id (FK), assigned\_by (FK), assigned\_at
+%     \end{itemize}
+%     \item \textbf{user\_business\_roles}  
+%     \begin{itemize}
+%         \item user\_id (FK), business\_id (FK), role\_id (FK), assigned\_by (FK), assigned\_at
+%     \end{itemize}
+%     \item \textbf{sessions}  
+%     \begin{itemize}
+%         \item id (PK), user\_id (FK), session\_token, user\_agent, ip, created\_at, last\_seen\_at, expires\_at, revoked
+%     \end{itemize}
+%     \item \textbf{password\_resets}  
+%     \begin{itemize}
+%         \item id (PK), user\_id (FK), reset\_token, expires\_at, used\_at
+%     \end{itemize}
+%     \item \textbf{audit\_logs}  
+%     \begin{itemize}
+%         \item id (PK), user\_id (subject, FK), actor\_id (FK), action, resource\_type, resource\_id, details, created\_at
+%     \end{itemize}
+% \end{itemize}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/business/data_model_business.png}
-    \caption{Business Class Diagram with Attributes}
-    \label{fig:business_class_diagram}
-\end{figure}
-This diagram represents different relationships between different entities as well as their attributes. 
+% \textit{PK = Primary Key,}
+% \textit{FK = Foreign Key}
 
-\printbibliography[title = {References and sources}]
+% \subsubsection{Relationships}
+
+% Below are the relationships between tables and entities in this schema.
+% \begin{itemize}
+%     \item \textbf{Organization $\rightarrow$ Businesses}. One organization can own many businesses. This models a parent company with multiple branches.
+%     \item \textbf{Organization $\rightarrow$ Users}. One organization can have many users. Users are scoped to an organization.
+%     \item \textbf{Businesses $\rightarrow$ Users (Optional)}. Users may also have a default \textbf{business\_id} to the business if are tied to one. But users don't have to be tied to a single business. They might be org-level (super admin or a lead manager).
+%     \item \textbf{Businesses $\rightarrow$ User Store Roles}. A business can have many \textbf{user\_store\_roles}. This lets the assignment of roles to specific businesses.
+%     \item \textbf{Users $\rightarrow$ Sessions}. One user can have many sessions (logins). Tracks IPs, session tokens, devices.
+%     \item \textbf{Users $\rightarrow$ User Roles (Organization-wide)}. A user can have many roles at the organization level.
+%     \item \textbf{Users $\rightarrow$ User Business Roles}. A user can have different roles in different businesses.
+%     \item \textbf{Users $\rightarrow$ Audit Logs}. A user can generate many audit log entries as an actor. A user can also be the subject of audit logs.
+%     \item \textbf{Roles $\rightarrow$ Role Permissions}. One role can have many permissions.
+%     \item \textbf{Permissions $\rightarrow$ Role Permissions}. One permission can belong to many roles.
+%     \item \textbf{Roles $\rightarrow$ User Roles}. A role can be assigned to many users throughout the organization.
+%     \item \textbf{Roles $\rightarrow$ User Business Roles}. A role can be assigned to many users within a specific business.
+% \end{itemize}
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{images/diagrams/business/data_model_business.png}
+%     \caption{Business Class Diagram with Attributes}
+%     \label{fig:business_class_diagram}
+% \end{figure}
+% This diagram represents different relationships between different entities as well as their attributes. 
+
+% \printbibliography[title = {References and sources}]
 
 \end{document}

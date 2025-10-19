@@ -1,0 +1,31 @@
+@startuml
+|Owner|
+start
+:Log in to UniServe;
+:Navigate to **Business → Specific Business**;
+:Select **Manage Employees**;
+:Choose action;
+fork
+  -[Invite Employee]
+  :Open "Invite Employee" form;
+  :Fill in name, email, role, description;
+  :Submit form;
+  :Receive confirmation toast (success / error);
+fork again
+  -[Generate Code]
+  :Open "Generate Invitation Code" page;
+  :Enter email and role;
+  :Generate and copy code;
+  :Receive confirmation toast (success / error);
+fork again
+  -[Manage Existing Employee]
+  :Search for employee;
+  :Select "Manage";
+  :View profile (salary, status, role);
+  :Make modifications;
+  :Confirm changes;
+  :Receive confirmation toast (success / error);
+end fork
+
+stop
+@enduml

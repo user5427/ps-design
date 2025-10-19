@@ -1,0 +1,35 @@
+@startuml
+|Owner|
+start
+:Log in to UniServe;
+:Navigate to **Business → Specific Business → Jobs**;
+:Choose action;
+
+if (Create or Edit Job?) then (Create)
+  :Open "Create Job" form;
+  :Enter Job Name, Description;
+  :Choose Role;
+  :Add activities to timetable (min/max duration);
+  :Click "Save";
+  if (Valid input?) then (yes)
+    :System saves job;
+    :Show success toast message;
+  else (no)
+    :Show validation errors;
+  endif
+
+else (Edit)
+  :Select existing job;
+  :Modify details or timetable;
+  :Click "Save Changes";
+  if (Valid input?) then (yes)
+    :Update job in database;
+    :Show success toast message;
+  else (no)
+    :Show error message;
+  endif
+endif
+
+:Return to Job List;
+stop
+@enduml

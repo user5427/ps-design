@@ -1,0 +1,32 @@
+@startuml
+|Owner|
+start
+:Log in to UniServe;
+:Navigate to **Business → Specific Business → Owners**;
+:Select **Manage Co-Owners**;
+
+:Choose action;
+fork
+  -->[Invite Co-Owner]
+  :Open "Invite Co-Owner" form;
+  :Fill in name, email, permissions, description;
+  :Submit form;
+  :Receive confirmation toast (success / error);
+fork again
+  -->[Generate Code]
+  :Open "Generate Invitation Code" page;
+  :Enter co-owner email and permissions;
+  :Generate and copy code;
+  :Receive confirmation toast (success / error);
+fork again
+  -->[Manage Existing Co-Owner]
+  :Search for co-owner;
+  :Select "View / Edit";
+  :View details and current permissions;
+  :Modify permissions if needed;
+  :Confirm changes;
+  :Receive confirmation toast (success / error);
+end fork
+
+stop
+@enduml

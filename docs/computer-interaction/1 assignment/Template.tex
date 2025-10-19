@@ -309,25 +309,25 @@
 % image is taken. The text related to the image should contain cross-reference to
 % the image. Provide at least 5 examples.
 
-% \section*{Other}
+\section*{Other}
 
-% \subsubsection*{Use of AI}
+\subsubsection*{Use of AI}
 
-% Just a little note: dont just copy the assignment text and expect good output,
-% look into slides also and try to apply lecture material. 
+Just a little note: dont just copy the assignment text and expect good output,
+look into slides also and try to apply lecture material. 
 
-% \subsubsection*{Comments}
+\subsubsection*{Comments}
 
-% \warningcomment{This is a very important comment}
-% \yellowcomment{This is a comment}
-% \todocomment{This is a todo comment}
-% \noticecomment{This is a notice comment}
-% \goodcomment{This is a good comment}
-% \suggestioncomment{This is a suggestion comment}
+\warningcomment{This is a very important comment}
+\yellowcomment{This is a comment}
+\todocomment{This is a todo comment}
+\noticecomment{This is a notice comment}
+\goodcomment{This is a good comment}
+\suggestioncomment{This is a suggestion comment}
 
-% Usage of comments in text is recommended as it helps to highlight problems and
-% solutions. The Overleaf comments are often ignored, therefore, it is recommended
-% to use the comments defined in this template.
+Usage of comments in text is recommended as it helps to highlight problems and
+solutions. The Overleaf comments are often ignored, therefore, it is recommended
+to use the comments defined in this template.
 
 \section{Introduction}
 \subsection{Project title}
@@ -1427,6 +1427,88 @@ It satisfies these \textbf{usability objectives:}
 \begin{itemize}
     \item \hyperref[OBJ-08]{OBJ-08} - Business owners can quickly navigate the dashboard, all the important features are displayed in the app bar. In short, the UI does not require extensive memorization and most features are reached in one click.
 \end{itemize}
+
+\section{Mockups}
+
+We do not have the description for Mockups as we focused on making mockups mainly. 
+
+We decided to go course grained for the second mockup, top down method. 
+
+\begin{itemize}
+    \item Wireframe 1 presents a high-level, visually-driven dashboard with a clean, minimalist interface. It prioritizes at-a-glance information and direct access to major management categories through a flat navigational structure.
+    \item Wireframe 2 offers a detailed, data-dense interface designed for complex, multi-step management tasks. It utilizes a deep, hierarchical navigation system to organize a large number of specific features and sub-features.
+\end{itemize}
+
+\subsection{Implemented used needs}
+
+% isrinkti kas ten igyvendinta, man atrodo ne visus reikia?
+
+
+\subsection{Information architecture solutions}
+
+% jei pasakome user centric tai pasakome kodel...
+
+% mockup 2: hierarchine + pradzioje tiesine
+
+\subsubsection{Type of Ontology}
+
+Both wireframes are based on a coarse-grained ontology. The information space is structured around a few high-level concepts: "Locations," "Teams" (or "Employees"), "Discounts," and "Business." These core objects are distinct and serve as containers for more detailed information and functions. This ontology is appropriate for the application's domain, which involves managing a few complex business entities.
+
+\subsubsection{Design Approach}
+
+Both mockups utilize a Top-Down Design Approach. The architecture is designed from the highest level, anticipating the primary goals of the user (e.g., "I need to see how my business is doing," "I need to manage my staff"). The system is then broken down into logical subdivisions to support these goals.
+
+\subsubsection{IA Structures}
+
+\begin{itemize}
+    \item Wireframe 1: Employs a Hub and Spoke structure combined with a very flat hierarchy. The "Home" screen acts as the central hub, with spokes leading directly to key management areas like "Locations" and "Teams."
+    \item Wireframe 2: Is built on a deep hierarchical (tree) structure. This is its defining characteristic. A persistent, nested side-menu organizes a large number of functions into parent-child relationships (e.g., Business is the parent of Employees, which is the parent of Invite Employee). This structure is effective for organizing a high density of features but requires more clicks to navigate.
+\end{itemize}
+
+\subsubsection{Content Organization Schemes}
+
+\begin{itemize}
+    \item Task-Based \& Topical: Both designs use a mix of these schemes.
+    \item Audience-Specific: Wireframe 2 enforces an Audience-Specific classification at the very start through its linear onboarding process (Choose your roles). This decision gates access to the rest of the information architecture, creating a highly tailored experience from the outset.
+\end{itemize}
+
+
+\subsubsection{Navigation patterns}
+
+\begin{itemize}
+    \item Wireframe 1: The primary navigation is a Vertical Icon-based Navigation bar on the left. This minimalist pattern saves screen space and relies on universally understood icons for concepts like Home, Locations, and Teams. The dashboard also uses large, clickable Cards as a form of graphical navigation.
+    \item Wireframe 2: This prototype begins with a Wizard pattern for onboarding (a series of screens that guide a user through a task). After this linear flow, it transitions to a detailed Vertical Text-based Navigation menu for its core functionality. It also employs Breadcrumbs to help users orient themselves within the deep hierarchy that follows the initial setup.
+\end{itemize}
+
+\subsubsection{Labeling System and Search Patterns}
+
+% cia galima ir subsubcategorijomis tiesiog parodyti tuos lygius
+% subsectio{sth}
+% subsubsection{the sub function thing after sth}
+
+% Content organization scheme
+% kaip turinys destomas
+
+% navigation patterns
+% labeling system and search patters (galima aprasyti icons)
+
+
+% \textbf{1 Mockup}
+
+
+% \textbf{2 Mockup}
+
+
+\subsection{Used prototyping tools and isntructions for evaluators}
+
+Both the high-fidelity mockup and the low-fidelity wireframe were created in Figma. 
+
+% FIGMA + link
+
+
+\noticecomment{ontology - fine grained or course}
+
+\noticecomment{apibrezimo aiskinti nereikia, jei sakome course grained tai ir reikia sakyti kas tas pirmas lygis, antras lygis, etc..., jei pasakome depth tai reikia pasakyti koks jis yra.}
 
 
 

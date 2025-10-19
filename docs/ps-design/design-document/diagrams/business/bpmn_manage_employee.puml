@@ -1,0 +1,32 @@
+@startuml
+|Owner|
+start
+:Log in to UniServe;
+:Navigate to **Business → Employees**;
+:Select **Manage Employee**;
+:Search and select employee;
+:View employee profile;
+
+fork
+    -[Modify Information]
+    :Open Modify Information page;
+    :Fire, Edit salary, work hours, or status;
+    :Choose Effective Date;
+    :Save changes;
+    :Receive confirmation toast (success/error);
+    :Go back to Profile;
+fork again
+    -[View Performance]
+    :Open Performance page;
+    :View graphs for tasks and inventory changes;
+    :Go back to Profile;
+fork again
+    -[View Feedback]
+    :Open Feedback page;
+    :View ratings, search and filter feedback;
+    :Go back to Profile;
+end fork
+
+:Return to dashboard;
+stop
+@enduml

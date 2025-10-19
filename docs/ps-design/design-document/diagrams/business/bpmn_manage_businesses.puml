@@ -1,0 +1,17 @@
+@startuml
+|User|
+start
+:Log in to UniServe;
+:Navigate to Business page;
+:See lists of Owned and Co-owned businesses;
+
+if (Create new business?) then (yes)
+  :Click "Create Business";
+  :Navigate to Create Business page;
+else (no)
+  :Click "Open" on a selected business;
+  :Navigate to Business Management page;
+endif
+
+stop
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+|Owner|
+start
+:Log in to UniServe;
+:Navigate to **Business → Owners**;
+:Select specific Co-Owner;
+:View Co-Owner profile;
+
+fork
+  -[Modify Permissions]
+  :Open Modify Permissions page;
+  :Toggle available permissions
+  (Manage Employees, View/Edit Financials, Invite Co-Owners);
+  :Click Save;
+  :System updates permissions;
+  :Display success or error toast;
+  :Back to profile;
+fork again
+  -[Remove from Business]
+  :Click Remove from Business;
+  :Confirm removal action;
+  :System deletes Co-Owner from business;
+  :Display confirmation toast;
+  :Back to Owners list;
+end fork
+
+:Return to dashboard;
+stop
+@enduml
