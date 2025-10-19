@@ -167,6 +167,9 @@ paths:
                   type: string
                 surname:
                   type: string
+                email:
+                  type: string
+                  format: email
                 phone:
                   type: string
       responses:
@@ -180,6 +183,20 @@ paths:
           description: Invalid input data.
         '401':
           description: Unauthorized.
+  
+    delete:
+        tags:
+          - User
+        summary: Delete current user account
+        description: Deletes the authenticated user's account and all associated data.
+        operationId: deleteCurrentUser
+        security:
+          - bearerAuth: []
+        responses:
+          '204':
+            description: User account deleted successfully.
+          '401':
+            description: Unauthorized.
 
   /businesses:
     get:
