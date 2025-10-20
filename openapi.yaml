@@ -6,7 +6,6 @@ info:
 servers:
   - url: https://api.uniserve.com/v1
     description: "Production Server"
-
 tags:
   - name: Auth
     description: Authentication and user session management.
