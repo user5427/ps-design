@@ -23,8 +23,8 @@ To streamline our workflow, we assign the following **primary responsibilities**
 | Role | Primary Responsible | Duties |
 | :--- | :--- | :--- |
 | **Team Lead** | @Tadas Riksas | Main point of contact for the instructor, ensures meetings are scheduled, and keeps the project on track. |
-| **Documentation Lead** | @MemberName | Oversees the consolidation and final proofreading of the technical specification document (Google Doc/Overleaf). |
-| **API Spec Lead** | @MemberName | Responsible for the correctness and validation of the OpenAPI YAML file. |
+| **Documentation Lead** | @Darius Spruogis | Oversees the consolidation and final proofreading of the technical specification document (Google Doc/Overleaf). |
+| **API Spec Lead** | @Gustas Mickus | Responsible for the correctness and validation of the OpenAPI YAML file. |
 | **Version Control Lead** | @Julius Jauga | Manages the GitHub repository, reviews pull requests, and ensures the branching strategy is followed. |
 
 ## 4. Communication
@@ -127,5 +127,8 @@ A section of the document or a piece of code is considered "done" when:
 - [ ] For code: It is merged into the `main` branch.
 - [ ] For documentation: It is integrated into the shared Google Doc/Overleaf document.
 
+## 15. Technology Stack
+- Primary implementation language: TypeScript
+
 ---
-**Last Updated:** 2025-09-23
+**Last Updated:** 2025-10-20
