@@ -42,7 +42,7 @@ paths:
     post:
       tags:
         - Auth
-      summary: Register a new Business Owner
+      summary: Register a new user
       operationId: registerOwner
       requestBody:
         description: Business Owner registration data
@@ -61,37 +61,13 @@ paths:
         '400':
           description: Invalid input data.
 
-  /auth/register/employee:
-    post:
-      tags:
-        - Auth
-      summary: Register as an Employee
-      description: Creates a new employee account using an invitation code.
-      operationId: registerEmployee
-      requestBody:
-        description: Employee registration data
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EmployeeRegisterRequest'
-      responses:
-        '201':
-          description: Employee successfully registered.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthResponse'
-        '400':
-          description: Invalid or expired invitation code.
-
 
   /auth/login:
     post:
       tags:
         - Auth
       summary: Log in a user
-      description: Authenticates a user with email and password and returns a JWT access token.
+      description: Authenticates a user and issues **access and refresh tokens** in HttpOnly cookies.
       operationId: loginUser
       requestBody:
         description: User login credentials
@@ -114,7 +90,7 @@ paths:
                 - password
       responses:
         '200':
-          description: Successful authentication.
+          description: Successful authentication. Access and refresh tokens are set as HttpOnly cookies.
           content:
             application/json:
               schema:
@@ -126,6 +102,39 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /auth/refresh:
+    post:
+      tags:
+        - Auth
+      summary: Refresh access token
+      description: Issues a new short-lived access token using a valid refresh token stored in an HttpOnly cookie.
+      operationId: refreshAccessToken
+      responses:
+        '200':
+          description: New access token issued successfully (HttpOnly cookie updated).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Refresh token missing, expired, or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: Logout user
+      description: Revokes the refresh token and clears authentication cookies.
+      operationId: logoutUser
+      responses:
+        '204':
+          description: Logout successful, cookies cleared.
+        '401':
+          description: Unauthorized.
   /me:
     get:
       tags:
@@ -134,7 +143,7 @@ paths:
       description: Retrieves the profile information for the currently authenticated user.
       operationId: getCurrentUser
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: Successful retrieval of user profile.
@@ -150,7 +159,7 @@ paths:
       summary: Update current user profile
       operationId: updateCurrentUser
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       requestBody:
         description: Fields to update for the user. All fields are optional.
         content:
@@ -171,7 +180,7 @@ paths:
       description: Permanently deletes the account of the currently authenticated user.
       operationId: deleteCurrentUser
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '204':
           description: Account successfully deleted.
@@ -185,7 +194,7 @@ paths:
       description: Retrieves a list of pending co-owner or employee invitations for the current user.
       operationId: getMyInvites
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: A list of pending invitations.
@@ -206,7 +215,7 @@ paths:
       description: Retrieves a list of tasks assigned to the currently authenticated user.
       operationId: getMyTasks
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: A list of tasks.
@@ -226,7 +235,7 @@ paths:
       summary: Accept an invitation
       operationId: acceptInvite
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: inviteId
           in: path
@@ -246,7 +255,7 @@ paths:
       summary: Decline an invitation
       operationId: declineInvite
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: inviteId
           in: path
@@ -267,7 +276,7 @@ paths:
       description: Retrieves the work schedule for the currently authenticated user, grouped by business.
       operationId: getMyWorkSchedule
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: A list of work schedules.
@@ -288,7 +297,7 @@ paths:
       description: Retrieves a paginated list of businesses that the authenticated user owns or is a co-owner of.
       operationId: listBusinesses
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - in: query
           name: page
@@ -326,7 +335,7 @@ paths:
       description: Creates a new business entity. The creator is automatically assigned as the primary owner.
       operationId: createBusiness
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       requestBody:
         required: true
         content:
@@ -353,7 +362,7 @@ paths:
       description: Retrieves the details of a single business, provided the user is an employee or owner of it.
       operationId: getBusinessById
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -380,7 +389,7 @@ paths:
       description: Updates the details of an existing business. Only owners can perform this action.
       operationId: updateBusiness
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -414,7 +423,7 @@ paths:
       description: "(Owner only) Sets the assigned permissions for a co-owner."
       operationId: updateCoOwnerPermissions
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -444,7 +453,7 @@ paths:
       description: Retrieves a paginated list of all employees for a specific business.
       operationId: listEmployees
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -488,7 +497,7 @@ paths:
       description: Retrieves a daily revenue summary for the past week.
       operationId: getBusinessRevenue
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -514,7 +523,7 @@ paths:
       summary: List co-owners of a business
       operationId: listCoOwners
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -538,7 +547,7 @@ paths:
       summary: List jobs in a business
       operationId: listJobs
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -560,7 +569,7 @@ paths:
       summary: Create a job
       operationId: createJob
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -589,7 +598,7 @@ paths:
       description: Sends an invitation to a user with a specific job, location, roles, hours, and activities.
       operationId: inviteEmployee
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -614,7 +623,7 @@ paths:
       description: Retrieves the current job title, salary, and employment status for a specific employee.
       operationId: getEmployeeById
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -642,7 +651,7 @@ paths:
       description: "Creates a new version of an employee's job details (salary, location, status) or work schedule. All updates are versioned and require an `effective_from` date."
       operationId: updateEmployeeDetails
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -671,7 +680,7 @@ paths:
       description: Removes an employee's association from the business.
       operationId: removeEmployee
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -694,7 +703,7 @@ paths:
       summary: Delete a task
       operationId: deleteTask
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -722,7 +731,7 @@ paths:
       description: "(Manager/Owner only) Retrieves aggregated feedback statistics, including average rating and ratings over time."
       operationId: getEmployeeFeedbackStatistics
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -752,7 +761,7 @@ paths:
       description: Retrieves a list of all menu item categories for a given business, allowing for hierarchical display.
       operationId: listMenuCategories
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -780,7 +789,7 @@ paths:
       description: Adds a new category to the menu.
       operationId: createMenuCategory
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -815,7 +824,7 @@ paths:
       description: Updates the details of a specific menu category.
       operationId: updateMenuCategory
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -848,7 +857,7 @@ paths:
       description: Deletes a menu category. This may be restricted if items are currently assigned to it.
       operationId: deleteMenuCategory
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -876,7 +885,7 @@ paths:
       description: Retrieves a paginated list of menu items, with options to filter by location and category.
       operationId: listMenuItems
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -924,7 +933,7 @@ paths:
       description: Adds a new item to the menu, including its price and product composition.
       operationId: createMenuItem
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -953,7 +962,7 @@ paths:
       description: Retrieves details for a single menu item, including its variations.
       operationId: getMenuItemById
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -981,7 +990,7 @@ paths:
       description: Updates the details of an existing menu item.
       operationId: updateMenuItem
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1014,7 +1023,7 @@ paths:
       description: Deletes a menu item from the menu.
       operationId: deleteMenuItem
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1038,7 +1047,7 @@ paths:
       description: Retrieves a list of orders for a business, with filters for status and location.
       operationId: listOrders
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1085,7 +1094,7 @@ paths:
       description: Creates a new order assigned to a specific table and populates it with an initial list of items and variations.
       operationId: createOrder
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1114,7 +1123,7 @@ paths:
       description: Retrieves the full details of a single order, including all its items.
       operationId: getOrderById
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1142,7 +1151,7 @@ paths:
       description: "Updates the assigned seating for an open order. To cancel an order, use the DELETE method."
       operationId: updateOrderSeating
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1181,7 +1190,7 @@ paths:
       description: "Cancels an open, unpaid order."
       operationId: cancelOrder
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1207,7 +1216,7 @@ paths:
       description: Adds a menu item (and its selected variations) to an open order.
       operationId: addOrderItem
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1243,7 +1252,7 @@ paths:
       description: "Updates the status of an item within an open order (e.g., marks it as 'READY'). Quantity cannot be changed here."
       operationId: updateOrderItem
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1287,7 +1296,7 @@ paths:
       description: Removes an item from an open order.
       operationId: removeOrderItem
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1318,7 +1327,7 @@ paths:
       description: "Retrieves a list of all abstract service definitions for a business (without price or location)."
       operationId: listServiceDefinitions
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1341,7 +1350,7 @@ paths:
       description: "Creates a new abstract service definition for the business."
       operationId: createServiceDefinition
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1370,7 +1379,7 @@ paths:
       description: "Updates the name, description, or duration of a service definition."
       operationId: updateServiceDefinition
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1404,7 +1413,7 @@ paths:
       description: "Permanently deletes a service definition from the business. Fails if the service is currently offered at any location."
       operationId: deleteServiceDefinition
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1429,7 +1438,7 @@ paths:
       description: "Makes a service definition available at a specific location with a given status."
       operationId: addLocationService
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1463,7 +1472,7 @@ paths:
       description: "Updates the status (enabled/disabled) of a service at a specific location."
       operationId: updateLocationService
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1502,7 +1511,7 @@ paths:
       description: "Stops a service from being offered at a specific location. Fails if employees are still assigned to it at this location."
       operationId: removeLocationService
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1531,7 +1540,7 @@ paths:
       description: "Retrieves a list of all employees assigned to perform a specific service at a specific location."
       operationId: getLocationServiceEmployees
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1564,7 +1573,7 @@ paths:
       description: "Assigns an employee to be able to perform a specific service at a location."
       operationId: addEmployeeToService
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1605,7 +1614,7 @@ paths:
       description: "Removes an employee's assignment to perform a specific service at a location."
       operationId: removeEmployeeFromService
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1635,7 +1644,7 @@ paths:
       description: "Retrieves the seating plan for a specific location, indicating which tables are currently available."
       operationId: getLocationSeating
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1666,7 +1675,7 @@ paths:
       description: Retrieves a list of appointments for a business, with filters for date range, employee, and status.
       operationId: listAppointments
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1727,7 +1736,7 @@ paths:
       description: Books a new appointment for a customer with a specific service and employee at a given time. The system will check for scheduling conflicts.
       operationId: createAppointment
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1758,7 +1767,7 @@ paths:
       description: Retrieves the details of a single appointment.
       operationId: getAppointmentById
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1787,7 +1796,7 @@ paths:
       description: Modifies an existing appointment, such as changing the time or canceling it.
       operationId: updateAppointment
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1824,7 +1833,7 @@ paths:
       description: Retrieves a detailed list of all bills associated with a specific order.
       operationId: getOrderBills
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1854,7 +1863,7 @@ paths:
       description: Retrieves the detailed bill for a specific appointment.
       operationId: getAppointmentBill
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1882,7 +1891,7 @@ paths:
       description: Retrieves a list of all physical locations associated with a business, including employee counts.
       operationId: listLocations
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1905,7 +1914,7 @@ paths:
       description: Adds a new physical location, including open hours and an optional seating plan for order-based businesses.
       operationId: createLocation
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -1935,7 +1944,7 @@ paths:
       description: Creates a payment session with a payment provider like Stripe. This is the first step for credit card payments.
       operationId: createPaymentIntent
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       requestBody:
         description: Specify either an order_bill_id OR an appointment_bill_id.
         required: true
@@ -1975,7 +1984,7 @@ paths:
       description: Confirms a cash or gift card payment, or confirms the successful completion of a card payment webhook. This action closes the associated order/appointment.
       operationId: confirmPayment
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: paymentId
           in: path
@@ -2008,7 +2017,7 @@ paths:
       description: Initiates a refund for a previously completed payment.
       operationId: createRefund
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       requestBody:
         required: true
         content:
@@ -2040,7 +2049,7 @@ paths:
       description: Creates a new discount that applies to an entire bill (order or appointment total).
       operationId: createBillDiscount
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2071,7 +2080,7 @@ paths:
       description: Updates the details of an existing bill discount, including its active status.
       operationId: updateBillDiscount
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2108,7 +2117,7 @@ paths:
       description: Creates a new discount that applies only to a specific menu item.
       operationId: createMenuItemDiscount
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2139,7 +2148,7 @@ paths:
       description: Updates the details of an existing menu item discount.
       operationId: updateMenuItemDiscount
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2176,7 +2185,7 @@ paths:
       description: Creates a new discount that applies only to a specific service.
       operationId: createServiceDiscount
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2207,7 +2216,7 @@ paths:
       description: Updates the details of an existing service discount.
       operationId: updateServiceDiscount
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2242,7 +2251,7 @@ paths:
       description: Retrieves a daily revenue summary for the past week for a specific location.
       operationId: getLocationRevenue
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2274,7 +2283,7 @@ paths:
       description: Retrieves a list of employees assigned to a specific location.
       operationId: listLocationEmployees
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2305,7 +2314,7 @@ paths:
       summary: Get the full menu for a business
       operationId: getBusinessMenu
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2329,7 +2338,7 @@ paths:
       summary: Get the menu for a specific location
       operationId: getLocationMenu
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2360,7 +2369,7 @@ paths:
       description: Retrieves a list of all products in stock for a business, with aggregated quantities. Can be filtered by location.
       operationId: getInventoryStock
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2389,7 +2398,7 @@ paths:
       description: "Retrieves a historical log of all inventory movements (e.g., +10kg from a supply order, -0.5kg used in a recipe). Provides a full audit trail for inventory."
       operationId: getInventoryStockChanges
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2422,7 +2431,7 @@ paths:
       description: "Retrieves a list of all raw product definitions for a business (e.g., Flour, Sugar, etc.)."
       operationId: listInventoryProductDefinitions
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2445,7 +2454,7 @@ paths:
       description: Creates a new raw product definition (e.g., Flour, Sugar) for the business to use in its inventory. This does not add stock.
       operationId: createInventoryProductDefinition
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2479,7 +2488,7 @@ paths:
       description: Adds a new stock entry for an existing product at a specific location (e.g., adding 10kg of flour).
       operationId: addInventoryStock
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2521,7 +2530,7 @@ paths:
       description: "(Super-Admin only) Retrieves a list of all VAT rates in the system."
       operationId: listVatRates
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: A list of VAT rates.
@@ -2540,7 +2549,7 @@ paths:
       description: (Super-Admin only) Creates a new time-bound VAT rate for a specific country.
       operationId: createVatRate
       security:
-        - bearerAuth: [] 
+        - cookieAuth: [] 
       requestBody:
         required: true
         content:
@@ -2565,7 +2574,7 @@ paths:
       description: "(Manager/Owner only) View all tasks within a business, with filters."
       operationId: listTasks
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2598,7 +2607,7 @@ paths:
       description: "(Manager/Owner only) Create a new task and assign it to one or more employees."
       operationId: createTask
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2627,7 +2636,7 @@ paths:
       description: Allows an authenticated user (e.g., a manager or coworker) to submit feedback about another employee.
       operationId: submitFeedback
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2652,7 +2661,7 @@ paths:
       description: "(Manager/Owner only) Retrieves all feedback submitted for a specific employee."
       operationId: getEmployeeFeedback
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: businessId
           in: path
@@ -2682,7 +2691,7 @@ paths:
       description: Retrieves a paginated list of chats in which the authenticated user is a participant.
       operationId: listChats
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - in: query
           name: page
@@ -2718,7 +2727,7 @@ paths:
       description: Creates a new chat with a specified user and sends the initial message.
       operationId: createChat
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       requestBody:
         required: true
         content:
@@ -2743,7 +2752,7 @@ paths:
       description: Retrieves a paginated list of messages for a specific chat.
       operationId: getChatMessages
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: chatId
           in: path
@@ -2786,7 +2795,7 @@ paths:
       description: Sends a new message to an existing chat.
       operationId: sendMessage
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: chatId
           in: path
@@ -2819,7 +2828,7 @@ paths:
       description: Deletes a message. Only the user who sent the message is allowed to delete it.
       operationId: deleteMessage
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: messageId
           in: path
@@ -2873,7 +2882,7 @@ paths:
       description: "(Owner/Admin) Retrieves a list of all assignable permissions in the system."
       operationId: listPermissions
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: A list of permissions.
@@ -2887,11 +2896,10 @@ paths:
 
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token  # Access JWT stored in HttpOnly cookie
 
   schemas:
     Error:
@@ -3607,18 +3615,13 @@ components:
         disabled: false
     AuthResponse:
       type: object
-      description: "The authentication response including access token and user profile."
+      description: "The authentication response including user profile in JSON and Access and refresh tokens are set as HttpOnly cookies."
       properties:
-        accessToken:
-          type: string
-          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
         user:
           $ref: '#/components/schemas/User'
       required:
-        - accessToken
         - user
       example:
-        accessToken: "eyJhbGciOi..."
         user:
           id: 101
           user_type_id: owner
@@ -4378,27 +4381,6 @@ components:
         password: "StrongP@ssw0rd"
         phone_number: "+37060000011"
         account_type: business_owner
-
-    EmployeeRegisterRequest:
-      type: object
-      description: "Registration payload for a new employee using an invitation code."
-      properties:
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          format: password
-        invitation_code:
-          type: string
-      required:
-        - email
-        - password
-        - invitation_code
-      example:
-        email: "new.employee@example.com"
-        password: "AnotherP@ss1"
-        invitation_code: "INV-ABCD-1234"
 
     UserUpdateMeRequest:
       type: object
