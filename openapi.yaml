@@ -1,0 +1,5705 @@
+openapi: 3.0.3
+info:
+  title: "UniServe API"
+  description: "API documentation for a SaaS platform. This API handles order management, service appointments, and business administration."
+  version: 1.0.3
+servers:
+  - url: https://api.uniserve.com/v1
+    description: "Production Server"
+
+tags:
+  - name: Auth
+    description: Authentication and user session management.
+  - name: User
+    description: Operations related to the current authenticated user.
+  - name: Business
+    description: Operations for managing business entities.
+  - name: Employee
+    description: Operations for managing employees within a business.
+  - name: Location
+    description: Management of business locations and seating.
+  - name: Menu
+    description: Management of menu items, categories, and variations for catering businesses.
+  - name: Inventory
+    description: Operations for inventory and product stock management.
+  - name: Order
+    description: End-to-end order lifecycle management for catering.
+  - name: Service
+    description: Management of services for appointment-based businesses.
+  - name: Appointment
+    description: Appointment booking and scheduling.
+  - name: Payment
+    description: Handling payments, refunds, and billing.
+  - name: Discount
+    description: Operations for creating and managing discounts.
+  - name: Admin
+    description: Super-admin operations like managing taxes and system-wide settings.
+  - name: Messaging
+    description: Operations for managing chats and messages.
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Register a new Business Owner
+      operationId: registerOwner
+      requestBody:
+        description: Business Owner registration data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OwnerRegisterRequest'
+      responses:
+        '201':
+          description: User successfully registered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid input data.
+
+  /auth/register/employee:
+    post:
+      tags:
+        - Auth
+      summary: Register as an Employee
+      description: Creates a new employee account using an invitation code.
+      operationId: registerEmployee
+      requestBody:
+        description: Employee registration data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeRegisterRequest'
+      responses:
+        '201':
+          description: Employee successfully registered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid or expired invitation code.
+
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Log in a user
+      description: Authenticates a user with email and password and returns a JWT access token.
+      operationId: loginUser
+      requestBody:
+        description: User login credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "kasia.sawicka@example.com"
+                password:
+                  type: string
+                  format: password
+                  example: "strong-password-123"
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Successful authentication.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Authentication failed (invalid credentials).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /me:
+    get:
+      tags:
+        - User
+      summary: Get current user profile
+      description: Retrieves the profile information for the currently authenticated user.
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful retrieval of user profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized.
+    patch:
+      tags:
+        - User
+      summary: Update current user profile
+      operationId: updateCurrentUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Fields to update for the user. All fields are optional.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateMeRequest'
+      responses:
+        '200':
+          description: User profile updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    delete:
+      tags:
+        - User
+      summary: Delete current user account
+      description: Permanently deletes the account of the currently authenticated user.
+      operationId: deleteCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Account successfully deleted.
+        '401':
+          description: Unauthorized.
+  /me/invites:
+    get:
+      tags:
+        - User
+      summary: Get my pending invitations
+      description: Retrieves a list of pending co-owner or employee invitations for the current user.
+      operationId: getMyInvites
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of pending invitations.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invite'
+        '401':
+          description: Unauthorized.
+
+  /me/tasks:
+    get:
+      tags:
+        - Employee
+      summary: Get my tasks
+      description: Retrieves a list of tasks assigned to the currently authenticated user.
+      operationId: getMyTasks
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of tasks.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized.
+
+  /me/invites/{inviteId}/accept:
+    post:
+      tags:
+        - User
+      summary: Accept an invitation
+      operationId: acceptInvite
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: inviteId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Invitation accepted successfully.
+        '404':
+          description: Invitation not found or expired.
+
+  /me/invites/{inviteId}/decline:
+    post:
+      tags:
+        - User
+      summary: Decline an invitation
+      operationId: declineInvite
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: inviteId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Invitation declined successfully.
+        '404':
+          description: Invitation not found or expired.
+
+  /me/schedule:
+    get:
+      tags:
+        - User
+      summary: Get my work schedule
+      description: Retrieves the work schedule for the currently authenticated user, grouped by business.
+      operationId: getMyWorkSchedule
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of work schedules.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MyWorkScheduleResponse'
+        '401':
+          description: Unauthorized.
+
+  /businesses:
+    get:
+      tags:
+        - Business
+      summary: List user's businesses
+      description: Retrieves a paginated list of businesses that the authenticated user owns or is a co-owner of.
+      operationId: listBusinesses
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: The page number to retrieve.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+          description: The number of items to retrieve per page.
+      responses:
+        '200':
+          description: A list of businesses.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Business'
+        '401':
+          description: Unauthorized.
+
+    post:
+      tags:
+        - Business
+      summary: Create a new business
+      description: Creates a new business entity. The creator is automatically assigned as the primary owner.
+      operationId: createBusiness
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBusinessRequest'
+      responses:
+        '201':
+          description: Business created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Business'
+        '400':
+          description: Invalid input data.
+        '401':
+          description: Unauthorized.
+
+  /businesses/{businessId}:
+    get:
+      tags:
+        - Business
+      summary: Get business by ID
+      description: Retrieves the details of a single business, provided the user is an employee or owner of it.
+      operationId: getBusinessById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful retrieval of business data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Business'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden - user does not have access to this business.
+        '404':
+          description: Business not found.
+    patch:
+      tags:
+        - Business
+      summary: Update a business
+      description: Updates the details of an existing business. Only owners can perform this action.
+      operationId: updateBusiness
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBusinessRequest'
+      responses:
+        '200':
+          description: Business updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Business'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: Business not found.
+
+  /businesses/{businessId}/co-owners/{userId}/permissions:
+    patch:
+      tags:
+        - Employee
+      summary: Update a co-owner's permissions
+      description: "(Owner only) Sets the assigned permissions for a co-owner."
+      operationId: updateCoOwnerPermissions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoOwnerPermissionUpdateRequest'
+      responses:
+        '200':
+          description: Permissions updated successfully.
+
+  /businesses/{businessId}/employees:
+    get:
+      tags:
+        - Employee
+      summary: List employees of a business
+      description: Retrieves a paginated list of all employees for a specific business.
+      operationId: listEmployees
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: A detailed list of employees.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EmployeeDetail' 
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+
+  /businesses/{businessId}/revenue:
+    get:
+      tags:
+        - Business
+      summary: Get business revenue report
+      description: Retrieves a daily revenue summary for the past week.
+      operationId: getBusinessRevenue
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of daily revenue totals.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RevenueReportItem'
+        '403':
+          description: Forbidden.
+
+  /businesses/{businessId}/co-owners:
+    get:
+      tags:
+        - Employee
+      summary: List co-owners of a business
+      operationId: listCoOwners
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of co-owners.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /businesses/{businessId}/jobs:
+    get:
+      tags:
+        - Employee
+      summary: List jobs in a business
+      operationId: listJobs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of jobs and their employee counts.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/JobDetail'
+    post:
+      tags:
+        - Employee
+      summary: Create a job
+      operationId: createJob
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateJobRequest'
+      responses:
+        '201':
+          description: Job created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+
+  /businesses/{businessId}/employees/invite:
+    post:
+      tags:
+        - Employee
+      summary: Invite an employee with full details
+      description: Sends an invitation to a user with a specific job, location, roles, hours, and activities.
+      operationId: inviteEmployee
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEmployeeInviteRequest'
+      responses:
+        '200':
+          description: Invitation sent successfully.
+
+  /businesses/{businessId}/employees/{userId}:
+    get:
+      tags:
+        - Employee
+      summary: Get employee details
+      description: Retrieves the current job title, salary, and employment status for a specific employee.
+      operationId: getEmployeeById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Employee details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeDetail' 
+        '404':
+          description: Employee not found.
+    patch:
+      tags:
+        - Employee
+      summary: Update an employee's details (versioned)
+      description: "Creates a new version of an employee's job details (salary, location, status) or work schedule. All updates are versioned and require an `effective_from` date."
+      operationId: updateEmployeeDetails
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: userId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        description: "To update job details, use EmployeeJobUpdateRequest. To update work shifts, use EmployeeWorkShiftUpdateRequest."
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/EmployeeJobUpdateRequest'
+                - $ref: '#/components/schemas/EmployeeWorkShiftUpdateRequest'
+      responses:
+        '200':
+          description: Employee details updated successfully.
+    delete:
+      tags:
+        - Employee
+      summary: Remove an employee
+      description: Removes an employee's association from the business.
+      operationId: removeEmployee
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Employee successfully removed.
+
+  /businesses/{businessId}/tasks/{taskId}:
+    delete:
+      tags:
+        - Employee
+      summary: Delete a task
+      operationId: deleteTask
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Task successfully deleted.
+        '403':
+          description: Forbidden.
+        '404':
+          description: Task not found.
+
+  /businesses/{businessId}/employees/{userId}/feedback/statistics:
+    get:
+      tags:
+        - Employee
+      summary: Get feedback statistics for an employee
+      description: "(Manager/Owner only) Retrieves aggregated feedback statistics, including average rating and ratings over time."
+      operationId: getEmployeeFeedbackStatistics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Feedback statistics retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackStatisticsResponse'
+        '403':
+          description: Forbidden.
+
+  /businesses/{businessId}/menu/categories:
+    get:
+      tags:
+        - Menu
+      summary: List all menu categories
+      description: Retrieves a list of all menu item categories for a given business, allowing for hierarchical display.
+      operationId: listMenuCategories
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of menu categories.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuItemCategory'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+
+    post:
+      tags:
+        - Menu
+      summary: Create a menu category
+      description: Adds a new category to the menu.
+      operationId: createMenuCategory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMenuCategoryRequest'
+      responses:
+        '201':
+          description: Menu category created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItemCategory'
+        '400':
+          description: Invalid input data.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+
+  /businesses/{businessId}/menu/categories/{categoryId}:
+    patch:
+      tags:
+        - Menu
+      summary: Update a menu category
+      description: Updates the details of a specific menu category.
+      operationId: updateMenuCategory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMenuCategoryRequest'
+      responses:
+        '200':
+          description: Menu category updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItemCategory'
+        '404':
+          description: Category not found.
+    delete:
+      tags:
+        - Menu
+      summary: Delete a menu category
+      description: Deletes a menu category. This may be restricted if items are currently assigned to it.
+      operationId: deleteMenuCategory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Category deleted successfully.
+        '404':
+          description: Category not found.
+        '409':
+          description: Conflict - Category is not empty.
+
+  /businesses/{businessId}/menu/items:
+    get:
+      tags:
+        - Menu
+      summary: List all menu items
+      description: Retrieves a paginated list of menu items, with options to filter by location and category.
+      operationId: listMenuItems
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: location_id
+          schema:
+            type: integer
+          description: Filter items available at a specific location.
+        - in: query
+          name: category_id
+          schema:
+            type: integer
+          description: Filter items by category.
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: A list of menu items.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MenuItem'
+    post:
+      tags:
+        - Menu
+      summary: Create a menu item
+      description: Adds a new item to the menu, including its price and product composition.
+      operationId: createMenuItem
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMenuItemRequest'
+      responses:
+        '201':
+          description: Menu item created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItem'
+
+  /businesses/{businessId}/menu/items/{itemId}:
+    get:
+      tags:
+        - Menu
+      summary: Get a menu item by ID
+      description: Retrieves details for a single menu item, including its variations.
+      operationId: getMenuItemById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful retrieval of menu item.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItem' 
+        '404':
+          description: Menu item not found.
+    patch:
+      tags:
+        - Menu
+      summary: Update a menu item
+      description: Updates the details of an existing menu item.
+      operationId: updateMenuItem
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMenuItemRequest'
+      responses:
+        '200':
+          description: Menu item updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItem'
+        '404':
+          description: Menu item not found.
+    delete:
+      tags:
+        - Menu
+      summary: Delete a menu item
+      description: Deletes a menu item from the menu.
+      operationId: deleteMenuItem
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Menu item deleted successfully.
+
+  /businesses/{businessId}/orders:
+    get:
+      tags:
+        - Order
+      summary: List all orders
+      description: Retrieves a list of orders for a business, with filters for status and location.
+      operationId: listOrders
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [OPEN, PAID, CANCELLED, REFUNDED]
+        - in: query
+          name: location_id
+          schema:
+            type: integer
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: A detailed list of orders.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderDetailResponse' 
+    post:
+      tags:
+        - Order
+      summary: Create a new order with items
+      description: Creates a new order assigned to a specific table and populates it with an initial list of items and variations.
+      operationId: createOrder
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderWithItemsRequest'
+      responses:
+        '201':
+          description: Order created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetailResponse' 
+
+  /businesses/{businessId}/orders/{orderId}:
+    get:
+      tags:
+        - Order
+      summary: Get an order by ID
+      description: Retrieves the full details of a single order, including all its items.
+      operationId: getOrderById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detailed order information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetailResponse' # <-- Use new detailed schema
+        '404':
+          description: Order not found.
+    patch:
+      tags:
+        - Order
+      summary: Update order seating
+      description: "Updates the assigned seating for an open order. To cancel an order, use the DELETE method."
+      operationId: updateOrderSeating
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seating_id:
+                  type: integer
+              required:
+                - seating_id
+      responses:
+        '200':
+          description: Order seating updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetailResponse'
+        '409':
+          description: Conflict - Cannot modify a closed or paid order.
+    delete:
+      tags:
+        - Order
+      summary: Cancel an order
+      description: "Cancels an open, unpaid order."
+      operationId: cancelOrder
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Order successfully cancelled.
+        '409':
+          description: "Conflict: Order is already paid or closed."
+
+  /businesses/{businessId}/orders/{orderId}/items:
+    post:
+      tags:
+        - Order
+      summary: Add an item to an order
+      description: Adds a menu item (and its selected variations) to an open order.
+      operationId: addOrderItem
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderItemRequest'
+      responses:
+        '201':
+          description: Item added successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderItem'
+        '409':
+          description: Conflict - Order is not open.
+
+  /businesses/{businessId}/orders/{orderId}/items/{orderItemId}:
+    patch:
+      tags:
+        - Order
+      summary: Update an order item status
+      description: "Updates the status of an item within an open order (e.g., marks it as 'READY'). Quantity cannot be changed here."
+      operationId: updateOrderItem
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: orderItemId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [NOT_STARTED, IN_PROGRESS, READY, DELIVERED]
+              required:
+                - status
+      responses:
+        '200':
+          description: Item status updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderItemDetail'
+        '409':
+          description: Conflict - Order is not open.
+    delete:
+      tags:
+        - Order
+      summary: Remove an item from an order
+      description: Removes an item from an open order.
+      operationId: removeOrderItem
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: orderItemId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Item removed successfully.
+        '409':
+          description: Conflict - Order is not open.
+
+  /businesses/{businessId}/service-definitions:
+    get:
+      tags:
+        - Service
+      summary: Get all Service Definitions
+      description: "Retrieves a list of all abstract service definitions for a business (without price or location)."
+      operationId: listServiceDefinitions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of service definitions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceDefinition'
+    post:
+      tags:
+        - Service
+      summary: Create a Service Definition
+      description: "Creates a new abstract service definition for the business."
+      operationId: createServiceDefinition
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateServiceDefinitionRequest'
+      responses:
+        '201':
+          description: Service definition created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceDefinition'
+
+  /businesses/{businessId}/service-definitions/{serviceId}:
+    patch:
+      tags:
+        - Service
+      summary: Update a Service Definition
+      description: "Updates the name, description, or duration of a service definition."
+      operationId: updateServiceDefinition
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: serviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateServiceDefinitionRequest'
+      responses:
+        '200':
+          description: Service definition updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceDefinition'
+        '404':
+          description: Service definition not found.
+    delete:
+      tags:
+        - Service
+      summary: Delete a Service Definition
+      description: "Permanently deletes a service definition from the business. Fails if the service is currently offered at any location."
+      operationId: deleteServiceDefinition
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: serviceId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '204':
+          description: Service definition deleted successfully.
+        '409':
+          description: "Conflict: Cannot delete because the service is in use at one or more locations."     
+
+  # --- Location-Specific Service Management ---
+  /businesses/{businessId}/locations/{locationId}/services:
+    post:
+      tags:
+        - Service
+      summary: Add a Service to a Location
+      description: "Makes a service definition available at a specific location with a given status."
+      operationId: addLocationService
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddLocationServiceRequest'
+      responses:
+        '201':
+          description: Service successfully added to location.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationService'
+
+  /businesses/{businessId}/locations/{locationId}/services/{serviceId}:
+    patch:
+      tags:
+        - Service
+      summary: Update a Location Service
+      description: "Updates the status (enabled/disabled) of a service at a specific location."
+      operationId: updateLocationService
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: serviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLocationServiceRequest'
+      responses:
+        '200':
+          description: Location service updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationService'
+        '404':
+          description: The specified service is not offered at this location.
+    delete:
+      tags:
+        - Service
+      summary: Remove a Service from a Location
+      description: "Stops a service from being offered at a specific location. Fails if employees are still assigned to it at this location."
+      operationId: removeLocationService
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: serviceId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '204':
+          description: Service successfully removed from the location.
+        '409':
+          description: "Conflict: Cannot remove because employees are still assigned to this service at this location."
+
+  # --- Employee-Specific Service Management ---
+  /businesses/{businessId}/locations/{locationId}/services/{serviceId}/employees:
+    get:
+      tags:
+        - Service
+      summary: Get Employees for a Location Service
+      description: "Retrieves a list of all employees assigned to perform a specific service at a specific location."
+      operationId: getLocationServiceEmployees
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: serviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of assigned employees with their details.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmployeeServiceAssignment'
+    post:
+      tags:
+        - Service
+      summary: Assign an Employee to a Service
+      description: "Assigns an employee to be able to perform a specific service at a location."
+      operationId: addEmployeeToService
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: serviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddEmployeeToServiceRequest'
+      responses:
+        '201':
+          description: Employee successfully assigned to the service.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeServiceAssignment'
+        '409':
+          description: Conflict - Employee is already assigned to this service.   
+
+  /businesses/{businessId}/locations/{locationId}/services/{serviceId}/employees/{employeeId}:
+    delete:
+      tags:
+        - Service
+      summary: Un-assign an Employee from a Service
+      description: "Removes an employee's assignment to perform a specific service at a location."
+      operationId: removeEmployeeFromService
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: serviceId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: employeeId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '204':
+          description: Employee successfully unassigned from the service.
+
+  /businesses/{businessId}/locations/{locationId}/seating:
+    get:
+      tags:
+        - Location
+      summary: Get seating plan for a location
+      description: "Retrieves the seating plan for a specific location, indicating which tables are currently available."
+      operationId: getLocationSeating
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of seating spots.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LocationSeatingResponse'
+
+  # APPOINTMENT ENDPOINTS
+  /businesses/{businessId}/appointments:
+    get:
+      tags:
+        - Appointment
+      summary: List all appointments
+      description: Retrieves a list of appointments for a business, with filters for date range, employee, and status.
+      operationId: listAppointments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: start_date
+          schema:
+            type: string
+            format: date
+          description: "Filter appointments starting from this date."
+        - in: query
+          name: end_date
+          schema:
+            type: string
+            format: date
+          description: "Filter appointments up to this date."
+        - in: query
+          name: employee_id
+          schema:
+            type: integer
+          description: Filter by the employee assigned to the appointment.
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [RESERVED, UPCOMING, SERVING, AWAITING_PAYMENT, PAID, CANCELLED]
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: A detailed list of appointments.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AppointmentDetailResponse' 
+                      
+    post:
+      tags:
+        - Appointment
+      summary: Create a new appointment
+      description: Books a new appointment for a customer with a specific service and employee at a given time. The system will check for scheduling conflicts.
+      operationId: createAppointment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAppointmentRequest'
+      responses:
+        '201':
+          description: Appointment created successfully. Includes an SMS notification bonus feature.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '409':
+          description: Conflict - The requested time slot is unavailable for the selected employee.
+
+  /businesses/{businessId}/appointments/{appointmentId}:
+    get:
+      tags:
+        - Appointment
+      summary: Get an appointment by ID
+      description: Retrieves the details of a single appointment.
+      operationId: getAppointmentById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: appointmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detailed appointment information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentDetailResponse'
+        '404':
+          description: Appointment not found.
+          
+    patch:
+      tags:
+        - Appointment
+      summary: Update an appointment
+      description: Modifies an existing appointment, such as changing the time or canceling it.
+      operationId: updateAppointment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: appointmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAppointmentRequest'
+      responses:
+        '200':
+          description: Appointment updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '404':
+          description: Appointment not found.
+        '409':
+          description: Conflict - The new time slot is unavailable.
+
+  /businesses/{businessId}/orders/{orderId}/bills:
+    get:
+      tags:
+        - Payment
+      summary: Get bills for an order
+      description: Retrieves a detailed list of all bills associated with a specific order.
+      operationId: getOrderBills
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: A list of detailed bill information.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderBillDetailResponse'
+        '404':
+          description: Order not found.
+
+  /businesses/{businessId}/appointments/{appointmentId}/bill:
+    get:
+      tags:
+        - Payment
+      summary: Get the bill for an appointment
+      description: Retrieves the detailed bill for a specific appointment.
+      operationId: getAppointmentBill
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: appointmentId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Detailed appointment bill information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentBillDetailResponse'
+        '404':
+          description: Appointment or bill not found.
+
+  /businesses/{businessId}/locations:
+    get:
+      tags:
+        - Location
+      summary: List all business locations
+      description: Retrieves a list of all physical locations associated with a business, including employee counts.
+      operationId: listLocations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of business locations with details.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LocationDetail' 
+    post:
+      tags:
+        - Location
+      summary: Create a business location
+      description: Adds a new physical location, including open hours and an optional seating plan for order-based businesses.
+      operationId: createLocation
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLocationRequest'
+      responses:
+        '201':
+          description: Location created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+
+  # PAYMENT & REFUND ENDPOINTS
+  /payments/intent:
+    post:
+      tags:
+        - Payment
+      summary: Create a Payment Intent
+      description: Creates a payment session with a payment provider like Stripe. This is the first step for credit card payments.
+      operationId: createPaymentIntent
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Specify either an order_bill_id OR an appointment_bill_id.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                order_bill_id:
+                  type: integer
+                appointment_bill_id:
+                  type: integer
+                currency:
+                  type: string
+                  example: EUR
+                amount:
+                  type: number
+                  format: decimal
+      responses:
+        '201':
+          description: Payment Intent created successfully. Returns a client secret to be used by the frontend.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  client_secret:
+                    type: string
+                  payment_id:
+                    type: integer
+
+  /payments/{paymentId}/confirm:
+    post:
+      tags:
+        - Payment
+      summary: Confirm a payment
+      description: Confirms a cash or gift card payment, or confirms the successful completion of a card payment webhook. This action closes the associated order/appointment.
+      operationId: confirmPayment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                method:
+                  type: string
+                  enum: [CASH, GIFT_CARD, CREDIT_CARD]
+      responses:
+        '200':
+          description: Payment confirmed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+
+  /refunds:
+    post:
+      tags:
+        - Payment
+      summary: Process a refund
+      description: Initiates a refund for a previously completed payment.
+      operationId: createRefund
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payment_id:
+                  type: integer
+                amount:
+                  type: number
+                  format: decimal
+                reason:
+                  type: string
+      responses:
+        '201':
+          description: Refund processed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Refund'
+
+  # DISCOUNT MANAGEMENT ENDPOINTS
+  /businesses/{businessId}/bill-discounts:
+    post:
+      tags:
+        - Discount
+      summary: Create a Bill Discount
+      description: Creates a new discount that applies to an entire bill (order or appointment total).
+      operationId: createBillDiscount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BillDiscountCreateRequest'
+      responses:
+        '201':
+          description: Bill discount created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discount'
+        '403':
+          description: Forbidden.
+
+  /businesses/{businessId}/bill-discounts/{discountId}:
+    patch:
+      tags:
+        - Discount
+      summary: Update a Bill Discount
+      description: Updates the details of an existing bill discount, including its active status.
+      operationId: updateBillDiscount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: discountId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BillDiscountUpdateRequest'
+      responses:
+        '200':
+          description: Bill discount updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discount'
+        '404':
+          description: Discount not found.
+
+  # --- Menu Item Specific Discounts ---
+  /businesses/{businessId}/menu-item-discounts:
+    post:
+      tags:
+        - Discount
+      summary: Create a Menu Item Discount
+      description: Creates a new discount that applies only to a specific menu item.
+      operationId: createMenuItemDiscount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MenuItemDiscountCreateRequest'
+      responses:
+        '201':
+          description: Menu item discount created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discount'
+        '403':
+          description: Forbidden.
+
+  /businesses/{businessId}/menu-item-discounts/{discountId}:
+    patch:
+      tags:
+        - Discount
+      summary: Update a Menu Item Discount
+      description: Updates the details of an existing menu item discount.
+      operationId: updateMenuItemDiscount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: discountId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MenuItemDiscountUpdateRequest'
+      responses:
+        '200':
+          description: Menu item discount updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discount'
+        '404':
+          description: Discount not found.
+
+  # --- Service Specific Discounts ---
+  /businesses/{businessId}/service-discounts:
+    post:
+      tags:
+        - Discount
+      summary: Create a Service Discount
+      description: Creates a new discount that applies only to a specific service.
+      operationId: createServiceDiscount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceDiscountCreateRequest'
+      responses:
+        '201':
+          description: Service discount created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discount'
+        '403':
+          description: Forbidden.
+
+  /businesses/{businessId}/service-discounts/{discountId}:
+    patch:
+      tags:
+        - Discount
+      summary: Update a Service Discount
+      description: Updates the details of an existing service discount.
+      operationId: updateServiceDiscount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: discountId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceDiscountUpdateRequest'
+      responses:
+        '200':
+          description: Service discount updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discount'
+        '404':
+          description: Discount not found.
+  /businesses/{businessId}/locations/{locationId}/revenue:
+    get:
+      tags:
+        - Location
+      summary: Get location revenue report
+      description: Retrieves a daily revenue summary for the past week for a specific location.
+      operationId: getLocationRevenue
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of daily revenue totals.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RevenueReportItem'
+        '403':
+          description: Forbidden.
+
+  /businesses/{businessId}/locations/{locationId}/employees:
+    get:
+      tags:
+        - Employee
+      summary: List employees by location
+      description: Retrieves a list of employees assigned to a specific location.
+      operationId: listLocationEmployees
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of employees.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmployeeDetail'
+        '403':
+          description: Forbidden.
+
+  /businesses/{businessId}/menu:
+    get:
+      tags:
+        - Menu
+      summary: Get the full menu for a business
+      operationId: getBusinessMenu
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of all menu items for the business.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuItemResponse'
+
+  /businesses/{businessId}/locations/{locationId}/menu:
+    get:
+      tags:
+        - Menu
+      summary: Get the menu for a specific location
+      operationId: getLocationMenu
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of menu items for the location.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuItemResponse'
+
+  # INVENTORY MANAGEMENT ENDPOINTS
+  /businesses/{businessId}/inventory:
+    get:
+      tags:
+        - Inventory
+      summary: Get inventory stock levels
+      description: Retrieves a list of all products in stock for a business, with aggregated quantities. Can be filtered by location.
+      operationId: getInventoryStock
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: location_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of current inventory stock levels.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InventoryStockResponse'
+
+  /businesses/{businessId}/inventory/stock-changes:
+    get:
+      tags:
+        - Inventory
+      summary: Get inventory stock change history
+      description: "Retrieves a historical log of all inventory movements (e.g., +10kg from a supply order, -0.5kg used in a recipe). Provides a full audit trail for inventory."
+      operationId: getInventoryStockChanges
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: location_id
+          schema:
+            type: integer
+        - in: query
+          name: product_id
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A historical log of stock changes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InventoryStockChangeResponse'
+
+  /businesses/{businessId}/inventory/products:
+    get:
+      tags:
+        - Inventory
+      summary: List all inventory product definitions
+      description: "Retrieves a list of all raw product definitions for a business (e.g., Flour, Sugar, etc.)."
+      operationId: listInventoryProductDefinitions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of product definitions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InventoryProductDefinitionResponse'
+    post:
+      tags:
+        - Inventory
+      summary: Add a new inventory product definition
+      description: Creates a new raw product definition (e.g., Flour, Sugar) for the business to use in its inventory. This does not add stock.
+      operationId: createInventoryProductDefinition
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                product_unit_id:
+                  type: integer
+      responses:
+        '201':
+          description: Product definition created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+
+  /businesses/{businessId}/inventory/stock:
+    post:
+      tags:
+        - Inventory
+      summary: Add stock for a product
+      description: Adds a new stock entry for an existing product at a specific location (e.g., adding 10kg of flour).
+      operationId: addInventoryStock
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id:
+                  type: integer
+                location_id:
+                  type: integer
+                quantity:
+                  type: number
+                  format: float
+                expiration_date:
+                  type: string
+                  format: date
+                  nullable: true
+      responses:
+        '201':
+          description: Stock added successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryProduct'
+
+  # SUPER-ADMIN ENDPOINTS
+  /admin/taxes:
+    get:
+      tags:
+        - Admin
+      summary: Get all VAT Rates
+      description: "(Super-Admin only) Retrieves a list of all VAT rates in the system."
+      operationId: listVatRates
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of VAT rates.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VatRate'
+        '403':
+          description: Forbidden.
+    post:
+      tags:
+        - Admin
+      summary: Create a VAT Rate
+      description: (Super-Admin only) Creates a new time-bound VAT rate for a specific country.
+      operationId: createVatRate
+      security:
+        - bearerAuth: [] 
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVatRateRequest'
+      responses:
+        '201':
+          description: VAT rate created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VatRate'
+        '403':
+          description: Forbidden - User is not a Super-Admin.
+
+  /businesses/{businessId}/tasks:
+    get:
+      tags:
+        - Employee
+      summary: List tasks for a business
+      description: "(Manager/Owner only) View all tasks within a business, with filters."
+      operationId: listTasks
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: employee_id
+          in: query
+          schema:
+            type: integer
+          description: Filter tasks assigned to a specific employee.
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in_progress, completed]
+      responses:
+        '200':
+          description: A list of tasks.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+    post:
+      tags:
+        - Employee
+      summary: Create a task
+      description: "(Manager/Owner only) Create a new task and assign it to one or more employees."
+      operationId: createTask
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskRequest'
+      responses:
+        '201':
+          description: Task created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+
+  /businesses/{businessId}/feedback:
+    post:
+      tags:
+        - Employee
+      summary: Submit feedback for an employee
+      description: Allows an authenticated user (e.g., a manager or coworker) to submit feedback about another employee.
+      operationId: submitFeedback
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeedbackRequest'
+      responses:
+        '201':
+          description: Feedback submitted successfully.
+
+  /businesses/{businessId}/employees/{userId}/feedback:
+    get:
+      tags:
+        - Employee
+      summary: Get feedback for an employee
+      description: "(Manager/Owner only) Retrieves all feedback submitted for a specific employee."
+      operationId: getEmployeeFeedback
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            description: The User ID of the employee.
+      responses:
+        '200':
+          description: A list of feedback entries.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Feedback'
+  /chats:
+    get:
+      tags:
+        - Messaging
+      summary: List user's chats
+      description: Retrieves a paginated list of chats in which the authenticated user is a participant.
+      operationId: listChats
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: A list of chats was successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Chat'
+        '401':
+          description: Unauthorized.
+
+    post:
+      tags:
+        - Messaging
+      summary: Start a new chat
+      description: Creates a new chat with a specified user and sends the initial message.
+      operationId: createChat
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChatRequest'
+      responses:
+        '201':
+          description: Chat created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chat'
+        '404':
+          description: The specified recipient user was not found.
+
+  /chats/{chatId}/messages:
+    get:
+      tags:
+        - Messaging
+      summary: Get messages for a chat
+      description: Retrieves a paginated list of messages for a specific chat.
+      operationId: getChatMessages
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Successfully retrieved the list of messages.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+        '403':
+          description: Forbidden - The user does not have permission to view this chat.
+        '404':
+          description: Chat not found.
+
+    post:
+      tags:
+        - Messaging
+      summary: Send a message to a chat
+      description: Sends a new message to an existing chat.
+      operationId: sendMessage
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMessageRequest'
+      responses:
+        '201':
+          description: Message sent successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '403':
+          description: Forbidden - The user is not a participant in this chat.
+        '404':
+          description: Chat not found.
+
+  /messages/{messageId}:
+    delete:
+      tags:
+        - Messaging
+      summary: Delete a message
+      description: Deletes a message. Only the user who sent the message is allowed to delete it.
+      operationId: deleteMessage
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Message was successfully deleted.
+        '403':
+          description: Forbidden - The user is not the author of this message.
+        '404':
+          description: Message not found.
+
+  /countries:
+    get:
+      tags:
+        - Admin
+      summary: Get list of all countries
+      operationId: listCountries
+      responses:
+        '200':
+          description: A list of countries with their codes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Country'
+  /roles:
+    get:
+      tags:
+        - Admin
+      summary: Get list of all possible roles
+      operationId: listRoles
+      responses:
+        '200':
+          description: A list of definable job roles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+
+  /permissions:
+    get:
+      tags:
+        - Admin
+      summary: Get list of all permissions
+      description: "(Owner/Admin) Retrieves a list of all assignable permissions in the system."
+      operationId: listPermissions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of permissions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Permission'
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
+
+  schemas:
+    Error:
+      type: object
+      description: "Standard error payload returned on failure."
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 404
+        message:
+          type: string
+          example: "Resource not found."
+      required:
+        - code
+        - message
+      example:
+        code: 401
+        message: "Unauthorized access."
+    
+    Pagination:
+      type: object
+      description: "Metadata for paginated list responses."
+      properties:
+        totalItems:
+          type: integer
+          example: 150
+        totalPages:
+          type: integer
+          example: 15
+        currentPage:
+          type: integer
+          example: 1
+        pageSize:
+          type: integer
+          example: 10
+      example:
+        totalItems: 150
+        totalPages: 15
+        currentPage: 1
+        pageSize: 10
+
+    # APPLICATION & GLOBAL SCHEMAS
+    Country:
+      type: object
+      description: "A country with ISO code and human-readable name."
+      properties:
+        code:
+          type: string
+          description: ISO 3166-1 alpha-2 country code.
+          example: "LT"
+        name:
+          type: string
+          example: "Lithuania"
+      required:
+        - code
+        - name
+      example:
+        code: "LT"
+        name: "Lithuania"
+        
+    Currency:
+      type: object
+      description: "A currency identified by ISO 4217 code, name, and symbol."
+      properties:
+        code:
+          type: string
+          description: ISO 4217 currency code.
+          example: "EUR"
+        name:
+          type: string
+          example: "Euro"
+        symbol:
+          type: string
+          example: "€"
+      required:
+        - code
+        - name
+        - symbol
+      example:
+        code: "EUR"
+        name: "Euro"
+        symbol: "€"
+        
+    VatRate:
+      type: object
+      description: Represents a VAT rate, which can be time-bound.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        country_code:
+          type: string
+          example: "LT"
+          description: "ISO 3166 Code"
+        value:
+          type: number
+          format: decimal
+          example: 21.0
+        effective_from:
+          type: string
+          format: date-time
+        valid_until:
+          type: string
+          format: date-time
+          nullable: true
+      example:
+        id: 10
+        country_code: "LT"
+        value: 21.0
+        effective_from: "2025-01-01T00:00:00Z"
+        valid_until: null
+
+    # USER & AUTH SCHEMAS
+    User:
+      type: object
+      description: "A platform user with profile and contact details."
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_type_id:
+          type: string
+          enum: [owner, employee, admin]
+        name:
+          type: string
+          example: "Victor"
+        surname:
+          type: string
+          example: "Almeida"
+        email:
+          type: string
+          format: email
+          example: "victor.almeida@example.com"
+        phone:
+          type: string
+          nullable: true
+          example: "+37060000000"
+        time_created:
+          type: string
+          format: date-time
+          readOnly: true
+        time_updated:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+        - id
+        - user_type_id
+        - name
+        - surname
+        - email
+      example:
+        id: 101
+        user_type_id: owner
+        name: "Victor"
+        surname: "Almeida"
+        email: "victor.almeida@example.com"
+        phone: "+37060000000"
+        time_created: "2025-09-01T10:00:00Z"
+        time_updated: "2025-10-01T09:15:00Z"
+
+    # BUSINESS & EMPLOYEE SCHEMAS
+    Business:
+      example:
+        type_id: "order_based"
+        country_code_of_registration: "LT"
+        name: "Blue Juniper Eatery"
+        description: "Seasonal plates and artisan desserts."
+        business_email: "hello@bluejunipereatery.com"
+        business_phone: "+37052000000"
+      type: object
+      description: "A business entity registered on the platform (either order-based or appointment-based)."
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        version_id:
+          type: integer
+        version_active:
+          type: boolean
+        country_code_of_registration:
+          type: string
+        type_id:
+          type: string
+          enum: [order_based, appointment_based]
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        business_email:
+          type: string
+          format: email
+        business_phone:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+        - id
+        - type_id
+        - name
+        - business_email
+        - business_phone
+        
+    Owner:
+      type: object
+      description: Links a User to a Business as an owner.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_id:
+          type: integer
+        business_id:
+          type: integer
+      required:
+        - user_id
+        - business_id
+      example:
+        id: 1
+        user_id: 101
+        business_id: 55
+        
+    Employee:
+      type: object
+      description: Links a User to a Business as an employee.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_id:
+          type: integer
+        business_id:
+          type: integer
+        joined_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [active, inactive, disabled]
+      required:
+        - user_id
+        - business_id
+        - status
+      example:
+        id: 88
+        user_id: 102
+        business_id: 55
+        joined_at: "2025-07-15T08:30:00Z"
+        status: active
+
+    Job:
+      type: object
+      description: A job role definition within a business.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        business_id:
+          type: integer
+        name:
+          type: string
+          example: "Waiter"
+        description:
+          type: string
+          nullable: true
+      example:
+        id: 10
+        business_id: 55
+        name: "Waiter"
+        description: "Front-of-house service staff"
+        
+    # LOCATION SCHEMAS
+    Location:
+        type: object
+        description: "Represents a physical business location (address only; see LocationDetail for enriched view)."
+        properties:
+          id:
+            type: integer
+            readOnly: true
+          version_id:
+            type: integer
+          version_active:
+            type: boolean
+          business_id:
+            type: integer
+          country_code:
+            type: string
+          city:
+            type: string
+          street:
+            type: string
+          postal_code:
+            type: string
+        example:
+          id: 11
+          version_id: 3
+          version_active: true
+          business_id: 55
+          country_code: "LT"
+          city: "Vilnius"
+          street: "Gedimino pr. 1"
+          postal_code: "LT-01103"
+
+    LocationSeating:
+      type: object
+      description: Represents a single table or seating spot in a location.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        location_id:
+          type: integer
+        capacity:
+          type: integer
+        x_pos:
+          type: integer
+          description: Grid X position for UI layout.
+        y_pos:
+          type: integer
+          description: Grid Y position for UI layout.
+      required:
+        - location_id
+        - capacity
+        - x_pos
+        - y_pos
+      example:
+        id: 200
+        location_id: 11
+        capacity: 4
+        x_pos: 5
+        y_pos: 3
+
+    # CATERING (MENU & ORDER) SCHEMAS
+    MenuItemCategory:
+      type: object
+      description: "A category in the business menu used to organize items (supports hierarchy)."
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        business_id:
+          type: integer
+        name:
+          type: string
+          example: "Main Courses"
+        parent_id:
+          type: integer
+          nullable: true
+          description: For creating category hierarchies.
+      example:
+        id: 301
+        business_id: 55
+        name: "Main Courses"
+        parent_id: null
+          
+    MenuItem:
+      type: object
+      description: "A sellable menu item available at a location, optionally with variations."
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        location_id:
+          type: integer
+        category_id:
+          type: integer
+        price_id:
+          type: integer
+        name:
+          type: string
+          example: "Margherita Pizza"
+        description:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [ENABLED, DISABLED]
+        preparation_duration:
+          type: integer
+          description: Estimated preparation time in minutes.
+        image_url:
+          type: string
+          format: uri
+          nullable: true
+      example:
+        id: 501
+        location_id: 11
+        category_id: 301
+        price_id: 9001
+        name: "Margherita Pizza"
+        description: "Classic pizza with tomato, mozzarella and basil"
+        status: ENABLED
+        preparation_duration: 15
+        image_url: "https://cdn.example.com/menu/margherita.jpg"
+          
+    MenuItemVariationGroup:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        menu_item_id:
+          type: integer
+        name:
+          type: string
+          example: "Milk Options"
+        min_selection:
+          type: integer
+          default: 0
+        max_selection:
+          type: integer
+          default: 1
+      description: "A group of mutually selectable variations for a menu item (e.g., milk type)."
+      example:
+        id: 1
+        menu_item_id: 501
+        name: "Milk Options"
+        min_selection: 0
+        max_selection: 1
+          
+    MenuItemVariation:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        menu_item_variation_group_id:
+          type: integer
+        price_id:
+          type: integer
+          description: Price adjustment for this variation.
+        name:
+          type: string
+          example: "Oat Milk"
+      description: "An individual choice inside a variation group which may adjust the base price."
+      example:
+        id: 901
+        menu_item_variation_group_id: 1
+        price_id: 91001
+        name: "Oat Milk"
+
+    Order:
+      type: object
+      description: "A customer order opened at a seating (table) until it's paid or cancelled."
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        location_seating_id:
+          type: integer
+          nullable: true
+        actioned_by:
+          type: integer
+          description: "Employee user ID who created or last modified the order."
+        created_at:
+          type: string
+          format: date-time
+        closed_at:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          readOnly: true
+          enum: [OPEN, PAID, CANCELLED, REFUNDED]
+      example:
+        id: 7001
+        location_seating_id: 200
+        actioned_by: 102
+        created_at: "2025-10-18T12:00:00Z"
+        closed_at: null
+        status: OPEN
+
+    OrderItem:
+      type: object
+      description: "A single line item in an order, referencing a menu item and quantity."
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        order_id:
+          type: integer
+        menu_item_id:
+          type: integer
+        quantity:
+          type: integer
+        status:
+          type: string
+          enum: [NOT_STARTED, IN_PROGRESS, READY, DELIVERED]
+      example:
+        id: 8001
+        order_id: 7001
+        menu_item_id: 501
+        quantity: 2
+        status: IN_PROGRESS
+          
+    OrderBill:
+      type: object
+      description: "The computed bill for an order, including tip and optional discount."
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        order_id:
+          type: integer
+        discount_id:
+          type: integer
+          nullable: true
+        tip_amount:
+          type: number
+          format: decimal
+        created_at:
+          type: string
+          format: date-time
+      example:
+        id: 9001
+        order_id: 7001
+        discount_id: null
+        tip_amount: 3.50
+        created_at: "2025-10-18T13:05:00Z"
+
+    # APPOINTMENT SCHEMAS
+    Service:
+      type: object
+      description: "A concrete, priced service offered by a business."
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        business_id:
+          type: integer
+        price_id:
+          type: integer
+        name:
+          type: string
+          example: "Men's Haircut"
+        description:
+          type: string
+          nullable: true
+        duration:
+          type: integer
+          description: Service duration in minutes.
+      example:
+        id: 42
+        business_id: 55
+        price_id: 12001
+        name: "Men's Haircut"
+        description: "Classic men's haircut with wash"
+        duration: 30
+          
+    Appointment:
+      type: object
+      description: "A booked service appointment for a customer with a specific employee."
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        employee_service_id:
+          type: integer
+        customer_name:
+          type: string
+        customer_email:
+          type: string
+          format: email
+          nullable: true
+        customer_phone:
+          type: string
+        start_time:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+          description: Actual duration, may differ from service default.
+        block_duration:
+          type: integer
+          description: Block duration tells for how long to block the time after the service so the employee can get ready for next appointment.
+        status:
+          type: string
+          enum: [RESERVED, UPCOMING, SERVING, AWAITING_PAYMENT, PAID, CANCELLED]
+      example:
+        id: 6001
+        employee_service_id: 321
+        customer_name: "Saule Pasteque"
+        customer_email: "saule.pasteque@example.com"
+        customer_phone: "+37061234567"
+        start_time: "2025-10-20T09:00:00Z"
+        duration: 45
+        block_duration: 15
+        status: RESERVED
+
+    # PAYMENT & DISCOUNT SCHEMAS
+    Payment:
+      type: object
+      description: "A payment record for an order or appointment bill."
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        order_bill_id:
+          type: integer
+          nullable: true
+        appointment_bill_id:
+          type: integer
+          nullable: true
+        actioned_by:
+          type: integer
+          description: "Employee who processed the payment."
+        method:
+          type: string
+          enum: [CASH, CREDIT_CARD, GIFT_CARD]
+        status:
+          type: string
+          enum: [SUCCEEDED, PENDING, FAILED]
+        charge_id:
+          type: string
+          description: The transaction ID from the payment provider (e.g., Stripe).
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      example:
+        id: 10001
+        order_bill_id: 9001
+        appointment_bill_id: null
+        actioned_by: 102
+        method: CASH
+        status: SUCCEEDED
+        charge_id: null
+        created_at: "2025-10-18T13:06:30Z"
+          
+    Refund:
+      type: object
+      description: "A refund issued for a previously completed payment."
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        payment_id:
+          type: integer
+        actioned_by:
+          type: integer
+        amount:
+          type: number
+          format: decimal
+        reason:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [SUCCEEDED, PENDING, FAILED]
+        refund_id:
+          type: string
+          description: The refund transaction ID from the payment provider.
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      example:
+        id: 11001
+        payment_id: 10001
+        actioned_by: 102
+        amount: 5.00
+        reason: "Customer returned item"
+        status: SUCCEEDED
+        refund_id: "rfnd_12345"
+        created_at: "2025-10-18T14:00:00Z"
+          
+    Discount:
+      type: object
+      description: "A configurable discount that can apply globally, per location, or to specific items/services."
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        business_id:
+          type: integer
+        location_id:
+          type: integer
+          nullable: true
+          description: If null, the discount is global for the business.
+        value:
+          type: number
+          format: decimal
+          description: Can be a fixed amount or a percentage.
+        is_percentage:
+          type: boolean
+          default: true
+        is_total_discount:
+          type: boolean
+          description: If true, applies to the whole bill. If false, applies to specific items.
+        valid_from:
+          type: string
+          format: date-time
+        valid_to:
+          type: string
+          format: date-time
+        disabled:
+          type: boolean
+          default: false
+      example:
+        id: 12001
+        business_id: 55
+        location_id: null
+        value: 10
+        is_percentage: true
+        is_total_discount: true
+        valid_from: "2025-10-01T00:00:00Z"
+        valid_to: "2025-11-01T00:00:00Z"
+        disabled: false
+    AuthResponse:
+      type: object
+      description: "The authentication response including access token and user profile."
+      properties:
+        accessToken:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+        - accessToken
+        - user
+      example:
+        accessToken: "eyJhbGciOi..."
+        user:
+          id: 101
+          user_type_id: owner
+          name: "Mara"
+          surname: "Kovacs"
+          email: "mara.kovacs@example.com"
+
+    CreateBusinessRequest:
+      type: object
+      description: "Payload to register a new business on the platform."
+      properties:
+        type_id:
+          type: string
+          enum: [order_based, appointment_based]
+        country_code_of_registration:
+          type: string
+          example: "LT"
+        name:
+          type: string
+          example: "The Grand Cafe"
+        description:
+          type: string
+        business_email:
+          type: string
+          format: email
+        business_phone:
+          type: string
+      required:
+        - type_id
+        - name
+        - country_code_of_registration
+      example:
+        type_id: order_based
+        country_code_of_registration: "LT"
+        name: "The Corner Bistro"
+        description: "A cozy place for lunch and dinner."
+        business_email: "contact@cornerbistro.com"
+        business_phone: "+37052000000"
+
+    RevenueReportItem:
+      type: object
+      description: "A single day entry in a revenue report."
+      properties:
+        date:
+          type: string
+          format: date
+        total:
+          type: number
+          format: decimal
+      example:
+        date: "2025-10-18"
+        total: 542.35
+      
+    UpdateBusinessRequest:
+      type: object
+      description: "Fields to update basic business information."
+      properties:
+        name:
+          type: string
+          example: "The New Grand Cafe"
+        description:
+          type: string
+        business_email:
+          type: string
+          format: email
+        business_phone:
+          type: string
+      example:
+        name: "The Corner Bistro+"
+        description: "Expanded terrace seating"
+        business_email: "hello@cornerbistro.com"
+        business_phone: "+37052000001"
+    CreateMenuCategoryRequest:
+      type: object
+      description: "Create a new menu category; supports hierarchical nesting via parent_id."
+      properties:
+        name:
+          type: string
+        parent_id:
+          type: integer
+          nullable: true
+      required:
+        - name
+      example:
+        name: "Desserts"
+        parent_id: 301
+    UpdateMenuCategoryRequest:
+      type: object
+      description: "Update menu category fields like name or parent assignment."
+      properties:
+        name:
+          type: string
+        parent_id:
+          type: integer
+          nullable: true
+      example:
+        name: "Hot Drinks"
+        parent_id: null
+
+    CreateMenuItemRequest:
+      type: object
+      description: "Create a new menu item with initial price, products, and variations."
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category_id:
+          type: integer
+        initial_price:
+          type: number
+          format: decimal
+        currency_code:
+          type: string
+          example: "EUR"
+        estimated_duration:
+          type: integer
+          description: "Time in minutes."
+        image:
+          type: string
+          format: binary
+          description: "Image file upload."
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationItemProductRequest'
+        variation_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationGroupRequest'
+      required:
+        - name
+        - category_id
+        - initial_price
+        - currency_code
+      example:
+        name: "Cappuccino"
+        description: "Espresso with steamed milk and foam"
+        category_id: 305
+        initial_price: 2.50
+        currency_code: "EUR"
+        estimated_duration: 5
+        products:
+          - product_id: 41
+            quantity: 0.2
+        variation_groups:
+          - name: "Milk Options"
+            status: enabled
+            min_selection: 0
+            max_selection: 1
+            items:
+              - name: "Oat Milk"
+                price_adjustment: 0.3
+                status: enabled
+                products:
+                  - product_id: 77
+                    quantity: 0.2
+
+    UpdateMenuItemRequest:
+      type: object
+      description: "Update attributes of an existing menu item."
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category_id:
+          type: integer
+        estimated_duration:
+          type: integer
+        image:
+          type: string
+          format: binary
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationItemProductRequest'
+        variation_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationGroupRequest'
+      example:
+        name: "Cappuccino Deluxe"
+        description: "Added chocolate sprinkle"
+        category_id: 305
+        estimated_duration: 6
+
+    CreateOrderItemRequest:
+      type: object
+      description: "Add a menu item to an order, optionally with variation IDs."
+      properties:
+        menu_item_id:
+          type: integer
+        quantity:
+          type: integer
+        variation_ids:
+          type: array
+          items:
+            type: integer
+          description: An array of selected MenuItemVariation IDs.
+      required:
+        - menu_item_id
+        - quantity
+      example:
+        menu_item_id: 501
+        quantity: 2
+        variation_ids: [901, 902]
+    CreateServiceRequest:
+      type: object
+      description: "Request payload to create a concrete service with price and currency."
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        duration:
+          type: integer
+        price:
+          type: number
+          format: decimal
+        currency:
+          type: string
+          example: EUR
+      required:
+        - name
+        - duration
+        - price
+        - currency
+      example:
+        name: "Basic Pedicure"
+        description: "Nail shaping and polish"
+        duration: 45
+        price: 25.00
+        currency: EUR
+
+    UpdateServiceRequest:
+      type: object
+      description: "Request payload to update a service's basic attributes."
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        duration:
+          type: integer
+      example:
+        name: "Basic Pedicure+"
+        description: "Includes quick massage"
+        duration: 50
+
+    CreateAppointmentRequest:
+      type: object
+      description: "Request to book a new appointment with a specific employee-service at a date/time."
+      properties:
+        employee_service_id:
+          type: integer
+        name:
+          type: string
+        surname:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        datetime:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+        block_duration:
+          type: integer
+      required:
+        - employee_service_id
+        - name
+        - surname
+        - phone
+        - datetime
+        - duration     
+      example:
+        employee_service_id: 444
+        name: "Zara"
+        surname: "Nordin"
+        email: "zara.nordin@example.com"
+        phone: "+37061123456"
+        datetime: "2025-11-05T14:30:00Z"
+        duration: 40
+        block_duration: 10
+
+    CreateLocationRequest:
+      type: object
+      description: "Create a business location with address, hours, and optional seating."
+      properties:
+        country:
+          type: string
+          example: "Lithuania"
+        city:
+          type: string
+          example: "Vilnius"
+        street:
+          type: string
+          example: "Gedimino pr. 1"
+        postal_code:
+          type: string
+          example: "LT-01103"
+        open_hours:
+          type: array
+          example:
+            - day_of_week: 1
+              open_time: "09:00"
+              close_time: "18:00"
+          items:
+            $ref: '#/components/schemas/OpenHour'
+        seating_plan:
+          type: array
+          description: "Required if the business is 'order_based'."
+          items:
+            $ref: '#/components/schemas/SeatingDefinition'
+      required:
+        - country
+        - city
+        - street
+      example:
+        country: "Lithuania"
+        city: "Vilnius"
+        street: "Gedimino pr. 1"
+        postal_code: "LT-01103"
+        open_hours:
+          - week_day: MONDAY
+            start_at: "09:00"
+            end_at: "18:00"
+        seating_plan:
+          - pos_x: 1
+            pos_y: 1
+            capacity: 4
+
+    CreateDiscountRequest:
+      type: object
+      description: "Create a discount that may apply business-wide or per location."
+      properties:
+        location_id:
+          type: integer
+          nullable: true
+        value:
+          type: number
+          format: decimal
+        is_percentage:
+          type: boolean
+        is_total_discount:
+          type: boolean
+        valid_from:
+          type: string
+          format: date-time
+        valid_to:
+          type: string
+          format: date-time
+      required:
+        - value
+        - is_percentage
+        - is_total_discount
+        - valid_from
+      example:
+        location_id: null
+        value: 15
+        is_percentage: true
+        is_total_discount: false
+        valid_from: "2025-10-01T00:00:00Z"
+        valid_to: "2025-12-31T00:00:00Z"
+
+    CreateVatRateRequest:
+      type: object
+      description: "Define a VAT rate for a country effective from a specific date."
+      properties:
+        country_code:
+          type: string
+        value:
+          type: number
+          format: decimal
+        effective_from:
+          type: string
+          format: date-time
+      example:
+        country_code: "LT"
+        value: 21.0
+        effective_from: "2025-01-01T00:00:00Z"
+      required:
+        - country_code
+        - value
+        - effective_from
+
+    ProductUnit:
+      type: object
+      description: A global definition for a unit of measurement (e.g., kg, liter, piece).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          example: "Kilogram"
+        short_name:
+          type: string
+          example: "kg"
+      required:
+        - id
+        - name
+        - short_name
+      example:
+        id: 1
+        name: "Kilogram"
+        short_name: "kg"
+
+    Product:
+      type: object
+      description: Represents a raw product or ingredient used for inventory and in menu items.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        business_id:
+          type: integer
+        product_unit_id:
+          type: integer
+          description: "FK to the ProductUnit table."
+        name:
+          type: string
+          example: "Chicken Breast"
+      required:
+        - id
+        - business_id
+        - product_unit_id
+        - name
+      example:
+        id: 41
+        business_id: 55
+        product_unit_id: 1
+        name: "Milk"
+
+    InventoryProduct:
+      type: object
+      description: Represents the stock level of a specific product at a specific location.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product_id:
+          type: integer
+        location_id:
+          type: integer
+        quantity:
+          type: number
+          format: float
+          description: "Current quantity in stock. Can be negative if usage is tracked before restocking."
+        expiration_date:
+          type: string
+          format: date
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          description: "Timestamp of when this stock entry was created (e.g., resupply)."
+        created_by:
+          type: integer
+          description: "User ID of the person who added this stock."
+      required:
+        - id
+        - product_id
+        - location_id
+        - quantity
+      example:
+        id: 30001
+        product_id: 41
+        location_id: 11
+        quantity: 8.5
+        expiration_date: "2025-11-01"
+        created_at: "2025-10-18T07:00:00Z"
+        created_by: 102
+
+    Task:
+      type: object
+      description: "A task to be executed by one or more employees within a business."
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        due_time:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [pending, in_progress, completed]
+        assigned_employees:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeDetail' 
+      example:
+        id: 5010
+        name: "Clean coffee machine"
+        description: "Run cleaning cycle and wipe surfaces"
+        due_time: "2025-10-19T20:00:00Z"
+        status: pending
+        assigned_employees:
+          - user_id: 102
+            name: "Noor"
+            surname: "Haddad"
+            email: "noor.haddad@example.com"
+            job_title: "Head Waiter"
+            salary: 2500
+            status: active
+
+    CreateTaskRequest:
+      type: object
+      description: "Request to create a new task and assign employees with an optional estimate."
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        due_time:
+          type: string
+          format: date-time
+        approximate_duration:
+          type: integer
+          description: "Estimated duration in minutes."
+        employee_ids:
+          type: array
+          items:
+            type: integer
+      required:
+        - name
+        - due_time
+        - employee_ids
+      example:
+        name: "Inventory count"
+        description: "Count milk and flour stocks"
+        due_time: "2025-10-20T08:00:00Z"
+        approximate_duration: 60
+        employee_ids: [102, 103]
+
+    Feedback:
+      type: object
+      description: "Peer or manager feedback about an employee, with optional anonymity."
+      properties:
+        id:
+          type: integer
+        author_name:
+          type: string
+          nullable: true
+          description: "Author's full name. Null if anonymous or if the viewer is the receiver and shouldn't see it."
+        receiver_name:
+          type: string
+          description: "Receiver's full name."
+        description:
+          type: string
+          example: "The most amazing dish ever!"
+        rating:
+          type: integer
+        is_anonymous:
+          type: boolean
+        can_receiver_see:
+          type: boolean
+        type:
+          type: string
+          enum: [employee, manager]
+          description: "Indicates if the feedback was given by a peer or a manager."
+        created_at:
+          type: string
+          format: date-time
+      example:
+        id: 70001
+        author_name: null
+        receiver_name: "Noor Haddad"
+        description: "Excellent teamwork during rush hour."
+        rating: 5
+        is_anonymous: true
+        can_receiver_see: true
+        type: employee
+        created_at: "2025-10-18T18:30:00Z"
+
+    CreateFeedbackRequest:
+      type: object
+      description: "Submit feedback about an employee with rating and visibility options."
+      properties:
+        receiver_id:
+          type: integer
+        description:
+          type: string
+        rating:
+          type: integer
+        is_anonymous:
+          type: boolean
+        can_receiver_see:
+          type: boolean
+      required:
+        - receiver_id
+        - rating
+        - description
+        - can_receiver_see
+      example:
+        receiver_id: 102
+        description: "Handled a difficult customer professionally."
+        rating: 4
+        is_anonymous: false
+        can_receiver_see: true
+
+    EntityVersion:
+      type: object
+      description: "A schema representing the version history of an entity."
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        valid_from:
+          type: string
+          format: date-time
+        valid_to:
+          type: string
+          format: date-time
+          nullable: true
+        created_by:
+          type: integer
+        updated_by:
+          type: integer
+          nullable: true
+      example:
+        id: 12
+        valid_from: "2025-10-01T00:00:00Z"
+        valid_to: null
+        created_by: 101
+        updated_by: null
+    # MESSAGING SCHEMAS
+    Chat:
+      type: object
+      description: "A conversation between two users."
+      properties:
+        id:
+          type: integer
+        sender:
+          description: "A summary of the user who initiated the chat."
+          $ref: '#/components/schemas/User'
+        receiver:
+          description: "A summary of the user who received the initial message."
+          $ref: '#/components/schemas/User'
+        started_at:
+          type: string
+          format: date-time
+      example:
+        id: 1
+        sender:
+          id: 101
+          name: "Casper"
+          surname: "Jelinek"
+          email: "casper.jelinek@example.com"
+        receiver:
+          id: 102
+          name: "Noor"
+          surname: "Haddad"
+          email: "noor.haddad@example.com"
+        started_at: "2025-10-18T09:00:00Z"
+
+    Message:
+      type: object
+      description: "A single message posted in a chat."
+      properties:
+        id:
+          type: integer
+        chat_id:
+          type: integer
+        sender_id:
+          type: integer
+          description: "The ID of the user who sent the message."
+        text:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        read_at:
+          type: string
+          format: date-time
+          nullable: true
+      example:
+        id: 10
+        chat_id: 1
+        sender_id: 101
+        text: "Hey, can you open earlier tomorrow?"
+        created_at: "2025-10-18T09:01:00Z"
+        read_at: null
+
+    CreateChatRequest:
+      type: object
+      description: "Start a chat by specifying the receiver and initial message text."
+      properties:
+        receiver_id:
+          type: integer
+          description: "The User ID of the recipient of the first message."
+        text:
+          type: string
+          description: "The content of the initial message."
+      required:
+        - receiver_id
+        - text
+      example:
+        receiver_id: 102
+        text: "Hi, interested in discussing the new menu"
+
+    CreateMessageRequest:
+      type: object
+      description: "Send a message in an existing chat."
+      properties:
+        text:
+          type: string
+          description: "The content of the message."
+      required:
+        - text
+      example:
+        text: "Sure, let's talk at 3 PM."
+
+    OwnerRegisterRequest:
+      type: object
+      description: "Registration payload for a new business owner account."
+      properties:
+        name:
+          type: string
+          example: "Youmna"
+        surname:
+          type: string
+          example: "Derrida"
+        email:
+          type: string
+          format: email
+          example: "youmna.derrida@example.com"
+        password:
+          type: string
+          format: password
+          example: "securepassword123"
+        phone_number:
+          type: string
+          example: "+37052000000"
+        account_type:
+          type: string
+          enum: [business_owner]
+      required:
+        - name
+        - surname
+        - email
+        - password
+        - account_type
+      example:
+        name: "Youmna"
+        surname: "Derrida"
+        email: "youmna.derrida@example.com"
+        password: "StrongP@ssw0rd"
+        phone_number: "+37060000011"
+        account_type: business_owner
+
+    EmployeeRegisterRequest:
+      type: object
+      description: "Registration payload for a new employee using an invitation code."
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        invitation_code:
+          type: string
+      required:
+        - email
+        - password
+        - invitation_code
+      example:
+        email: "new.employee@example.com"
+        password: "AnotherP@ss1"
+        invitation_code: "INV-ABCD-1234"
+
+    UserUpdateMeRequest:
+      type: object
+      description: "Fields for updating the current user's profile. All fields are optional."
+      properties:
+        name:
+          type: string
+        surname:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+      example:
+        name: "Ivy"
+        surname: "Nakamura"
+        email: "ivy.nakamura@example.com"
+        phone: "+37060000001"
+
+    EmployeeDetail:
+      type: object
+      description: "Detailed employee information for list views."
+      properties:
+        user_id:
+          type: integer
+        name:
+          type: string
+          example: "Noor"
+        surname:
+          type: string
+          example: "Haddad"
+        email:
+          type: string
+          format: email
+          example: "noor.haddad@example.com"
+        job_title:
+          type: string
+          example: "Head Waiter"
+        salary:
+          type: number
+          format: decimal
+          example: 2500.00
+        status:
+          type: string
+          enum: [active, inactive]
+      example:
+        user_id: 102
+        name: "Noor"
+        surname: "Haddad"
+        email: "noor.haddad@example.com"
+        job_title: "Head Waiter"
+        salary: 2500.00
+        status: active
+
+    JobDetail:
+      type: object
+      description: "Job information with employee count."
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+          example: "Waiter"
+        employee_count:
+          type: integer
+          example: 5
+      example:
+        id: 10
+        title: "Waiter"
+        employee_count: 5
+
+    CreateJobRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: "Human-friendly job title to display (e.g., Waiter)."
+        description:
+          type: string
+          description: "Optional details about responsibilities or scope."
+      required:
+        - title
+      example:
+        title: "Waiter"
+        description: "Responsible for taking orders and serving customers."
+
+    Role:
+      type: object
+      description: "An assignable role that groups permissions for business users."
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+      example: 
+        id: 1
+        title: "Waiter"
+        description: "Responsible for taking orders and serving customers."
+
+    WorkHourPeriod:
+      type: object
+      description: "A time window representing when work is scheduled."
+      properties:
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+      required:
+        - start
+        - end
+      example:
+        start: "2025-10-19T09:00:00Z"
+        end: "2025-10-19T17:00:00Z"
+
+    ActivityDefinition:
+      type: object
+      properties:
+        name:
+          type: string
+        min_time:
+          type: integer
+          description: "Minimum duration in minutes."
+        max_time:
+          type: integer
+          description: "Maximum duration in minutes."
+      example:
+        name: "Cleaning"
+        min_time: 15
+        max_time: 60
+
+    CreateEmployeeInviteRequest:
+      type: object
+      description: "Invite details for onboarding an employee with role, location, and activities."
+      properties:
+        email:
+          type: string
+          format: email
+        job_id:
+          type: integer
+        location_id:
+          type: integer
+        role_id:
+          type: integer
+        work_hours:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkHourPeriod'
+        activities:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActivityDefinition'
+      required:
+        - email
+        - job_id
+        - location_id
+        - role_id
+      example:
+        email: "candidate@example.com"
+        job_id: 10
+        location_id: 11
+        role_id: 2
+        work_hours:
+          - start: "2025-10-19T09:00:00Z"
+            end: "2025-10-19T17:00:00Z"
+        activities:
+          - name: "Cleaning"
+            min_time: 15
+            max_time: 60
+
+    # --- LOCATION SCHEMAS (UPDATED/NEW) ---
+    OpenHour:
+      type: object
+      description: "Opening hours for a given weekday."
+      properties:
+        week_day:
+          type: string
+          enum: [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY]
+        start_at:
+          type: string
+          format: time
+          example: "09:00"
+        end_at:
+          type: string
+          format: time
+          example: "22:00"
+      example:
+        week_day: MONDAY
+        start_at: "09:00"
+        end_at: "22:00"
+      required:
+        - week_day
+        - start_at
+        - end_at
+
+    SeatingDefinition:
+      type: object
+      description: "A table/seating coordinate and capacity used to build a seating plan."
+      properties:
+        pos_x:
+          type: integer
+        pos_y:
+          type: integer
+        capacity:
+          type: integer
+      required:
+        - pos_x
+        - pos_y
+        - capacity
+      example:
+        pos_x: 1
+        pos_y: 1
+        capacity: 4
+
+      # --- INVITE SCHEMA ---
+    Invite:
+      type: object
+      description: "An invitation sent to a prospective employee to join a business."
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        description:
+          type: string
+        status:
+          type: string
+          enum: [pending, accepted, declined, expired]
+        business_name:
+          type: string
+        time_invited:
+          type: string
+          format: date-time
+      example:
+        id: 55
+        email: "kaya.sethi@example.com"
+        description: "Join our team as a waiter."
+        status: pending
+        business_name: "Rivermint Brasserie"
+        time_invited: "2025-10-18T12:00:00Z"
+
+    LocationDetail:
+      type: object
+      description: "Detailed location information including employee count."
+      properties:
+        id:
+          type: integer
+        business_id:
+          type: integer
+        country:
+          type: string
+          example: "Lithuania"
+        city:
+          type: string
+          description: "An assignable role that groups permissions for business users."
+          example: "Vilnius"
+        street:
+          type: string
+          example: "Naugarduko g. 24"
+        postal_code:
+          type: string
+          example: "LT-03225"
+        employee_count:
+          type: integer
+          example: 4
+      example:
+        id: 11
+        business_id: 55
+        country: "Lithuania"
+        city: "Vilnius"
+        street: "Naugarduko g. 24"
+        postal_code: "LT-03225"
+        employee_count: 4
+
+    EmployeeWorkShiftUpdateRequest:
+      type: object
+      description: "Request to update an employee's work hours, which creates a new version."
+      properties:
+        effective_from:
+          type: string
+          format: date-time
+        work_hours:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkHourPeriod'
+      required:
+        - effective_from
+        - work_hours
+      example:
+        effective_from: "2025-10-21T00:00:00Z"
+        work_hours:
+          - start: "2025-10-21T09:00:00Z"
+            end: "2025-10-21T17:00:00Z"
+
+    FeedbackStatisticsItem:
+      type: object
+      properties:
+        rating:
+          type: integer
+        datetime:
+          type: string
+          format: date-time
+      example:
+        rating: 5
+        datetime: "2025-10-18T12:00:00Z"
+    
+    FeedbackStatisticsResponse:
+      type: object
+      properties:
+        average_rating:
+          type: number
+          format: float
+        ratings_over_time:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeedbackStatisticsItem'
+      example:
+        average_rating: 4.6
+        ratings_over_time:
+          - rating: 5
+            datetime: "2025-10-18T12:00:00Z"
+          - rating: 4
+            datetime: "2025-10-19T12:00:00Z"
+
+    EmployeeJob:
+      type: object
+      description: "Represents an employee's job, salary, and status at a specific point in time (versioned)."
+      properties:
+        employee_id:
+          type: integer
+        effective_from:
+          type: string
+          format: date-time
+        job_id:
+          type: integer
+        location_id:
+          type: integer
+        salary:
+          type: number
+          format: decimal
+        status:
+          type: string
+          enum: [active, inactive, disabled]
+        edited_by:
+          type: integer
+      example:
+        employee_id: 102
+        effective_from: "2025-10-21T00:00:00Z"
+        job_id: 10
+        location_id: 11
+        salary: 2400.00
+        status: active
+        edited_by: 101
+
+    Permission:
+      type: object
+      description: "A granular capability that can be assigned via roles or directly."
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+      example:
+        id: 1
+        name: "manage_employees"
+        description: "Allows managing employees and roles"
+
+    CoOwnerPermissionUpdateRequest:
+      type: object
+      description: "Request to replace a co-owner's permission set."
+      properties:
+        permission_ids:
+          type: array
+          items:
+            type: integer
+      required:
+        - permission_ids
+      example:
+        permission_ids: [1, 2, 3]
+
+    BillDiscountCreateRequest:
+      type: object
+      description: "Create a discount applicable to an entire bill (order or appointment)."
+      properties:
+        value:
+          type: number
+        is_percentage:
+          type: boolean
+        valid_from:
+          type: string
+          format: date-time
+        valid_to:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - value
+        - is_percentage
+        - valid_from
+      example:
+        value: 10
+        is_percentage: true
+        valid_from: "2025-10-01T00:00:00Z"
+        valid_to: "2025-11-01T00:00:00Z"
+
+    BillDiscountUpdateRequest:
+      type: object
+      description: "Update fields for an existing bill-wide discount."
+      properties:
+        value:
+          type: number
+        is_percentage:
+          type: boolean
+        valid_from:
+          type: string
+          format: date-time
+        valid_to:
+          type: string
+          format: date-time
+        disabled:
+          type: boolean
+      example:
+        value: 5
+        is_percentage: false
+        valid_from: "2025-10-10T00:00:00Z"
+        valid_to: "2025-10-20T00:00:00Z"
+        disabled: true
+
+    MenuItemDiscountCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/BillDiscountCreateRequest'
+        - type: object
+          properties:
+            menu_item_id:
+              type: integer
+          required:
+            - menu_item_id
+      description: "Create a discount that targets a specific menu item."
+      example:
+        value: 10
+        is_percentage: true
+        valid_from: "2025-10-01T00:00:00Z"
+        valid_to: "2025-10-31T23:59:59Z"
+        menu_item_id: 501
+
+    MenuItemDiscountUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/BillDiscountUpdateRequest'
+        - type: object
+          properties:
+            menu_item_id:
+              type: integer
+      description: "Update a discount that targets a specific menu item."
+      example:
+        value: 5
+        is_percentage: true
+        valid_from: "2025-10-10T00:00:00Z"
+        valid_to: "2025-10-20T23:59:59Z"
+        disabled: false
+        menu_item_id: 501
+
+    ServiceDiscountCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/BillDiscountCreateRequest'
+        - type: object
+          properties:
+            employee_service_id:
+              type: integer
+          required:
+            - employee_service_id
+      description: "Create a discount for a particular employee's service."
+      example:
+        value: 15
+        is_percentage: true
+        valid_from: "2025-10-05T00:00:00Z"
+        valid_to: "2025-10-31T23:59:59Z"
+        employee_service_id: 321
+
+    ServiceDiscountUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/BillDiscountUpdateRequest'
+        - type: object
+          properties:
+            employee_service_id:
+              type: integer
+      description: "Update a discount for a particular employee's service."
+      example:
+        value: 7.5
+        is_percentage: false
+        valid_from: "2025-10-15T00:00:00Z"
+        valid_to: "2025-11-01T00:00:00Z"
+        disabled: true
+        employee_service_id: 321
+    
+    VariationItemProductRequest:
+      type: object
+      description: "Ingredient reference and quantity for a variation option."
+      properties:
+        product_id:
+          type: integer
+        quantity:
+          type: number
+          format: float
+      required:
+        - product_id
+        - quantity
+      example:
+        product_id: 41
+        quantity: 0.2
+
+    VariationItemRequest:
+      type: object
+      description: "An individual option inside a variation group (may adjust price)."
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price_adjustment:
+          type: number
+          format: decimal
+        status:
+          type: string
+          enum: [enabled, disabled]
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationItemProductRequest'
+      required:
+        - name
+        - price_adjustment
+        - status
+      example:
+        name: "Oat Milk"
+        description: "Milk alternative"
+        price_adjustment: 0.3
+        status: enabled
+        products:
+          - product_id: 77
+            quantity: 0.2
+
+    VariationGroupRequest:
+      type: object
+      description: "A group of related variation options and selection rules."
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [enabled, disabled]
+        min_selection:
+          type: integer
+        max_selection:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationItemRequest'
+      required:
+        - name
+        - status
+        - items
+      example:
+        name: "Milk Options"
+        description: "Choose your milk"
+        status: enabled
+        min_selection: 0
+        max_selection: 1
+        items:
+          - name: "Oat Milk"
+            price_adjustment: 0.3
+            status: enabled
+            products:
+              - product_id: 77
+                quantity: 0.2
+
+    InventoryProductDefinitionResponse:
+      type: object
+      description: "A simple product definition used in inventory listings."
+      properties:
+        name:
+          type: string
+        unit:
+          type: string
+          example: "kg"
+      example:
+        name: "Flour"
+        unit: "kg"
+
+    InventoryStockResponse:
+      type: object
+      description: "Aggregated stock quantity for a product at a location."
+      properties:
+        product_name:
+          type: string
+        location_name:
+          type: string
+        quantity:
+          type: number
+          format: float
+        unit:
+          type: string
+      example:
+        product_name: "Milk"
+        location_name: "Vilnius Downtown"
+        quantity: 8.5
+        unit: "l"
+
+    InventoryStockChangeResponse:
+      type: object
+      description: "An audit log entry describing a product stock change."
+      properties:
+        product_id:
+          type: integer
+        product_name:
+          type: string
+        location_id:
+          type: integer
+        location_name:
+          type: string
+        quantity:
+          type: number
+          format: float
+        unit:
+          type: string
+        expiration_date:
+          type: string
+          format: date
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        created_by_user_id:
+          type: integer
+          nullable: true
+        created_by_user_name:
+          type: string
+          description: "Full name of the employee or 'System' if null."
+      example:
+        product_id: 41
+        product_name: "Milk"
+        location_id: 11
+        location_name: "Vilnius Downtown"
+        quantity: -1.0
+        unit: "l"
+        expiration_date: null
+        created_at: "2025-10-18T07:30:00Z"
+        created_by_user_id: 102
+        created_by_user_name: "Noor Haddad"
+
+    MenuItemResponse:
+        type: object
+        description: "Detailed view of a menu item for responses."
+        properties:
+          id:
+            type: integer
+          name:
+            type: string
+          description:
+            type: string
+          category_name:
+            type: string
+          price_value:
+            type: number
+            format: decimal
+          status:
+            type: string
+            enum: [available, not_available, disabled]
+            description: "Calculated status based on inventory and item setting."
+          estimated_preparation_time:
+            type: integer
+            description: "Time in minutes."
+          image_url:
+            type: string
+            format: uri
+          variations:
+            type: array
+            items:
+              $ref: '#/components/schemas/MenuItemVariationGroup'
+        example:
+          id: 501
+          name: "Cappuccino"
+          description: "Espresso with steamed milk and foam"
+          category_name: "Hot Drinks"
+          price_value: 2.5
+          status: available
+          estimated_preparation_time: 5
+          image_url: "https://cdn.example.com/menu/cappuccino.jpg"
+          variations:
+            - id: 1
+              menu_item_id: 501
+              name: "Milk Options"
+              min_selection: 0
+              max_selection: 1
+    ServiceDefinition:
+      type: object
+      description: "An abstract definition of a service, without price or location."
+      properties:
+        id:
+          type: integer
+        business_id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        duration:
+          type: integer
+          description: "Default duration in minutes."
+      example:
+        id: 3
+        business_id: 55
+        name: "Shave"
+        description: "Hot towel shave"
+        duration: 20
+
+    LocationService:
+      type: object
+      description: "Represents a service definition being offered at a specific location."
+      properties:
+        id:
+          type: integer
+        service_id:
+          type: integer
+        location_id:
+          type: integer
+        status:
+          type: string
+          enum: [enabled, disabled]
+      example:
+        id: 100
+        service_id: 3
+        location_id: 11
+        status: enabled
+          
+    EmployeeServiceAssignment:
+      type: object
+      description: "The detailed response object for an employee assigned to a location-specific service, including their availability."
+      properties:
+        employee_id:
+          type: integer
+        employee_name:
+          type: string
+        employee_email:
+          type: string
+          format: email
+        employee_job_title:
+          type: string
+        location_name:
+          type: string
+        location_service_status:
+          type: string
+          enum: [enabled, disabled]
+        available_times:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkHourPeriod'
+      example:
+        employee_id: 208
+        employee_name: "Mateo Alvarez"
+        employee_email: "mateo.alvarez@example.com"
+        employee_job_title: "Senior Stylist"
+        location_name: "Aurora Salon — Old Town"
+        location_service_status: enabled
+        available_times:
+          - start: "2025-11-03T08:00:00Z"
+            end: "2025-11-03T12:00:00Z"
+          - start: "2025-11-03T13:00:00Z"
+            end: "2025-11-03T16:00:00Z"
+
+    # --- Request Body Schemas ---
+    CreateServiceDefinitionRequest:
+      type: object
+      description: "Create an abstract service definition (no price/location)."
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        duration:
+          type: integer
+      required:
+        - name
+        - duration
+      example:
+        name: "Shave"
+        description: "Hot towel shave"
+        duration: 20
+        
+    UpdateServiceDefinitionRequest:
+      type: object
+      description: "Update an abstract service definition's basic fields."
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        duration:
+          type: integer
+      example:
+        name: "Shave+"
+        description: "With aftershave"
+        duration: 25
+
+    AddLocationServiceRequest:
+      type: object
+      description: "Offer an existing service definition at a specific location."
+      properties:
+        service_id:
+          type: integer
+          description: "The ID of the service definition to offer at this location."
+        status:
+          type: string
+          enum: [enabled, disabled]
+      required:
+        - service_id
+        - status
+      example:
+        service_id: 3
+        status: enabled
+
+    UpdateLocationServiceRequest:
+      type: object
+      description: "Enable or disable a service offered at a location."
+      properties:
+        status:
+          type: string
+          enum: [enabled, disabled]
+      required:
+        - status
+      example:
+        status: disabled
+        
+    AddEmployeeToServiceRequest:
+      type: object
+      description: "Assign an employee to perform a service at a location."
+      properties:
+        employee_id:
+          type: integer
+      required:
+        - employee_id
+      example:
+        employee_id: 102
+    LocationSeatingResponse:
+      type: object
+      description: "Public view of seating at a location, including availability."
+      properties:
+        id:
+          type: integer
+        position_x:
+          type: integer
+        position_y:
+          type: integer
+        capacity:
+          type: integer
+        is_available:
+          type: boolean
+      example:
+        id: 200
+        position_x: 5
+        position_y: 3
+        capacity: 4
+        is_available: true
+
+    OrderVariationDetail:
+      type: object
+      description: "Selected variation attached to an order item."
+      properties:
+        variation_id:
+          type: integer
+        variation_name:
+          type: string
+      example:
+        variation_id: 901
+        variation_name: "Oat Milk"
+
+    OrderItemDetail:
+      type: object
+      description: "Detailed order item with status, timing, and selected variations."
+      properties:
+        menu_item_id:
+          type: integer
+        menu_item_name:
+          type: string
+        quantity:
+          type: integer
+        item_status:
+          type: string
+          enum: [NOT_STARTED, IN_PROGRESS, READY, DELIVERED]
+        estimated_duration:
+          type: integer
+          description: "Preparation time in minutes."
+        total_cost:
+          type: number
+          format: decimal
+        variations:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderVariationDetail'
+      example:
+        menu_item_id: 501
+        menu_item_name: "Cappuccino"
+        quantity: 2
+        item_status: READY
+        estimated_duration: 5
+        total_cost: 5.60
+        variations:
+          - variation_id: 901
+            variation_name: "Oat Milk"
+
+    OrderSeatingDetail:
+      type: object
+      description: "The seating spot assigned to the order."
+      properties:
+        id:
+          type: integer
+        position_x:
+          type: integer
+        position_y:
+          type: integer
+        capacity:
+          type: integer
+      example:
+        id: 200
+        position_x: 5
+        position_y: 3
+        capacity: 4
+
+    OrderDetailResponse:
+      type: object
+      description: "A comprehensive view of an order, including all nested details."
+      properties:
+        seating:
+          $ref: '#/components/schemas/OrderSeatingDetail'
+        total_cost:
+          type: number
+          format: decimal
+        started_at:
+          type: string
+          format: date-time
+        order_status:
+          type: string
+          enum: [OPEN, PAID, CANCELLED, REFUNDED]
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemDetail'
+      example:
+        seating:
+          id: 200
+          position_x: 5
+          position_y: 3
+          capacity: 4
+        total_cost: 12.10
+        started_at: "2025-10-18T12:00:00Z"
+        order_status: OPEN
+        items:
+          - menu_item_id: 501
+            menu_item_name: "Cappuccino"
+            quantity: 2
+            item_status: READY
+            estimated_duration: 5
+            total_cost: 5.60
+            variations:
+              - variation_id: 901
+                variation_name: "Oat Milk"
+
+    CreateOrderItemWithVariationsRequest:
+      type: object
+      properties:
+        menu_item_id:
+          type: integer
+        quantity:
+          type: integer
+        variations:
+          type: array
+          items:
+            type: integer # Array of variation_id
+      required:
+        - menu_item_id
+        - quantity
+      description: "Order item payload including selected variation IDs."
+      example:
+        menu_item_id: 501
+        quantity: 2
+        variations: [901]
+
+    CreateOrderWithItemsRequest:
+      type: object
+      properties:
+        seating_id:
+          type: integer
+        menu_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateOrderItemWithVariationsRequest'
+      required:
+        - seating_id
+        - menu_items
+      description: "Creates an order for a specific seating with initial items and their variations."
+      example:
+        seating_id: 200
+        menu_items:
+          - menu_item_id: 501
+            quantity: 2
+            variations: [901]
+
+    MyWorkScheduleResponse:
+      type: object
+      description: "A user's work schedule, grouped by business."
+      properties:
+        business_id:
+          type: integer
+        business_name:
+          type: string
+        work_periods:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkHourPeriod'
+      example:
+        business_id: 77
+        business_name: "Orion Bakery"
+        work_periods:
+          - start: "2025-11-02T06:00:00Z"
+            end: "2025-11-02T14:00:00Z"
+          - start: "2025-11-03T10:00:00Z"
+            end: "2025-11-03T18:00:00Z"
+
+    EmployeeUpdateRequest:
+      type: object
+      description: "Request to create a new version of an employee's job, salary, location, or status."
+      properties:
+        effective_from:
+          type: string
+          format: date-time
+          description: "The date and time this change takes effect. Required for any update."
+        salary:
+          type: number
+          format: decimal
+        location_id:
+          type: integer
+        employment_status:
+          type: string
+          enum: [active, inactive, disabled]
+      required:
+        - effective_from
+      example:
+        effective_from: "2025-11-01T00:00:00Z"
+        salary: 2650.00
+        location_id: 11
+        employment_status: active
+
+    AppointmentDetailResponse:
+      type: object
+      description: "A comprehensive view of an appointment, including all related details."
+      properties:
+        id:
+          type: integer
+        service_name:
+          type: string
+        employee_id:
+          type: integer
+        employee_name:
+          type: string
+        location_id:
+          type: integer
+        location_name:
+          type: string
+        customer_name:
+          type: string
+        customer_email:
+          type: string
+          format: email
+        customer_phone:
+          type: string
+        start_time:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+        block_duration:
+          type: integer
+        status:
+          type: string
+          enum: [RESERVED, UPCOMING, SERVING, AWAITING_PAYMENT, PAID, CANCELLED]
+        price:
+          type: number
+          format: decimal
+        price_id:
+          type: integer
+        discount:
+          type: number
+          format: decimal
+      example:
+        id: 6101
+        service_name: "Men's Haircut"
+        employee_id: 102
+        employee_name: "Noor Haddad"
+        location_id: 11
+        location_name: "Rivermint Brasserie — Atrium"
+        customer_name: "Elodie Marin"
+        customer_email: "elodie.marin@example.com"
+        customer_phone: "+37061234567"
+        start_time: "2025-10-21T09:00:00Z"
+        duration: 30
+        block_duration: 15
+        status: RESERVED
+        price: 25.00
+        price_id: 12001
+        discount: 0
+
+    AppointmentBillDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/AppointmentDetailResponse'
+        - type: object
+          properties:
+            appointment_bill_id:
+              type: integer
+            tip:
+              type: number
+              format: decimal
+            created_at:
+              type: string
+              format: date-time
+      description: "Appointment details extended with billing information."
+      example:
+        id: 6101
+        service_name: "Men's Haircut"
+        employee_id: 102
+        employee_name: "Noor Haddad"
+        location_id: 11
+        location_name: "Rivermint Brasserie — Atrium"
+        customer_name: "Elodie Marin"
+        customer_email: "elodie.marin@example.com"
+        customer_phone: "+37061234567"
+        start_time: "2025-10-21T09:00:00Z"
+        duration: 30
+        block_duration: 15
+        status: PAID
+        price: 25.00
+        price_id: 12001
+        discount: 0
+        appointment_bill_id: 91501
+        tip: 3.00
+        created_at: "2025-10-21T09:45:00Z"
+
+    OrderBillItemDetail:
+      type: object
+      description: "A single billed menu item with quantity, discounts, and selected variations."
+      properties:
+        bill_item_id:
+          type: integer
+        menu_item_name:
+          type: string
+        quantity:
+          type: integer
+        total_cost:
+          type: number
+          format: decimal
+        discount:
+          type: number
+          format: decimal
+        variations:
+          type: array
+          items:
+            type: object
+            properties:
+              variation_name:
+                type: string
+              price_adjustment:
+                type: number
+                format: decimal
+      example:
+        bill_item_id: 1
+        menu_item_name: "Cappuccino"
+        quantity: 2
+        total_cost: 5.60
+        discount: 0
+        variations:
+          - variation_name: "Oat Milk"
+            price_adjustment: 0.30
+
+    OrderBillDetailResponse:
+      type: object
+      description: "Detailed bill information for an order, including items and totals."
+      properties:
+        bill_id:
+          type: integer
+        total_cost:
+          type: number
+          format: decimal
+        tip:
+          type: number
+          format: decimal
+        vat_rate:
+          type: number
+          format: decimal
+        discount:
+          type: number
+          format: decimal
+        created_at:
+          type: string
+          format: date-time
+        location_name:
+          type: string
+        location_id:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderBillItemDetail'
+      example:
+        bill_id: 9001
+        total_cost: 12.10
+        tip: 2.00
+        vat_rate: 21.0
+        discount: 0
+        created_at: "2025-10-18T13:05:00Z"
+        location_name: "Rivermint Brasserie"
+        location_id: 11
+        items:
+          - bill_item_id: 1
+            menu_item_name: "Cappuccino"
+            quantity: 2
+            total_cost: 5.60
+            discount: 0
+            variations:
+              - variation_name: "Oat Milk"
+                price_adjustment: 0.30
+
+    UpdateAppointmentRequest:
+      type: object
+      description: "Modify customer details, duration, or cancel an appointment."
+      properties:
+        customer_name:
+          type: string
+        customer_surname:
+          type: string
+        customer_email:
+          type: string
+          format: email
+        customer_phone:
+          type: string
+        duration:
+          type: integer
+        block_duration:
+          type: integer
+        status:
+          type: string
+          enum: [CANCELLED]
+      example:
+        customer_name: "Elodie"
+        customer_surname: "Marin"
+        customer_email: "elodie.marin@example.com"
+        customer_phone: "+37061234567"
+        duration: 35
+        block_duration: 10
+        status: CANCELLED
+
+    EmployeeJobUpdateRequest:
+      type: object
+      description: "Request to create a new version of an employee's job details (salary, location, status, etc.), which will become active at the specified effective_from date."
+      properties:
+        effective_from:
+          type: string
+          format: date-time
+          description: "The date and time this change takes effect. This is required for any versioned update."
+        job_id:
+          type: integer
+          description: "The new job ID for the employee (e.g., for a promotion)."
+          example: 11
+        location_id:
+          type: integer
+          description: "The new location ID for the employee."
+          example: 12
+        salary:
+          type: number
+          format: decimal
+          description: "The new salary for the employee."
+          example: 2800.50
+        status:
+          type: string
+          enum: [active, inactive, disabled]
+          description: "The new employment status."
+          example: "active"
+      required:
+        - effective_from
+      example:
+        effective_from: "2026-01-01T00:00:00Z"
+        salary: 2800.50
+        job_id: 11
+        location_id: 12
+        status: active
