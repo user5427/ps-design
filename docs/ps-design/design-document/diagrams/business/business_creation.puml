@@ -1,0 +1,16 @@
+@startuml
+start
+:Access **UniServe**;
+:Navigate to Business;
+:Select "Create Business";
+:Enter business info (name, type, country, support contacts);
+:Validate fields;
+if (Valid data?) then (Yes)
+  :Save business entity;
+  :Show success confirmation;
+else (No)
+  :Display validation error;
+endif
+:Redirect to Manage Business page;
+stop
+@enduml

@@ -1,0 +1,19 @@
+@startuml
+start
+:Access **UniServe**;
+:Employee navigates to **Feedback** section;
+if (Give feedback?) then (Yes)
+    :Employee clicks Give Feedback;
+    :Select colleague to rate;
+    :Enter rating and comments;
+    if (Submit anonymously?) then (Yes)
+      :Mark feedback as anonymous;
+    endif
+    :Submit feedback;
+    :System stores feedback;
+    :Employee optionally views submitted feedback;
+else (No)
+    :Employee Views his own feedback;
+endif
+stop
+@enduml
