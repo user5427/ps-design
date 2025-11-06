@@ -1,0 +1,20 @@
+@startuml
+start
+:Open **UniServe** homepage;
+if (Already registered?) then (Yes)
+  :Log in;
+  :Success;
+else (No)
+  :Choose Sign Up;
+  :Enter personal info (name, phone, email);
+  :Select role (Employee / Business Owner);
+  if (Has invitation code?) then (Yes)
+    :Enter invitation code;
+    :Verify code and get assigned to business;
+  else (No)
+    :Create new user profile;
+  endif
+endif
+:Redirect to Dashboard;
+stop
+@enduml

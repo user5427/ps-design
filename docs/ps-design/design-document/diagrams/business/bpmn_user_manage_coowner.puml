@@ -9,14 +9,9 @@ start
 fork
   -->[Invite Co-Owner]
   :Open "Invite Co-Owner" form;
-  :Fill in name, email, permissions, description;
-  :Submit form;
-  :Receive confirmation toast (success / error);
-fork again
-  -->[Generate Code]
-  :Open "Generate Invitation Code" page;
-  :Enter co-owner email and permissions;
-  :Generate and copy code;
+  :Fill in name, email, permissions;
+  :Fill in expiration of invite;
+  :Press "Generate and Send Code";
   :Receive confirmation toast (success / error);
 fork again
   -->[Manage Existing Co-Owner]

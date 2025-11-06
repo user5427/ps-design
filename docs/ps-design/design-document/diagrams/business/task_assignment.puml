@@ -1,0 +1,10 @@
+@startuml
+start
+:Access **UniServe**;
+:Manager navigates to **Tasks**;
+:Select employee;
+:Create task (name, description, due time, approximate duration);
+:Assign employees to the task;
+:System saves the task;
+stop
+@enduml
