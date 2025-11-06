@@ -15,56 +15,79 @@
 
 \usepackage{xcolor}
 \usepackage{tcolorbox}
+% Master switch for all comments (set to 0 to disable, 1 to enable)
+\newcommand{\showcomments}{0}
+
+% Helper command to conditionally show content
+\newcommand{\ifshowcomments}[1]{%
+    \ifnum\showcomments=1%
+        #1%
+    \fi%
+}
 
 \newcommand{\yellowcomment}[1]{%
-    \begin{tcolorbox}[colback=yellow!80, colframe=yellow!80, arc=0pt, outer arc=0pt, boxrule=0pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
-        \textbf{\textcolor{red}{COMMENT:}} #1
-    \end{tcolorbox}
+    \ifshowcomments{%
+        \begin{tcolorbox}[colback=yellow!80, colframe=yellow!80, arc=0pt, outer arc=0pt, boxrule=0pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
+            \textbf{\textcolor{red}{COMMENT:}} #1
+        \end{tcolorbox}%
+    }%
 }
 
-% Alternative using colorbox with parbox for inline comments
 \newcommand{\inlineyellow}[1]{%
-    \colorbox{yellow!80}{\parbox{\dimexpr\textwidth-2\fboxsep}{%
-        \textbf{\textcolor{red}{COMMENT:}} #1%
-    }}%
+    \ifshowcomments{%
+        \colorbox{yellow!80}{\parbox{\dimexpr\textwidth-2\fboxsep}{%
+            \textbf{\textcolor{red}{COMMENT:}} #1%
+        }}%
+    }%
 }
 
-% Even more obnoxious version with red border
 \newcommand{\warningcomment}[1]{%
-    \begin{tcolorbox}[colback=yellow!90, colframe=red, arc=0pt, outer arc=0pt, boxrule=2pt, left=5pt, right=5pt, top=5pt, bottom=5pt]
-        \Large\textbf{\textcolor{red}{FIX THIS: }} \normalsize #1
-    \end{tcolorbox}
+    \ifshowcomments{%
+        \begin{tcolorbox}[colback=yellow!90, colframe=red, arc=0pt, outer arc=0pt, boxrule=2pt, left=5pt, right=5pt, top=5pt, bottom=5pt]
+            \Large\textbf{\textcolor{red}{FIX THIS: }} \normalsize #1
+        \end{tcolorbox}%
+    }%
 }
 
 \newcommand{\goodcomment}[1]{%
-    \begin{tcolorbox}[colback=green!20, colframe=green!60, arc=0pt, outer arc=0pt, boxrule=1pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
-        \textbf{\textcolor{green!70!black}{GOOD:}} #1
-    \end{tcolorbox}
+    \ifshowcomments{%
+        \begin{tcolorbox}[colback=green!20, colframe=green!60, arc=0pt, outer arc=0pt, boxrule=1pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
+            \textbf{\textcolor{green!70!black}{GOOD:}} #1
+        \end{tcolorbox}%
+    }%
 }
 
 \newcommand{\noticecomment}[1]{%
-    \begin{tcolorbox}[colback=blue!20, colframe=blue!60, arc=0pt, outer arc=0pt, boxrule=1pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
-        \textbf{\textcolor{blue!70!black}{NOTE:}} #1
-    \end{tcolorbox}
+    \ifshowcomments{%
+        \begin{tcolorbox}[colback=blue!20, colframe=blue!60, arc=0pt, outer arc=0pt, boxrule=1pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
+            \textbf{\textcolor{blue!70!black}{NOTE:}} #1
+        \end{tcolorbox}%
+    }%
 }
 
-% Inline version for positive comments
 \newcommand{\inlinegreen}[1]{%
-    \colorbox{green!20}{\textbf{\textcolor{green!70!black}{✓ GOOD:}} #1}%
+    \ifshowcomments{%
+        \colorbox{green!20}{\textbf{\textcolor{green!70!black}{✓ GOOD:}} #1}%
+    }%
 }
 
 \newcommand{\todocomment}[1]{%
-    \begin{tcolorbox}[colback=red!20, colframe=red!60, arc=0pt, outer arc=0pt, boxrule=1pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
-        \textbf{\textcolor{orange!70!black}{TODO:}} #1
-    \end{tcolorbox}
+    \ifshowcomments{%
+        \begin{tcolorbox}[colback=red!20, colframe=red!60, arc=0pt, outer arc=0pt, boxrule=1pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
+            \textbf{\textcolor{orange!70!black}{TODO:}} #1
+        \end{tcolorbox}%
+    }%
 }
 
 \newcommand{\suggestioncomment}[1]{%
-    \definecolor{lime}{RGB}{50,205,50}%
-    \begin{tcolorbox}[colback=lime!15, colframe=lime!60, arc=0pt, outer arc=0pt, boxrule=1pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
-        \textbf{\textcolor{lime!70!black}{SUGGESTION:}} #1
-    \end{tcolorbox}%
+    \ifshowcomments{%
+        \definecolor{lime}{RGB}{50,205,50}%
+        \begin{tcolorbox}[colback=lime!15, colframe=lime!60, arc=0pt, outer arc=0pt, boxrule=1pt, left=3pt, right=3pt, top=3pt, bottom=3pt]
+            \textbf{\textcolor{lime!70!black}{SUGGESTION:}} #1
+        \end{tcolorbox}%
+    }%
 }
+
 
 \usepackage[nottoc]{tocbibind}
 \usepackage{tocloft}
@@ -132,202 +155,25 @@
 \onehalfspacing
 
 
-% \section*{Check List \checkmark}
+% \section*{Other}
 
-% \section*{Assignment Requirements}
+% \subsubsection*{Use of AI}
 
-% \subsection*{Documentation Requirements}
+% Just a little note: dont just copy the assignment text and expect good output,
+% look into slides also and try to apply lecture material. 
 
-% The assignment consists of the following parts: title page, table of contents,
-% and the main part.
+% \subsubsection*{Comments}
 
-% \textbf{Section numbering.} Headings of the sections must be numbered strictly
-% hierarchically. The sections have assigned numbers, such as 1., subsections –
-% 1.1., 1.2, subsubsections – 1.1.1., 1.1.2. and so on. \checkmark
+% \warningcomment{This is a very important comment}
+% \yellowcomment{This is a comment}
+% \todocomment{This is a todo comment}
+% \noticecomment{This is a notice comment}
+% \goodcomment{This is a good comment}
+% \suggestioncomment{This is a suggestion comment}
 
-% \textbf{File naming requirements.} A file name contains a short project title,
-% an assignment number and an assignment title. Example: CarBuddy 1 User needs.pdf
-
-% \subsection*{An outline of the main part}
-
-% \begin{enumerate}
-%     \item Introduction \checkmark
-%     \begin{enumerate}
-%         \item[1.1.] Project titles \checkmark
-%         \item[1.2.] Problem statement \checkmark
-%     \end{enumerate}
-    
-%     \item User needs analysis
-%     \begin{enumerate}
-%         \item[2.1.] Expectations of the stakeholders \checkmark
-%         \item[2.2.] $\langle$The name of the first user group$\rangle$ research \{for each user group in both primary and secondary stakeholders\} \checkmark
-%         \begin{enumerate}
-%             \item[2.2.1.] Current users' activities \checkmark
-%             \begin{enumerate}
-%                 \item[2.2.1.1.] $\langle$Title of the 1st user story$\rangle$ \checkmark
-%                 \begin{itemize}
-%                     \item Description of current activity (unnumbered subsection) \checkmark
-%                     \item Problems and opportunities (unnumbered subsection) \checkmark
-%                 \end{itemize}
-%                 \item[2.2.1.2.] $\langle$Title of the 2nd user story$\rangle$ \checkmark
-%                 \begin{itemize}
-%                     \item \ldots \checkmark
-%                 \end{itemize}
-%             \end{enumerate}
-%             \item[2.2.2.] Characteristics of the people, activities, context, and technologies \checkmark
-%             \item[2.2.3.] Needs
-%             \item[2.2.4.] Usability objectives
-%         \end{enumerate}
-%         \item[2.3.] $\langle$The name of the next user group$\rangle$ needs analysis \{if needed\}
-%         \item[] \ldots
-%         \item[2.$\langle$n+1$\rangle$.] Inspiring user interface designs
-%     \end{enumerate}
-% \end{enumerate}
-
-% \subsection*{Explanations}
-
-% \textbf{The title page} contains:
-% \begin{itemize}
-%     \item university name, faculty, and study program, \checkmark
-%     \item project full title, \checkmark
-%     \item contributors' names and surnames, \checkmark
-%     \item year. \checkmark
-% \end{itemize}
-
-% \textbf{The table of contents} includes the sections and subsections until the 3rd level and page numbers. \checkmark
-
-% \textbf{Project titles.} The project must have two titles: \checkmark
-% \begin{itemize} 
-%     \item full (e.g. ``Vilnius University Library App'') and \checkmark
-%     \item short (e.g. ``Library''). \checkmark
-% \end{itemize}
-
-% The full title is used on the title page and in this section, a short title serves as a project reference in the document text and assignment file names. \checkmark
-
-% \textbf{Problem statement} explains the high-level project goals shortly and
-% specifically (about half a page). The problem is described in terms of user
-% activities and situations where the problem occurs, and what aspects might be
-% improved with a technical solution. Avoid describing or suggesting a solution at
-% this stage that will hamper your design thinking when you start solving the
-% problem. \checkmark
-
-% To gather the relevant facts for your problem statement, you can use a simple
-% technique called the 6 Ws, which involves answering the questions below: \checkmark
-% \begin{itemize}
-%     \item Who is affected by the problem? \checkmark
-%     \item What is the problem? \checkmark
-%     \item Where does this problem occur? \checkmark
-%     \item When does the problem occur? \checkmark
-%     \item Why does the problem occur? \checkmark
-%     \item Why is the problem important? \checkmark
-% \end{itemize}
-
-% \textbf{Expectations of the stakeholders} \checkmark
-
-% Specify the specific groups of people (stakeholders) involved in activities that
-% will be supported by your project (see Lecture 1. User-centered design).
-% Identify relevant stakeholders' intentions that are supposed to be fulfilled. In
-% the competitors subsection, you should list your closest competitors. Then you
-% should list your main competitive advantages over them. \checkmark
-
-% \textbf{Current user activities} \checkmark
-
-% Watching how people do things is a great way to learn their goals and values,
-% and come up with design insight. This is called user research. This assignment
-% helps you train your eyes and ears to develop design ideas. Your goal is to
-% uncover user needs, breakdowns, clever hacks, and opportunities for improvement.
-% Begin by selecting a specific activity to observe. \checkmark
-
-% The description contains the user story that tells about the current user
-% activities. Note that your service or product does not exist yet. Therefore, you
-% must describe the existing activities, such as how your users achieve their
-% goals with existing competitive products, and highlight the pain points and
-% troubles. Then, indicate the problems and improvement opportunities (see the
-% assignment outline). \checkmark
-
-% Describe at least 3 observations of current user activities for primary users,
-% for the secondary – there can be fewer. Examples of activity descriptions: \checkmark
-
-% \begin{itemize}
-%     \item \textbf{Story 1:} Ann is a clerk in her twenties, comes for a quick
-%     lunch. She wants to see dishes that are served within 15 min. She waits 10
-%     min. for a waiter. The waiter says that only soup can be served in 15 min.
-%     Therefore Ann leaves the restaurant and goes for a fast food nearby. \checkmark
-    
-%     \item \textbf{Story 2:} Andrew, a thirty-two-year-old restaurant client, who
-%     suffers from allergies, comes to a restaurant. He examines the menu. The
-%     menu is long, ingredients are mentioned in every dish. So, it takes about 5
-%     minutes to choose a dish. Waiting for the dish takes 20 min. Andrew must
-%     hurry and eats quickly because he has to return to work on time. \checkmark
-    
-%     \item \textbf{Story 3:} Thirty-five-years-old Peter goes to a restaurant
-%     with his family. He noticed on Google Maps that a new restaurant was opening
-%     not far away. They spend time reading the menu. The café has a children's
-%     menu, but children's favorite dishes are missing. Children are bored because
-%     of missing the game area. The family chooses quick dishes from the menu. \checkmark
-    
-%     \item \textbf{Story 4:} Fourty-year-old Sara comes with her friends to a
-%     restaurant on Sunday. They are looking for a big table but see that the
-%     restaurant is almost full. They started to explore the TripAdvisor app on
-%     their phone for other restaurants phone numbers to ask whether they have a
-%     free big table for a group. \ldots \checkmark
-% \end{itemize}
-
-% \textbf{How to check whether a story is correct?} \checkmark
-
-% A story should cover
-% characteristics of peoples, activities, environment and technologies that are
-% related to computerized activities. If any characteristic is missing, you should
-% augment the story. \checkmark
-
-% \textbf{Needs statements and usability objectives} 
- 
-% After describing user stories, go over your findings. Brainstorm about both user
-% needs and usability objectives. Observe the opportunities for design innovation
-% that would improve the activity. User needs are formulated for primary and
-% secondary users, only. Indirect stakeholders formulate business goals that are
-% abstract and relate to business strategy. Business goals should be met with the
-% needs of primary and secondary users. The impact of business goals on user needs
-% is explained in Lecture 2, slides 52–53. Examples of usability goals and needs
-% are provided in slides 54--57, and usability objectives are tackled in slides
-% 58--60. 
-
-% The project must contain at least 15 user needs. 3–5 usability objectives are
-% defined for every user group. You are not looking for solutions yet: focus on
-% user needs only. User needs and usability objectives must have unique
-% identifiers. Below the needs and the usability objectives provide traceability
-% matrices that link the need or objective identifier with the number of paragraph
-% of the user story from which it is derived.
-
-% \textbf{Inspiring user interface designs}
-
-% Provide here examples of successful user interface solutions of existing
-% software that can be useful for specified user needs and usability objectives.
-% Provide a screenshot of the design, the number of user needs, or the usability
-% objective for which this solution would be beneficial. Images should have
-% captions with concise explanations and references to the source, from which this
-% image is taken. The text related to the image should contain cross-reference to
-% the image. Provide at least 5 examples.
-
-\section*{Other}
-
-\subsubsection*{Use of AI}
-
-Just a little note: dont just copy the assignment text and expect good output,
-look into slides also and try to apply lecture material. 
-
-\subsubsection*{Comments}
-
-\warningcomment{This is a very important comment}
-\yellowcomment{This is a comment}
-\todocomment{This is a todo comment}
-\noticecomment{This is a notice comment}
-\goodcomment{This is a good comment}
-\suggestioncomment{This is a suggestion comment}
-
-Usage of comments in text is recommended as it helps to highlight problems and
-solutions. The Overleaf comments are often ignored, therefore, it is recommended
-to use the comments defined in this template.
+% Usage of comments in text is recommended as it helps to highlight problems and
+% solutions. The Overleaf comments are often ignored, therefore, it is recommended
+% to use the comments defined in this template.
 
 \section{Introduction}
 \subsection{Project title}
@@ -715,9 +561,9 @@ environments, where they have constant interactions with both in-person and remo
     
     \item[UN-04]\label{UN-04} An employee needs to search bookings by customer name to resolve customer queries during ongoing service.
     \item[UN-05]\label{UN-05} An employee needs to see a text message indicating what errors occurred if a recorded order is incorrect so that the errors can be corrected immediately.
-    \item[UN-06]\label{UN-06} An employee needs to see the final total for each order, so that they do not have to calculate it manually, reducing errors and saving time.
+    \item[UN-06]\label{UN-06} An employee needs to see the final total for each order, so that they do not have to calculate it manually.
     % \item[UN-05] An employee needs a system that validates employee input and provides instant feedback to reduce errors and increase speed while servicing customers.
-    \item[UN-07]\label{UN-07} An employee needs to see current inventory levels automatically updated based on orders so that they can identify low-stock items and reorder supplies.
+    \item[UN-07]\label{UN-07} An employee needs to see current inventory levels so that they can identify low-stock items and reorder supplies.
 
 \end{itemize}
 
@@ -1429,10 +1275,7 @@ It satisfies these \textbf{usability objectives:}
 \end{itemize}
 
 \section{Mockups}
-
-We do not have the description for Mockups as we focused on making mockups mainly. 
-
-We decided to go course grained for the second mockup, top down method. 
+\noticecomment{pirmas langas turi rodyti kaip apimti visus poreikius}
 
 \begin{itemize}
     \item Wireframe 1 presents a high-level, visually-driven dashboard with a clean, minimalist interface. It prioritizes at-a-glance information and direct access to major management categories through a flat navigational structure.
@@ -1440,9 +1283,48 @@ We decided to go course grained for the second mockup, top down method.
 \end{itemize}
 
 \subsection{Implemented used needs}
+\noticecomment{do both mockups actually implement these? what about manager needs? customer needs (live menu)?}
+\noticecomment{mention how these needs are implemented... (you could reference the frame name in figma and then just write a little bit about it)}
+% CASHIER (SER) (tikriausiai paprasciausias)
 
-% isrinkti kas ten igyvendinta, man atrodo ne visus reikia?
+\todocomment{Find a nice way to seperate which ones are in both, which ones are in mockup 2}
 
+\begin{itemize}
+    \goodcomment{Added implementation for all UNs}
+    \textbf{Employee Needs}
+
+         \item[UN-01] An employee needs to record customer orders to avoid damaging them in the fast-paced restaurant. \\
+        \textit{Implementation:} For wireframe 1,  \textbf{Order} frame, and For Wireframe 2, the \textbf{`Working / Order / Create`} and \textbf{`Working / Menu`} frames provide a digital interface for selecting items and creating an order.
+        
+        \item[UN-02] An employee needs to view available booking slots. \\
+        \textit{Implementation:} (Only wireframe2) This is implemented in the \textbf{`Working / Appointments`} screen, which features a calendar-based schedule showing available and booked time slots for service-based businesses.
+        
+        \item[UN-04] An employee needs to search bookings by customer name to resolve customer queries during ongoing service. \\
+        \textit{Implementation:} (Only wireframe2) Implemented within the \textbf{`Working / Appointments`} view, which includes a search bar to find appointments by customer.
+        
+        \item[UN-06] An employee needs to see the final total for each order, so that they do not have to calculate it manually. \\
+        \textit{Implementation:} (Only wireframe2) Implemented in the "Check" panel within the \textbf{`Working / Order / Create`} frame. The system calculates and displays a running total as items are added.
+        
+        \item[UN-07] An employee needs to see current inventory levels automatically updated based on orders. \\
+        \textit{Implementation:} (Only wireframe2) Implemented through the \textbf{`Working / Menu`}, which is designed to display real-time item availability based on inventory data.
+    \end{itemize}
+
+    \textbf{Business Owner Needs}:
+
+    \goodcomment{Added this section and list of UNs}
+
+    \begin{itemize}
+        \item [UN-13] A business owner needs to be able to see individual staff performance data, so they can recognize top performers and monitor improvements.\\ 
+        \textit{Implementation:} Both wireframes include a section for managing employees (\textbf{`Your Team`} in Wireframe 1, \textbf{`Business / ... / Employees`} in Wireframe 2), which provides co-worker reviews.
+        
+        \item [UN-14] A business owner needs to be able to see sales data so they can quickly identify sales patterns and evaluate the impact of pricing strategies. \\
+        \textit{Implementation:} Both mockups feature a dashboard with visual charts (e.g., \textbf{`Location earnings by quarters`} in the frame \textbf{`Owner homepage`} of Wireframe 1 , and the "Total Revenue" graph in the \textbf{`Business / ... / Reports`} frame of Wireframe 2) that allow owners to quickly see business performance.
+        
+        \item [UN-15] A business owner needs to see inventory stock levels so they can optimize ordering, reduce waste, and prevent stockouts. \\
+        \textit{Implementation:} Both designs provide access to an inventory management section where owners can view and manage stock levels in the frame (\textbf{`Inventory levels`} of Wireframe 1, and \textbf{`Business / ... / Inventory`} in the Wireframe 2).
+         \item [UN-NEW1] A business owner needs to create discounts(of multiple types) so that it could be applied to items or entire orders. \\
+        \textit{Implementation:} Both designs provide access to an discount management section where owners can view and manage discounts in the frame (\textbf{`Discounts`} of Wireframe 1, and \textbf{`Business / ... / Discounts`} in Wireframe 2).
+    \end{itemize}
 
 \subsection{Information architecture solutions}
 
@@ -1450,37 +1332,82 @@ We decided to go course grained for the second mockup, top down method.
 
 % mockup 2: hierarchine + pradzioje tiesine
 
+The two wireframes intentionally use slightly different IA solutions to explore alternative user experiences.
+
 \subsubsection{Type of Ontology}
 
-Both wireframes are based on a coarse-grained ontology. The information space is structured around a few high-level concepts: "Locations," "Teams" (or "Employees"), "Discounts," and "Business." These core objects are distinct and serve as containers for more detailed information and functions. This ontology is appropriate for the application's domain, which involves managing a few complex business entities.
+\yellowcomment{Not sure how to highlight the difference without repeating what is written in 3.2.3}
+
+\noticecomment{what are the differences between those wireframes?}
+Both wireframes are based on a coarse-grained ontology. The information space is structured around a few high-level concepts: "Orders," "Teams" (or "Employees"), "Discounts," and "Business." These core objects are distinct and serve as containers for more detailed information and functions. 
 
 \subsubsection{Design Approach}
+\yellowcomment{Not sure how to highlight the difference without repeating what is written in 3.2.3}
+\noticecomment{but if we are doing 2 different mockups there should be some differences in design approach too? or no?}
 
-Both mockups utilize a Top-Down Design Approach. The architecture is designed from the highest level, anticipating the primary goals of the user (e.g., "I need to see how my business is doing," "I need to manage my staff"). The system is then broken down into logical subdivisions to support these goals.
+Both mockups utilize a Top-Down Design Approach. The architecture is designed from the highest level, anticipating the primary goals of the user (e.g., "I need to see create new discount" "I need to manage my staff"). The system is then broken down into logical subdivisions to support these goals.
 
 \subsubsection{IA Structures}
 
+\goodcomment{Updated based on all the comments}
+
+\noticecomment{what are subcategories}
+\noticecomment{What does very flat mean? Explain? 2 level or 3 level?}
 \begin{itemize}
-    \item Wireframe 1: Employs a Hub and Spoke structure combined with a very flat hierarchy. The "Home" screen acts as the central hub, with spokes leading directly to key management areas like "Locations" and "Teams."
-    \item Wireframe 2: Is built on a deep hierarchical (tree) structure. This is its defining characteristic. A persistent, nested side-menu organizes a large number of functions into parent-child relationships (e.g., Business is the parent of Employees, which is the parent of Invite Employee). This structure is effective for organizing a high density of features but requires more clicks to navigate.
+    \item Wireframe 1: Employs a Hub and Spoke structure combined with a very flat, 2-level hierarchy. The "Home" screen acts as the central hub (Level 1), with spokes leading directly to the main management subcategories: Locations, Teams, Discounts \& offers, and More (which contains Inventory) at Level 2.
+\noticecomment{You say its deep but you need to explain how deep.}
+\noticecomment{deep is 3 level,  mention what category has 3 level depth}
+    \item Wireframe 2: Is built on a deep hierarchical (tree) structure that is 3 levels deep. A persistent, nested side-menu organises functions into parent-child relationships. For example, a user navigates from Business (Level 1) -> Specific business (Level 2) -> Employees (Level 3).
 \end{itemize}
 
 \subsubsection{Content Organization Schemes}
+\goodcomment{Updated based on all the comments}
 
+\noticecomment{How do we order things when lists open up? We probably wont order things randomly? For example in MIF website things are ordered chronologically. There are a lot of  lists , you should look into a few ones. If sth is first inputted then it should show up first.}
+\noticecomment{Provide examples?}
 \begin{itemize}
+    \item Ordering of Lists: In both wireframes, lists such as inventory items or employee rosters are intended to be ordered chronologically by creation date by default (newest first), with options for alphabetical sorting to ensure predictability.
     \item Task-Based \& Topical: Both designs use a mix of these schemes.
-    \item Audience-Specific: Wireframe 2 enforces an Audience-Specific classification at the very start through its linear onboarding process (Choose your roles). This decision gates access to the rest of the information architecture, creating a highly tailored experience from the outset.
+    \item Audience-Specific: Wireframe 2 enforces an Audience-Specific classification at the very start through its linear onboarding process (Choose your roles). This provides access to a tailored interface. For example, a "Cashier" will see a different set of tools than a "Manager."
 \end{itemize}
 
 
 \subsubsection{Navigation patterns}
+\goodcomment{Updated everything}
+\noticecomment{look at the 7 slides to see how to name navigation patterns --- DONE}
+\noticecomment{You should show the structure of navigation, or at least roughly do so (tell how things are nested) --- DONE}
 
 \begin{itemize}
-    \item Wireframe 1: The primary navigation is a Vertical Icon-based Navigation bar on the left. This minimalist pattern saves screen space and relies on universally understood icons for concepts like Home, Locations, and Teams. The dashboard also uses large, clickable Cards as a form of graphical navigation.
-    \item Wireframe 2: This prototype begins with a Wizard pattern for onboarding (a series of screens that guide a user through a task). After this linear flow, it transitions to a detailed Vertical Text-based Navigation menu for its core functionality. It also employs Breadcrumbs to help users orient themselves within the deep hierarchy that follows the initial setup.
+    \item \textbf{Wireframe 1:} This design uses a combination of patterns to create a simple, direct user experience focused on high-level management.
+    \begin{itemize}
+        \item \textbf{Vertical Navigation:} The primary navigation is a \textbf{Sticky (Fixed) Vertical Navigation} bar on the left. This minimalist, icon-based pattern saves screen space while keeping main categories always accessible.
+        \item \textbf{Hub and Spoke Structure:} The navigation is nested in a simple 2-level hierarchy. The vertical bar acts as the hub (Level 1), and clicking an icon (e.g., \textbf{Orders}) takes the user to the corresponding page (Level 2).
+        \item \textbf{Cards:} The main dashboard content uses large, clickable Cards as a form of graphical navigation (e.g., "Orders", "Teams", "Discounts"). This allows for quick, visual access to the main functions.
+    \end{itemize}
+
+    \item \textbf{Wireframe 2:} This prototype uses a more complex set of patterns to guide users through a deep, feature-rich application tailored to specific roles.
+    \begin{itemize}
+        \item \textbf{Wizard:} The user journey begins with a \textbf{Wizard} pattern for onboarding. This linear flow guides the user through the essential first step of selecting their role (e.g., "Business owner" or "Employee").
+        \item \textbf{Vertical Navigation:} After onboarding, the core navigation is a detailed, text-based \textbf{Sticky (Fixed) Vertical Navigation} menu. This menu is hierarchical, allowing a large number of features to be organized logically.
+        \item \textbf{Breadcrumbs:} To help users orient themselves within the deep hierarchy, the interface employs \textbf{Breadcrumbs}. For example, the path is clearly displayed as: \texttt{Business / My business for restau... / Employees / John Doe}.
+        \item \textbf{Contextual Top Bar:} \noticecomment{The second wireframe also has app-bar but im not sure how to name it exactly --- DONE, described as Contextual Top Bar} The interface features a contextual top bar that changes based on the user's state. In "Working" mode, it displays role-specific information like \texttt{On Duty: Cashier} and the current location, providing immediate context.
+    \end{itemize}
 \end{itemize}
 
 \subsubsection{Labeling System and Search Patterns}
+
+\goodcomment{Updated everything}
+
+\noticecomment{What about the first wireframe? Doesn't it use colors for labeling inventory status? What else?}
+\noticecomment{If you say that we use icons, then show what icons we will use and name those icons, tell for what functionality those icons will be used...}
+\noticecomment{search pattern in wireframe 2 has more functionallity, there are filters, commonly used filters have seperate drop down buttons}
+\begin{itemize}
+    \item Wireframe 1: The labelling system uses colour-coding for inventory status (e.g., Red for URGENT, Yellow for LOW, Green for OK) and for orders list (e.g., Blue for NEW, Yellow for In-progress and Green for Ready). The navigation relies on universally understood icons: a house icon for Home, a location pin icon for Locations, and a people icon for Teams, to facilitate quick recognition.
+    \item Wireframe 2: Uses a more extensive labelling system with text labels and icons for sidebar links (e.g., "Working," "Appointments," "Services"). Its search pattern consists of filters with dropdown menus for criteria like "Job type" and "Location" to allow for more precise queries and also search field. The UI also reflects two distinct states: a "working" state with a task-oriented top bar and a "non-working" administrative state.
+\end{itemize}
+
+\noticecomment{States?? the second wire frame has two states: working and non working.}
+
 
 % cia galima ir subsubcategorijomis tiesiog parodyti tuos lygius
 % subsectio{sth}
@@ -1500,15 +1427,44 @@ Both mockups utilize a Top-Down Design Approach. The architecture is designed fr
 
 
 \subsection{Used prototyping tools and isntructions for evaluators}
+\noticecomment{the second mockup breadcrumbs need linking to frames, or atleast the first 10 frames need...}
 
-Both the high-fidelity mockup and the low-fidelity wireframe were created in Figma. 
+\begin{itemize}
 
-% FIGMA + link
+\item Wireframe 1:
+
+\href{https://www.figma.com/design/IpiyOU6rDdMWJAuKfbXnuQ/HCI-2025-mockups?node-id=2-336&t=CeHv5cb4pGWHMbsH-1}{Figma frames}
+
+\href{https://www.figma.com/proto/IpiyOU6rDdMWJAuKfbXnuQ/HCI-2025-mockups?node-id=62-193&p=f&m=draw&scaling=contain&content-scaling=fixed&page-id=2%3A336&t=rDdXgrhYtQIF16d8-1}{Figma presentation}
+
+\item Wireframe 2:
+
+\href{https://www.figma.com/design/IpiyOU6rDdMWJAuKfbXnuQ/HCI-2025-mockups?node-id=0-1&t=fgXD5W10wHHbBPbT-1}{Figma frames}
+
+\href{https://www.figma.com/proto/IpiyOU6rDdMWJAuKfbXnuQ/HCI-2025-mockups?node-id=1-3&p=f&m=draw&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A3&show-proto-sidebar=1&t=5pfOql4QeYsAnAp0-1}{Figma presentation}
+
+Note: Not all breadcrumbs are active in Wireframe 2. Only the first few business frames (1–4) show working breadcrumb navigation. Use your browser’s back arrow to return to previous pages.
+\end{itemize}
 
 
-\noticecomment{ontology - fine grained or course}
+% \noticecomment{ontology - fine grained or course}
 
-\noticecomment{apibrezimo aiskinti nereikia, jei sakome course grained tai ir reikia sakyti kas tas pirmas lygis, antras lygis, etc..., jei pasakome depth tai reikia pasakyti koks jis yra.}
+% \noticecomment{apibrezimo aiskinti nereikia, jei sakome course grained tai ir reikia sakyti kas tas pirmas lygis, antras lygis, etc..., jei pasakome depth tai reikia pasakyti koks jis yra.}
+
+
+\section{Usability testing}
+
+\subsection{Participants}
+\subsection{Methodology}
+\subsection{Findings}
+\subsection{Recommendations}
+
+\section{Appendices}
+
+\subsection{questionnaires}
+\subsection{Results of the participants (testing protocols)}
+\subsection{Informed consent form}
+\subsection{}
 
 
 
@@ -1787,7 +1743,7 @@ Both the high-fidelity mockup and the low-fidelity wireframe were created in Fig
 % poziuriai. reikia kompromisiniu sprendimu.
 
 
-
+% grafikai excel naudoti analizes metu, vaizduoti skirtumus etc...
 \printbibliography[title = {References and sources}]
 
 \end{document}

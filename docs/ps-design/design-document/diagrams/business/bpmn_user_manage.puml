@@ -8,14 +8,12 @@ start
 fork
   -[Invite Employee]
   :Open "Invite Employee" form;
-  :Fill in name, email, role, description;
-  :Submit form;
-  :Receive confirmation toast (success / error);
-fork again
-  -[Generate Code]
-  :Open "Generate Invitation Code" page;
-  :Enter email and role;
-  :Generate and copy code;
+  :Fill Email;
+  :Select Job for the employee;
+  :Choose Employee work hours;
+  :Fill in expiration of invite;
+  :Choose Employee work location;
+  :Press "Generate and Send Code";
   :Receive confirmation toast (success / error);
 fork again
   -[Manage Existing Employee]

@@ -90,36 +90,47 @@
 \newcommand{\ee}{{\mathrm e}}  % nice exponent
 \newcommand{\RR}{\mathbb{R}}
 
-\makeatletter
-% introduce a 4th-level sectioning command: \subsubsubsection
+
+\usepackage{titlesec}
+\usepackage{hyperref}
+
+\titleclass{\subsubsubsection}{straight}[\subsection]
+
 \newcounter{subsubsubsection}[subsubsection]
 \renewcommand\thesubsubsubsection{\thesubsubsection.\arabic{subsubsubsection}}
+\renewcommand\theparagraph{\thesubsubsubsection.\arabic{paragraph}} % optional; useful if paragraphs are to be numbered
 
-\providecommand\subsubsubsection{%
-    \@startsection{subsubsubsection}{4}{\z@}%
-        {-3.25ex\@plus -1ex \@minus -.2ex}%
-        {1.5ex \@plus .2ex}%
-        {\normalfont\normalsize\bfseries}%
-}
+\titleformat{\subsubsubsection}
+  {\normalfont\normalsize\bfseries}{\thesubsubsubsection}{1em}{}
+\titlespacing*{\subsubsubsection}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
 
-% ensure numbering and TOC include this level
-\setcounter{secnumdepth}{4}
-\setcounter{tocdepth}{4}
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{5}{\z@}%
+  {3.25ex \@plus1ex \@minus.2ex}%
+  {-1em}%
+  {\normalfont\normalsize\bfseries}}
+\renewcommand\subparagraph{\@startsection{subparagraph}{6}{\parindent}%
+  {3.25ex \@plus1ex \@minus .2ex}%
+  {-1em}%
+  {\normalfont\normalsize\bfseries}}
+\def\toclevel@subsubsubsection{4}
+\def\toclevel@paragraph{5}
+%\def\toclevel@paragraph{6}
+\def\toclevel@subparagraph{6}
+\def\l@subsubsubsection{\@dottedtocline{4}{7em}{4em}}
+\def\l@paragraph{\@dottedtocline{5}{10em}{5em}}
+\def\l@subparagraph{\@dottedtocline{6}{14em}{6em}}
 \makeatother
 
-
-\studyprogramme{Software Engineering} %Write your study programme (example – Software engineering, Financial and Actuarial Mathematics, etc.)
-\worktype{PS Software Design} % Bachelor's thesis or Master's thesis
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+   
+\studyprogramme{Software Engineering} 
+\worktype{PS Software Design} 
 \worktitle{PS Sofware Design documentation}
-% \secondworktitle{Work Title in Lithuanian}
 \workauthor{Tadas Riksas, Darius Spruogis, Gustas Mickus, Julius Jauga}
-
-%There may be more than one author, in which case each author is written from a new line which is added in Titlepage.tex or LongerTitlePage.tex
-%\secondauthor{Name Surname} %If present, otherwise delete
-
 \supervisor{Vasilij Savin}
-% \reviewer{pedagogical/scientific title Name Surname} %If present, otherwise delete
-% \scientificadvisor{pedagogical/scientific title Name Surname} %If present, otherwise delete
 
 \begin{document}
 \selectlanguage{english}
@@ -131,33 +142,26 @@
 \onehalfspacing
 
 
-\warningcomment{
-\begin{itemize}
-    \item mazinkit teksto kieki, pagalvokit ar patys turedami sia dokumentacija skaitytumete ta visa teksta
-    \item diagramose nevaizduojame sistemos vidaus
-    \item visi flows turi BUTI paremti grafine sasaja, jeigu to nera tai labai sunku isitikinti ar business flows nesusikerta su kita sistemos logika
-    \item Duomenu modeliui aprasyti naudokite latex lenteles, ne teksta, teksta sunku skaityti.
-    \item duomenu modelis turi buti pagristas business flowsais ar GUI pavydziais.
-    \item reiketu apriboti dokumento ilgi, nuspresti kiek.
-\end{itemize}
-}
 
-\warningcomment{Nenaudoti chatgpt, tekstas gaunasi nuobodus, atsiranda daug faktiniu klaidu}
-
-\noticecomment{dokumento struktura: sections 1,2,3 naudojame isskaidyti funkcionalumo sritis (pvz orders, serving, login, management), subsection naudojame pazymeti GUI, business flows, package diagrams, data model, api contract.}
-
-
-\section*{Introduction}
-This document focuses on what kind of software is needed for order and appointment based businesses to manage their operations without any hiccups.
-
+\section{Introduction}
 The structure of the document is:
 \begin{itemize}
     \item Introduciton
-    \item Functionallity \begin{itemize}
-        \item GUI
-        \item Business flow(s)
-        \item Package diagram(s)
-        \item Data model    
+    \item Functionallity 
+    \begin{itemize}
+        \item Functionality domain 1
+        Use cases
+        \begin{itemize}
+            \item GUIs (We will not include all GUIs, you will need to check out the Figma link to find all GUIs). Notice that GUIs may not always show all the functionality shown by business flow and that we are only showing the fundamental GUIs.
+            \item Business flows
+        \end{itemize}
+        \item Functionality domain 2...
+    \end{itemize}
+    \item Package diagram
+    \item Data model    
+    \begin{itemize}
+        \item The diagrams
+        \item Discussion
     \end{itemize}
     \item API Contracts
     \item Conclusion
@@ -169,36 +173,58 @@ Note: after making 80+ Figma GUI wire-frames we realized that there is really no
     \item What to do in case payment system (Stripe) goes down? How will the system manage that?
     \item etc.
 \end{itemize}
-And there are way way more things to take in consideration! But writing all these things out would make this document huge and unreadable. Highlighting this problem we want to show not that this document lacks some features (or to put simply sucks) but that simply the design of these systems goes way beyond the scope of what we can capture in this course. Therefore we will limit ourselves mostly to those 80+ GUIs that we made, especially focusing on the GUIs that feature creating and updating forms.
+And there are way way more things to take in consideration. But writing all these things out would make this document huge and unreadable (hopefully, it is readable at the moment ). We are aware that this document lacks some features/details (or to put simply sucks in some areas) but that simply goes way beyond the scope of what we can do in this course. 
 
-While making the GUIs we also noticed that in the future the client could always require more features to be added such as:
+So why so many GUIs wire-frames? After trying to write this document for the first time using only text for describing how users interact with the system we kind of failed. Text is not enough to understand entire workflow. So, we decided that it would be ideal to simply use Figma and quickly prototype as much GUIs as possible for all interesting features. This would allow each team member to quickly understand how their colleagues understand the business problem and if there are any problems with that understanding. It also served as a great way to ensure consistency between system components. We hope that the reader will appreciate our huge effort put into these GUIs and that it will make their job easier.
+
+\subsection{Important links}
+\label{links}
+Before you start it would be ideal if you familiarized your self with GUI.
+
+
+Use these links to learn what are our UI prototypes, business flows, data-model and package diagrams, API contract.
+
 \begin{itemize}
-    \item LLM chat support
-    \item etc.
+    \item \href{https://www.figma.com/design/IpiyOU6rDdMWJAuKfbXnuQ/HCI-2025-mockups?node-id=0-1&t=jng9VzugzoqFH0nr-1}{Figma (LINK)}
+    
+    All mock-ups are labeled as follows: \begin{itemize}
+        \item Messages 1-2
+        \item Account 1
+        \item Menu 1
+        \item Homepage 1
+        \item Register 1-4
+        \item Dashboard 1
+        \item Business 1 - 21 (10 \& 18 removed)
+        \item Discount 1-5
+        \item Location 1-2
+        \item Inventory 1-10
+        \item Services 1-6
+        \item Work 1-4
+        \item Cashier 1-9
+        \item Cashier(Ser) 1-6 (for services)
+        \item Manager 1-6
+        \item Kitchen 1-3
+        \item Waiter 1-3
+        \item Service 1-3
+        \item Multi-role 1
+    \end{itemize}
+    \item \href{https://drive.google.com/drive/folders/1TnLndEsfCymHmstJi26E5D_D4CpJfU4y?usp=drive_link}{Drawio diagrams for business flows and packages (LINK)}
+    \item \href{https://github.com/user5427/ps-design/blob/main/openapi.yaml}{API contract (LINK)}
 \end{itemize}
-As a result, we will try to make the system as future proof as possible.
-
-So why so many GUIs wire-frames? After trying to write this document for the first time using only text for describing how users interact with the system we kind of failed. After that failure we decided that it would be ideal to simply use Figma and quickly prototype as much GUIs as possible for all features. This would allow each team member quickly to understand how their colleges understand the business problem and if there are any problems with that understanding. It also served as a great way to ensure consistency between system components. We hope that the reader will appreciate our huge effort put into these GUIs and that their job will be easier.
-
-\section*{Important links}
-Before you start it would be ideal if you familiarized your self with GUIs. This will help you to better understand the workings of the system, what data is passed around and how users interact with our system.
-
-You can use the link below to explore the prototypes in Figma, just simply click anywhere and Figma will show you what buttons and navigation links are clickable with pulsing animation.
-
-\href{https://www.figma.com/design/IpiyOU6rDdMWJAuKfbXnuQ/HCI-2025-mockups?node-id=0-1&t=qFGqf8yRbP1gP6IJ-1}{Figma prototypes}
-
 
 
 
 \section{Functionality}
-We will discuss here the GUIs of the application, business flows, package diagrams and data model.
+
+
+% ------------------------------------------------------------------------
+% ORDER STUFF
+% ------------------------------------------------------------------------
+
+
 
 \subsection{Order Management (Bars/Restaurants)}
 
-
-\noticecomment{Client order = seating + placing menu items + payment}
-
-\noticecomment{In a real system, you might need to consider how orders are communicated (e.g., a screen in the kitchen, notifications), but this is left as a design decision for the team.}
 
 \begin{longtable}{p{0.25\linewidth} p{0.70\linewidth}}
 \caption{Use cases for the Order Management domain} \\
@@ -216,124 +242,229 @@ We will discuss here the GUIs of the application, business flows, package diagra
 
 \endlastfoot
 
-Client Seating (Available) &
+Create order &
 \begin{minipage}[t]{\linewidth}
-Employee checks seating via POS. If available, employee assigns a table and confirms with client.
+Reserve table like A2, B1, etc., choose menu items and send order details to kitchen staff.
 \end{minipage} \\[6pt]
-\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
-Client Seating (Not Available) &
-\begin{minipage}[t]{\linewidth}
-Employee checks seating via POS, finds no seats available, and informs client.
-\end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+Modify order &
+\begin{minipage}[t]{\linewidth}
+Change table reservation, choose menu items and send order details to kitchen staff.
+\end{minipage} \\[6pt]
 
-Place Order &
-\begin{minipage}[t]{\linewidth}
-Client requests menu, places an order via employee. If order is valid, client confirms, else corrections are requested.
-\end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+Pay for order &
+\begin{minipage}[t]{\linewidth}
+Customer chooses to pay for the items currently added to the list, employee initiates payment flow.
+\end{minipage} \\[6pt]
 
-Modify Order &
-\begin{minipage}[t]{\linewidth}
-Client requests to update an existing order. Employee updates through POS, backend validates. On success, order is updated; on failure, errors are shown for correction.
-\end{minipage} \\[6pt]
-\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
-Cancel Order &
-\begin{minipage}[t]{\linewidth}
-Client requests to cancel an existing not completed order. Employee cancels through POS, backend validates that it is not completed. On success, order is updated; on failure, errors are shown.
-\end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-
-Mark items as delivered for table &
+Finalize order &
 \begin{minipage}[t]{\linewidth}
-The employee selects a table. The order with items are retrieved for that table, which is then displayed in the POS. The employee selects items to mark as delivered. The item status is updated in the backend server, and a confirmation is displayed in the POS.
+Beginning is similar to \textbf{Pay for order} flow, at the end employee provides receipt.
 \end{minipage} \\[6pt]
-\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
 \end{longtable}
 
-\subsubsection{Order client seating (available)}
+\subsubsection{GUIs}
+
+The order creating GUI (\ref{fig:order-creating}) allows for employee to choose the table where to serve the customer (employee can also open table view (\ref{fig:table-view}). It also shows menu on  for quickly choosing and searching for items. On the right side there is order information order information. Employee can send order details to the kitchen staff, initiate customer payment process for current items and finalize the order by printing receipt. 
 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_client_seating_available.png}
-    \caption{Client Seating(available) Sequence Diagram}
-    \label{fig:client_seating_available_sequence}
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/GUI/Work create order.png}
+    \caption{Order creating GUI (Cashier - 5 in Figma)}
+    \label{fig:order-creating}
 \end{figure}
 
-\subsubsection{Order client seating (not available) business flow}
+This table view GUI (\ref{fig:table-view}) allows for employee to quickly identify table numeration and to select what orders are currently active for table. It also shows how many seats each table has. 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_client_seating_not_available_sequence.png}
-    \caption{Client Seating(not available) Sequence Diagram}
-    \label{fig:client_seating_not_available_sequence}
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/GUI/Work floor plan.png}
+    \caption{Table view GUI (Cashier - 4 in Figma)}
+    \label{fig:table-view}
 \end{figure}
 
-\subsubsection{Place Order Business Flow}
+This order editing GUI (\ref{fig:order-editing}) is very similar to the order creating  GUI (\ref{fig:order-creating}). It is shown after the first payment is made (by redirect). It shows what items are sent and allows to    add new ones. It also allows to edit table number. At the bottom there is a refund button in case user asks for refund.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_place_order_sequence.png}
-    \caption{Place Order Sequence Diagram}
-    \label{fig:place_order_sequence}
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/GUI/Work view order.png}
+    \caption{Order editing GUI (Cashier - 6 in Figma)}
+    \label{fig:order-editing}
 \end{figure}
 
-\subsubsection{Update Order Business Flow}
 
+
+
+
+\subsubsection{Business flows}
+
+\subsubsubsection{Create order}
+The creating order flow (\ref{fig:creating-order-flow}) uses order creating (\ref{fig:order-creating}) when employee chooses menu items and table view (\ref{fig:table-view}) when employee chooses table number.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/flows/create_order.png}
+    \caption{Creating order flow}
+    \label{fig:creating-order-flow}
+\end{figure}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
+\item Employee
+\item Menu item
+\item Order
+\item Order item
+\item Location seating
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
+\item Employee comp.
+\item Location comp.
+\item Order comp.
+\item Menu comp.
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
+\item Assign table
+\item Add items to order
+\item Send order details to kitchen staff
+\end{mpitemlist}
+&
+
+\\ \hline
+\end{tabular}
+\end{center}
+
+
+\subsubsubsection{Modify order}
+
+The modifying order flow (\ref{fig:modifying-order-flow}) uses order modifying (\ref{fig:order-editing}) when employee adds new items to order and table view {\ref{fig:table-view}} if changing customers chosen table.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_modify_order_sequence.png}
-    \caption{Modify Order Sequence Diagram}
-    \label{fig:modify_order_sequence}
+    \includegraphics[width=0.5\textwidth]{docs/ps-design/design-document/images/flows/modify_order.png}
+    \caption{Modifying order flow}
+    \label{fig:modifying-order-flow}
 \end{figure}
 
-\subsubsection{Order Cancellation Business Flow}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
+\item Same as in order creating
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
+\item Same as in order creating
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
+\item Get table number
+\item Edit order details
+\item Send order to kitchen staff
+\end{mpitemlist}
+&
 
+\\ \hline
+\end{tabular}
+\end{center}
+
+\subsubsubsection{Pay for order}
+
+The pay for order flow (\ref{fig:pay-order-flow}) shows either creating order (\ref{fig:order-creating}) or editing order GUI based on whenever the employee is creating the order for first time or is editing it. Employee then can press the pay button to initiate the payment flow.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_cancel_order_sequence.png}
-    \caption{Cancel Order Sequence Diagram}
-    \label{fig:cancel_order_sequence}
+    \includegraphics[width=0.4\textwidth]{docs/ps-design/design-document/images/flows/pay_for_order.png}
+    \caption{Pay for order flow}
+    \label{fig:pay-order-flow}
 \end{figure}
 
-\subsubsection{Mark Items as Delivered for Table Business Flow}
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
+\item Order
+\item Order bill
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
+\item Order comp.
+\item Payment comp.
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
+\item Initiate payment process
+\end{mpitemlist}
+&
 
+\\ \hline
+\end{tabular}
+\end{center}
+
+\subsubsubsection{Finalize order}
+
+The finalize order (\ref{fig:finalize-order-flow}) is very similar to pay for order flow (\ref{fig:pay-order-flow}), the only difference is that after the end of pay for order flow employee clicks the print button to print out the receipt.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/diagrams/orders/order_mark_table_items_delivered_sequence.png}
-    \caption{Mark Items as Delivered Sequence Diagram}
-    \label{fig:mark_items_delivered_sequence}                   
+    \includegraphics[width=0.3\textwidth]{docs/ps-design/design-document/images/flows/finalize_order.png}
+    \caption{Finalize order flow}
+    \label{fig:finalize-order-flow}
 \end{figure}
 
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables/Entities} \newline
+\begin{mpitemlist}
+\item Same as in pay for order flow
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
+\item Same as in pay for order flow
+\end{mpitemlist}
+\\ \hline
+\textbf{Actions} \newline
+\begin{mpitemlist}
+\item Initiate payment process
+\item Print receipt
+\end{mpitemlist}
+&
+
+\\ \hline
+\end{tabular}
+\end{center}
+
+
+
+% ------------------------------------------------------------------------
+% SERVICE STUFF
+% ------------------------------------------------------------------------
 
 \subsection{Services Management (Spas/Salons)}
 
-% ------------------------------------------------------------------------------
-% Service Domain
-% (Related to appointment-based businesses like spas, barbers, massage centers)
-%
-% Use Case             | Description
-% ---------------------|-----------------------------------------------------------------
-% Create Appointment   | Employee schedules a service for a customer (date, time, employee).
-% Modify Appointment   | Change time, employee, service, date, or assigned employee.
-% Cancel Appointment   | Cancel a scheduled service.
-% Check Availability   | Verify if an employee is free at a given time.
-% Send SMS Reminder    | Automatically send an SMS to the customer before the appointment.
-% Assign Employee      | Assign a specialist to a service.
-% Mark Service as Done | Record that the service has been completed.
-% ------------------------------------------------------------------------------
-\noticecomment{Dont forget SMS messages}
 
-\noticecomment{The employee that registers the customer doesnt necessarily need to service the customer themselves (think of spas). However smaller businesses (like haircut saloons) employees may both register and service the customer themselves.}
-
-We have identified the following use cases for the services management domain:
 
 \vspace{1cm}
 \begin{longtable}{p{0.25\linewidth} p{0.70\linewidth}}
@@ -354,34 +485,76 @@ We have identified the following use cases for the services management domain:
 
 Create appointment &
 \begin{minipage}[t]{\linewidth}
-Employee or customer schedules a service for a customer by selecting service, date/time and (optionally) employee; system reserves the slot, records booking metadata and sends confirmation.
+Customer calls business, asks for service, employee provides details, reserves the slot, customer gets SMS message.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
 Modify appointment &
 \begin{minipage}[t]{\linewidth}
-Change appointment details (time, service, date, assigned employee); system validates availability, preserves historical record of changes and notifies affected parties.
+Change appointment details (time, service, date, assigned employee) and customer gets SMS message.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
 Cancel appointment &
 \begin{minipage}[t]{\linewidth}
-Customer or staff cancels an appointment; system frees the slot, applies cancellation rules (refund/deposit handling if applicable) and sends notifications.
+Customer calls to cancels an appointment and receives SMS message for cancellation. 
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
 Service Customer &
 \begin{minipage}[t]{\linewidth}
-    The customer gets the service done by the assigned employee; employee marks the service as completed in the system, which updates records and triggers any follow-up actions (e.g., feedback request, payment processing).
+    The customer gets the service done by the assigned employee; employee marks the service as completed in the system, which updates records and triggers payment flow. Customer may also ask refund if they do not like how the appointment was done. After appointment is done customer receives SMS message.
 \end{minipage} \\
 \end{longtable}
 
 \vspace{1cm}
 
+\subsubsection{GUIs}
 
-\subsubsection{Appointment creating business flow}
+In the appointment creating GUI (\ref{fig:appointment-creating} employee can create an appointment by inputting customer details such as name, surname, email and phone. There employee can also choose time, services, search for services served by specific employees and lastly add break time.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/GUI/Work appointment creating.png}
+    \caption{Appointment creating GUI (Cashier (Ser) - 3 in Figma)}
+    \label{fig:appointment-creating}
+\end{figure}
+
+In the employee checking GUI (\ref{fig:employee-checking}) employee can check what employees are busy and free.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/GUI/Work employees.png}
+    \caption{Employee checking GUI (Cashier (Ser) - 5 in Figma)}
+    \label{fig:employee-checking}
+\end{figure}
 
 
+In the appointment details GUI (\ref{fig:appointment details}) employee can check the details of an appointment, start refund process, cancel appointment or initiate pay process.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/GUI/Work appointments.png}
+    \caption{Appointment details GUI (Cashier (Ser) - 6 in Figma)}
+    \label{fig:appointment details}
+\end{figure}
+
+
+
+\subsubsection{Business flows}
+
+Notice: all message sending is done automatically by system based on appointment status.
+
+\subsubsubsection{Create appointment}
+
+The appointment creating flow (\ref{fig:create-appointment-flow}) uses (\ref{fig:appointment-creating}) GUI. The employee enters customer information, chooses time (available from) and service and enters break time if needed. (Break time shows how much time to leave blocked after appointment so employee can get ready for next appointment)
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{docs/ps-design/design-document/images/flows/create appointment.png}
+    \caption{Create appointment flow}
+    \label{fig:create-appointment-flow}
+\end{figure}
 
 \begin{center}
 \setlength{\tabcolsep}{8pt}
@@ -389,17 +562,27 @@ Service Customer &
 \hline
 \textbf{Tables/Entities} \newline
 \begin{mpitemlist}
+\item Employee
+\item Service
+\item Location service
+\item Employee service
 
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-
+\item Employee comp.
+\item Service comp.
+\item Appointment comp.
+\item Message comp.
 \end{mpitemlist}
 \\ \hline
 \textbf{Actions} \newline
 \begin{mpitemlist}
-
+\item Search employees
+\item Search services
+\item Get customer details
+\item Create appointment
 \end{mpitemlist}
 &
 
@@ -408,9 +591,16 @@ Service Customer &
 \end{center}
 
 
-\subsubsection{Appointment modification business flow}
+\subsubsubsection{Modify appointment}
 
+The appointment modifying flow (\ref{fig:modify-appointment-flow}) uses GUI similar to (\ref{fig:appointment-creating}) except all fields are filed in already. Employee can change all the information like customer details, service type, time (available from), etc.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{docs/ps-design/design-document/images/flows/modify appointment.png}
+    \caption{Modify appointment flow}
+    \label{fig:modify-appointment-flow}
+\end{figure}
 
 
 \begin{center}
@@ -419,17 +609,21 @@ Service Customer &
 \hline
 \textbf{Tables/Entities} \newline
 \begin{mpitemlist}
-
+\item Same to creating appointment flow.
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-
+\item Same to creating appointment flow.
 \end{mpitemlist}
 \\ \hline
 \textbf{Actions} \newline
 \begin{mpitemlist}
-
+\item Get customer details
+\item Check if appointment exists
+\item Search employees
+\item Search services
+\item Complete appointment modification
 \end{mpitemlist}
 &
 
@@ -439,7 +633,16 @@ Service Customer &
 
 
 
-\subsubsection{Cancel appointment business flow}
+\subsubsubsection{Cancel appointment}
+
+The cancel appointment flow (\ref{fig:cancel-appointment-flow}) uses (\ref{fig:appointment details}) GUI. There employee can click cancel button to cancel the appointment.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{docs/ps-design/design-document/images/flows/cancel appointment.png}
+    \caption{Cancel appointment flow}
+    \label{fig:cancel-appointment-flow}
+\end{figure}
 
 
 \begin{center}
@@ -448,17 +651,21 @@ Service Customer &
 \hline
 \textbf{Tables/Entities} \newline
 \begin{mpitemlist}
-
+\item Employee
+\item Appointment
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-
+\item Employee comp.
+\item Appointment comp.
 \end{mpitemlist}
 \\ \hline
 \textbf{Actions} \newline
 \begin{mpitemlist}
-
+\item Get customer details
+\item Check if appointment exists
+\item Cancel appointment
 \end{mpitemlist}
 &
 
@@ -469,8 +676,16 @@ Service Customer &
 
 
 
-\subsubsection{Service customer business flow}
+\subsubsubsection{Service customer}
 
+The service customer flow (\ref{fig:service-customer-flow}) uses GUI (\ref{fig:employee-checking}). There cashier can check what appointments are coming up with customer names and surnames. Individual employees that will service the customer can see GUI similar to (\ref{fig:appointment details}) except there is no pay or cancel buttons but only one button and that is "mark serviced" button. After customer is serviced, customer walks to cashier and cashier uses  (\ref{fig:appointment details}) GUI to start payment flow.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{docs/ps-design/design-document/images/flows/service customer.png}
+    \caption{Service customer flow}
+    \label{fig:service-customer-flow}
+\end{figure}
 
 \begin{center}
 \setlength{\tabcolsep}{8pt}
@@ -478,17 +693,28 @@ Service Customer &
 \hline
 \textbf{Tables/Entities} \newline
 \begin{mpitemlist}
-
+\item Employee
+\item Employee service
+\item Appointment
+\item Appointment bill
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-
+\item Employee comp.
+\item Service comp.
+\item Appointment comp.
+\item Payment comp.
 \end{mpitemlist}
 \\ \hline
 \textbf{Actions} \newline
-\begin{mpitemlist}
 
+\begin{mpitemlist}
+\item Get customer details
+\item Check if appointment exists
+\item Service customer
+\item Begin payment process
+Refund customer (in case customer dislikes sth)
 \end{mpitemlist}
 &
 
@@ -507,14 +733,16 @@ Service Customer &
 
 \subsection{Payment}
 
-\subsubsection{Supported Payment Methods}
+\textbf{Supported Payment Methods:}
+
 \begin{itemize}
 \item Cash
 \item Gift card
 \item Credit/debit card (via Stripe)
 \end{itemize}
 
-\subsubsection{Key Business Rules}
+\textbf{Key Business Rules:}
+
 \begin{itemize}
 \item Split payments are supported: an order total can be paid by multiple parties and/or multiple payment methods.
 \item Employees can add tips and apply discounts during payment.
@@ -523,8 +751,35 @@ Service Customer &
 \item Refund for card payments is processed through Stripe. For other methods, the status is updated in the system.
 \end{itemize}
 
-\subsubsection{Payment Flow}
-The following sequence diagram illustrates the payment process, including split payments, tips, and refunds.
+\subsubsection{GUIs}
+
+The refund GUI (\ref{fig:refund-GUI}) allows for employees to initiate refund process by inputting the reason for refund.
+
+The Stripe payment GUI (\ref{fig:stripe-payment}) shows how our payments will be handled.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/GUI/Frame 5 (1).png}
+        \caption{Refund GUI}
+        \label{fig:refund-GUI}
+    
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/GUI/Frame 4.png}
+        \caption{Stripe payment GUI}
+        \label{fig:stripe-payment}
+    \end{minipage}
+\end{figure}
+
+
+\subsubsection{Business flows}
+
+\subsubsubsection{Payment flow}
+The following sequence diagram (\ref{fig:payment_flow}) illustrates the payment process, including split payments, tips, and refunds.  (\ref{fig:stripe-payment}) and (\ref{fig:refund-GUI}) GUIs are used.
 
 \begin{figure}[H]
     \centering
@@ -533,43 +788,15 @@ The following sequence diagram illustrates the payment process, including split 
     \label{fig:payment_flow}
 \end{figure}
 
+
+
+% ------------------------------------------------------------------------
+% BUSINESS STUFF
+% ------------------------------------------------------------------------
+
+
+
 \subsection{Business Management}
-
-
-% ------------------------------------------------------------------------
-% MANAGEMENT DOMAIN (System-wide administrative and operational functions)
-% ------------------------------------------------------------------------
-% Use Case                           | Description
-% ------------------------------------------------------------------------
-% User Management                    | Specify business owner can only edit their business's users
-% Manage Products/Services           | Add, edit, or deactivate products or services (e.g., menu items, massage types). 
-% Manage Product Variations          | Create/edit modifiers for products (e.g., milk type, decaf, size)
-% Manage Employees                   | Create, update, or deactivate employee accounts.
-% Manage Business Info               | Update business details (owner, address, name, tax ID, contact info).
-% Manage Inventory (Optional)        | Track stock levels of items (e.g., ingredients, products).
-% Manage Taxes                       | Configure tax rates (e.g., VAT) for different products or services.
-% Manage Users & Roles               | Assign permissions to employees (e.g., manager, cashier, admin).
-% Super Admin Access                 | Special user (system operator) can access all businesses for support.
-% View Reports                       | Generate reports on orders, appointments, revenue, etc.
-% Manage Modifiers/Variants          | Define product variants (e.g., latte with almond milk, decaf).
-% Manage Discounts                   | Create and manage discount rules (e.g., seasonal, loyalty).
-% Manage Service Charges/Tips        | Manage Service Charges/Tips	Configure service charge/gratuity rules (change shouldn't affect historical records)
-% Time-Limited Discounts             | Create discounts that are valid only for specific time periods
-% ------------------------------------------------------------------------
-
-
-% ------------------------------------------------------------------------
-% Cross-Domain Use Cases (Apply to multiple domains)
-% ------------------------------------------------------------------------
-% | Use Case                 | Description                                             
-% |--------------------------|---------------------------------------------------------
-% | Login / Authentication   | Employees log into the system.                          
-% | Logout                   | Secure session end.                                     
-% | View History             | View past orders or appointments.                       
-% | Historical Data Consistency Check   | Ensure changes (e.g., tax updates) don’t affect         
-% |                                     | historical records.                                     
-% ------------------------------------------------------------------------
-We have identified the following Use cases for the Business management domain:
 
 \vspace{1cm}
 \begin{longtable}{p{0.25\linewidth} p{0.70\linewidth}}
@@ -588,9 +815,19 @@ We have identified the following Use cases for the Business management domain:
 
 \endlastfoot
 
+User Registration \& Invitation Flow &
+\begin{minipage}[t]{\linewidth}
+The system allows a new user to sign up as an employee or business owner. It defines the entry point to the system and role-based access setup.
+\end{minipage} \\[6pt]
+\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 User Management &
 \begin{minipage}[t]{\linewidth}
-The business owner can create, update, or deactivate users within their own business. They cannot modify accounts belonging to other businesses.
+The business owner can invite employees or co-owners to help run their business or manage existing users in their business.
+\end{minipage} \\[6pt]
+\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
+Business Creation \& Setup &
+\begin{minipage}[t]{\linewidth}
+The business owner creates and configures a new business entity by providing necessary details and setting its operational type (service or order).
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 Manage Employee Information &
@@ -613,143 +850,176 @@ Manage Locations &
 The owner or co-owner manages business locations. A location includes address, open hours, and a seating plan represented as a grid with labeled tables (e.g., 2A, 5A, 1B). Locations can be created, modified, or deleted.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-Manage Businesses &
+Task Assignment &
 \begin{minipage}[t]{\linewidth}
-The user views a list of their owned and co-owned businesses, opens a selected business to manage it, or creates a new one.
+Managers create tasks for employees, assigning responsibilities with deadlines. Employees can view and do their tasks.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-Create or Edit Business &
+Peer Feedback \& Ratings &
 \begin{minipage}[t]{\linewidth}
-The user creates a new business by entering details such as name, description, type, specific type, and country, or edits an existing one through the business management view.
+Employees can rate and review colleagues based on friendliness, teamwork, or behavior. When submitting feedback, the employee can choose to remain anonymous. Feedback is stored in the system and optionally aggregated for management insight.
 \end{minipage} \\[6pt]
 \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-% Manage Products \\ and Services &
-% \begin{minipage}[t]{\linewidth}
-% The business owner or authorized staff can add new products/services, edit details (name, price, category), or deactivate them (e.g., coffee, massage type).
-% \end{minipage} \\[6pt]
-% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-% Manage Product Variations &
-% \begin{minipage}[t]{\linewidth}
-% The business owner or staff can define or edit product modifiers, such as size (small/medium/large), add-ons or other options.
-% \end{minipage} \\[6pt]
-% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-% Manage Employees &
-% \begin{minipage}[t]{\linewidth}
-% The business owner can create new employee accounts, update employee details (role, contact, availability), or deactivate accounts.
-% \end{minipage} \\[6pt]
-% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-% Manage Business Info &
-% \begin{minipage}[t]{\linewidth}
-% The business owner can update business details such as the name, address, tax ID, contact information, or ownership information.
-% \end{minipage} \\[6pt]
-% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-% Manage Inventory (Optional) &
-% \begin{minipage}[t]{\linewidth}
-% The business can track and update stock levels of ingredients or products. System automatically reduces inventory when items are sold, and can alert when stock is low.
-% \end{minipage} \\[6pt]
-% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-% Manage Taxes &
-% \begin{minipage}[t]{\linewidth}
-% Admins can configure tax rules and rates (e.g., VAT, sales tax) for products or services. Updates affect only new transactions; historical data remains unchanged.
-% \end{minipage} \\[6pt]
-% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-% Manage Users \\ and Roles &
-% \begin{minipage}[t]{\linewidth}
-% The business owner can assign system roles (manager, cashier, admin, etc.) to employees, controlling access rights and permissions within the system.
-% \end{minipage} \\[6pt]
-% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-% Super Admin Access &
-% \begin{minipage}[t]{\linewidth}
-% A system operator (Super Admin) can access any business account in the system for technical support, troubleshooting, or emergency fixes.
-% \end{minipage} \\[6pt]
-% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-% Manage Modifiers/Variants &
-% \begin{minipage}[t]{\linewidth}
-% Admin can define product variants such as “latte with almond milk” or “spa service with aromatherapy add-on.” Variants allow customer customization at order time.
-% \end{minipage} \\[6pt]
-% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-% Manage Discounts &
-% \begin{minipage}[t]{\linewidth}
-% Admins can create and manage discount rules (percentage-based, fixed amount, seasonal campaigns, loyalty discounts).
-% \end{minipage} \\[6pt]
-% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-% Manage Service Charges/Tips &
-% \begin{minipage}[t]{\linewidth}
-% Admins can configure rules for applying service charges or gratuities. Updates only apply to future transactions, ensuring historical data remains intact.
-% \end{minipage} \\[6pt]
-% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-% Time-Limited Discounts &
-% \begin{minipage}[t]{\linewidth}
-% Admins can create discounts restricted to a specific timeframe (e.g., happy hour, seasonal promotions). The system enforces validity automatically.
-% \end{minipage} \\[6pt]
-% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
 \end{longtable}
 
 
+We did not include a super admin since the operations would be the same, the only one thing changes is that the super admin could control all the businesses. In addition super admin could change global application variables such as country currency, VAT tax rate, etc. (see \ref{fig:application_data} data model for more information)
+
+
+\subsubsection{GUIs}
+
+In this GUI (\ref{fig:sign-up-page}) user can choose to sign up with his email and also enter password. We will not implement the third party authentication for now.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Sign up page.png}
+    \caption{Sign up page}
+    \label{fig:sign-up-page}
+\end{figure}
+
+In this GUI (\ref{fig:choose-roles}) user can choose the account type. This is used for GUI to decide if business section should be shown or not.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Role chooser.png}
+    \caption{Role chooser}
+    \label{fig:choose-roles}
+\end{figure}
+In this GUI (\ref{fig:enter-info}) user can enter additional information about himself and his contact information.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Role chooser (1).png}
+    \caption{User information}
+    \label{fig:enter-info}
+\end{figure}
+
+In this GUI (\ref{fig:66}) business owner can invite a new employee to business, specify job, working hours, and location and the expiration of the invite.
+% 6
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/GUI/business/Specific business employee code invite.png}
+    \caption{employee invite (Business - 11 Figma)}
+    \label{fig:66}
+\end{figure}
 
 
 
 
-We have identified the following Cross-Domain Use cases for the Business management domain:
-\vspace{1cm}
-\begin{longtable}{p{0.25\linewidth} p{0.70\linewidth}}
-\caption{Cross-Domain Use cases for the Business Management domain} \\
-\textbf{Use case} & \textbf{Description} \\
-\hline
-\endfirsthead
+In this GUI (\ref{fig:44}) business owner can invite a coowner, specify expiration of the invite and permissions.
+% 4
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/GUI/business/Specific business co-owner code invite.png}
+    \caption{business co-owner invite (Business - 19 Figma)}
+    \label{fig:44}
+\end{figure}
 
-\multicolumn{2}{c}{{\tablename\ \thetable{} -- Continued from previous page}} \\
-\textbf{Use case} & \textbf{Description} \\
-\hline
-\endhead
 
-\multicolumn{2}{c}{{Continued on next page}} \\
-\endfoot
 
-\endlastfoot
 
-Login / Authentication &
-\begin{minipage}[t]{\linewidth}
-Employees log into the system using their credentials. The system validates identity and assigns permissions based on role.
-\end{minipage} \\[6pt]
-\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-Logout &
-\begin{minipage}[t]{\linewidth}
-Employees securely end their session. The system clears active tokens/sessions and confirms logout Users (customers, employees, or admins) can view past orders, appointments, or reports. This ensures transparency and auditability.
-\end{minipage} \\[6pt]
-\multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-% View Historical Data, Consistency Check &
-% \begin{minipage}[t]{\linewidth}
-% Users (customers, employees, or admins) can view past orders, appointments, or reports. This ensures transparency and auditability.
-% \end{minipage} \\[6pt]
-% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
-% Historical Data Consistency Check &
-% \begin{minipage}[t]{\linewidth}
-% The system ensures that administrative changes (tax rates, discounts, service charges) apply only to new transactions, without modifying historical order or appointment records.
-% \end{minipage} \\[6pt]
-% \multicolumn{2}{@{}c@{}}{\color{gray}\rule{0.95\linewidth}{0.4pt}} \\[6pt]
 
-\end{longtable}
-% related use cases: User Management, Manage Employees, Manage Users & Roles, Super Admin Access
+In this GUI (\ref{fig:11}) user can create a new business, specify name, description, type, country and business contact information.
+% 1
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/GUI/business/Business creating.png}
+    \caption{Business creating (Business - 2 Figma)}
+    \label{fig:11}
+\end{figure}
+
+
+
+
+
+In this GUI (\ref{fig:88}) business owner can manage employee data, change working hours, salary, location and status.
+
+% 8
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/GUI/business/Specific Busines Manage Employee modify.png}
+    \caption{Business Manage Employee (Business - 15 Figma)}
+    \label{fig:88}
+\end{figure}
+
+
+
+In this GUI (\ref{fig:77}) business owner can see how well their employees are doing, if they are getting good ratings from other employees or bad. They can also see who left the feedback and what are their jobs.
+% 7
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/GUI/business/Specific Busines Manage Employee modify (1).png}
+    \caption{Business Employee Ratings (Business - 17 Figma)}
+    \label{fig:77}
+\end{figure}
+
+
+In this GUI (\ref{fig:33}) business owner can change co-owner permissions.
+% 3
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/GUI/business/Specific Busines owners.png}
+    \caption{Business co-owner managing (Business - 21 Figma)}
+    \label{fig:33}
+\end{figure}
+   
+
+In this GUI (\ref{fig:55}) business owner can create a new job by naming it, giving a description, choosing a few system predefined roles such as cashier, manager, kitchen staff, waiter, cashier (service), service. There is also a way to define activities of the job and what proportions of employee work time it will take.
+% 5
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/GUI/business/Specific Busines jobs.png}
+    \caption{Business job creating (Business - 13 Figma)}
+    \label{fig:55}
+\end{figure}
+
+
+In this GUI (\ref{fig:22}) business owner can create a new work locaiton, specify working hours and seating layout.
+% 2
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/GUI/business/Business location creating.png}
+    \caption{Business location creating (Business - 12 Figma)}
+    \label{fig:22}
+\end{figure}
+
+
+
+In this GUI (\ref{fig:1010}) manager can give new tasks to employees such as "clean the tables", etc. Manager can assign multiple employees to one task. When employee completes the task they simply delete it from their menu (not shown).
+% 10
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/GUI/business/work tasks.png}
+    \caption{Work tasks (Manager - 3 Figma)}
+    \label{fig:1010}
+\end{figure}
+
+
+In this GUI (\ref{fig:99}) employee can give feedback to another employee from 0 to 5 rating, choosing to give the employee as anonymous or no. They can also make the feedback only available to business owners to see.
+% 9
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/GUI/business/Work schedule.png}
+    \caption{Feedback (Work - 4 Figma)}
+    \label{fig:99}
+\end{figure}
+
+
+
+
 
 \newpage
-\subsubsection{User Management Business Flow}
+\subsubsection{Business flows}
+
+\subsubsubsection{User Registration \& Invitation Business Flow}
+
+The user registration and invitation flow (\ref{fig:user_registration_invitation_flow}) uses (\ref{fig:sign-up-page}), (\ref{fig:choose-roles}) and (\ref{fig:enter-info}) GUIs. (Note in the flow the enter personal info and select roles nodes are mixed up, first goes role selection, then additional info inputting actions)
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{docs/ps-design/design-document/images/diagrams/business/user_registration.png}
+    \caption{User Registration and Invitation Business Flow Diagram}
+    \label{fig:user_registration_invitation_flow}
+\end{figure}
+
 
 \begin{center}
 \setlength{\tabcolsep}{8pt}
@@ -758,56 +1028,56 @@ Employees securely end their session. The system clears active tokens/sessions a
 \hline
 \textbf{Tables / Entities} \newline
 \begin{mpitemlist}
-\item \textbf{Owner} – represents the business owner managing users.
-\item \textbf{User} – represents employees or co-owners tied to a business.
-\item \textbf{Business} – links users to the correct business context.
-\item \textbf{User Table} – stores all user data, including roles, status, and associations.
-\item \textbf{Auth Session} – identifies and validates logged-in users and their permissions.
+\item \textbf{User} – stores registered users (employees or owners).
+\item \textbf{Invitation} – holds user invitations to businesses as Employee/Co-owner
+\item \textbf{Business} – associates users with existing companies.
+\item \textbf{Auth Credentials} – stores encrypted passwords and sessions.
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-\item \textbf{User Interface} – pages and forms for inviting, generating codes, searching, and managing users.
-\item \textbf{Auth Service} – validates ownership and permissions for each action.
-\item \textbf{User Service} – executes create, update, and deactivate logic.
-\item \textbf{Database Layer} – persists and retrieves user data.
+\item \textbf{Registration UI} – sign-up and login forms.
+\item \textbf{Invitation comp.} – validates user invitation.
+\item \textbf{Auth comp.} – manages authentication and sessions.
 \end{mpitemlist}
 \\ \hline
 \textbf{User Actions} \newline
 \begin{mpitemlist}
-\item Log in to the system.
-\item Navigate to \textit{Business → Specific Business → Employees}.
-\item Choose between inviting, generating code, or managing existing employees.
-\item Fill in forms or search employee records.
-\item Confirm actions and receive immediate feedback.
+\item Open homepage and choose “Sign Up” or “Log In”.
+\item Enter details.
+\item Submit registration form.
 \end{mpitemlist}
 &
 \textbf{System Reactions} \newline
 \begin{mpitemlist}
-\item Validate the user’s permissions and business ownership via the Auth Service.
-\item Execute the requested operation through the User Service.
-\item Commit changes to the database.
-\item Return operation result to the UI (toast messages or errors).
+\item Validate inputs and user invitation.
+\item Create user with assigned role and business link.
+\item Generate auth session and redirect to dashboard.
 \end{mpitemlist}
 \\ \hline
 \end{tabular}
 \end{center}
 
 
+
+\subsubsubsection{User Management Business Flow}
+
+The user management flows (\ref{fig:user_manage_flow}), (\ref{fig:user_manage_flow}) and uses (\ref{fig:66}), (\ref{fig:44}), (\ref{fig:88}), (\ref{fig:33}) GUIs.
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_user_manage.png}
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_user_manage.png}
     \caption{Employee Management Business Flow Diagram}
     \label{fig:user_manage_flow}
 \end{figure}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_user_manage_coowner.png}
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_user_manage_coowner.png}
     \caption{Co-Owner Management Business Flow Diagram}
     \label{fig:user_manage_flow}
 \end{figure}
 
-\subsubsection{Manage Employee Information Business Flow}
+
 \begin{center}
 \setlength{\tabcolsep}{8pt}
 \renewcommand{\arraystretch}{1.3}
@@ -815,50 +1085,93 @@ Employees securely end their session. The system clears active tokens/sessions a
 \hline
 \textbf{Tables / Entities} \newline
 \begin{mpitemlist}
-\item \textbf{Owner / Co-Owner} – represents the business management roles responsible for viewing or modifying employee data.
-\item \textbf{Employee} – represents staff members whose data, performance, and feedback are being managed.
-\item \textbf{Business} – links employees to the correct business context under which they operate.
-\item \textbf{Employee Table} – stores information about salary, position, work hours, and employment status.
-\item \textbf{Performance Data} – tracks employee task completion and inventory changes.
-\item \textbf{Feedback Data} – stores ratings and written feedback given by managers or coworkers.
+\item \textbf{Owner} – manages business users.
+\item \textbf{User} – employees or co-owners linked to a business.
+\item \textbf{Business} – connects users to the correct company.
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-\item \textbf{Employee Management UI} – interface for viewing, modifying, and navigating employee information, performance, and feedback pages.
-\item \textbf{Auth Service} – validates access permissions for Owners and Co-Owners.
-\item \textbf{Employee Service} – handles data retrieval, modification, and validation of employee details.
-\item \textbf{Analytics Service} – retrieves and aggregates employee performance metrics.
-\item \textbf{Feedback Service} – fetches ratings and written reviews related to the employee.
-\item \textbf{Database Layer} – stores and retrieves all related employee, performance, and feedback records.
+\item \textbf{User UI} – for inviting, searching, and managing users.
+\item \textbf{Auth Service} – checks permissions.
+\item \textbf{User comp.} – handles user actions (create, update, remove).
 \end{mpitemlist}
 \\ \hline
 \textbf{User Actions} \newline
 \begin{mpitemlist}
-\item Log in to the system.
-\item Navigate to \textit{Business → Employees}.
-\item Select \textit{Manage Employee} and search for a specific employee.
-\item Choose one of the following actions:
-    \begin{itemize}
-        \item Modify Information (update salary, hours, or employment status)
-        \item View Performance (inspect graphs and metrics)
-        \item View Feedback (read and filter ratings and reviews)
-    \end{itemize}
-\item Save any modifications and confirm the changes.
+\item Log in and open a business.
+\item Go to “Employees” section.
+\item Invite or manage existing users.
 \end{mpitemlist}
 &
 \textbf{System Reactions} \newline
 \begin{mpitemlist}
-\item Authenticate and verify that the user has permission to manage the employee.
-\item Load and display the selected employee’s data.
-\item Execute updates or retrieve requested information through the respective services.
-\item Persist modifications in the database.
-\item Return a visual confirmation (toast message) or error if the operation fails.
-\item Refresh the employee profile view with updated data.
+\item Verify permissions.
+\item Execute request via User Service.
+\item Update database and show result.
 \end{mpitemlist}
 \\ \hline
 \end{tabular}
 \end{center}
+
+
+
+
+\subsubsubsection{Business Creation Business Flow}
+
+The business creation flow (\ref{fig:business_creation_flow}) uses (\ref{fig:11}) GUIs.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{docs/ps-design/design-document/images/diagrams/business/business_creation.png}
+    \caption{Business Creation Business Flow Diagram}
+    \label{fig:business_creation_flow}
+\end{figure}
+
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables / Entities} \newline
+\begin{mpitemlist}
+\item \textbf{Business} – stores name, type, and description.
+\item \textbf{Owner} – user who creates the business.
+\item \textbf{Contact Info} – holds support email and phone.
+\item \textbf{Country} – links business to its location.
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
+\item \textbf{Business UI} – form for business creation.
+\item \textbf{Business comp.} – validates and saves business data.
+\item \textbf{Auth comp.} – verifies user identity.
+\end{mpitemlist}
+\\ \hline
+\textbf{User Actions} \newline
+\begin{mpitemlist}
+\item Log in and go to “Create Business”.
+\item Enter details: name, type, country, contact info.
+\item Submit form.
+\end{mpitemlist}
+&
+\textbf{System Reactions} \newline
+\begin{mpitemlist}
+\item Validate inputs and ownership.
+\item Create business linked to owner.
+\item Save contact info and metadata.
+\item Show success or error message.
+\end{mpitemlist}
+\\ \hline
+\end{tabular}
+\end{center}
+
+
+
+\subsubsubsection{Manage Employee Information Business Flow}
+
+The manage employee information flow (\ref{fig:user_manage_flow}) uses (\ref{fig:88}) GUI.
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_employee.png}
@@ -866,8 +1179,6 @@ Employees securely end their session. The system clears active tokens/sessions a
     \label{fig:user_manage_flow}
 \end{figure}
 
-\subsubsection{Manage Co-Owner Information Business Flow}
-
 \begin{center}
 \setlength{\tabcolsep}{8pt}
 \renewcommand{\arraystretch}{1.3}
@@ -875,46 +1186,49 @@ Employees securely end their session. The system clears active tokens/sessions a
 \hline
 \textbf{Tables / Entities} \newline
 \begin{mpitemlist}
-\item \textbf{Owner} – represents the business owner with full control over co-owner management.
-\item \textbf{Co-Owner} – represents a secondary manager with assigned permissions.
-\item \textbf{Business} – links co-owners and permissions to the corresponding business.
-\item \textbf{Permissions Table} – defines access levels such as managing employees or viewing finances.
-\item \textbf{Auth Session} – authenticates the logged-in Owner and verifies access control.
+\item \textbf{Owner / Co-Owner} – users managing employee data.
+\item \textbf{Employee} – staff member whose data or feedback is managed.
+\item \textbf{Business} – links employees to their business context.
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-\item \textbf{Owner Management UI} – interface for selecting, editing, or removing co-owners.
-\item \textbf{Auth Service} – validates the Owner’s authority and permission scopes.
-\item \textbf{Co-Owner Service} – processes permission updates and removal operations.
-\item \textbf{Database Layer} – stores relationships between Owners, Co-Owners, and assigned permissions.
-\item \textbf{Notification System} – provides success or error feedback to the user.
+\item \textbf{Employee UI} – interface to view and modify employee details or feedback.
+\item \textbf{Auth comp.} – checks management permissions.
+\item \textbf{Employee comp.} – retrieves and updates employee data.
+\item \textbf{Feedback comp.} – provides employee ratings and reviews.
 \end{mpitemlist}
 \\ \hline
 \textbf{User Actions} \newline
 \begin{mpitemlist}
-\item Log in to UniServe.
-\item Navigate to \textit{Business → Owners}.
-\item Select a Co-Owner from the list.
-\item Choose to \textit{Modify Permissions} or \textit{Remove from Business}.
-\item If modifying, toggle permissions and click \textit{Save}.
-\item Confirm any removal actions.
-\item Return to the Owners list or dashboard.
+\item Log in and go to \textit{Business → Employees}.
+\item Select \textit{Manage Employee} and search for an employee.
+\item Choose an action:
+    \begin{itemize}
+        \item Modify Information (salary, hours, status)
+        \item View Feedback (ratings, reviews)
+    \end{itemize}
+\item Save any changes.
 \end{mpitemlist}
 &
 \textbf{System Reactions} \newline
 \begin{mpitemlist}
-\item Validate Owner authorization through the Auth Service.
-\item Load selected Co-Owner data and associated permissions.
-\item Apply updates or execute removal through the Co-Owner Service.
-\item Commit changes to the database.
-\item Display confirmation or error toast message.
-\item Update the interface with the current state of Co-Owners.
+\item Verify access rights.
+\item Display employee data.
+\item Process requested updates or feedback retrieval.
+\item Save changes to the database.
+\item Show confirmation or error message.
+\item Refresh profile with latest data.
 \end{mpitemlist}
 \\ \hline
 \end{tabular}
 \end{center}
 
+
+
+\subsubsubsection{Manage Co-Owner Information Business Flow}
+
+The manage co-owner information flow (\ref{fig:manage_co_owner_information_business_flow}) uses (\ref{fig:33}) GUI.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_coowner_information.png}
@@ -922,7 +1236,6 @@ Employees securely end their session. The system clears active tokens/sessions a
     \label{fig:manage_co_owner_information_business_flow}
 \end{figure}
 
-\subsubsection{Manage Jobs Business Flow}
 \begin{center}
 \setlength{\tabcolsep}{8pt}
 \renewcommand{\arraystretch}{1.3}
@@ -930,39 +1243,46 @@ Employees securely end their session. The system clears active tokens/sessions a
 \hline
 \textbf{Tables / Entities} \newline
 \begin{mpitemlist}
-\item \textbf{Business} – represents the company owning job definitions.
-\item \textbf{Job} – stores job metadata such as name, description, and associated role.
-\item \textbf{Timetable} – defines activity steps with minimum and maximum durations.
-\item \textbf{User} – owner or co-owner managing job entries.
+\item \textbf{Owner} – owner with specific permissions.
+\item \textbf{Business} –  specific business.
+\item \textbf{Auth Session} – verifies Owner access and authentication.
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-\item \textbf{Job Management UI} – interface for creating or editing job details.
-\item \textbf{Job Service} – handles creation, validation, and updates of job data.
-\item \textbf{Timetable Manager} – manages per-job activity scheduling.
-\item \textbf{Auth Service} – checks user permission to manage jobs.
-\item \textbf{Database Layer} – persists job and timetable entities.
+\item \textbf{Owner UI} – interface for editing or removing co-owners.
+\item \textbf{Auth comp.} – checks Owner authority.
+\item \textbf{Business owner comp.} – updates or removes co-owners.
 \end{mpitemlist}
 \\ \hline
 \textbf{User Actions} \newline
 \begin{mpitemlist}
-\item Navigate to “Jobs”.
-\item Create or edit a job.
-\item Fill in details and add timetable activities.
-\item Save the job.
+\item Log in and go to \textit{Business → Owners}.
+\item Select a Co-Owner.
+\item Choose to modify permissions or remove access.
+\item Save or confirm the action.
 \end{mpitemlist}
 &
 \textbf{System Reactions} \newline
 \begin{mpitemlist}
-\item Validate form data.
-\item Persist or update job records.
-\item Display feedback to user (success or error).
-\item Refresh job list view.
+\item Verify Owner authorization.
+\item Load Co-Owner details.
+\item Apply requested updates or removal.
+\item Save changes to the database.
+\item Show success or error message.
+\item Refresh the Co-Owner list.
 \end{mpitemlist}
 \\ \hline
 \end{tabular}
 \end{center}
+
+
+
+
+\subsubsubsection{Manage Jobs Business Flow}
+
+The manage jobs flow (\ref{fig:manage_jobs_business_flow}) uses (\ref{fig:55}) GUI.
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_jobs.png}
@@ -970,7 +1290,6 @@ Employees securely end their session. The system clears active tokens/sessions a
     \label{fig:manage_jobs_business_flow}
 \end{figure}
 
-\subsubsection{Manage Locations Business Flow}
 \begin{center}
 \setlength{\tabcolsep}{8pt}
 \renewcommand{\arraystretch}{1.3}
@@ -978,39 +1297,43 @@ Employees securely end their session. The system clears active tokens/sessions a
 \hline
 \textbf{Tables / Entities} \newline
 \begin{mpitemlist}
-\item \textbf{Business} – represents the company managing multiple branches or locations.
-\item \textbf{Location} – stores name, address, and operating details.
-\item \textbf{Seating Plan} – defines the layout of tables in a grid format (e.g., 2A, 1B).
-\item \textbf{User} – owner or co-owner who manages locations.
+\item \textbf{Business} – company that owns job definitions.
+\item \textbf{Job} – stores job name, description, and role data.
+\item \textbf{User} – owner or co-owner managing job entries.
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-\item \textbf{Location Management UI} – interface for creating, editing, or deleting locations.
-\item \textbf{Seating Plan Editor} – grid editor for table positioning.
-\item \textbf{Location Service} – handles creation, updates, and deletion of location records.
-\item \textbf{Auth Service} – ensures only authorized users can manage locations.
-\item \textbf{Database Layer} – persists location and seating plan data.
+\item \textbf{Job UI} – create or edit job details and timetables.
+\item \textbf{Job comp.} – validates and updates job data.
+\item \textbf{Auth comp.} – checks user permissions.
 \end{mpitemlist}
 \\ \hline
 \textbf{User Actions} \newline
 \begin{mpitemlist}
-\item Navigate to “Locations”.
-\item Add, edit, or delete a location.
-\item Input name, address, hours, and seating plan.
-\item Save or confirm deletion.
+\item Open the “Jobs” page.
+\item Create or edit a job.
+\item Enter details and activities.
+\item Save changes.
 \end{mpitemlist}
 &
 \textbf{System Reactions} \newline
 \begin{mpitemlist}
-\item Validate and persist data.
-\item Update or remove location records.
+\item Validate input data.
+\item Save or update job records.
 \item Show success or error message.
-\item Refresh the list of locations.
+\item Refresh job list.
 \end{mpitemlist}
 \\ \hline
 \end{tabular}
 \end{center}
+
+
+
+\subsubsubsection{Manage Locations Business Flow}
+
+The manage locations flow (\ref{fig:manage_locations_business_flow}) uses (\ref{fig:22}) GUI.
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_locations.png}
@@ -1018,7 +1341,6 @@ Employees securely end their session. The system clears active tokens/sessions a
     \label{fig:manage_locations_business_flow}
 \end{figure}
 
-\subsubsection{Manage Businesses Business Flow}
 \begin{center}
 \setlength{\tabcolsep}{8pt}
 \renewcommand{\arraystretch}{1.3}
@@ -1026,41 +1348,51 @@ Employees securely end their session. The system clears active tokens/sessions a
 \hline
 \textbf{Tables / Entities} \newline
 \begin{mpitemlist}
-\item \textbf{User} – represents the logged-in person.
-\item \textbf{Business} – contains business details such as name, description, type, and country.
+\item \textbf{Business} – company managing branches or locations.
+\item \textbf{Location} – stores name, address, and operating details.
+\item \textbf{Seating Plan} – defines table layout (e.g., 2A, 1B).
+\item \textbf{User} – owner or co-owner managing locations.
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-\item \textbf{Business Management UI} – displays owned and co-owned businesses.
-\item \textbf{Business Service} – fetches user-related businesses from the database.
-\item \textbf{Navigation Controller} – handles transitions to business management or creation views.
+\item \textbf{Location UI} – manage creation, editing, or deletion of locations.
+\item \textbf{Location comp.} – validates and updates records.
+\item \textbf{Auth comp.} – verifies management permissions.
 \end{mpitemlist}
 \\ \hline
 \textbf{User Actions} \newline
 \begin{mpitemlist}
-\item View list of owned and co-owned businesses.
-\item Open a specific business.
-\item Create a new business.
+\item Go to “Locations”.
+\item Add, edit, or delete a location.
+\item Enter details and seating plan.
+\item Save or confirm action.
 \end{mpitemlist}
 &
 \textbf{System Reactions} \newline
 \begin{mpitemlist}
-\item Retrieve business list from backend.
-\item Display businesses with open buttons.
-\item Redirect to business creation or details view.
+\item Validate input and permissions.
+\item Save, update, or remove records.
+\item Show success or error message.
+\item Refresh location list.
 \end{mpitemlist}
 \\ \hline
 \end{tabular}
 \end{center}
 
+
+
+\subsubsubsection{Task Assignment Business Flow}
+
+The task assignment flow (\ref{fig:task_assignment_business_flow}) uses (\ref{1010}) GUI.
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_businesses.png}
-    \caption{Manage Businesses Business Flow Diagram}
-    \label{fig:manage_businesses_flow}
+    \includegraphics[width=0.6\textwidth]{docs/ps-design/design-document/images/diagrams/business/task_assignment.png}
+    \caption{Task Assignment Business Flow Diagram}
+    \label{fig:task_assignment_business_flow}
 \end{figure}
-\subsubsection{Create or Edit Business Flow}
+
 \begin{center}
 \setlength{\tabcolsep}{8pt}
 \renewcommand{\arraystretch}{1.3}
@@ -1068,169 +1400,855 @@ Employees securely end their session. The system clears active tokens/sessions a
 \hline
 \textbf{Tables / Entities} \newline
 \begin{mpitemlist}
-\item \textbf{Business} – stores business metadata such as name, description, type, specific type, and country.
-\item \textbf{User} – the creator or editor of the business.
+\item \textbf{Task} – defines assignments with title, description, and deadline.
+\item \textbf{Employee} – users receiving assigned tasks.
+\item \textbf{Manager} – owners or co-owners assigning tasks.
+\item \textbf{Business} – links tasks to the business.
+\item \textbf{Task Status} – tracks progress updates.
 \end{mpitemlist}
 &
 \textbf{Components} \newline
 \begin{mpitemlist}
-\item \textbf{Business Creation UI} – form for entering and editing business details.
-\item \textbf{Business Service} – validates and persists business data.
-\item \textbf{Auth Service} – checks that user has permission to create or edit businesses.
-\item \textbf{Database Layer} – saves or updates business records.
+\item \textbf{Task UI} – create, assign, and track tasks.
+\item \textbf{Task comp.} – validates and updates task data.
+\item \textbf{Auth comp.} – checks manager permissions.
 \end{mpitemlist}
 \\ \hline
 \textbf{User Actions} \newline
 \begin{mpitemlist}
-\item Fill in name, description, and type.
-\item Choose specific type and country.
-\item Create or save changes.
+\item Open “Tasks” page.
+\item Create or edit a task.
+\item Assign employees.
+\item Monitor progress.
 \end{mpitemlist}
 &
 \textbf{System Reactions} \newline
 \begin{mpitemlist}
-\item Validate input fields.
-\item Persist new or updated business data.
-\item Show feedback to user.
-\item Redirect to Manage Businesses page.
+\item Verify permissions.
+\item Save or update task data.
+\item Update task status.
+\item Refresh task list view.
 \end{mpitemlist}
 \\ \hline
 \end{tabular}
 \end{center}
 
+
+
+\subsubsubsection{Peer Feedback \& Ratings Business Flow}
+
+The peer feedback and ratings flow (\ref{fig:feedback_business_flow}) uses (\ref{fig:77}) and (\ref{fig:99}) GUIs.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/diagrams/business/feedback.png}
+    \caption{Feedback Business Flow Diagram}
+    \label{fig:feedback_business_flow}
+\end{figure}
+
+\begin{center}
+\setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{0.48\linewidth}|p{0.48\linewidth}|}
+\hline
+\textbf{Tables / Entities} \newline
+\begin{mpitemlist}
+\item \textbf{Feedback} – stores comments and ratings.
+\item \textbf{Employee} – includes both reviewer and reviewee.
+\item \textbf{Rating} – numeric evaluation score.
+\item \textbf{Anonymous Flag} – indicates if feedback is anonymous.
+\item \textbf{Business} – links feedback to the business context.
+\end{mpitemlist}
+&
+\textbf{Components} \newline
+\begin{mpitemlist}
+\item \textbf{Feedback UI} – for selecting colleagues and submitting reviews.
+\item \textbf{Feedback comp.} – validates, anonymizes, and saves feedback.
+\item \textbf{Employee comp.} – ensures both employees belong to the same business.
+\end{mpitemlist}
+\\ \hline
+\textbf{User Actions} \newline
+\begin{mpitemlist}
+\item Go to “Feedback” page.
+\item Select a colleague and add rating/comment.
+\item Choose to post anonymously.
+\item Submit feedback.
+\end{mpitemlist}
+&
+\textbf{System Reactions} \newline
+\begin{mpitemlist}
+\item Validate and save feedback.
+\item Apply anonymity if selected.
+\item Update employee’s average rating.
+\item Show success or error message.
+\end{mpitemlist}
+\\ \hline
+\end{tabular}
+\end{center}
+
+
+
+
+\section{Package diagram}
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{docs/ps-design/design-document/images/diagrams/business/bpmn_manage_business_information.png}
-    \caption{Create or Edit Business Business Flow Diagram}
-    \label{fig:manage_businesses_flow}
+    \includegraphics[width=0.9\textwidth]{docs/ps-design/design-document/images/package/package2.png}
+    \caption{Package Diagram}
+    \label{fig:package_diagram}
+\end{figure}
+
+\subsection*{Internal packages overview:}
+
+\begin{itemize}
+    \item \textbf{User Management System} – Generic user account logic (e.g. user, invites)
+    \item \textbf{Authentication} – Account authentication specific logic.
+    \item \textbf{Business Management System} – Core logic for client business.
+    \item \textbf{Employee Management System} – Client business employee logic
+    \item \textbf{Order Based System} – Order-based (e.g. restaurant, bar) specific logic
+    \item \textbf{Service Based System} – Appointment-based (e.g. spa, massage) specific logic
+    \item \textbf{Pricing System} – Shared price and discount logic
+    \item \textbf{Payment System} – All payment logic, integrates with Stripe
+    \item \textbf{Application Data} - Shared "static" configuration data (e.g user types, permission definitions) 
+    \item \textbf{Version Data} – Shared logic for data versioning (historical records)
+\end{itemize}
+
+\subsection*{External packages overview:}
+
+\begin{itemize}
+    \item \textbf{SMS Provider} - Service used to send messages to people (AWS SMS)
+    \item \textbf{Stripe} – Payment gateway
+\end{itemize}
+
+\section{Data model}
+
+
+ We would highly recommend to use the Draw.io link at the introduction of our document (\ref{links}) for better viewing and connection tracing. We will be going through all diagrams in the sequence (red arrows) shown below:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/sequence.png}
+    \caption{Menu}
+    \label{fig:menu_data}
 \end{figure}
 
 
+
+We used the violet boxes (\ref{fig:gui_ref}) to indicate references to GUIs in Figma, green box (\ref{fig:package_nam}) to indicate package name. You can also check our color codes in \ref{fig:color_codes} to see how we indicated keys and unique values.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{docs/ps-design/design-document/images/datamodel/Screenshot_20251020_084416.png}
+    \caption{GUI reference}
+    \label{fig:gui_ref}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{docs/ps-design/design-document/images/datamodel/Screenshot_20251020_084446.png}
+    \caption{Package name}
+    \label{fig:package_nam}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{docs/ps-design/design-document/images/datamodel/Screenshot_20251020_104255.png}
+    \caption{Color codes}
+    \label{fig:color_codes}
+\end{figure}
+
+\subsection{The diagrams}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/Application-Data.png}
+    \caption{Application data}
+    \label{fig:application_data}
+\end{figure}
+
+
+\vspace{0.3cm}
+\noindent
+Arrows going to application data (\ref{fig:application_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Business data (\ref{fig:business_data}) & Business owner (\ref{fig:business_owner_data}) & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from application data (\ref{fig:application_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Version data (\ref{fig:version_data}) & & \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/datamodel/user_data.png}
+    \caption{User}
+    \label{fig:user_data}
+\end{figure}
+
+\noindent
+Arrows going to user (\ref{fig:user_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Notification (\ref{fig:notification_data}) & Invite (\ref{fig:invite_data}) & Employee data (\ref{fig:employee_data}) \\
+\hline
+Business owner (\ref{fig:business_owner_data}) & Message (\ref{fig:message_data}) & Appointment (\ref{fig:appointment_data}) \\
+\hline
+Version data (\ref{fig:version_data}) & Inventory (\ref{fig:inventory_data}) & Payment (\ref{fig:payment_data}) \\\hline 
+Refresh token (\ref{fig:authentication}) & & \\ 
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from user (\ref{fig:user_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Application data (\ref{fig:application_data}) & & \\
+\hline
+\end{tabular}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{docs/ps-design/design-document/images/datamodel/authentication.png}
+    \caption{Refresh Token}
+    \label{fig:authentication}
+\end{figure}
+
+\noindent
+Arrows going to refresh token (\ref{fig:message_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+- & & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from refresh token (\ref{fig:user_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+User (\ref{fig:user_data}) & & \\
+\hline
+\end{tabular}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/messages.png}
+    \caption{Message}
+    \label{fig:message_data}
+\end{figure}
+
+\noindent
+Arrows going to message (\ref{fig:message_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+- & & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from message (\ref{fig:message_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+User (\ref{fig:user_data}) & & \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/Business-Data.png}
+    \caption{Business}
+    \label{fig:business_data}
+\end{figure}
+
+\noindent
+Arrows going to business (\ref{fig:business_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Business owner data (\ref{fig:business_owner_data}) & Employee (\ref{fig:employee_data}) & Job (\ref{fig:job_data}) \\
+\hline
+Menu (\ref{fig:menu_data}) & Inventory (\ref{fig:inventory_data}) & Discount (\ref{fig:discount_data}) \\
+\hline
+Location (\ref{fig:location_data}) & Service (\ref{fig:service_data}) & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from business (\ref{fig:business_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Application data (\ref{fig:application_data}) & Version data (\ref{fig:version_data}) & \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/Location.png}
+    \caption{Location}
+    \label{fig:location_data}
+\end{figure}
+
+\noindent
+Arrows going to location (\ref{fig:location_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Inventory data (\ref{fig:inventory_data}) & Employee (\ref{fig:employee_data}) & Employee tasks (\ref{fig:employee_tasks}) \\
+\hline
+Menu (\ref{fig:menu_data}) & Order (\ref{fig:order_data}) & Discount (\ref{fig:discount_data}) \\
+\hline
+Service (\ref{fig:service_data}) & & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from location (\ref{fig:location_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Application data (\ref{fig:application_data}) & Version data (\ref{fig:version_data}) & Business (\ref{fig:business_data}) \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/Service.png}
+    \caption{Service}
+    \label{fig:service_data}
+\end{figure}
+
+\noindent
+Arrows going to service (\ref{fig:service_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Appointment (\ref{fig:appointment_data}) & & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from service (\ref{fig:service_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Business (\ref{fig:business_data}) & Location (\ref{fig:location_data}) & Employee data (\ref{fig:employee_data}) \\
+\hline
+Price data (\ref{fig:price_data}) & Version data (\ref{fig:version_data}) & \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/appointment.png}
+    \caption{Appointment}
+    \label{fig:appointment_data}
+\end{figure}
+
+The \texttt{discount\_id} in appointment bill table is used for whole bill discounts. In this case it may be not used as specific location service uses \texttt{price\_id} which also has \texttt{discount\_id} attribute. 
+
+
+\noindent
+Arrows going to appointment (\ref{fig:appointment_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Payment (\ref{fig:payment_data}) & & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from appointment (\ref{fig:appointment_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Service (\ref{fig:service_data}) & Discount (\ref{fig:discount_data}) & Application data (\ref{fig:application_data}) \\
+\hline
+User (actioned by) & & \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{docs/ps-design/design-document/images/datamodel/Version-Data.png}
+    \caption{Version data}
+    \label{fig:version_data}
+\end{figure}
+
+\noindent
+Arrows going to version data (\ref{fig:version_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Discount (\ref{fig:discount_data}) & Service  (\ref{fig:service_data}) & Menu (\ref{fig:menu_data}) \\
+\hline
+Recipe  (\ref{fig:recipe_data}) & Price  (\ref{fig:price_data}) & Location  (\ref{fig:location_data}) \\
+\hline
+Business data (\ref{fig:business_data}) & Business owner  (\ref{fig:business_owner_data}) & Employee  (\ref{fig:employee_data}) \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from version data (\ref{fig:version_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+User  (created by, updated by) & & \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/Discount-Data.png}
+    \caption{Discount data}
+    \label{fig:discount_data}
+\end{figure}
+
+\noindent
+Arrows going to discount  (\ref{fig:discount_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Price  (\ref{fig:price_data}) & Order  (\ref{fig:order_data}) & Appointment  (\ref{fig:appointment_data}) \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from discount  (\ref{fig:discount_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Version data (\ref{fig:version_data}) & Location  (\ref{fig:location_data}) & Business  (\ref{fig:business_data}) \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/Order-Data.png}
+    \caption{Order }
+    \label{fig:order_data}
+\end{figure}
+
+The \texttt{discount\_id} in order bill table is used for whole bill discounts.
+
+\noindent
+Arrows going to order  (\ref{fig:order_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Payment  (\ref{fig:payment_data}) & & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from order  (\ref{fig:order_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Location  (\ref{fig:location_data}) & User  (created by) & Application data (\ref{fig:application_data}) \\
+\hline
+Discount  (\ref{fig:discount_data}) & Menu  (\ref{fig:menu_data}) & \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/inventory.png}
+    \caption{Inventory }
+    \label{fig:inventory_data}
+\end{figure}
+
+\noindent
+Arrows going to inventory  (\ref{fig:inventory_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Menu  (\ref{fig:menu_data}) & & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from inventory  (\ref{fig:inventory_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Business  (\ref{fig:business_data}) & Location (\ref{fig:location_data}) & User  (created by) \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/Business-Owner-Data.png}
+    \caption{Business owner}
+    \label{fig:business_owner_data}
+\end{figure}
+
+\noindent
+Arrows going to business owner  (\ref{fig:business_owner_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+- & & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from business owner  (\ref{fig:business_owner_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Application  (\ref{fig:application_data}) & User  (\ref{fig:user_data}) & Business  (\ref{fig:business_data}) \\
+\hline
+Version data (\ref{fig:version_data}) & & \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/Invite.png}
+    \caption{Invite }
+    \label{fig:invite_data}
+\end{figure}
+
+\noindent
+Arrows going to invite  (\ref{fig:invite_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+- & & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from invite  (\ref{fig:invite_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+User  (\ref{fig:user_data}) & & \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/Notification-Data.png}
+    \caption{Notification }
+    \label{fig:notification_data}
+\end{figure}
+
+\noindent
+Arrows going to notification  (\ref{fig:notification_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+- & & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from notification  (\ref{fig:notification_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+User  (\ref{fig:user_data}) & & \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{docs/ps-design/design-document/images/datamodel/employee.png}
+    \caption{Employee}
+    \label{fig:employee_data}
+\end{figure}
+
+\noindent
+Arrows going to employee  (\ref{fig:employee_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Employee feedback (\ref{fig:employee_feedback}) & Employee tasks (\ref{fig:employee_tasks}) & Service  (\ref{fig:service_data}) \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from employee  (\ref{fig:employee_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Job  (\ref{fig:job_data}) & Application data (\ref{fig:application_data}) & Version data (\ref{fig:version_data}) \\
+\hline
+Business  (\ref{fig:business_data}) & Location  (\ref{fig:location_data}) & \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/Menu.png}
+    \caption{Menu data}
+    \label{fig:menu_data}
+\end{figure}
+
+\noindent
+Arrows going to menu  (\ref{fig:menu_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Order  (\ref{fig:order_data}) & Recipe  (\ref{fig:recipe_data}) & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from menu  (\ref{fig:menu_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Business  (\ref{fig:business_data}) & Location  (\ref{fig:location_data}) & Price  (\ref{fig:price_data}) \\
+\hline
+Inventory  (\ref{fig:inventory_data}) & Version  (\ref{fig:version_data}) & \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/Payment-Data.png}
+    \caption{Payment }
+    \label{fig:payment_data}
+\end{figure}
+
+\noindent
+Arrows going to payment  (\ref{fig:payment_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+- & & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from payment (\ref{fig:payment_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Order  (\ref{fig:order_data}) & Appointment  (\ref{fig:appointment_data}) & User  (actioned by) \\
+\hline
+Application data (\ref{fig:application_data}) & & \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/Price.png}
+    \caption{Price }
+    \label{fig:price_data}
+\end{figure}
+
+\noindent
+Arrows going to price  (\ref{fig:price_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Menu  (\ref{fig:menu_data}) & Service  (\ref{fig:service_data}) & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from price  (\ref{fig:price_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Version data (\ref{fig:version_data}) & Application data (\ref{fig:application_data}) & Discount  (\ref{fig:discount_data}) \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/Recipe.png}
+    \caption{Recipe}
+    \label{fig:recipe_data}
+\end{figure}
+
+\noindent
+Arrows going to recipe data (\ref{fig:recipe_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+- & & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from recipe  (\ref{fig:recipe_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Menu (\ref{fig:menu_data}) & Version data (\ref{fig:version_data}) & \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/Job-Data.png}
+    \caption{Job}
+    \label{fig:job_data}
+\end{figure}
+
+\noindent
+Arrows going to job  (\ref{fig:job_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Employee  (\ref{fig:employee_data}) & & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from job  (\ref{fig:job_data}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Application data (\ref{fig:application_data}) & Business data (\ref{fig:business_data}) & \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{docs/ps-design/design-document/images/datamodel/Employee-Tasks.png}
+    \caption{Employee tasks}
+    \label{fig:employee_tasks}
+\end{figure}
+
+\noindent
+Arrows going to employee tasks (\ref{fig:employee_tasks}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+- & & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from employee tasks (\ref{fig:employee_tasks}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Location (\ref{fig:location_data}) & Employee data (\ref{fig:employee_data}) & \\
+\hline
+\end{tabular}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{docs/ps-design/design-document/images/datamodel/Employee-Feedback.png}
+    \caption{Employee feedback}
+    \label{fig:employee_feedback}
+\end{figure}
+
+\noindent
+Arrows going to employee feedback (\ref{fig:employee_feedback}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+- & & \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent
+Arrows going from employee feedback (\ref{fig:employee_feedback}):
+
+\noindent
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+Employee data (\ref{fig:employee_data}) & & \\
+\hline
+\end{tabular}
 
 \section{APIs}
 
-Present as an openapi.yaml file. PR: \url{https://github.com/user5427/ps-design/pull/7}
+The API contracts are presented as a single \texttt{openapi.yaml} file. To visualise the contracts, use \url{https://editor.swagger.io/} or any other visual API editor.
 
-% \todocomment{Sort/filter/pagination. Decide on the details and add to the yaml.}
+For authentication, we chose a email-and-password authentication with short-lived access JWTs and longer-lived refresh tokens stored in HttpOnly cookies.
+ This lets users stay logged in for long periods (like employees on shift without need to relogin), and allows token revocation if needed. We chose this over a single JWT (which would force frequent logins), traditional server sessions (which need extra server storage), or Keycloak (which adds infrastructure complexity) because it’s simple, secure enough, and works well for our needs right now.
 
-% \todocomment{Auth: currently uses JWT access tokens. Write in here why we chose this approach, the pros/cons and possible alternatives.}
-
-For authentication, we selected a stateless strategy using JSON Web Tokens (JWT). Statelessness is ideal for scaling our decoupled frontend and backend APIs without complex session management. While a powerful identity provider like Keycloak was considered, it was deferred due to its significant infrastructure and implementation complexity. JWT offers the best balance of scalability and simplicity for the project's current scope.
-
-
-
-
-% \section{Data Model}
-
-% \yellowcomment{better to specify in each order/service/managing/and other functionality domain separately}
-
-% \subsection{Order Data Model}
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.65\textwidth]{images/diagrams/orders/order_model_class.png}
-%     \caption{Order Class Diagram}
-%     \label{fig:order_class_diagram}
-% \end{figure}
-
-% \subsection{Service Data Model}
-
-% \subsection{Business Data Model}
-
-% \subsubsection{Design Decisions (Summary)}
-
-% Below are the initial data design decisions for business and user account management. 
-% \begin{itemize}
-%     \item \textbf{User role-based access control (RBAC):} Roles group permissions, and users are assigned to roles. Also allow per-business role assignment.
-%     \item \textbf{Identifiers and timestamps:} Use UUID primary keys and maintain \texttt{created} and \texttt{updated\_at} timestamps. This supports managing multiple businesses, potentially distributed across systems.
-%     \item \textbf{Password security:} Store only hashed passwords. Include fields \texttt{password\_hash}, \texttt{password\_algo/version}, and \texttt{password\_changed\_at}. Do not store plaintext passwords or use reversible encryption.
-%     \item \textbf{Audit logging:} Track login attempts, password resets, and administrator or manager actions.
-%     \item \textbf{Support sessions or tokens:} Either server-side session store or JWT approach.
-%     \item \textbf{Soft-delete:} For users with \textbf{is\_active} and \textbf{deleted\_at} attributes.
-% \end{itemize}
-% \textit{RBAC = Role-Based Access Control}
-
-% \subsubsection{Entities and Tables}  
-
-% The database schema is organized into the following entities and supporting tables:  
-
-% \begin{itemize}
-%     \item \textbf{organization}  
-%     \begin{itemize}
-%         \item id (PK), name, metadata, created\_at, updated\_at
-%     \end{itemize}
-%     \item \textbf{businesses}  
-%     \begin{itemize}
-%         \item id (PK), organization\_id (FK), name, metadata, created\_at, updated\_at
-%     \end{itemize}
-%     \item \textbf{users}  
-%     \begin{itemize}
-%         \item id (PK), organization\_id (FK), business\_id (FK, optional), email, display\_name, username, 
-%         password\_hash, password\_algo, password\_version, is\_active, email\_verified, last\_login\_at, 
-%         failed\_login\_attempts, locked\_until, created\_at, updated\_at
-%     \end{itemize}
-%     \item \textbf{roles}  
-%     \begin{itemize}
-%         \item id (PK), name, description, created\_at
-%     \end{itemize}
-%     \item \textbf{permissions}  
-%     \begin{itemize}
-%         \item id (PK), name, description
-%     \end{itemize}
-%     \item \textbf{role\_permissions}  
-%     \begin{itemize}
-%         \item role\_id (FK), permission\_id (FK)
-%     \end{itemize}
-%     \item \textbf{user\_roles}  
-%     \begin{itemize}
-%         \item user\_id (FK), role\_id (FK), assigned\_by (FK), assigned\_at
-%     \end{itemize}
-%     \item \textbf{user\_business\_roles}  
-%     \begin{itemize}
-%         \item user\_id (FK), business\_id (FK), role\_id (FK), assigned\_by (FK), assigned\_at
-%     \end{itemize}
-%     \item \textbf{sessions}  
-%     \begin{itemize}
-%         \item id (PK), user\_id (FK), session\_token, user\_agent, ip, created\_at, last\_seen\_at, expires\_at, revoked
-%     \end{itemize}
-%     \item \textbf{password\_resets}  
-%     \begin{itemize}
-%         \item id (PK), user\_id (FK), reset\_token, expires\_at, used\_at
-%     \end{itemize}
-%     \item \textbf{audit\_logs}  
-%     \begin{itemize}
-%         \item id (PK), user\_id (subject, FK), actor\_id (FK), action, resource\_type, resource\_id, details, created\_at
-%     \end{itemize}
-% \end{itemize}
-
-% \textit{PK = Primary Key,}
-% \textit{FK = Foreign Key}
-
-% \subsubsection{Relationships}
-
-% Below are the relationships between tables and entities in this schema.
-% \begin{itemize}
-%     \item \textbf{Organization $\rightarrow$ Businesses}. One organization can own many businesses. This models a parent company with multiple branches.
-%     \item \textbf{Organization $\rightarrow$ Users}. One organization can have many users. Users are scoped to an organization.
-%     \item \textbf{Businesses $\rightarrow$ Users (Optional)}. Users may also have a default \textbf{business\_id} to the business if are tied to one. But users don't have to be tied to a single business. They might be org-level (super admin or a lead manager).
-%     \item \textbf{Businesses $\rightarrow$ User Store Roles}. A business can have many \textbf{user\_store\_roles}. This lets the assignment of roles to specific businesses.
-%     \item \textbf{Users $\rightarrow$ Sessions}. One user can have many sessions (logins). Tracks IPs, session tokens, devices.
-%     \item \textbf{Users $\rightarrow$ User Roles (Organization-wide)}. A user can have many roles at the organization level.
-%     \item \textbf{Users $\rightarrow$ User Business Roles}. A user can have different roles in different businesses.
-%     \item \textbf{Users $\rightarrow$ Audit Logs}. A user can generate many audit log entries as an actor. A user can also be the subject of audit logs.
-%     \item \textbf{Roles $\rightarrow$ Role Permissions}. One role can have many permissions.
-%     \item \textbf{Permissions $\rightarrow$ Role Permissions}. One permission can belong to many roles.
-%     \item \textbf{Roles $\rightarrow$ User Roles}. A role can be assigned to many users throughout the organization.
-%     \item \textbf{Roles $\rightarrow$ User Business Roles}. A role can be assigned to many users within a specific business.
-% \end{itemize}
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.8\textwidth]{images/diagrams/business/data_model_business.png}
-%     \caption{Business Class Diagram with Attributes}
-%     \label{fig:business_class_diagram}
-% \end{figure}
-% This diagram represents different relationships between different entities as well as their attributes. 
-
-% \printbibliography[title = {References and sources}]
 
 \end{document}
