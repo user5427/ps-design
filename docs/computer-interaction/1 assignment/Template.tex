@@ -15,6 +15,7 @@
 
 \usepackage{xcolor}
 \usepackage{tcolorbox}
+\usepackage{longtable}
 % Master switch for all comments (set to 0 to disable, 1 to enable)
 \newcommand{\showcomments}{0}
 
@@ -1246,7 +1247,7 @@ It satisfies these \textbf{usability objectives:}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{docs/computer-interaction/1 assignment/images/examples/toast+Sling_employee_management.png}
+    \includegraphics[width=\textwidth]{images/examples/toast+Sling_employee_management.png}
     \caption{Employee overview (Toast + Sling)}
     \href{https://support.getsling.com/en/articles/8981593-sling-toast-admin-manual}{Source: Sling documentation}
     \label{fig:employee-overview}
@@ -1293,7 +1294,7 @@ It satisfies these \textbf{usability objectives:}
     \goodcomment{Added implementation for all UNs}
     \textbf{Employee Needs}
 
-         \item[UN-01] An employee needs to record customer orders to avoid damaging them in the fast-paced restaurant. \\
+        \item[UN-01] An employee needs to record customer orders to avoid damaging them in the fast-paced restaurant. \\
         \textit{Implementation:} For wireframe 1,  \textbf{Order} frame, and For Wireframe 2, the \textbf{`Working / Order / Create`} and \textbf{`Working / Menu`} frames provide a digital interface for selecting items and creating an order.
         
         \item[UN-02] An employee needs to view available booking slots. \\
@@ -1455,7 +1456,88 @@ Note: Not all breadcrumbs are active in Wireframe 2. Only the first few business
 \section{Usability testing}
 
 \subsection{Participants}
+
+
+% a table, on the left participants, on the right their characteristics in bullet points
+\begin{longtable}{|c|p{0.78\textwidth}|}
+    \caption{Participants and characteristics}
+    \label{tab:participants} \\
+    \hline
+        ID & Characteristics \\ 
+    \hline
+    \endfirsthead
+    
+    \multicolumn{2}{c}%
+    {\tablename\ \thetable\ -- \textit{Continued from previous page}} \\
+    \hline
+        ID & Characteristics \\ 
+    \hline
+    \endhead
+    
+    \hline \multicolumn{2}{r}{\textit{Continued on next page}} \\
+    \endfoot
+    
+    \hline
+    \endlastfoot
+    
+    P1 & \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}\setlength{\parsep}{0pt}
+        \item \textbf{Demography:}
+        \item \textbf{Occupation:}
+        \item \textbf{Experience:}
+        \item \textbf{IT skill:}
+        \item \textbf{Devices:}
+        \item \textbf{Other:}
+    \end{itemize} \\ 
+    \hline
+    P2 & \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}\setlength{\parsep}{0pt}
+        \item \textbf{Demography:}
+        \item \textbf{Occupation:}
+        \item \textbf{Experience:}
+        \item \textbf{IT skill:}
+        \item \textbf{Devices:}
+        \item \textbf{Other:}
+    \end{itemize} \\ 
+    \hline
+    P3 & \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}\setlength{\parsep}{0pt}
+        \item \textbf{Demography:}
+        \item \textbf{Occupation:}
+        \item \textbf{Experience:}
+        \item \textbf{IT skill:}
+        \item \textbf{Devices:}
+        \item \textbf{Other:}
+    \end{itemize} \\ 
+    \hline
+    P4 & \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}\setlength{\parsep}{0pt}
+        \item \textbf{Demography:}
+        \item \textbf{Occupation:}
+        \item \textbf{Experience:}
+        \item \textbf{IT skill:}
+        \item \textbf{Devices:}
+        \item \textbf{Other:}
+    \end{itemize} \\ 
+    \hline
+    P5 & \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}\setlength{\parsep}{0pt}
+        \item \textbf{Demography:}
+        \item \textbf{Occupation:}
+        \item \textbf{Experience:}
+        \item \textbf{IT skill:}
+        \item \textbf{Devices:}
+        \item \textbf{Other:}
+    \end{itemize} \\ 
+    \hline
+    P6 & \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}\setlength{\parsep}{0pt}
+        \item \textbf{Demography:}
+        \item \textbf{Occupation:}
+        \item \textbf{Experience:}
+        \item \textbf{IT skill:}
+        \item \textbf{Devices:}
+        \item \textbf{Other:}
+    \end{itemize} \\ 
+    \hline     
+\end{longtable}
+
 \subsection{Methodology}
+
 \subsection{Findings}
 \subsection{Recommendations}
 
@@ -1464,7 +1546,7 @@ Note: Not all breadcrumbs are active in Wireframe 2. Only the first few business
 \subsection{questionnaires}
 \subsection{Results of the participants (testing protocols)}
 \subsection{Informed consent form}
-\subsection{}
+\subsection{Other}
 
 
 
