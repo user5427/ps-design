@@ -14,3 +14,4 @@ Template.toc
 *.pdf
 build
 *.md5
+.env
