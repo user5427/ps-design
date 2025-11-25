@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
-// import { MainLayout } from '../components/layouts/MainLayout'
 import { Box, Typography, Button } from '@mui/material'
 import { Link } from '@tanstack/react-router'
+import { MainLayout } from '@/components/layouts/MainLayout'
 
 export const Route = createFileRoute('/')({
   component: HomePage,
@@ -9,7 +9,7 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   return (
-    // <MainLayout>
+    <MainLayout>
       <Box sx={{ textAlign: 'center', mt: 8 }}>
         <Typography variant="h2" gutterBottom>
           Welcome to PS Design 2025
@@ -26,6 +26,6 @@ function HomePage() {
           Get Started
         </Button>
       </Box>
-    // </MainLayout>
+    </MainLayout>
   )
 }
