@@ -1,22 +1,20 @@
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
+import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
+import { QueryClient } from '@tanstack/react-query'
+import { Box } from '@mui/material'
 
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <TanStackDevtools
-        config={{
-          position: 'bottom-right',
-        }}
-        plugins={[
-          {
-            name: 'Tanstack Router',
-            render: <TanStackRouterDevtoolsPanel />,
-          },
-        ]}
-      />
-    </>
-  ),
+interface RouterContext {
+  queryClient: QueryClient
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
+  component: RootComponent,
 })
+
+function RootComponent() {
+  return (
+    <Box>
+      {/* Outlet renders whatever route matches (/, /auth/login, etc.) */}
+      <Outlet />
+    </Box>
+  )
+}

@@ -1,76 +1,31 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Box, Container, Typography, Link as MuiLink, Stack } from '@mui/material'
-import logo from '../logo.svg'
+// import { MainLayout } from '../components/layouts/MainLayout'
+import { Box, Typography, Button } from '@mui/material'
+import { Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
-  component: App,
+  component: HomePage,
 })
 
-function App() {
+function HomePage() {
   return (
-    <Container maxWidth="md">
-      <Stack
-        component="header"
-        spacing={3}
-        alignItems="center"
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          justifyContent: 'center',
-          py: 4,
-        }}
-      >
-        <Box
-          component="img"
-          src={logo}
-          alt="logo"
-          sx={{
-            height: { xs: '100px', sm: '120px', md: '150px' },
-            animation: 'spin 20s linear infinite',
-            '@keyframes spin': {
-              from: { transform: 'rotate(0deg)' },
-              to: { transform: 'rotate(360deg)' },
-            },
-          }}
-        />
-        <Typography variant="body1">
-          Edit <code>src/routes/index.tsx</code> and save to reload.
+    // <MainLayout>
+      <Box sx={{ textAlign: 'center', mt: 8 }}>
+        <Typography variant="h2" gutterBottom>
+          Welcome to PS Design 2025
         </Typography>
-        <Stack spacing={1}>
-          <MuiLink
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-            component="a"
-            sx={{
-              color: 'primary.main',
-              textDecoration: 'none',
-              fontSize: '1.1rem',
-              '&:hover': {
-                textDecoration: 'underline',
-              },
-            }}
-          >
-            Learn React
-          </MuiLink>
-          <MuiLink
-            href="https://tanstack.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            component="a"
-            sx={{
-              color: 'primary.main',
-              textDecoration: 'none',
-              fontSize: '1.1rem',
-              '&:hover': {
-                textDecoration: 'underline',
-              },
-            }}
-          >
-            Learn TanStack
-          </MuiLink>
-        </Stack>
-      </Stack>
-    </Container>
+        <Typography variant="h5" color="text.secondary" paragraph>
+          Your application homepage
+        </Typography>
+        <Button 
+          component={Link} 
+          to="/auth/login" 
+          variant="contained" 
+          size="large"
+        >
+          Get Started
+        </Button>
+      </Box>
+    // </MainLayout>
   )
 }
