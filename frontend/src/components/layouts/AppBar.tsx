@@ -8,15 +8,19 @@ import type { MenuProps } from './Menu';
 
 export interface AppBarProps {
     logo: React.ReactNode;
-    pageHeader: string;
+    logoText?: string;
+    pageHeader?: string;
     menuProps: MenuProps;
 }
 
 export const AppBar: React.FC<AppBarProps> = ({
     logo,
+    logoText,
     pageHeader,
     menuProps,
 }) => {
+    if (!logo) return null;
+
     const [menuOpen, setMenuOpen] = useState(false);
 
     const handleMenuToggle = () => {
@@ -31,24 +35,44 @@ export const AppBar: React.FC<AppBarProps> = ({
             <MUIAppBar position="absolute" elevation={1} sx={{ color: 'text.primary', bgcolor: 'background.paper' }}>
                 <Toolbar sx={{ justifyContent: 'space-between' }}>
                     {/* Logo - Left */}
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        {logo}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                            sx={{
+                                width: 40,
+                                height: 40,
+                                borderRadius: '50%',
+                                overflow: 'hidden',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            {logo}
+                        </Box>
+
+                        {logoText && (
+                            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                                {logoText}
+                            </Typography>
+                        )}
                     </Box>
 
                     {/* Page Header - Center */}
-                    <Typography
-                        variant="h6"
-                        component="h1"
-                        sx={{
-                            position: 'absolute',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            fontWeight: 600,
-                            textAlign: 'center'
-                        }}
-                    >
-                        {pageHeader}
-                    </Typography>
+                    {pageHeader && (
+                        <Typography
+                            variant="h6"
+                            component="h1"
+                            sx={{
+                                position: 'absolute',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                fontWeight: 600,
+                                textAlign: 'center'
+                            }}
+                        >
+                            {pageHeader}
+                        </Typography>
+                    )}
 
                     {/* Menu Icon - Right */}
 
