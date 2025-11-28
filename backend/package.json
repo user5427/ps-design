@@ -2,19 +2,28 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js"  
   },
   "dependencies": {
+    "@fastify/autoload": "^6.3.0",
+    "@fastify/env": "^5.0.3",
+    "@fastify/rate-limit": "^10.3.0",
+    "@prisma/adapter-pg": "^7.0.0",
     "@prisma/client": "^7.0.0",
+    "close-with-grace": "^2.3.0",
     "fastify": "^5.6.2",
+    "fastify-plugin": "^5.1.0",
+    "prisma": "^7.0.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.3.8",
     "@types/node": "^24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.47.0",
     "@typescript-eslint/parser": "^8.47.0",
     "eslint": "^9.39.1",
-    "prisma": "^7.0.0",
+    "@types/pg": "^8.15.6",
+    "lefthook": "^2.0.4",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }

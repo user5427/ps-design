@@ -1,22 +1,32 @@
-// Require the framework and instantiate it
+import Fastify from 'fastify'  
+import serviceApp from "./app"
+import envPlugin, { autoConfig as envOptions } from "./plugins/config/env.js";
+import closeWithGrace from 'close-with-grace'
 
-// ESM
-import Fastify from 'fastify'
-
-const fastify = Fastify({
+const app = Fastify({
   logger: true
 })
 
-// Declare a route
-fastify.get('/', function (request, reply) {
-  reply.send({ hello: 'world' })
-})
+async function init() {
+  await app.register(envPlugin, envOptions);
 
-// Run the server!
-fastify.listen({ port: 3000 }, function (err, address) {
-  if (err) {
-    fastify.log.error(err)
+  app.register(serviceApp)
+
+  closeWithGrace(
+  { delay: app.config.FASTIFY_GRACEFUL_SHUTDOWN_DELAY },
+    async ({ err }) => {
+    if (err) app.log.error(err);
+    await app.close();
+  })
+
+  await app.ready()
+
+  try {
+    await app.listen({ port: app.config.PORT, host: "0.0.0.0",   })
+  } catch (err) {
+    app.log.error(err)
     process.exit(1)
   }
-  // Server is now listening on ${address}
-})
+}
+
+init()
