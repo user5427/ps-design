@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { Box, TextField, Button, Typography, Link as MuiLink } from '@mui/material';
 
 
-export const RegisterFeature: React.FC = () => {
+export const Register: React.FC = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');

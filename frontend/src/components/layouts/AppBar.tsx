@@ -1,93 +1,70 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Box } from '@mui/material';
+import { AppBar as MUIAppBar, Toolbar, Typography, IconButton, Box } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import Settings from '@mui/icons-material/Settings';
-import HomeIcon from '@mui/icons-material/Home';
-import Logout from '@mui/icons-material/Logout';
+import CloseIcon from '@mui/icons-material/Close';
 
 import { Menu } from './Menu';
-import type { MenuCategory } from './Menu';
+import type { MenuProps } from './Menu';
 
 export interface AppBarProps {
-  logo: React.ReactNode;
-  pageHeader: string;
-  // optional callback when menu icon is clicked
-  onMenuClick?: () => void;
+    logo: React.ReactNode;
+    pageHeader: string;
+    menuProps: MenuProps;
 }
 
-export const CustomAppBar: React.FC<AppBarProps> = ({
-  logo,
-  pageHeader,
-  onMenuClick
+export const AppBar: React.FC<AppBarProps> = ({
+    logo,
+    pageHeader,
+    menuProps,
 }) => {
-  const [menuOpen, setMenuOpen] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleMenuOpen = () => {
-    setMenuOpen(true);
-    onMenuClick?.();
-  };
+    const handleMenuToggle = () => {
+        setMenuOpen((prev) => {
+            const next = !prev;
+            return next;
+        });
+    };
 
-  const categories: MenuCategory[] = [
-    {
-      category: 'General',
-      links: [
-        { label: 'Home', icon: <HomeIcon />, onClick: () => console.log('Home') },
-        { label: 'Profile', icon: <AccountCircle />, onClick: () => console.log('Profile') },
-      ],
-    },
-    {
-      category: 'Settings',
-      links: [
-        { label: 'Preferences', icon: <Settings />, onClick: () => console.log('Preferences') },
-        { label: 'Sign out', icon: <Logout />, onClick: () => console.log('Sign out') },
-      ],
-    },
-  ];
+    return (
+        <>
+            <MUIAppBar position="absolute" elevation={1} sx={{ color: 'text.primary', bgcolor: 'background.paper' }}>
+                <Toolbar sx={{ justifyContent: 'space-between' }}>
+                    {/* Logo - Left */}
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        {logo}
+                    </Box>
 
-  return (
-    <>
-      <AppBar position="fixed" elevation={2}>
-        <Toolbar sx={{ justifyContent: 'space-between', px: 2 }}>
-          {/* Logo - Left */}
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {logo}
-          </Box>
+                    {/* Page Header - Center */}
+                    <Typography
+                        variant="h6"
+                        component="h1"
+                        sx={{
+                            position: 'absolute',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            fontWeight: 600,
+                            textAlign: 'center'
+                        }}
+                    >
+                        {pageHeader}
+                    </Typography>
 
-          {/* Page Header - Center */}
-          <Typography
-            variant="h6"
-            component="h1"
-            sx={{
-              position: 'absolute',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              fontWeight: 600,
-              textAlign: 'center'
-            }}
-          >
-            {pageHeader}
-          </Typography>
+                    {/* Menu Icon - Right */}
 
-          {/* Menu Icon - Right */}
-          <IconButton
-            edge="end"
-            color="inherit"
-            onClick={handleMenuOpen}
-            aria-label="menu"
-          >
-            <MenuIcon />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
+                    <IconButton
+                        edge="end"
+                        color="inherit"
+                        onClick={handleMenuToggle}
+                        aria-label={menuOpen ? 'close menu' : 'open menu'}
+                    >
+                        {menuOpen ? <CloseIcon /> : <MenuIcon />}
+                    </IconButton>
+                </Toolbar>
+            </MUIAppBar>
 
-      <Menu
-        open={menuOpen}
-        onClose={() => setMenuOpen(false)}
-        appBarHeight={64}
-        title="Menu"
-        categories={categories}
-      />
-    </>
-  );
+
+            <Menu {...menuProps} open={menuOpen} onClose={handleMenuToggle} />
+        </>
+    );
 };

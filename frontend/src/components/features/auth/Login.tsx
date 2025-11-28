@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { Box, TextField, Button, Typography, Link as MuiLink } from '@mui/material';
 
-export const LoginFeature: React.FC = () => {
+export const Login: React.FC = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
