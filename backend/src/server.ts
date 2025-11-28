@@ -1,7 +1,7 @@
 // Require the framework and instantiate it
 
 // ESM
-import 'dotenv/config'
+import "dotenv/config";
 import Fastify from "fastify";
 import { PrismaClient } from "./generated/prisma/client";
 import * as bcrypt from "bcryptjs";
@@ -10,8 +10,9 @@ import { PrismaPg } from "@prisma/adapter-pg";
 const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
-  // Fail fast with a clear message instead of 500s at runtime
-  console.error('DATABASE_URL is not set. Please configure it in .env or environment.');
+  console.error(
+    "DATABASE_URL is not set. Please configure it in .env or environment."
+  );
   process.exit(1);
 }
 
@@ -49,7 +50,9 @@ fastify.post("/auth/login", async function (request, reply) {
     if (!creds) {
       return reply.code(401).send({ error: "Missing Basic Authorization" });
     }
-    const user = await prisma.user.findUnique({ where: { email: creds.email } });
+    const user = await prisma.user.findUnique({
+      where: { email: creds.email },
+    });
     if (!user) return reply.code(401).send({ error: "Invalid credentials" });
     const ok = await bcrypt.compare(creds.password, user.passwordHash);
     if (!ok) return reply.code(401).send({ error: "Invalid credentials" });
@@ -60,8 +63,8 @@ fastify.post("/auth/login", async function (request, reply) {
       isPasswordResetRequired: user.isPasswordResetRequired,
     });
   } catch (e: any) {
-    request.log.error(e, 'Login handler failed');
-    return reply.code(500).send({ error: 'Internal Server Error' })
+    request.log.error(e, "Login handler failed");
+    return reply.code(500).send({ error: "Internal Server Error" });
   }
 });
 
@@ -77,7 +80,9 @@ fastify.post("/auth/change-password", async function (request, reply) {
         .code(400)
         .send({ error: "New password must be at least 8 chars" });
     }
-    const user = await prisma.user.findUnique({ where: { email: creds.email } });
+    const user = await prisma.user.findUnique({
+      where: { email: creds.email },
+    });
     if (!user) return reply.code(401).send({ error: "Invalid credentials" });
     const ok = await bcrypt.compare(creds.password, user.passwordHash);
     if (!ok) return reply.code(401).send({ error: "Invalid credentials" });
@@ -88,8 +93,8 @@ fastify.post("/auth/change-password", async function (request, reply) {
     });
     return reply.send({ success: true });
   } catch (e: any) {
-    request.log.error(e, 'Change-password handler failed');
-    return reply.code(500).send({ error: 'Internal Server Error' })
+    request.log.error(e, "Change-password handler failed");
+    return reply.code(500).send({ error: "Internal Server Error" });
   }
 });
 
@@ -100,7 +105,9 @@ fastify.addHook("onRequest", async (request, reply) => {
     const creds = parseBasicAuth(request);
     if (!creds)
       return reply.code(401).send({ error: "Missing Basic Authorization" });
-    const user = await prisma.user.findUnique({ where: { email: creds.email } });
+    const user = await prisma.user.findUnique({
+      where: { email: creds.email },
+    });
     if (!user) return reply.code(401).send({ error: "Invalid credentials" });
     const ok = await bcrypt.compare(creds.password, user.passwordHash);
     if (!ok) return reply.code(401).send({ error: "Invalid credentials" });
@@ -113,8 +120,8 @@ fastify.addHook("onRequest", async (request, reply) => {
     // Attach user to request for handlers
     (request as any).user = user;
   } catch (e: any) {
-    request.log.error(e, 'Auth middleware failed')
-    return reply.code(500).send({ error: 'Internal Server Error' })
+    request.log.error(e, "Auth middleware failed");
+    return reply.code(500).send({ error: "Internal Server Error" });
   }
 });
 
