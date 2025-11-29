@@ -75,9 +75,19 @@ function App() {
         },
         body: JSON.stringify({ newPassword }),
       });
-      const data = await res.json().catch(() => ({}));
+      let data: any = null;
+      let errorText: string | null = null;
+      try {
+        data = await res.json();
+      } catch {
+        errorText = await res.text();
+      }
       if (!res.ok) {
-        throw new Error((data as any)?.error || "Failed to change password");
+        const errorMsg =
+          (data && data.error) ||
+          errorText ||
+          "Failed to change password";
+        throw new Error(errorMsg);
       }
       setInfo("Password changed. Please log in with your new password.");
       setResetRequired(false);
