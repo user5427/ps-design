@@ -7,18 +7,20 @@ declare module 'fastify' {
             PORT: number,
             RATE_LIMIT_MAX: number,
             FASTIFY_GRACEFUL_SHUTDOWN_DELAY: number,
+            JWT_SECRET: string,
         };
     }
 }
 
 const schema = {
     type: 'object',
-    required: ['DATABASE_URL'],
+    required: ['DATABASE_URL', 'JWT_SECRET'],
     properties: {
         DATABASE_URL: { type: 'string' },
         PORT: { type: 'number', default: 3000 },
         RATE_LIMIT_MAX: { type: 'number', default: 100 },
         FASTIFY_GRACEFUL_SHUTDOWN_DELAY: { type: 'number', default: 500 },
+        JWT_SECRET: { type: 'string' },
     }
 }
 
