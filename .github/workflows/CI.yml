@@ -12,6 +12,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.head_ref }}
           fetch-depth: 0
 
@@ -41,5 +42,5 @@ jobs:
 
           git diff --quiet || git commit -m "Apply Frontend Biome formatting"
 
-          git push origin ${{ github.head_ref }}
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:${{ github.head_ref }}
         working-directory: frontend
