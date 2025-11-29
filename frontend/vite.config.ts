@@ -8,7 +8,7 @@ export default ({ mode }: { mode: string }) => {
   const backendPort = env.VITE_BACKEND_PORT || env.PORT || '4000'
   const backendHost = env.VITE_BACKEND_HOST || 'localhost'
   const backendProtocol = env.VITE_BACKEND_PROTOCOL || 'http'
-  const backendTarget = `${backendProtocol}://${backendHost}:${backendPort}`
+  const backendTarget = `${backendProtocol}://${backendHost}:${backendPort}/api`
 
   return defineConfig({
     plugins: [

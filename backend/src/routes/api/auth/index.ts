@@ -5,7 +5,7 @@ import type { AuthUser } from '../../../plugins/app/auth'
 interface ChangePasswordBody { newPassword?: string }
 
 export default async function authRoutes(fastify: FastifyInstance) {
-	fastify.post('/auth/login', async (request, reply) => {
+	fastify.post('/login', async (request, reply) => {
 		const creds = fastify.parseBasicAuth(request)
 		if (!creds) return reply.code(401).send({ error: 'Missing Basic Authorization' })
 		try {
@@ -26,7 +26,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
 		}
 	})
 
-	fastify.post('/auth/change-password', async (request, reply) => {
+	fastify.post('/change-password', async (request, reply) => {
 		const creds = fastify.parseBasicAuth(request)
 		if (!creds) return reply.code(401).send({ error: 'Missing Basic Authorization' })
 		const { newPassword } = (request.body || {}) as ChangePasswordBody
