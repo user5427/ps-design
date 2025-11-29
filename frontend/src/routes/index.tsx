@@ -143,7 +143,7 @@ function App() {
         </Stack>
         {error && <Alert severity="error">{error}</Alert>}
         {info && (
-          <Alert severity={info.includes("required") ? "warning" : "success"}>
+          <Alert severity={resetRequired ? "warning" : "success"}>
             {info}
           </Alert>
         )}
