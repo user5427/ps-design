@@ -31,10 +31,9 @@ export default async function serviceApp(fastify: FastifyInstance, opts: Fastify
             'Unhandled error occurred');
 
         const status = error.statusCode ?? 500;
-        reply.code(status);
-        return {
+        reply.code(status).send({
             message: status < 500 ? error.message : 'Internal Server Error'
-        };
+        });
     });
 
     fastify.setNotFoundHandler({
@@ -51,8 +50,7 @@ export default async function serviceApp(fastify: FastifyInstance, opts: Fastify
             }
         },
             'Resource not found');
-        reply.code(404);
-        return { message: 'Not Found' };
+        reply.code(404).send({ message: 'Not Found' });
     });
 
 }
