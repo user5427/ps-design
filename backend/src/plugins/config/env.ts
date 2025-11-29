@@ -3,6 +3,7 @@ import env from '@fastify/env'
 declare module 'fastify' {
     export interface FastifyInstance {
         config: {
+            DATABASE_URL: string,
             PORT: number,
             RATE_LIMIT_MAX: number,
             FASTIFY_GRACEFUL_SHUTDOWN_DELAY: number,
@@ -12,8 +13,9 @@ declare module 'fastify' {
 
 const schema = {
     type: 'object',
-    required: [],
+    required: ['DATABASE_URL'],
     properties: {
+        DATABASE_URL: { type: 'string' },
         PORT: { type: 'number', default: 3000 },
         RATE_LIMIT_MAX: { type: 'number', default: 100 },
         FASTIFY_GRACEFUL_SHUTDOWN_DELAY: { type: 'number', default: 500 },
