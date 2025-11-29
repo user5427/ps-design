@@ -84,9 +84,7 @@ function App() {
       }
       if (!res.ok) {
         const errorMsg =
-          (data && data.error) ||
-          errorText ||
-          "Failed to change password";
+          (data && data.error) || errorText || "Failed to change password";
         throw new Error(errorMsg);
       }
       setInfo("Password changed. Please log in with your new password.");
@@ -143,9 +141,7 @@ function App() {
         </Stack>
         {error && <Alert severity="error">{error}</Alert>}
         {info && (
-          <Alert severity={resetRequired ? "warning" : "success"}>
-            {info}
-          </Alert>
+          <Alert severity={resetRequired ? "warning" : "success"}>{info}</Alert>
         )}
         {resetRequired && (
           <Box sx={{ mt: 2 }}>
