@@ -1,4 +1,4 @@
-import 'dotenv/config'
+import "dotenv/config";
 import { PrismaClient, $Enums } from "../generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import * as bcrypt from "bcryptjs";
@@ -10,12 +10,18 @@ async function main() {
   }
 
   const adapter = new PrismaPg({ connectionString });
-  const prisma = new PrismaClient({ adapter, log: ["query", "error", "warn"], errorFormat: "pretty" });
+  const prisma = new PrismaClient({
+    adapter,
+    log: ["query", "error", "warn"],
+    errorFormat: "pretty",
+  });
 
   try {
     // Create or reuse a default business
     const businessName = "Default Business";
-    let business = await prisma.business.findFirst({ where: { name: businessName } });
+    let business = await prisma.business.findFirst({
+      where: { name: businessName },
+    });
     if (!business) {
       business = await prisma.business.create({ data: { name: businessName } });
       console.log(`Created business: ${business.name}`);
