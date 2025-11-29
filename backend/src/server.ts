@@ -1,7 +1,7 @@
+import closeWithGrace from "close-with-grace";
 import Fastify from "fastify";
 import serviceApp from "./app";
 import envPlugin, { autoConfig as envOptions } from "./plugins/config/env";
-import closeWithGrace from "close-with-grace";
 
 const app = Fastify({
   logger: true,
