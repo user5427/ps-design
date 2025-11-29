@@ -28,7 +28,11 @@ jobs:
         working-directory: frontend
 
       - name: Run Biome formatter
-        run: npx biome format --write .
+        run: npm run fmt
+        working-directory: frontend
+
+      - name: Run Biome lint with auto-fix
+        run: npm run lint:fix
         working-directory: frontend
 
       - name: Commit formatted files
@@ -43,4 +47,8 @@ jobs:
           git diff --cached --quiet || git commit -m "Apply Frontend Biome formatting"
 
           git push origin ${{ github.head_ref }}
+        working-directory: frontend
+
+      - name: Validate lint
+        run: npm run lint
         working-directory: frontend
