@@ -15,3 +15,4 @@ Template.toc
 build
 *.md5
 .env
+openapi.txt
