@@ -13,7 +13,7 @@ export default async function serviceApp(fastify: FastifyInstance, opts: Fastify
 
     // Loads all external plugins (e.g., database, rate limiting, etc.)
     await autoLoad('plugins/external', {});
-    // Loads internal app plugins (should be code that is reused in multiple routes)
+    // Loads auth and other app-level hooks before routes
     await autoLoad('plugins/app');
     // Loads all plugins defined in routes
     await autoLoad('routes');
