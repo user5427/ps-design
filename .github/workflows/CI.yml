@@ -11,6 +11,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -35,6 +38,8 @@ jobs:
           git checkout ${{ github.head_ref }}
 
           git add .
+
           git diff --quiet || git commit -m "Apply Frontend Biome formatting"
-          git push
+
+          git push origin ${{ github.head_ref }}
         working-directory: frontend
