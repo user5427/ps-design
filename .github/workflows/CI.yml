@@ -12,9 +12,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.head_ref }}
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -38,9 +38,9 @@ jobs:
 
           git checkout ${{ github.head_ref }}
 
-          git add .
+          git add -A
 
-          git diff --quiet || git commit -m "Apply Frontend Biome formatting"
+          git diff --cached --quiet || git commit -m "Apply Biome formatting"
 
           git push origin ${{ github.head_ref }}
         working-directory: frontend
