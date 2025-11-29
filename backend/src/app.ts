@@ -25,7 +25,7 @@ export default async function serviceApp(fastify: FastifyInstance, opts: Fastify
                 method: request.method,
                 url: request.url,
                 params: request.params,
-                         query: request.query,
+                query: request.query,
             }
         },
             'Unhandled error occurred');
