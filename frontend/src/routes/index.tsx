@@ -60,8 +60,8 @@ function App() {
     setChanging(true);
     setChangeError(null);
     try {
-      if (!newPassword || newPassword.length < 3) {
-        throw new Error("New password must be at least 3 characters");
+      if (!newPassword || newPassword.length < 8) {
+        throw new Error("New password must be at least 8 characters");
       }
       if (newPassword !== newPassword2) {
         throw new Error("Passwords do not match");
