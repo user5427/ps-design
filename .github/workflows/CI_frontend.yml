@@ -44,7 +44,7 @@ jobs:
 
           git add -A
 
-          git diff --cached --quiet || git commit -m "Apply Frontend Biome formatting"
+          git diff --cached --quiet || git commit -m "Apply Frontend Biome linting and formatting"
 
           git push origin ${{ github.head_ref }}
         working-directory: frontend

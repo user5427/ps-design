@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run Biome Format Frontend",
+      "name": "Run Format Frontend",
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "npm",
@@ -12,11 +12,31 @@
       "internalConsoleOptions": "neverOpen"
     },
     {
-      "name": "Run Biome Format Backend",
+      "name": "Run Lint Fix Frontend",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "lint:fix"],
+      "cwd": "${workspaceFolder}/frontend",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Run Format Backend",
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "fmt"],
+      "cwd": "${workspaceFolder}/backend",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Run Lint Fix Backend",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "lint:fix"],
       "cwd": "${workspaceFolder}/backend",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"

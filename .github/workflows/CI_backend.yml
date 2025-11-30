@@ -44,7 +44,7 @@ jobs:
 
           git add -A
 
-          git diff --cached --quiet || git commit -m "Apply Backend Biome formatting"
+          git diff --cached --quiet || git commit -m "Apply Backend Biome linting and formatting"
 
           git push origin ${{ github.head_ref }}
         working-directory: backend
