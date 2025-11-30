@@ -12,9 +12,16 @@
         "build:frontend": "cd frontend && npm run build",
         "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
         "start:backend": "cd backend && npm run start",
-        "start:frontend": "cd frontend && npm run dev"
+        "start:frontend": "cd frontend && npm run dev",
+        "fmt:frontend": "biome format --write frontend",
+        "lint:frontend": "biome check frontend",
+        "lint-fix:frontend": "biome check --write frontend",
+        "fmt:backend": "biome format --write backend",
+        "lint:backend": "biome check backend",
+        "lint-fix:backend": "biome check --write backend"
     },
     "devDependencies": {
+        "@biomejs/biome": "^2.3.8",
         "concurrently": "^9.2.1"
     }
 }
