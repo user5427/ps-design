@@ -12,10 +12,10 @@ function HomePage() {
         <MainLayout>
             <Box sx={{ textAlign: 'center', mt: 8 }}>
                 <Typography variant="h2" gutterBottom>
-                    Welcome to PS Design 2025
+                    Welcome to ADEPI
                 </Typography>
                 <Typography variant="h5" color="text.secondary" paragraph>
-                    Your application homepage
+                    Your ADEPI homepage
                 </Typography>
                 <Button
                     component={Link}

@@ -16,3 +16,5 @@ build
 *.md5
 .env
 openapi.txt
+.vscode/settings.json
+.editorconfig
