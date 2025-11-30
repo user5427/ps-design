@@ -29,7 +29,7 @@ async function init() {
         }
     })
 
-    app.register(serviceApp)
+    await app.register(serviceApp)
 
     closeWithGrace(
         { delay: app.config.FASTIFY_GRACEFUL_SHUTDOWN_DELAY },

@@ -1,12 +1,17 @@
 import swaggerAutogen from 'swagger-autogen';
-import glob from 'glob';
+import { sync as globSync } from 'glob';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'fs';
 
-const routes = glob.sync(path.join(__dirname, 'src/routes/**/*.ts'))
+const routes = globSync(path.join(__dirname, 'src/routes/**/*.ts'))
     .filter(file => {
-        // Skip empty or placeholder files
-        return !file.includes('inventory');
+        const content = fs.readFileSync(file, 'utf-8').trim();
+        // Check if file is not empty and has actual content (not just whitespace/comments)
+        const hasContent = content.length > 0 &&
+            content.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '') // Remove comments
+                .replace(/\s/g, '') // Remove whitespace
+                .length > 0;
+        return hasContent;
     });
 
 console.log('Generating Swagger documentation for routes:', routes);

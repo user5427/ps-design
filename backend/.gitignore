@@ -142,4 +142,5 @@ yarn.lock
 uploads/tasks/*
 
 # Prisma generated client
-/src/generated/*
+/src/generated/prisma/
+/src/generated/swagger-output.json
