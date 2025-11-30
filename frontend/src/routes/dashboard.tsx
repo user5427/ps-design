@@ -8,8 +8,8 @@ import {
     Stack,
     Chip,
 } from "@mui/material";
+import { useAuthUser, useLogout } from "../hooks/useAuthHooks";
 import { useAuthStore } from "../store/authStore";
-import { useEffect } from "react";
 
 export const Route = createFileRoute("/dashboard")({
     beforeLoad: async () => {
@@ -18,41 +18,23 @@ export const Route = createFileRoute("/dashboard")({
         if (!token) {
             throw redirect({ to: "/" });
         }
-        try {
-            const response = await fetch("/api/auth/me", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                credentials: "include",
-            });
-            if (!response.ok) {
-                throw redirect({ to: "/" });
-            }
-        } catch (error) {
-            if (error instanceof Error && error.message.includes('redirect')) {
-                throw error
-            }
-            throw redirect({ to: "/" });
-        }
     },
     component: Dashboard,
 });
 
 function Dashboard() {
-    const { user, logout, fetchCurrentUser, isLoading } = useAuthStore();
     const navigate = useNavigate();
+    const { data: user, isLoading, isError } = useAuthUser();
+    const logoutMutation = useLogout();
 
-    useEffect(() => {
-        if (!user) {
-            fetchCurrentUser().catch(() => {
-                navigate({ to: "/" });
-            });
-        }
-    }, [user, fetchCurrentUser, navigate]);
+    if (isError) {
+        navigate({ to: "/" });
+        return null;
+    }
 
     const handleLogout = async () => {
         try {
-            await logout();
+            await logoutMutation.mutateAsync();
             navigate({ to: "/" });
         } catch (error) {
             console.error("Logout error:", error);
@@ -117,8 +99,13 @@ function Dashboard() {
                 </Stack>
 
                 <Box sx={{ mt: 4 }}>
-                    <Button variant="contained" color="error" onClick={handleLogout}>
-                        Logout
+                    <Button
+                        variant="contained"
+                        color="error"
+                        onClick={handleLogout}
+                        disabled={logoutMutation.isPending}
+                    >
+                        {logoutMutation.isPending ? "Logging out..." : "Logout"}
                     </Button>
                 </Box>
             </Paper>

@@ -12,8 +12,6 @@ export interface LoginResponse extends AuthUser {
     accessToken: string
 }
 
-// Deprecated: Token is now stored in Zustand
-// Use useAuthStore().getAuthHeaders() instead
 export const authApi = {
     async login(email: string, password: string): Promise<LoginResponse> {
         const res = await fetch(`${API_BASE}/login`, {
@@ -42,8 +40,12 @@ export const authApi = {
         }
     },
 
-    async getCurrentUser(): Promise<AuthUser> {
+    async getCurrentUser(token: string): Promise<AuthUser> {
         const res = await fetch(`${API_BASE}/me`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
             credentials: 'include',
         })
 
@@ -57,7 +59,6 @@ export const authApi = {
     async refreshToken(): Promise<{ accessToken: string }> {
         const res = await fetch(`${API_BASE}/refresh`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
         })
 
@@ -68,10 +69,13 @@ export const authApi = {
         return res.json()
     },
 
-    async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    async changePassword(token: string, currentPassword: string, newPassword: string): Promise<void> {
         const res = await fetch(`${API_BASE}/change-password`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
             credentials: 'include',
             body: JSON.stringify({ currentPassword, newPassword }),
         })

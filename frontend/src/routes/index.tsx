@@ -9,8 +9,10 @@ import {
   Button,
   Alert,
 } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useAuthUser, useLogin, useRefreshToken, useChangePassword } from "../hooks/useAuthHooks";
 import { useAuthStore } from "../store/authStore";
+import { authApi } from "../lib/api";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
@@ -18,15 +20,8 @@ export const Route = createFileRoute("/")({
     const token = store.getAccessToken()
     if (token) {
       try {
-        const response = await fetch("/api/auth/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          credentials: "include",
-        });
-        if (response.ok) {
-          throw redirect({ to: "/dashboard" });
-        }
+        await authApi.getCurrentUser(token)
+        throw redirect({ to: "/dashboard" });
       } catch (error) {
         if (error instanceof Error && error.message?.includes("redirect")) {
           throw error;
@@ -41,60 +36,50 @@ function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const { login, isLoading, error, clearError, user } = useAuthStore();
+  const store = useAuthStore();
+  const hasAttemptedRefresh = useRef(false);
 
   const [newPassword, setNewPassword] = useState("");
   const [newPassword2, setNewPassword2] = useState("");
-  const [changing, setChanging] = useState(false);
   const [changeError, setChangeError] = useState<string | null>(null);
-  const [checking, setChecking] = useState(true);
 
-  useEffect(() => {
-    clearError();
-  }, [clearError]);
+  // Hooks from React Query
+  const { data: user, isLoading: isCheckingAuth } = useAuthUser();
+  const loginMutation = useLogin();
+  const refreshTokenMutation = useRefreshToken();
+  const changePasswordMutation = useChangePassword();
 
-  // Check if already authenticated and redirect or attempt refresh
+  // Check if already authenticated and redirect or attempt refresh (only once)
   useEffect(() => {
     const checkAuthentication = async () => {
-      const store = useAuthStore.getState();
       const token = store.getAccessToken();
 
-      if (token) {
-        try {
-          const response = await fetch("/api/auth/me", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            credentials: "include",
-          });
-          if (response.ok) {
-            navigate({ to: "/dashboard" });
-            return;
-          }
-        } catch (error) {
-          console.error("Validation error:", error);
-        }
-      }
-
-      try {
-        await store.refreshToken();
+      if (token && user) {
+        // Already authenticated
         navigate({ to: "/dashboard" });
         return;
-      } catch (error) {
-        console.debug("No valid session, showing login form");
       }
 
-      setChecking(false);
+      if (!token && !hasAttemptedRefresh.current) {
+        hasAttemptedRefresh.current = true;
+        try {
+          await refreshTokenMutation.mutateAsync();
+          navigate({ to: "/dashboard" });
+        } catch (error) {
+          console.debug("No valid session, showing login form");
+        }
+      }
     };
 
     checkAuthentication();
-  }, [navigate]);
+  }, [user, navigate, store, refreshTokenMutation]);
 
   async function handleLogin() {
     try {
-      await login(email, password);
+      const result = await loginMutation.mutateAsync({ email, password });
 
-      if (user?.isPasswordResetRequired) {
+      if (result.isPasswordResetRequired) {
+        // Stay on page, show password change form
         return;
       }
 
@@ -105,7 +90,6 @@ function App() {
   }
 
   async function handleChangePassword() {
-    setChanging(true);
     setChangeError(null);
     try {
       if (!newPassword || newPassword.length < 8) {
@@ -115,37 +99,24 @@ function App() {
         throw new Error("Passwords do not match");
       }
 
-      const store = useAuthStore.getState()
-      const headers = store.getAuthHeaders()
-
-      const res = await fetch("/api/auth/change-password", {
-        method: "POST",
-        headers,
-        credentials: "include",
-        body: JSON.stringify({
-          currentPassword: password,
-          newPassword,
-        }),
+      await changePasswordMutation.mutateAsync({
+        currentPassword: password,
+        newPassword,
       });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({ error: "Failed to change password" }));
-        throw new Error(data.error || "Failed to change password");
-      }
 
       setNewPassword("");
       setNewPassword2("");
       navigate({ to: "/dashboard" });
     } catch (e: any) {
       setChangeError(e.message || "Password change failed");
-    } finally {
-      setChanging(false);
     }
   }
 
+  const isLoading = loginMutation.isPending || changePasswordMutation.isPending;
+  const error = loginMutation.error?.message || "";
   const resetRequired = user?.isPasswordResetRequired;
 
-  if (checking) {
+  if (isCheckingAuth) {
     return (
       <Container
         maxWidth="sm"
@@ -241,10 +212,10 @@ function App() {
                 <Button
                   variant="contained"
                   color="secondary"
-                  disabled={changing}
+                  disabled={isLoading}
                   onClick={handleChangePassword}
                 >
-                  {changing ? "Changing…" : "Change Password"}
+                  {isLoading ? "Changing…" : "Change Password"}
                 </Button>
                 {changeError && <Alert severity="error">{changeError}</Alert>}
               </Stack>
