@@ -9,18 +9,6 @@ export const Route = createFileRoute("/")({
     const store = useAuthStore.getState();
     let token = store.getAccessToken();
 
-    // If no token in memory, try to refresh from cookie
-    if (!token) {
-      try {
-        const { accessToken } = await authApi.refreshToken();
-        store.setAccessToken(accessToken);
-        token = accessToken;
-      } catch {
-        return;
-      }
-    }
-
-    // If we have a token, verify and redirect to dashboard
     if (token) {
       try {
         await authApi.getCurrentUser();
@@ -29,8 +17,15 @@ export const Route = createFileRoute("/")({
         if (isRedirect(error)) {
           throw error;
         }
-        // Token invalid, clear it
-        // store.setAccessToken(null);
+        store.setAccessToken(null);
+      }
+    } else {
+      try {
+        const { accessToken } = await authApi.refreshToken();
+        store.setAccessToken(accessToken);
+        token = accessToken;
+      } catch {
+        return;
       }
     }
   },
