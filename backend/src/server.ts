@@ -4,6 +4,7 @@ import envPlugin, { autoConfig as envOptions } from "./plugins/config/env";
 import closeWithGrace from 'close-with-grace'
 import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUI from '@fastify/swagger-ui'
+import fastifyCors from '@fastify/cors'
 import swaggerDocument from './generated/swagger-output.json'
 
 const app = Fastify({
@@ -12,6 +13,12 @@ const app = Fastify({
 
 async function init() {
     await app.register(envPlugin, envOptions);
+
+    // Register CORS - allow all origins
+    await app.register(fastifyCors, {
+        origin: true,
+        credentials: true
+    })
 
     // Register Swagger
     await app.register(fastifySwagger, {

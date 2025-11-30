@@ -1,2 +1,2 @@
-export { useAuthStore } from './use-auth-store'
-export type { AuthState, AuthActions, AuthStore } from './use-auth-store'
+export { AuthStore } from './auth-store'
+export type { AuthStateProps, AuthActionsProps, AuthStoreProps } from './auth-store'

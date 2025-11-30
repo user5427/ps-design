@@ -1,2 +1,2 @@
-export { useLogin } from './useLogin'
-export { useChangePassword } from './useChangePassword'
+export { useLogin } from './login'
+export { useChangePassword } from './change-password'

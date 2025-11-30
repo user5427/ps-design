@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 
-export interface AuthState {
+export interface AuthStateProps {
     userId: string | null
     email: string | null
     role: string | null
@@ -10,16 +10,16 @@ export interface AuthState {
     isAuthenticated: boolean
 }
 
-export interface AuthActions {
-    setUser: (user: Omit<AuthState, 'isAuthenticated'>) => void
+export interface AuthActionsProps {
+    setUser: (user: Omit<AuthStateProps, 'isAuthenticated'>) => void
     login: (userId: string, email: string, role: string, businessId: string | null, isPasswordResetRequired: boolean) => void
     logout: () => void
     reset: () => void
 }
 
-export type AuthStore = AuthState & AuthActions
+export type AuthStoreProps = AuthStateProps & AuthActionsProps
 
-const initialState: AuthState = {
+const initialState: AuthStateProps = {
     userId: null,
     email: null,
     role: null,
@@ -28,7 +28,7 @@ const initialState: AuthState = {
     isAuthenticated: false,
 }
 
-export const useAuthStore = create<AuthStore>()(
+export const AuthStore = create<AuthStoreProps>()(
     devtools(
         persist(
             (set) => ({

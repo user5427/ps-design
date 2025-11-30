@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance, type AxiosResponse, type AxiosRequestConfig } from 'axios'
-import { useAuthStore } from '@/hooks/use-auth-store'
+import { AuthStore } from '@/hooks/auth-store'
 
 const API_BASE_URL = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/api`
 
@@ -16,7 +16,7 @@ apiClient.interceptors.response.use(
     (error: any) => {
         if (error.response?.status === 401) {
             // Handle unauthorized - logout and redirect to login
-            const authStore = useAuthStore.getState()
+            const authStore = AuthStore.getState()
             authStore.logout()
             console.error('Unauthorized - logged out')
         }
@@ -54,7 +54,7 @@ export async function authorizedRequest<T = any>(
  * Encodes credentials to Basic Auth header
  */
 function encodeBasicAuth(email: string, password: string): string {
-    return 'Basic ' + Buffer.from(`${email}:${password}`).toString('base64')
+    return 'Basic ' + btoa(`${email}:${password}`)
 }
 
 export default apiClient

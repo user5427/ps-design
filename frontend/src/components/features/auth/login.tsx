@@ -1,14 +1,47 @@
-import React, { useState } from 'react';
-import { Link } from '@tanstack/react-router';
-import { Box, TextField, Button, Typography, Link as MuiLink } from '@mui/material';
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from '@tanstack/react-router'
+import { Box, TextField, Button, Typography, Alert } from '@mui/material'
+import { useLogin } from '@/queries/auth'
+import { AuthStore } from '@/hooks'
 
 export const Login: React.FC = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const navigate = useNavigate()
+    const loginMutation = useLogin()
+    const login = AuthStore((state: any) => state.login)
+
+    // Handle successful login
+    useEffect(() => {
+        if (loginMutation.isSuccess && loginMutation.data) {
+            const { userId, role, businessId, isPasswordResetRequired } = loginMutation.data
+
+            // Store user in auth store
+            login(userId, email, role, businessId, isPasswordResetRequired)
+
+            // Redirect based on password reset requirement
+            if (isPasswordResetRequired) {
+                navigate({ to: '/auth/change-password' })
+            } else {
+                navigate({ to: '/dashboard' })
+            }
+        }
+    }, [loginMutation.isSuccess, loginMutation.data, email, login, navigate])
 
     const handleLogin = () => {
-        console.log('Login:', { username, password });
-    };
+        if (!email || !password) {
+            alert('Please enter both email and password')
+            return
+        }
+
+        loginMutation.mutate({
+            email,
+            password,
+        })
+    }
+
+    const isLoading = loginMutation.isPending
+    const hasError = loginMutation.isError
 
     return (
         <Box
@@ -20,22 +53,30 @@ export const Login: React.FC = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
-                px: 3
+                px: 3,
             }}
         >
             <Typography variant="h4" sx={{ mb: 4, textAlign: 'center' }}>
                 Sign In
             </Typography>
 
+            {hasError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {loginMutation.error?.message || 'Login failed. Please try again.'}
+                </Alert>
+            )}
+
             <Box sx={{ mb: 3 }}>
                 <Typography variant="body2" sx={{ mb: 0.5, color: 'text.secondary', textAlign: 'left' }}>
-                    Username
+                    Email
                 </Typography>
                 <TextField
                     fullWidth
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Enter your username"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    disabled={isLoading}
                 />
             </Box>
 
@@ -49,6 +90,7 @@ export const Login: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
+                    disabled={isLoading}
                 />
             </Box>
 
@@ -57,17 +99,11 @@ export const Login: React.FC = () => {
                 variant="contained"
                 size="large"
                 onClick={handleLogin}
+                disabled={isLoading || !email || !password}
                 sx={{ mb: 2 }}
             >
-                Login
+                {isLoading ? 'Logging in...' : 'Login'}
             </Button>
-
-            {/* <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary' }}>
-                New to our services?{' '}
-                <MuiLink component={Link} to="/auth/register" sx={{ fontWeight: 500 }}>
-                    Register
-                </MuiLink>
-            </Typography> */}
         </Box>
-    );
-};
+    )
+}
