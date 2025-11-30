@@ -1,20 +1,14 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import {
-    Container,
-    Paper,
-    Typography,
-    Box,
-    Button,
-    Stack,
-    Chip,
-} from "@mui/material";
+import { Container, Paper, Typography, Box, Button, Stack, Chip } from "@mui/material";
+import { useState } from "react";
 import { useAuthUser, useLogout } from "../hooks/useAuthHooks";
 import { useAuthStore } from "../store/authStore";
+import { PasswordChangeForm } from "../components/PasswordChangeForm";
 
 export const Route = createFileRoute("/dashboard")({
     beforeLoad: async () => {
-        const store = useAuthStore.getState()
-        const token = store.getAccessToken()
+        const store = useAuthStore.getState();
+        const token = store.getAccessToken();
         if (!token) {
             throw redirect({ to: "/" });
         }
@@ -26,6 +20,7 @@ function Dashboard() {
     const navigate = useNavigate();
     const { data: user, isLoading, isError } = useAuthUser();
     const logoutMutation = useLogout();
+    const [showPasswordChange, setShowPasswordChange] = useState(false);
 
     if (isError) {
         navigate({ to: "/" });
@@ -35,10 +30,10 @@ function Dashboard() {
     const handleLogout = async () => {
         try {
             await logoutMutation.mutateAsync();
-            navigate({ to: "/" });
         } catch (error) {
             console.error("Logout error:", error);
         }
+        navigate({ to: "/" });
     };
 
     if (isLoading || !user) {
@@ -57,13 +52,6 @@ function Dashboard() {
                 </Typography>
 
                 <Stack spacing={2} sx={{ mt: 3 }}>
-                    <Box>
-                        <Typography variant="subtitle2" color="text.secondary">
-                            User ID
-                        </Typography>
-                        <Typography variant="body1">{user.userId}</Typography>
-                    </Box>
-
                     <Box>
                         <Typography variant="subtitle2" color="text.secondary">
                             Email
@@ -86,19 +74,29 @@ function Dashboard() {
                             <Typography variant="body1">{user.businessId}</Typography>
                         </Box>
                     )}
-
-                    {user.isPasswordResetRequired && (
-                        <Box>
-                            <Chip
-                                label="Password reset required"
-                                color="warning"
-                                size="small"
-                            />
-                        </Box>
-                    )}
                 </Stack>
 
-                <Box sx={{ mt: 4 }}>
+                {showPasswordChange && (
+                    <Box sx={{ mt: 3 }}>
+                        <Typography variant="h6" gutterBottom>
+                            Change Password
+                        </Typography>
+                        <PasswordChangeForm
+                            onSuccess={() => setShowPasswordChange(false)}
+                            onCancel={() => setShowPasswordChange(false)}
+                        />
+                    </Box>
+                )}
+
+                <Stack direction="row" spacing={2} sx={{ mt: 4 }}>
+                    {!showPasswordChange && (
+                        <Button
+                            variant="outlined"
+                            onClick={() => setShowPasswordChange(true)}
+                        >
+                            Change Password
+                        </Button>
+                    )}
                     <Button
                         variant="contained"
                         color="error"
@@ -107,7 +105,7 @@ function Dashboard() {
                     >
                         {logoutMutation.isPending ? "Logging out..." : "Logout"}
                     </Button>
-                </Box>
+                </Stack>
             </Paper>
         </Container>
     );
