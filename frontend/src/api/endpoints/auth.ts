@@ -1,18 +1,22 @@
-import { authorizedRequest } from '../client'
+import { authorizedRequest } from '@/api/client'
 import {
+    LoginRequestSchema,
     LoginResponseSchema,
+    ChangePasswordRequestSchema,
     ChangePasswordResponseSchema,
+    type LoginRequest,
+    type ChangePasswordRequest,
     type LoginResponse,
     type ChangePasswordResponse,
-    type ChangePasswordPayload,
-} from '../types/auth'
+} from '@/api/types'
 
 /**
  * Login endpoint
  * POST /auth/login
  */
-export async function login(email: string, password: string): Promise<LoginResponse> {
-    const response = await authorizedRequest<LoginResponse>(email, password, {
+export async function login(request: LoginRequest): Promise<LoginResponse> {
+    const validated = LoginRequestSchema.parse(request)
+    const response = await authorizedRequest<LoginResponse>(validated.email, validated.password, {
         method: 'POST',
         url: '/auth/login',
     })
@@ -23,18 +27,15 @@ export async function login(email: string, password: string): Promise<LoginRespo
  * Change password endpoint
  * POST /auth/change-password
  */
-export async function changePassword(
-    email: string,
-    currentPassword: string,
-    newPassword: string
-): Promise<ChangePasswordResponse> {
+export async function changePassword(request: ChangePasswordRequest): Promise<ChangePasswordResponse> {
+    const validated = ChangePasswordRequestSchema.parse(request)
     const response = await authorizedRequest<ChangePasswordResponse>(
-        email,
-        currentPassword,
+        validated.email,
+        validated.currentPassword,
         {
             method: 'POST',
             url: '/auth/change-password',
-            data: { newPassword } as ChangePasswordPayload,
+            data: { newPassword: validated.newPassword },
         }
     )
     return ChangePasswordResponseSchema.parse(response.data)

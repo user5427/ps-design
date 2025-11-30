@@ -1,17 +1,11 @@
 import { useMutation } from '@tanstack/react-query'
 import { changePassword } from '../../api/endpoints/auth'
-import type { ChangePasswordResponse } from '../../api/types/auth'
-
-interface UseChangePasswordPayload {
-    email: string
-    currentPassword: string
-    newPassword: string
-}
+import type { ChangePasswordRequest, ChangePasswordResponse } from '../../api/types/auth'
 
 export function useChangePassword() {
-    return useMutation<ChangePasswordResponse, Error, UseChangePasswordPayload>({
-        mutationFn: async ({ email, currentPassword, newPassword }) => {
-            return changePassword(email, currentPassword, newPassword)
+    return useMutation<ChangePasswordResponse, Error, ChangePasswordRequest>({
+        mutationFn: async (request) => {
+            return changePassword(request)
         },
     })
 }

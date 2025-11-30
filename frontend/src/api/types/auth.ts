@@ -1,5 +1,10 @@
 import { z } from 'zod'
 
+export const LoginRequestSchema = z.object({
+    email: z.string().email('Invalid email'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+})
+
 export const LoginResponseSchema = z.object({
     userId: z.string(),
     role: z.string(),
@@ -7,15 +12,17 @@ export const LoginResponseSchema = z.object({
     isPasswordResetRequired: z.boolean(),
 })
 
+export const ChangePasswordRequestSchema = z.object({
+    email: z.string().email('Invalid email'),
+    currentPassword: z.string().min(8, 'Password must be at least 8 characters'),
+    newPassword: z.string().min(8, 'New password must be at least 8 characters'),
+})
+
 export const ChangePasswordResponseSchema = z.object({
     success: z.boolean(),
 })
 
-export const ChangePasswordPayloadSchema = z.object({
-    newPassword: z.string().min(8, 'Password must be at least 8 characters'),
-})
-
-// Type inference
+export type LoginRequest = z.infer<typeof LoginRequestSchema>
 export type LoginResponse = z.infer<typeof LoginResponseSchema>
+export type ChangePasswordRequest = z.infer<typeof ChangePasswordRequestSchema>
 export type ChangePasswordResponse = z.infer<typeof ChangePasswordResponseSchema>
-export type ChangePasswordPayload = z.infer<typeof ChangePasswordPayloadSchema>

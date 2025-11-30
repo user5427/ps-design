@@ -1,4 +1,4 @@
-import { Login } from '@/components/features/'
+import { Login } from '@/components/features/auth'
 import { MainLayout, AppBar } from '@/components/layouts'
 import Box from '@mui/material/Box'
 import { createFileRoute } from '@tanstack/react-router'
