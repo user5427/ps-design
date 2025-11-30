@@ -1,11 +1,11 @@
-import {
+import fastifyAutoLoad from "@fastify/autoload";
+import type {
+  FastifyError,
   FastifyInstance,
   FastifyPluginOptions,
-  FastifyError,
-  FastifyRequest,
   FastifyReply,
+  FastifyRequest,
 } from "fastify";
-import fastifyAutoLoad from "@fastify/autoload";
 import path from "path";
 
 export default async function serviceApp(

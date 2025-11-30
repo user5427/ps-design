@@ -1,6 +1,6 @@
-import fp from "fastify-plugin";
-import type { FastifyInstance, FastifyRequest } from "fastify";
 import * as bcrypt from "bcryptjs";
+import type { FastifyInstance, FastifyRequest } from "fastify";
+import fp from "fastify-plugin";
 
 // Minimal subset of User fields needed for auth
 export interface AuthUser {
@@ -57,12 +57,10 @@ export default fp(async function authGuard(fastify: FastifyInstance) {
       if (!ok) return reply.code(401).send({ error: "Invalid credentials" });
 
       if ((user as any).isPasswordResetRequired) {
-        return reply
-          .code(403)
-          .send({
-            error: "Password reset required",
-            action: "/auth/change-password",
-          });
+        return reply.code(403).send({
+          error: "Password reset required",
+          action: "/auth/change-password",
+        });
       }
       // Cast to AuthUser subset
       request.user = user as AuthUser;

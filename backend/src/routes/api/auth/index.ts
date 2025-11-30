@@ -1,5 +1,5 @@
-import { FastifyInstance } from "fastify";
 import * as bcrypt from "bcryptjs";
+import type { FastifyInstance } from "fastify";
 import type { AuthUser } from "../../../plugins/app/auth";
 
 interface ChangePasswordBody {

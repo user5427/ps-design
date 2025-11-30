@@ -1,4 +1,4 @@
-import { FastifyInstance } from "fastify";
+import type { FastifyInstance } from "fastify";
 
 export default async function indexRoute(fastify: FastifyInstance) {
   fastify.get("/", async (request, reply) => {
