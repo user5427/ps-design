@@ -3,13 +3,12 @@ import { Stack, TextField, Button, Alert } from "@mui/material";
 import { useChangePassword } from "../hooks/useAuthHooks";
 
 interface PasswordChangeFormProps {
-    currentPassword?: string;
     onSuccess: () => void;
     onCancel?: () => void;
 }
 
-export function PasswordChangeForm({ currentPassword: initialPassword, onSuccess, onCancel }: PasswordChangeFormProps) {
-    const [currentPassword, setCurrentPassword] = useState(initialPassword || "");
+export function PasswordChangeForm({ onSuccess, onCancel }: PasswordChangeFormProps) {
+    const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
@@ -39,16 +38,14 @@ export function PasswordChangeForm({ currentPassword: initialPassword, onSuccess
     return (
         <form onSubmit={handleSubmit}>
             <Stack spacing={2}>
-                {!initialPassword && (
-                    <TextField
-                        label="Current Password"
-                        type="password"
-                        value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
-                        fullWidth
-                        required
-                    />
-                )}
+                <TextField
+                    label="Current Password"
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    fullWidth
+                    required
+                />
                 <TextField
                     label="New Password"
                     type="password"
