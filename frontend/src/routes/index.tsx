@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
   Box,
   Container,
@@ -9,50 +9,98 @@ import {
   Button,
   Alert,
 } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuthStore } from "../store/authStore";
 
 export const Route = createFileRoute("/")({
+  beforeLoad: async () => {
+    const store = useAuthStore.getState()
+    const token = store.getAccessToken()
+    if (token) {
+      try {
+        const response = await fetch("/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+        });
+        if (response.ok) {
+          throw redirect({ to: "/dashboard" });
+        }
+      } catch (error) {
+        if (error instanceof Error && error.message?.includes("redirect")) {
+          throw error;
+        }
+      }
+    }
+  },
   component: App,
 });
 
 function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
-  const [resetRequired, setResetRequired] = useState(false);
+  const navigate = useNavigate();
+  const { login, isLoading, error, clearError, user } = useAuthStore();
+
   const [newPassword, setNewPassword] = useState("");
   const [newPassword2, setNewPassword2] = useState("");
   const [changing, setChanging] = useState(false);
   const [changeError, setChangeError] = useState<string | null>(null);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
+
+  // Check if already authenticated and redirect or attempt refresh
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      const store = useAuthStore.getState();
+      const token = store.getAccessToken();
+
+      if (token) {
+        try {
+          const response = await fetch("/api/auth/me", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            credentials: "include",
+          });
+          if (response.ok) {
+            navigate({ to: "/dashboard" });
+            return;
+          }
+        } catch (error) {
+          console.error("Validation error:", error);
+        }
+      }
+
+      try {
+        await store.refreshToken();
+        navigate({ to: "/dashboard" });
+        return;
+      } catch (error) {
+        console.debug("No valid session, showing login form");
+      }
+
+      setChecking(false);
+    };
+
+    checkAuthentication();
+  }, [navigate]);
 
   async function handleLogin() {
-    setLoading(true);
-    setError(null);
-    setInfo(null);
-    setResetRequired(false);
     try {
-      const basic = btoa(`${email}:${password}`);
-      const res = await fetch("/auth/login", {
-        method: "POST",
-        headers: { Authorization: `Basic ${basic}` },
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.error || "Login failed");
+      await login(email, password);
+
+      if (user?.isPasswordResetRequired) {
+        return;
       }
-      if (data.isPasswordResetRequired) {
-        setInfo("Password reset required. Please change your password.");
-        setResetRequired(true);
-      } else {
-        setInfo("Login successful.");
-        console.log("Logged in user data:", data);
-      }
-    } catch (e: any) {
-      setError(e.message || "Login error");
-    } finally {
-      setLoading(false);
+
+      navigate({ to: "/dashboard" });
+    } catch (err) {
+      console.error("Login error:", err);
     }
   }
 
@@ -66,39 +114,50 @@ function App() {
       if (newPassword !== newPassword2) {
         throw new Error("Passwords do not match");
       }
-      const basic = btoa(`${email}:${password}`);
-      const res = await fetch("/auth/change-password", {
+
+      const store = useAuthStore.getState()
+      const headers = store.getAuthHeaders()
+
+      const res = await fetch("/api/auth/change-password", {
         method: "POST",
-        headers: {
-          Authorization: `Basic ${basic}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ newPassword }),
+        headers,
+        credentials: "include",
+        body: JSON.stringify({
+          currentPassword: password,
+          newPassword,
+        }),
       });
-      let data: any = null;
-      let errorText: string | null = null;
-      try {
-        data = await res.json();
-      } catch {
-        errorText = await res.text();
-      }
+
       if (!res.ok) {
-        const errorMsg =
-          (data && data.error) ||
-          errorText ||
-          "Failed to change password";
-        throw new Error(errorMsg);
+        const data = await res.json().catch(() => ({ error: "Failed to change password" }));
+        throw new Error(data.error || "Failed to change password");
       }
-      setInfo("Password changed. Please log in with your new password.");
-      setResetRequired(false);
+
       setNewPassword("");
       setNewPassword2("");
-      setPassword("");
+      navigate({ to: "/dashboard" });
     } catch (e: any) {
       setChangeError(e.message || "Password change failed");
     } finally {
       setChanging(false);
     }
+  }
+
+  const resetRequired = user?.isPasswordResetRequired;
+
+  if (checking) {
+    return (
+      <Container
+        maxWidth="sm"
+        sx={{ backgroundColor: "#000", minHeight: "100vh" }}
+      >
+        <Stack spacing={3} sx={{ py: 6 }}>
+          <Typography variant="h4" sx={{ color: "#fff", textAlign: "center" }}>
+            Checking authentication…
+          </Typography>
+        </Stack>
+      </Container>
+    );
   }
 
   return (
@@ -120,6 +179,7 @@ function App() {
             variant="filled"
             InputProps={{ sx: { backgroundColor: "#2b2b2b", color: "#fff" } }}
             InputLabelProps={{ sx: { color: "#bbb" } }}
+            disabled={resetRequired}
           />
           <TextField
             label="Password"
@@ -130,65 +190,66 @@ function App() {
             variant="filled"
             InputProps={{ sx: { backgroundColor: "#2b2b2b", color: "#fff" } }}
             InputLabelProps={{ sx: { color: "#bbb" } }}
+            disabled={resetRequired}
           />
           <Button
             variant="contained"
             color="primary"
-            disabled={loading}
+            disabled={isLoading || resetRequired}
             onClick={handleLogin}
             sx={{ mt: 2 }}
           >
-            {loading ? "Logging in…" : "Login"}
+            {isLoading ? "Logging in…" : "Login"}
           </Button>
         </Stack>
         {error && <Alert severity="error">{error}</Alert>}
-        {info && (
-          <Alert severity={resetRequired ? "warning" : "success"}>
-            {info}
-          </Alert>
-        )}
         {resetRequired && (
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="h6" sx={{ color: "#fff", mb: 1 }}>
-              Change Password
-            </Typography>
-            <Stack spacing={2}>
-              <TextField
-                label="New password"
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                fullWidth
-                variant="filled"
-                InputProps={{
-                  sx: { backgroundColor: "#2b2b2b", color: "#fff" },
-                }}
-                InputLabelProps={{ sx: { color: "#bbb" } }}
-                helperText="At least 8 characters"
-              />
-              <TextField
-                label="Confirm password"
-                type="password"
-                value={newPassword2}
-                onChange={(e) => setNewPassword2(e.target.value)}
-                fullWidth
-                variant="filled"
-                InputProps={{
-                  sx: { backgroundColor: "#2b2b2b", color: "#fff" },
-                }}
-                InputLabelProps={{ sx: { color: "#bbb" } }}
-              />
-              <Button
-                variant="contained"
-                color="secondary"
-                disabled={changing}
-                onClick={handleChangePassword}
-              >
-                {changing ? "Changing…" : "Change Password"}
-              </Button>
-              {changeError && <Alert severity="error">{changeError}</Alert>}
-            </Stack>
-          </Box>
+          <>
+            <Alert severity="warning">
+              Password reset required. Please change your password.
+            </Alert>
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="h6" sx={{ color: "#fff", mb: 1 }}>
+                Change Password
+              </Typography>
+              <Stack spacing={2}>
+                <TextField
+                  label="New password"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  fullWidth
+                  variant="filled"
+                  InputProps={{
+                    sx: { backgroundColor: "#2b2b2b", color: "#fff" },
+                  }}
+                  InputLabelProps={{ sx: { color: "#bbb" } }}
+                  helperText="At least 8 characters"
+                />
+                <TextField
+                  label="Confirm password"
+                  type="password"
+                  value={newPassword2}
+                  onChange={(e) => setNewPassword2(e.target.value)}
+                  fullWidth
+                  variant="filled"
+                  InputProps={{
+                    sx: { backgroundColor: "#2b2b2b", color: "#fff" },
+                  }}
+                  InputLabelProps={{ sx: { color: "#bbb" } }}
+                />
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  disabled={changing}
+                  onClick={handleChangePassword}
+                >
+                  {changing ? "Changing…" : "Change Password"}
+                </Button>
+                {changeError && <Alert severity="error">{changeError}</Alert>}
+              </Stack>
+            </Box>
+          </>
         )}
         <Box sx={{ textAlign: "center", mt: 4 }}>
           <MuiLink href="#" sx={{ color: "#8ab4f8" }}>

@@ -69,23 +69,6 @@ export function setRefreshCookie(
     })
 }
 
-export function setAccessCookie(
-    fastify: FastifyInstance,
-    reply: FastifyReply,
-    accessToken: string
-): void {
-    const isProd = fastify.config.NODE_ENV === 'production'
-    const ttl = fastify.config.ACCESS_TOKEN_TTL
-
-    reply.setCookie('token', accessToken, {
-        httpOnly: true,
-        secure: isProd,
-        sameSite: 'lax',
-        path: '/',
-        maxAge: ttl,
-    })
-}
-
 export async function rotateRefreshToken(
     fastify: FastifyInstance,
     oldTokenDoc: any,
@@ -121,7 +104,6 @@ export async function rotateRefreshToken(
     })
 
     setRefreshCookie(fastify, reply, newRefreshToken)
-    setAccessCookie(fastify, reply, newAccessToken)
 
     return { accessToken: newAccessToken }
 }

@@ -9,7 +9,6 @@ import {
 	signRefreshToken,
 	persistRefreshToken,
 	setRefreshCookie,
-	setAccessCookie,
 	hashToken,
 	rotateRefreshToken,
 } from './auth-utils'
@@ -79,10 +78,10 @@ export default async function authRoutes(fastify: FastifyInstance) {
 				})
 
 				setRefreshCookie(fastify, reply, refreshToken)
-				setAccessCookie(fastify, reply, accessToken)
 
 				return reply.send({
 					...publicUserData(user),
+					accessToken,
 				})
 			} catch (err) {
 				request.log.error({ err }, 'Login handler failed')
@@ -110,9 +109,8 @@ export default async function authRoutes(fastify: FastifyInstance) {
 					}
 				}
 
-				reply.clearCookie('refresh_token', { path: '/api/auth/refresh' })
-				reply.clearCookie('token', { path: '/' })
-				return reply.send({ success: true })
+			reply.clearCookie('refresh_token', { path: '/api/auth/refresh' })
+			return reply.send({ success: true })
 			} catch (err) {
 				request.log.error({ err }, 'Logout handler failed')
 				return reply.internalServerError()
