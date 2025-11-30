@@ -7,15 +7,30 @@ import { LoginForm } from "../components/LoginForm";
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
     const store = useAuthStore.getState();
-    const token = store.getAccessToken();
+    let token = store.getAccessToken();
+
+    // If no token in memory, try to refresh from cookie
+    if (!token) {
+      try {
+        const { accessToken } = await authApi.refreshToken();
+        store.setAccessToken(accessToken);
+        token = accessToken;
+      } catch {
+        return;
+      }
+    }
+
+    // If we have a token, verify and redirect to dashboard
     if (token) {
       try {
         await authApi.getCurrentUser();
         throw redirect({ to: "/dashboard" });
       } catch (error) {
-        if (error instanceof Error && error.message?.includes("redirect")) {
+        if (error instanceof Response || (error as any)?.to === "/dashboard") {
           throw error;
         }
+        // Token invalid, clear it
+        store.setAccessToken(null);
       }
     }
   },
@@ -31,10 +46,9 @@ function App() {
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       <Stack spacing={3}>
         <Typography variant="h4">Sign In</Typography>
-        <LoginForm
-          onSuccess={handleLoginSuccess}
-        />
+        <LoginForm onSuccess={handleLoginSuccess} />
       </Stack>
     </Container>
   );
 }
+
