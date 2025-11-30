@@ -7,7 +7,6 @@
 			"request": "launch",
 			"runtimeExecutable": "npm",
 			"runtimeArgs": ["run", "fmt:frontend"],
-			"cwd": "${workspaceFolder}/frontend",
 			"console": "integratedTerminal",
 			"internalConsoleOptions": "neverOpen"
 		},
@@ -17,7 +16,6 @@
 			"request": "launch",
 			"runtimeExecutable": "npm",
 			"runtimeArgs": ["run", "lint-fix:frontend"],
-			"cwd": "${workspaceFolder}/frontend",
 			"console": "integratedTerminal",
 			"internalConsoleOptions": "neverOpen"
 		},
@@ -27,7 +25,6 @@
 			"request": "launch",
 			"runtimeExecutable": "npm",
 			"runtimeArgs": ["run", "fmt:backend"],
-			"cwd": "${workspaceFolder}/backend",
 			"console": "integratedTerminal",
 			"internalConsoleOptions": "neverOpen"
 		},
@@ -37,7 +34,6 @@
 			"request": "launch",
 			"runtimeExecutable": "npm",
 			"runtimeArgs": ["run", "lint-fix:backend"],
-			"cwd": "${workspaceFolder}/backend",
 			"console": "integratedTerminal",
 			"internalConsoleOptions": "neverOpen"
 		}
