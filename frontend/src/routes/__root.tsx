@@ -1,9 +1,13 @@
 import { Outlet, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
+import { useAuthUser } from '../hooks/useAuthHooks'
 
-export const Route = createRootRoute({
-  component: () => (
+function RootComponent() {
+  // Fetch current user if authenticated, this will handle token validation
+  useAuthUser()
+
+  return (
     <>
       <Outlet />
       <TanStackDevtools
@@ -18,5 +22,9 @@ export const Route = createRootRoute({
         ]}
       />
     </>
-  ),
+  )
+}
+
+export const Route = createRootRoute({
+  component: RootComponent,
 })

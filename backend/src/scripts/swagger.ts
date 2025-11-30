@@ -3,7 +3,7 @@ import { sync as globSync } from 'glob';
 import path from 'path';
 import fs from 'fs';
 
-const routes = globSync(path.join(__dirname, 'src/routes/**/*.ts'))
+const routes = globSync(path.join(__dirname, '../routes/**/*.ts'))
     .filter(file => {
         const content = fs.readFileSync(file, 'utf-8').trim();
         // Check if file is not empty and has actual content (not just whitespace/comments)
@@ -24,11 +24,11 @@ const doc = {
     host: `${process.env.HOST || 'localhost'}:${process.env.PORT || 4000}`
 };
 
-const outputFile = './src/generated/swagger-output.json';
+const outputFile = '../generated/swagger-output.json';
 
 swaggerAutogen()(outputFile, routes, doc)
     .then(() => {
-        console.log('Swagger documentation generated successfully at ./src/generated/swagger-output.json');
+        console.log('Swagger documentation generated successfully at src/generated/swagger-output.json');
     })
     .catch((err) => {
         console.error('Error:', err);

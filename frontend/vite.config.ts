@@ -17,8 +17,6 @@ export default ({ mode }: { mode: string }) => {
     ],
     server: {
       proxy: {
-        '/auth': { target: backendTarget, changeOrigin: true },
-        '/me': { target: backendTarget, changeOrigin: true },
         '/api': { target: backendTarget, changeOrigin: true }
       }
     }

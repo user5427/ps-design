@@ -1,8 +1,16 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyError, FastifyRequest, FastifyReply } from 'fastify'
 import fastifyAutoLoad from '@fastify/autoload'
 import path from 'path'
+import {
+    serializerCompiler,
+    validatorCompiler,
+} from 'fastify-type-provider-zod'
 
 export default async function serviceApp(fastify: FastifyInstance, opts: FastifyPluginOptions) {
+    // Set up Zod validation and serialization
+    fastify.setValidatorCompiler(validatorCompiler)
+    fastify.setSerializerCompiler(serializerCompiler)
+
     const autoLoad = (dir: string, extraOptions: object = {}) =>
         fastify.register(fastifyAutoLoad, {
             dir: path.join(__dirname, dir),
@@ -15,6 +23,19 @@ export default async function serviceApp(fastify: FastifyInstance, opts: Fastify
     await autoLoad('plugins/external', {});
     // Loads auth and other app-level hooks before routes
     await autoLoad('plugins/app');
+
+    // Protect all routes except public ones
+    fastify.addHook('onRequest', async (request, reply) => {
+
+        const publicEndpoints = ['/api/auth/login', '/api/auth/refresh'];
+        if (publicEndpoints.includes(request.url)) {
+            return
+        }
+
+        // Apply authentication to all other routes
+        await fastify.authenticate(request, reply)
+    })
+
     // Loads all plugins defined in routes
     await autoLoad('routes');
 
@@ -50,7 +71,7 @@ export default async function serviceApp(fastify: FastifyInstance, opts: Fastify
             }
         },
             'Resource not found');
-        reply.code(404).send({ message: 'Not Found' });
+        reply.notFound('Not Found');
     });
 
 }
