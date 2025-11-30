@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Box, Typography, Button } from '@mui/material'
 import { Link } from '@tanstack/react-router'
-import { MainLayout } from '@/components/layouts/MainLayout'
+import { MainLayout } from '@/components/layouts/main-layout'
 
 export const Route = createFileRoute('/')({
     component: HomePage,

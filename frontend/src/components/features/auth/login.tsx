@@ -24,7 +24,7 @@ export const Login: React.FC = () => {
             }}
         >
             <Typography variant="h4" sx={{ mb: 4, textAlign: 'center' }}>
-                Welcome Back
+                Sign In
             </Typography>
 
             <Box sx={{ mb: 3 }}>
@@ -62,12 +62,12 @@ export const Login: React.FC = () => {
                 Login
             </Button>
 
-            <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary' }}>
+            {/* <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary' }}>
                 New to our services?{' '}
                 <MuiLink component={Link} to="/auth/register" sx={{ fontWeight: 500 }}>
                     Register
                 </MuiLink>
-            </Typography>
+            </Typography> */}
         </Box>
     );
 };

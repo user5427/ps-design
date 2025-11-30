@@ -3,8 +3,8 @@ import { AppBar as MUIAppBar, Toolbar, Typography, IconButton, Box } from '@mui/
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 
-import { Menu } from './Menu';
-import type { MenuProps } from './Menu';
+import { Menu } from './menu';
+import type { MenuProps } from './menu';
 
 export interface AppBarProps {
     logo: React.ReactNode;

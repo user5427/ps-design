@@ -1,6 +1,6 @@
 import React from 'react';
 import type { AppBarProps } from "@/components/layouts";
-import { MenuData } from './Menu';
+import { MenuData } from './menu';
 
 export const AppBarData: AppBarProps = {
     logo: React.createElement('img', {

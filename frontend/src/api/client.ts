@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance, type AxiosResponse, type AxiosRequestConfig } from 'axios'
-import { useAuthStore } from '@/hooks/useAuthStore'
+import { useAuthStore } from '@/hooks/use-auth-store'
 
 const API_BASE_URL = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/api`
 

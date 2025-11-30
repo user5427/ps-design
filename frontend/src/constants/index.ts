@@ -1,2 +1,2 @@
-export { AppBarData } from './AppBar';
-export { MenuData } from './Menu';
+export { AppBarData } from './app-bar';
+export { MenuData } from './menu';

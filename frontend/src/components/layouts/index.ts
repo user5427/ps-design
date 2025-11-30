@@ -1,6 +1,6 @@
-export { AppBar } from './AppBar';
-export type { AppBarProps } from './AppBar';
-export { Menu } from './Menu';
-export type { MenuProps } from './Menu';
+export { AppBar } from './app-bar';
+export type { AppBarProps } from './app-bar';
+export { Menu } from './menu';
+export type { MenuProps } from './menu';
 
-export { MainLayout } from './MainLayout';
+export { MainLayout } from './main-layout';

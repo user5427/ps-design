@@ -1,5 +1,5 @@
 import { Register } from '@/components/features/auth'
-import { MainLayout } from '@/components/layouts/MainLayout'
+import { MainLayout } from '@/components/layouts/main-layout'
 import Box from '@mui/material/Box'
 import { createFileRoute } from '@tanstack/react-router'
 
