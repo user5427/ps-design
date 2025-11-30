@@ -16,7 +16,7 @@ const doc = {
         title: 'My API',
         description: 'Auto-generated from TS files'
     },
-    host: 'localhost:4000'
+    host: `${process.env.HOST || 'localhost'}:${process.env.PORT || 4000}`
 };
 
 const outputFile = './src/generated/swagger-output.json';
