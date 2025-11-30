@@ -1,4 +1,20 @@
-const API_BASE = '/api/auth'
+import type { InternalAxiosRequestConfig } from 'axios'
+import axios from 'axios'
+import { useAuthStore } from '../store/authStore'
+
+const api = axios.create({
+    baseURL: '/api/auth',
+    withCredentials: true,
+})
+
+// Add access token to every request
+api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+    const token = useAuthStore.getState().getAccessToken()
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+})
 
 export interface AuthUser {
     userId: string
@@ -13,76 +29,18 @@ export interface LoginResponse extends AuthUser {
 }
 
 export const authApi = {
-    async login(email: string, password: string): Promise<LoginResponse> {
-        const res = await fetch(`${API_BASE}/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ email, password }),
-        })
+    login: (email: string, password: string) =>
+        api.post<LoginResponse>('/login', { email, password }).then((r) => r.data),
 
-        if (!res.ok) {
-            const error = await res.json().catch(() => ({ error: 'Login failed' }))
-            throw new Error(error.error || 'Login failed')
-        }
+    logout: () =>
+        api.post('/logout').then(() => undefined),
 
-        return res.json()
-    },
+    getCurrentUser: () =>
+        api.get<AuthUser>('/me').then((r) => r.data),
 
-    async logout(): Promise<void> {
-        const res = await fetch(`${API_BASE}/logout`, {
-            method: 'POST',
-            credentials: 'include',
-        })
+    refreshToken: () =>
+        api.post<{ accessToken: string }>('/refresh').then((r) => r.data),
 
-        if (!res.ok) {
-            throw new Error('Logout failed')
-        }
-    },
-
-    async getCurrentUser(token: string): Promise<AuthUser> {
-        const res = await fetch(`${API_BASE}/me`, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
-            credentials: 'include',
-        })
-
-        if (!res.ok) {
-            throw new Error('Failed to get current user')
-        }
-
-        return res.json()
-    },
-
-    async refreshToken(): Promise<{ accessToken: string }> {
-        const res = await fetch(`${API_BASE}/refresh`, {
-            method: 'POST',
-            credentials: 'include',
-        })
-
-        if (!res.ok) {
-            throw new Error('Token refresh failed')
-        }
-
-        return res.json()
-    },
-
-    async changePassword(token: string, currentPassword: string, newPassword: string): Promise<void> {
-        const res = await fetch(`${API_BASE}/change-password`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
-            credentials: 'include',
-            body: JSON.stringify({ currentPassword, newPassword }),
-        })
-
-        if (!res.ok) {
-            const error = await res.json().catch(() => ({ error: 'Password change failed' }))
-            throw new Error(error.error || 'Password change failed')
-        }
-    },
+    changePassword: (currentPassword: string, newPassword: string) =>
+        api.post('/change-password', { currentPassword, newPassword }).then(() => undefined),
 }

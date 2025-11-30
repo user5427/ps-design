@@ -20,7 +20,7 @@ export const Route = createFileRoute("/")({
     const token = store.getAccessToken()
     if (token) {
       try {
-        await authApi.getCurrentUser(token)
+        await authApi.getCurrentUser()
         throw redirect({ to: "/dashboard" });
       } catch (error) {
         if (error instanceof Error && error.message?.includes("redirect")) {

@@ -18,9 +18,5 @@ export default fp(async function jwtPlugin(fastify: FastifyInstance) {
     // Register JWT plugin
     await fastify.register(fastifyJwt, {
         secret: fastify.config.JWT_SECRET,
-        cookie: {
-            cookieName: "token",
-            signed: false,
-        },
     });
 });

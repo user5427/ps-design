@@ -9,15 +9,11 @@ export const authKeys = {
 
 export function useAuthUser() {
     const store = useAuthStore()
-    const token = store.getAccessToken()
 
     return useQuery({
         queryKey: authKeys.me(),
-        queryFn: async () => {
-            if (!token) throw new Error('No token')
-            return authApi.getCurrentUser(token)
-        },
-        enabled: !!token, // Only run query if we have a token
+        queryFn: () => authApi.getCurrentUser(),
+        enabled: !!store.getAccessToken(),
         staleTime: 1000 * 60 * 5, // 5 minutes
     })
 }
@@ -27,12 +23,10 @@ export function useLogin() {
     const store = useAuthStore()
 
     return useMutation({
-        mutationFn: async ({ email, password }: { email: string; password: string }) => {
-            return authApi.login(email, password)
-        },
+        mutationFn: async ({ email, password }: { email: string; password: string }) =>
+            authApi.login(email, password),
         onSuccess: (data) => {
             store.setAccessToken(data.accessToken)
-            // Invalidate auth query to refetch user
             queryClient.invalidateQueries({ queryKey: authKeys.me() })
         },
     })
@@ -43,26 +37,24 @@ export function useLogout() {
     const store = useAuthStore()
 
     return useMutation({
-        mutationFn: async () => {
-            return authApi.logout()
-        },
+        mutationFn: () => authApi.logout(),
         onSuccess: () => {
             store.setAccessToken(null)
-            // Clear all auth queries
+            queryClient.removeQueries({ queryKey: authKeys.all })
+        },
+        onError: () => {
+            store.setAccessToken(null)
             queryClient.removeQueries({ queryKey: authKeys.all })
         },
     })
 }
-
 
 export function useRefreshToken() {
     const queryClient = useQueryClient()
     const store = useAuthStore()
 
     return useMutation({
-        mutationFn: async () => {
-            return authApi.refreshToken()
-        },
+        mutationFn: async () => authApi.refreshToken(),
         onSuccess: (data) => {
             store.setAccessToken(data.accessToken)
             queryClient.invalidateQueries({ queryKey: authKeys.me() })
@@ -70,12 +62,8 @@ export function useRefreshToken() {
     })
 }
 
-/**
- * Hook to change password
- */
 export function useChangePassword() {
     const queryClient = useQueryClient()
-    const store = useAuthStore()
 
     return useMutation({
         mutationFn: async ({
@@ -84,11 +72,7 @@ export function useChangePassword() {
         }: {
             currentPassword: string
             newPassword: string
-        }) => {
-            const token = store.getAccessToken()
-            if (!token) throw new Error('No token')
-            return authApi.changePassword(token, currentPassword, newPassword)
-        },
+        }) => authApi.changePassword(currentPassword, newPassword),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: authKeys.me() })
         },
