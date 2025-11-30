@@ -1,13 +1,16 @@
 {
     "scripts": {
-        "dev": "concurrently \"npm run dev:server\" \"npm run dev:swagger\"",
+        "dev": "npm run db:setup && concurrently \"npm run dev:server\" \"npm run dev:swagger\" \"npm run dev:watch-db\"",
+        "db:setup": "npx prisma dev & sleep 3",
+        "dev:watch-db": "nodemon --watch backend/prisma/migrations --ext sql --exec \"npm run db:migrate\"",
         "dev:server": "tsx watch src/server.ts",
         "dev:swagger": "nodemon --watch src/routes --ext ts --exec \"npm run swagger\"",
         "build": "tsc",
         "start": "node dist/server.js",
+        "db:migrate": "npm run db:deploy && npm run db:generate && npm run db:seed",
         "db:deploy": "prisma migrate deploy --config=prisma.config.ts",
         "db:generate": "prisma generate --config=prisma.config.ts",
-        "seed": "tsx src/scripts/seed.ts",
+        "db:seed": "tsx src/scripts/seed.ts",
         "swagger": "tsx src/scripts/swagger.ts"
     },
     "dependencies": {

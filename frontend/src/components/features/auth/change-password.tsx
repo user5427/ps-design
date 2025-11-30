@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Box, TextField, Button, Typography, LinearProgress, Alert } from '@mui/material'
-import { checkPasswordStrength, getPasswordStrengthColor, getPasswordStrengthLabel } from '@/utils/passwordStrength'
+import { checkPasswordStrength, getPasswordStrengthColor, getPasswordStrengthLabel } from '@/utils'
 import { useChangePassword } from '@/queries/auth'
 
 export const ChangePassword: React.FC = () => {

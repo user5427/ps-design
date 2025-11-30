@@ -18,3 +18,4 @@ build
 openapi.txt
 .vscode/settings.json
 .editorconfig
+node_modules
