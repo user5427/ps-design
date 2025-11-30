@@ -10,6 +10,9 @@ export interface AuthUser {
 }
 
 declare module 'fastify' {
+  interface FastifyRequest {
+    authUser?: AuthUser
+  }
   interface FastifyInstance {
     authenticate: (request: FastifyRequest, reply: any) => Promise<void>
   }
@@ -18,12 +21,12 @@ declare module 'fastify' {
 export default fp(async function authGuard(fastify: FastifyInstance) {
   fastify.decorate('authenticate', async function (request: FastifyRequest, reply: any) {
     try {
-      // Verify JWT from cookie
       await request.jwtVerify()
 
-      // Fetch user from database
+      const jwtUser = request.user as { userId: string; role: string; businessId: string | null }
+
       const user = await fastify.prisma.user.findUnique({
-        where: { id: (request.user as any).userId },
+        where: { id: jwtUser.userId },
         select: {
           id: true,
           email: true,
@@ -34,13 +37,12 @@ export default fp(async function authGuard(fastify: FastifyInstance) {
       })
 
       if (!user) {
-        return reply.code(401).send({ error: 'User not found' })
+        return reply.unauthorized('User not found')
       }
 
-      // Attach user to request
-      ; (request as any).user = user as AuthUser
+      request.authUser = user as AuthUser
     } catch (err) {
-      return reply.code(401).send({ error: 'Unauthorized' })
+      return reply.unauthorized('Unauthorized')
     }
   })
 })

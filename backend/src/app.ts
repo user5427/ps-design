@@ -71,7 +71,7 @@ export default async function serviceApp(fastify: FastifyInstance, opts: Fastify
             }
         },
             'Resource not found');
-        reply.code(404).send({ message: 'Not Found' });
+        reply.notFound('Not Found');
     });
 
 }

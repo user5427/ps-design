@@ -1,130 +1,136 @@
-import { FastifyInstance } from 'fastify'
+import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import * as bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import type { AuthUser } from '../../../plugins/app/auth'
 
+const SALT_LENGTH = 10
+
 const loginSchema = z.object({
 	email: z.email('Invalid email format'),
-	password: z.string().min(1, 'Password is required'),
+	password: z.string().min(1, 'Password is required')
 })
 
 const changePasswordSchema = z.object({
 	currentPassword: z.string().min(1, 'Current password is required'),
-	newPassword: z.string().min(8, 'New password must be at least 8 characters'),
+	newPassword: z.string().min(8, 'New password must be at least 8 characters')
 })
+
+type LoginBody = z.infer<typeof loginSchema>
+type ChangePasswordBody = z.infer<typeof changePasswordSchema>
+
+function publicUserData(user: AuthUser) {
+	return {
+		userId: user.id,
+		email: user.email,
+		role: user.role,
+		businessId: user.businessId,
+		isPasswordResetRequired: user.isPasswordResetRequired
+	}
+}
 
 export default async function authRoutes(fastify: FastifyInstance) {
 	const server = fastify.withTypeProvider<ZodTypeProvider>()
 
-	server.post('/login', {
-		schema: {
-			body: loginSchema,
+	server.post(
+		'/login',
+		{
+			schema: { body: loginSchema }
 		},
-	}, async (request, reply) => {
-		const { email, password } = request.body
+		async (
+			request: FastifyRequest<{ Body: LoginBody }>,
+			reply: FastifyReply
+		) => {
+			const { email, password } = request.body
 
-		try {
-			const user = await fastify.prisma.user.findUnique({
-				where: { email },
-			})
+			try {
+				const user = await fastify.prisma.user.findUnique({
+					where: { email }
+				})
 
-			if (!user) {
-				return reply.code(401).send({ error: 'Invalid credentials' })
+				if (!user) return reply.unauthorized()
+
+				const ok = await bcrypt.compare(password, user.passwordHash)
+				if (!ok) return reply.unauthorized()
+
+				const token = await reply.jwtSign({
+					userId: user.id,
+					role: user.role,
+					businessId: user.businessId
+				})
+
+				reply.setCookie('token', token, {
+					httpOnly: true,
+					secure: fastify.config.NODE_ENV === 'production',
+					sameSite: 'lax',
+					path: '/',
+					maxAge: fastify.config.ACCESS_COOKIE_MAX_AGE
+				})
+
+				return reply.send(publicUserData(user))
+			} catch (err) {
+				request.log.error({ err }, 'Login handler failed')
+				return reply.internalServerError()
 			}
-
-			const isValidPassword = await bcrypt.compare(password, user.passwordHash)
-			if (!isValidPassword) {
-				return reply.code(401).send({ error: 'Invalid credentials' })
-			}
-
-			const token = await reply.jwtSign({
-				userId: user.id,
-				role: user.role,
-				businessId: user.businessId,
-			})
-
-			// Set httpOnly cookie
-			reply.setCookie('token', token, {
-				httpOnly: true,
-				secure: process.env.NODE_ENV === 'production',
-				sameSite: 'lax',
-				path: '/',
-				maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
-			})
-
-			return reply.send({
-				userId: user.id,
-				email: user.email,
-				role: user.role,
-				businessId: user.businessId,
-				isPasswordResetRequired: user.isPasswordResetRequired,
-			})
-		} catch (e) {
-			request.log.error(e, 'Login handler failed')
-			return reply.code(500).send({ error: 'Internal Server Error' })
 		}
-	})
+	)
 
-	server.post('/logout', async (request, reply) => {
-		reply.clearCookie('token', { path: '/' })
-		return reply.send({ success: true })
-	})
-
-	server.get('/me', async (request, reply) => {
-		const user = (request as any).user as AuthUser | undefined
-		if (!user) {
-			return reply.code(401).send({ error: 'Unauthorized' })
+	server.post(
+		'/logout',
+		async (_: FastifyRequest, reply: FastifyReply) => {
+			return reply.clearCookie('token', { path: '/' }).send({ success: true })
 		}
+	)
 
-		return reply.send({
-			userId: user.id,
-			email: user.email,
-			role: user.role,
-			businessId: user.businessId,
-			isPasswordResetRequired: user.isPasswordResetRequired,
-		})
-	})
+	server.get(
+		'/me',
+		async (request: FastifyRequest, reply: FastifyReply) => {
+			const user = request.authUser
+			if (!user) return reply.unauthorized()
+			return reply.send(publicUserData(user))
+		}
+	)
 
-	server.post('/change-password', {
-		schema: {
-			body: changePasswordSchema,
+	server.post(
+		'/change-password',
+		{
+			schema: { body: changePasswordSchema }
 		},
-	}, async (request, reply) => {
-		const { currentPassword, newPassword } = request.body
+		async (
+			request: FastifyRequest<{ Body: ChangePasswordBody }>,
+			reply: FastifyReply
+		) => {
+			const { currentPassword, newPassword } = request.body
+			const user = request.authUser
 
-		const user = (request as any).user as AuthUser | undefined
-		if (!user) {
-			return reply.code(401).send({ error: 'Unauthorized' })
-		}
+			if (!user) return reply.unauthorized()
 
-		try {
-			const dbUser = await fastify.prisma.user.findUnique({
-				where: { id: user.id },
-			})
+			try {
+				const dbUser = await fastify.prisma.user.findUnique({
+					where: { id: user.id },
+					select: { passwordHash: true }
+				})
 
-			if (!dbUser) {
-				return reply.code(401).send({ error: 'User not found' })
+				if (!dbUser) return reply.unauthorized()
+
+				const valid = await bcrypt.compare(currentPassword, dbUser.passwordHash)
+				if (!valid) return reply.unauthorized()
+
+				const newHash = await bcrypt.hash(newPassword, SALT_LENGTH)
+
+				await fastify.prisma.user.update({
+					where: { id: user.id },
+					data: {
+						passwordHash: newHash,
+						isPasswordResetRequired: false
+					}
+				})
+
+				return reply.send({ success: true })
+			} catch (err) {
+				request.log.error({ err }, 'Change-password handler failed')
+				return reply.internalServerError()
 			}
-
-			const isValidPassword = await bcrypt.compare(currentPassword, dbUser.passwordHash)
-			if (!isValidPassword) {
-				return reply.code(401).send({ error: 'Invalid current password' })
-			}
-
-			const hash = await bcrypt.hash(newPassword, 10)
-			await fastify.prisma.user.update({
-				where: { id: user.id },
-				data: {
-					passwordHash: hash,
-					isPasswordResetRequired: false,
-				},
-			})
-
-			return reply.code(200).send({ success: true })
-		} catch (e) {
-			request.log.error(e, 'Change-password handler failed')
-			return reply.code(500).send({ error: 'Internal Server Error' })
 		}
-	})
+	)
 }
