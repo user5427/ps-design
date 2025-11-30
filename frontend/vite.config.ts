@@ -13,17 +13,11 @@ export default ({ mode }: { mode: string }) => {
 
     return defineConfig({
         plugins: [
-            // Please make sure that '@tanstack/router-plugin' is passed before '@vitejs/plugin-react'
-            tanstackRouter({
-                target: 'react',
-                autoCodeSplitting: true,
-            }),
+            tanstackRouter({ target: 'react', autoCodeSplitting: true }),
             react(),
         ],
         server: {
             proxy: {
-                '/auth': { target: backendTarget, changeOrigin: true },
-                '/me': { target: backendTarget, changeOrigin: true },
                 '/api': { target: backendTarget, changeOrigin: true }
             }
         },

@@ -10,7 +10,16 @@ import { routeTree } from './routeTree.gen'
 import { theme } from './lib/mui-theme'
 
 // Create QueryClient
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: 1000 * 60 * 5, // 5 minutes
+            gcTime: 1000 * 60 * 10, // 10 minutes
+            retry: 1,
+            retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+        },
+    },
+})
 
 // Create a new router instance
 const router = createRouter({
