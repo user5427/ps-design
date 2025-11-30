@@ -1,4 +1,4 @@
-import type { InternalAxiosRequestConfig } from 'axios'
+import type { InternalAxiosRequestConfig, AxiosError } from 'axios'
 import axios from 'axios'
 import { useAuthStore } from '../store/authStore'
 
@@ -15,6 +15,69 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     }
     return config
 })
+
+// Track if we're currently refreshing to prevent multiple refresh calls
+let isRefreshing = false
+let failedQueue: Array<{
+    resolve: (token: string | null) => void
+    reject: (error: unknown) => void
+}> = []
+
+const processQueue = (error: unknown, token: string | null = null) => {
+    failedQueue.forEach(({ resolve, reject }) => {
+        if (error) {
+            reject(error)
+        } else {
+            resolve(token)
+        }
+    })
+    failedQueue = []
+}
+
+// Handle 401 responses by refreshing token and retrying
+api.interceptors.response.use(
+    (response) => response,
+    async (error: AxiosError) => {
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
+
+        if (
+            error.response?.status !== 401 ||
+            originalRequest._retry ||
+            originalRequest.url === '/refresh' ||
+            originalRequest.url === '/login'
+        ) {
+            return Promise.reject(error)
+        }
+
+        if (isRefreshing) {
+            return new Promise((resolve, reject) => {
+                failedQueue.push({ resolve, reject })
+            }).then((token) => {
+                if (token) {
+                    originalRequest.headers.Authorization = `Bearer ${token}`
+                }
+                return api(originalRequest)
+            })
+        }
+
+        originalRequest._retry = true
+        isRefreshing = true
+
+        try {
+            const { accessToken } = await api.post<{ accessToken: string }>('/refresh').then(r => r.data)
+            useAuthStore.getState().setAccessToken(accessToken)
+            processQueue(null, accessToken)
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`
+            return api(originalRequest)
+        } catch (refreshError) {
+            processQueue(refreshError, null)
+            useAuthStore.getState().setAccessToken(null)
+            return Promise.reject(refreshError)
+        } finally {
+            isRefreshing = false
+        }
+    }
+)
 
 export interface AuthUser {
     userId: string

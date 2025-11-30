@@ -3,11 +3,10 @@ import { Stack, TextField, Button, Alert } from "@mui/material";
 import { useLogin } from "../hooks/useAuthHooks";
 
 interface LoginFormProps {
-    onSuccess: (isPasswordResetRequired: boolean) => void;
-    onPasswordForReset?: (password: string) => void;
+    onSuccess: () => void;
 }
 
-export function LoginForm({ onSuccess, onPasswordForReset }: LoginFormProps) {
+export function LoginForm({ onSuccess }: LoginFormProps) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const loginMutation = useLogin();
@@ -15,12 +14,10 @@ export function LoginForm({ onSuccess, onPasswordForReset }: LoginFormProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const result = await loginMutation.mutateAsync({ email, password });
-            if (result.isPasswordResetRequired && onPasswordForReset) {
-                onPasswordForReset(password);
-            }
-            onSuccess(result.isPasswordResetRequired);
+            await loginMutation.mutateAsync({ email, password });
+            onSuccess();
         } catch (err) {
+            // TODO:
             console.error("Login error:", err);
         }
     };

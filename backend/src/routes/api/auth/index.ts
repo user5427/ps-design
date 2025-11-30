@@ -109,8 +109,8 @@ export default async function authRoutes(fastify: FastifyInstance) {
 					}
 				}
 
-			reply.clearCookie('refresh_token', { path: '/api/auth/refresh' })
-			return reply.send({ success: true })
+				reply.clearCookie('refresh_token', { path: '/api/auth' })
+				return reply.send({ success: true })
 			} catch (err) {
 				request.log.error({ err }, 'Logout handler failed')
 				return reply.internalServerError()

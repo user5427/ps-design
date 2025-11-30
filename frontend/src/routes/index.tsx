@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate, isRedirect } from "@tanstack/react-router";
 import { Container, Typography, Stack } from "@mui/material";
 import { useAuthStore } from "../store/authStore";
 import { authApi } from "../lib/api";
@@ -26,11 +26,11 @@ export const Route = createFileRoute("/")({
         await authApi.getCurrentUser();
         throw redirect({ to: "/dashboard" });
       } catch (error) {
-        if (error instanceof Response || (error as any)?.to === "/dashboard") {
+        if (isRedirect(error)) {
           throw error;
         }
         // Token invalid, clear it
-        store.setAccessToken(null);
+        // store.setAccessToken(null);
       }
     }
   },
