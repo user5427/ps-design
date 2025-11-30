@@ -23,7 +23,7 @@ const outputFile = './src/generated/swagger-output.json';
 
 swaggerAutogen()(outputFile, routes, doc)
     .then(() => {
-        console.log('Success!');
+        console.log('Swagger documentation generated successfully at ./src/generated/swagger-output.json');
     })
     .catch((err) => {
         console.error('Error:', err);
