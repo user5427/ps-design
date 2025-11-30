@@ -142,4 +142,4 @@ yarn.lock
 uploads/tasks/*
 
 # Prisma generated client
-/src/generated/prisma/
+/src/generated/*
