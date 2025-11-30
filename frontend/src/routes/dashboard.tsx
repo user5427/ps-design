@@ -1,9 +1,10 @@
+
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { Container, Paper, Typography, Box, Button, Stack, Chip } from "@mui/material";
 import { useState } from "react";
-import { useAuthUser, useLogout } from "../hooks/useAuthHooks";
-import { useAuthStore } from "../store/authStore";
-import { PasswordChangeForm } from "../components/PasswordChangeForm";
+import { useAuthUser, useLogout } from "@/hooks/auth-hooks";
+import { useAuthStore } from "@/store/auth-store";
+import { ChangePassword } from "@/components/features/auth";
 
 export const Route = createFileRoute("/dashboard")({
     beforeLoad: async () => {
@@ -81,10 +82,7 @@ function Dashboard() {
                         <Typography variant="h6" gutterBottom>
                             Change Password
                         </Typography>
-                        <PasswordChangeForm
-                            onSuccess={() => setShowPasswordChange(false)}
-                            onCancel={() => setShowPasswordChange(false)}
-                        />
+                        <ChangePassword />
                     </Box>
                 )}
 

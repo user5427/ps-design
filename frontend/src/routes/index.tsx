@@ -1,49 +1,32 @@
-import { createFileRoute, redirect, useNavigate, isRedirect } from "@tanstack/react-router";
-import { Container, Typography, Stack } from "@mui/material";
-import { useAuthStore } from "../store/authStore";
-import { authApi } from "../lib/api";
-import { LoginForm } from "../components/LoginForm";
+import { createFileRoute } from '@tanstack/react-router'
+import { Box, Typography, Button } from '@mui/material'
+import { Link } from '@tanstack/react-router'
+import { MainLayout } from '@/components/layouts/main-layout'
 
-export const Route = createFileRoute("/")({
-  beforeLoad: async () => {
-    const store = useAuthStore.getState();
-    let token = store.getAccessToken();
+export const Route = createFileRoute('/')({
+    component: HomePage,
+})
 
-    if (token) {
-      try {
-        await authApi.getCurrentUser();
-        throw redirect({ to: "/dashboard" });
-      } catch (error) {
-        if (isRedirect(error)) {
-          throw error;
-        }
-        store.setAccessToken(null);
-      }
-    } else {
-      try {
-        const { accessToken } = await authApi.refreshToken();
-        store.setAccessToken(accessToken);
-        token = accessToken;
-      } catch {
-        return;
-      }
-    }
-  },
-  component: App,
-});
-
-function App() {
-  const navigate = useNavigate();
-
-  const handleLoginSuccess = () => navigate({ to: "/dashboard" });
-
-  return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Stack spacing={3}>
-        <Typography variant="h4">Sign In</Typography>
-        <LoginForm onSuccess={handleLoginSuccess} />
-      </Stack>
-    </Container>
-  );
+function HomePage() {
+    return (
+        <MainLayout>
+            <Box sx={{ textAlign: 'center', mt: 8 }}>
+                <Typography variant="h2" gutterBottom>
+                    Welcome to ADEPI
+                </Typography>
+                <Typography variant="h5" color="text.secondary" paragraph>
+                    Your ADEPI homepage
+                </Typography>
+                <Button
+                    component={Link}
+                    to="/auth/login"
+                    variant="contained"
+                    size="large"
+                >
+                    Get Started
+                </Button>
+            </Box>
+        </MainLayout>
+    )
 }
 

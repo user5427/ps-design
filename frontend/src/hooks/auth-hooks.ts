@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useAuthStore } from '../store/authStore'
-import { authApi } from '../lib/api'
+import { useAuthStore } from '@/store/auth-store'
+import { login, logout, getCurrentUser, changePassword, refreshToken } from '@/api/endpoints'
 
 export const authKeys = {
     all: ['auth'] as const,
@@ -12,7 +12,7 @@ export function useAuthUser() {
 
     return useQuery({
         queryKey: authKeys.me(),
-        queryFn: () => authApi.getCurrentUser(),
+        queryFn: () => getCurrentUser(),
         enabled: !!store.getAccessToken(),
         staleTime: 1000 * 60 * 5, // 5 minutes
     })
@@ -24,7 +24,7 @@ export function useLogin() {
 
     return useMutation({
         mutationFn: async ({ email, password }: { email: string; password: string }) =>
-            authApi.login(email, password),
+            login({ email, password }),
         onSuccess: (data) => {
             store.setAccessToken(data.accessToken)
             queryClient.invalidateQueries({ queryKey: authKeys.me() })
@@ -37,7 +37,7 @@ export function useLogout() {
     const store = useAuthStore()
 
     return useMutation({
-        mutationFn: () => authApi.logout(),
+        mutationFn: () => logout(),
         onSuccess: () => {
             store.setAccessToken(null)
             queryClient.removeQueries({ queryKey: authKeys.all })
@@ -54,7 +54,7 @@ export function useRefreshToken() {
     const store = useAuthStore()
 
     return useMutation({
-        mutationFn: async () => authApi.refreshToken(),
+        mutationFn: async () => refreshToken(),
         onSuccess: (data) => {
             store.setAccessToken(data.accessToken)
             queryClient.invalidateQueries({ queryKey: authKeys.me() })
@@ -72,7 +72,7 @@ export function useChangePassword() {
         }: {
             currentPassword: string
             newPassword: string
-        }) => authApi.changePassword(currentPassword, newPassword),
+        }) => changePassword({ currentPassword, newPassword }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: authKeys.me() })
         },

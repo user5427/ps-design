@@ -1,30 +1,20 @@
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
-import { useAuthUser } from '../hooks/useAuthHooks'
+import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
+import { QueryClient } from '@tanstack/react-query'
+import { Box } from '@mui/material'
 
-function RootComponent() {
-  // Fetch current user if authenticated, this will handle token validation
-  useAuthUser()
-
-  return (
-    <>
-      <Outlet />
-      <TanStackDevtools
-        config={{
-          position: 'bottom-right',
-        }}
-        plugins={[
-          {
-            name: 'Tanstack Router',
-            render: <TanStackRouterDevtoolsPanel />,
-          },
-        ]}
-      />
-    </>
-  )
+interface RouterContext {
+    queryClient: QueryClient
 }
 
-export const Route = createRootRoute({
-  component: RootComponent,
+export const Route = createRootRouteWithContext<RouterContext>()({
+    component: RootComponent,
 })
+
+function RootComponent() {
+    return (
+        <Box>
+            {/* Outlet renders whatever route matches (/, /auth/login, etc.) */}
+            <Outlet />
+        </Box>
+    )
+}
