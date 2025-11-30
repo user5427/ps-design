@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import * as crypto from 'crypto'
-import type { User } from '../../../generated/prisma/client'
+import type { RefreshToken, User } from '../../../generated/prisma/client'
 
 export function hashToken(token: string): string {
     return crypto.createHash('sha256').update(token).digest('hex')
@@ -64,25 +64,23 @@ export function setRefreshCookie(
         httpOnly: true,
         secure: isProd,
         sameSite: 'strict',
-        path: '/api/auth/refresh',
+        path: '/api/auth',
         maxAge: fastify.config.REFRESH_TOKEN_TTL_SEC,
     })
 }
 
 export async function rotateRefreshToken(
     fastify: FastifyInstance,
-    oldTokenDoc: any,
+    oldToken: RefreshToken,
     userId: string,
     request: FastifyRequest,
     reply: FastifyReply
 ): Promise<{ accessToken: string }> {
-    // Revoke old token
     await fastify.prisma.refreshToken.update({
-        where: { id: oldTokenDoc.id },
+        where: { id: oldToken.id },
         data: { revokedAt: new Date() },
     })
 
-    // Get user for access token
     const user = await fastify.prisma.user.findUnique({
         where: { id: userId },
     })
@@ -91,10 +89,9 @@ export async function rotateRefreshToken(
         throw new Error('User not found')
     }
 
-    // Issue new tokens
     const newJti = createJti()
-    const newAccessToken = await signAccessToken(fastify, user)
-    const newRefreshToken = await signRefreshToken(fastify, userId, newJti)
+    const newAccessToken = signAccessToken(fastify, user)
+    const newRefreshToken = signRefreshToken(fastify, userId, newJti)
 
     await persistRefreshToken(fastify, {
         userId,
