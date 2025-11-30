@@ -2,12 +2,13 @@
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:swagger\"",
     "dev:server": "tsx watch src/server.ts",
-    "dev:swagger": "nodemon --watch src/routes --ext ts --exec \"npx tsx swagger.ts\"",
+    "dev:swagger": "nodemon --watch src/routes --ext ts --exec \"npm run swagger\"",
     "build": "tsc",
     "start": "node dist/server.js",
     "db:deploy": "prisma migrate deploy --config=prisma.config.ts",
     "db:generate": "prisma generate --config=prisma.config.ts",
-    "seed": "tsx src/scripts/seed.ts"
+    "seed": "tsx src/scripts/seed.ts",
+    "swagger": "tsx src/scripts/swagger.ts"
   },
   "dependencies": {
     "@fastify/autoload": "^6.3.0",
