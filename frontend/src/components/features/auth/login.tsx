@@ -1,32 +1,27 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { Box, TextField, Button, Typography, Alert } from '@mui/material'
-import { useLogin } from '@/queries/auth'
-import { AuthStore } from '@/hooks'
+import { useLogin } from '@/hooks/auth-hooks'
 
 export const Login: React.FC = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const navigate = useNavigate()
     const loginMutation = useLogin()
-    const login = AuthStore((state: any) => state.login)
 
     // Handle successful login
     useEffect(() => {
         if (loginMutation.isSuccess && loginMutation.data) {
-            const { userId, role, businessId, isPasswordResetRequired } = loginMutation.data
+            const { isPasswordResetRequired } = loginMutation.data
 
-            // Store user in auth store
-            login(userId, email, role, businessId, isPasswordResetRequired)
-
-            // Redirect based on password reset requirement
+            // Redirect based on password reset requirement (always true for now)
             if (isPasswordResetRequired) {
                 navigate({ to: '/auth/change-password' })
             } else {
                 navigate({ to: '/dashboard' })
             }
         }
-    }, [loginMutation.isSuccess, loginMutation.data, email, login, navigate])
+    }, [loginMutation.isSuccess, loginMutation.data, navigate])
 
     const handleLogin = () => {
         if (!email || !password) {

@@ -7,13 +7,14 @@ export const LoginRequestSchema = z.object({
 
 export const LoginResponseSchema = z.object({
     userId: z.string(),
+    email: z.string(),
     role: z.string(),
     businessId: z.string().nullable(),
     isPasswordResetRequired: z.boolean(),
+    accessToken: z.string(),
 })
 
 export const ChangePasswordRequestSchema = z.object({
-    email: z.string().email('Invalid email'),
     currentPassword: z.string().min(8, 'Password must be at least 8 characters'),
     newPassword: z.string().min(8, 'New password must be at least 8 characters'),
 })

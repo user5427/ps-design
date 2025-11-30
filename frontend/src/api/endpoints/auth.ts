@@ -1,42 +1,29 @@
-import { authorizedRequest } from '@/api/client'
-import {
-    LoginRequestSchema,
-    LoginResponseSchema,
-    ChangePasswordRequestSchema,
-    ChangePasswordResponseSchema,
-    type LoginRequest,
-    type ChangePasswordRequest,
-    type LoginResponse,
-    type ChangePasswordResponse,
-} from '@/api/types'
+import { apiClient } from '@/api/client'
+import { LoginRequestSchema, LoginResponseSchema, ChangePasswordRequestSchema, ChangePasswordResponseSchema } from '@/api/types'
+import type { LoginRequest, LoginResponse, ChangePasswordRequest, ChangePasswordResponse } from '@/api/types'
 
-/**
- * Login endpoint
- * POST /auth/login
- */
 export async function login(request: LoginRequest): Promise<LoginResponse> {
     const validated = LoginRequestSchema.parse(request)
-    const response = await authorizedRequest<LoginResponse>(validated.email, validated.password, {
-        method: 'POST',
-        url: '/auth/login',
-    })
+    const response = await apiClient.post<LoginResponse>('/auth/login', validated)
     return LoginResponseSchema.parse(response.data)
 }
 
-/**
- * Change password endpoint
- * POST /auth/change-password
- */
+export async function logout(): Promise<void> {
+    await apiClient.post('/auth/logout')
+}
+
+export async function getCurrentUser(): Promise<LoginResponse> {
+    const response = await apiClient.get<LoginResponse>('/auth/me')
+    return LoginResponseSchema.parse(response.data)
+}
+
+export async function refreshToken(): Promise<{ accessToken: string }> {
+    const response = await apiClient.post<{ accessToken: string }>('/auth/refresh')
+    return response.data
+}
+
 export async function changePassword(request: ChangePasswordRequest): Promise<ChangePasswordResponse> {
     const validated = ChangePasswordRequestSchema.parse(request)
-    const response = await authorizedRequest<ChangePasswordResponse>(
-        validated.email,
-        validated.currentPassword,
-        {
-            method: 'POST',
-            url: '/auth/change-password',
-            data: { newPassword: validated.newPassword },
-        }
-    )
+    const response = await apiClient.post<ChangePasswordResponse>('/auth/change-password', validated)
     return ChangePasswordResponseSchema.parse(response.data)
 }

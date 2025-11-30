@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Box, TextField, Button, Typography, LinearProgress, Alert } from '@mui/material'
 import { checkPasswordStrength, getPasswordStrengthColor, getPasswordStrengthLabel } from '@/utils/passwordStrength'
 import { useChangePassword } from '@/queries/auth'
-import { AuthStore } from '@/hooks'
 
 export const ChangePassword: React.FC = () => {
     const [currentPassword, setCurrentPassword] = useState('')
@@ -10,7 +9,6 @@ export const ChangePassword: React.FC = () => {
     const [confirmPassword, setConfirmPassword] = useState('')
     const [passwordStrength, setPasswordStrength] = useState(checkPasswordStrength(''))
 
-    const { email } = AuthStore((state) => ({ email: state.email }))
     const changePasswordMutation = useChangePassword()
 
     const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,14 +30,8 @@ export const ChangePassword: React.FC = () => {
             return
         }
 
-        if (!email) {
-            alert('User email not found')
-            return
-        }
-
         // Submit change password request
         changePasswordMutation.mutate({
-            email,
             currentPassword,
             newPassword,
         })

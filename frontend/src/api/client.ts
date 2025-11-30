@@ -1,5 +1,5 @@
-import axios, { type AxiosInstance, type AxiosResponse, type AxiosRequestConfig } from 'axios'
-import { AuthStore } from '@/hooks/auth-store'
+import axios, { type AxiosInstance, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
+import { useAuthStore } from '@/store/auth-store'
 
 const API_BASE_URL = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/api`
 
@@ -8,53 +8,70 @@ export const apiClient: AxiosInstance = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true,
 })
 
-// Add response interceptor for error handling
+let isRefreshing = false
+let refreshSubscribers: ((token: string) => void)[] = []
+
+function onRefreshed(token: string) {
+    refreshSubscribers.forEach((callback) => callback(token))
+    refreshSubscribers = []
+}
+
+function addRefreshSubscriber(callback: (token: string) => void) {
+    refreshSubscribers.push(callback)
+}
+
+// Add request interceptor to add access token
+apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+    const token = useAuthStore.getState().getAccessToken()
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+})
+
+// Add response interceptor for token refresh on 401
 apiClient.interceptors.response.use(
     (response: AxiosResponse) => response,
-    (error: any) => {
-        if (error.response?.status === 401) {
-            // Handle unauthorized - logout and redirect to login
-            const authStore = AuthStore.getState()
-            authStore.logout()
-            console.error('Unauthorized - logged out')
+    async (error: any) => {
+        const originalRequest = error.config
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            if (isRefreshing) {
+                return new Promise((resolve) => {
+                    addRefreshSubscriber((token: string) => {
+                        originalRequest.headers.Authorization = `Bearer ${token}`
+                        resolve(apiClient(originalRequest))
+                    })
+                })
+            }
+
+            originalRequest._retry = true
+            isRefreshing = true
+
+            try {
+                const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, {
+                    withCredentials: true,
+                })
+
+                const { accessToken } = response.data
+                useAuthStore.getState().setAccessToken(accessToken)
+                originalRequest.headers.Authorization = `Bearer ${accessToken}`
+                isRefreshing = false
+                onRefreshed(accessToken)
+                return apiClient(originalRequest)
+            } catch (refreshError) {
+                isRefreshing = false
+                useAuthStore.getState().setAccessToken(null)
+                window.location.href = '/auth/login'
+                return Promise.reject(refreshError)
+            }
         }
+
         return Promise.reject(error)
     }
 )
-
-/**
- * Public request - no auth required
- */
-export async function publicRequest<T = any>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-    return apiClient.request(config)
-}
-
-/**
- * Authorized request - automatically adds Basic Auth header
- * Uses email and password from auth store (should be set during login)
- */
-export async function authorizedRequest<T = any>(
-    email: string,
-    password: string,
-    config: AxiosRequestConfig
-): Promise<AxiosResponse<T>> {
-    const authHeader = encodeBasicAuth(email, password)
-    return apiClient.request({
-        ...config,
-        headers: {
-            ...config.headers,
-            Authorization: authHeader,
-        },
-    })
-}
-
-/**
- * Encodes credentials to Basic Auth header
- */
-function encodeBasicAuth(email: string, password: string): string {
-    return 'Basic ' + btoa(`${email}:${password}`)
-}
 
 export default apiClient
