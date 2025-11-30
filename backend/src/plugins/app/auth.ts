@@ -37,12 +37,12 @@ export default fp(async function authGuard(fastify: FastifyInstance) {
       })
 
       if (!user) {
-        return reply.unauthorized('User not found')
+        return reply.unauthorized()
       }
 
       request.authUser = user as AuthUser
     } catch (err) {
-      return reply.unauthorized('Unauthorized')
+      return reply.unauthorized()
     }
   })
 })

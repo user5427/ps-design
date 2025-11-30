@@ -5,16 +5,9 @@ import fastifyCookie from "@fastify/cookie";
 
 declare module "@fastify/jwt" {
     interface FastifyJWT {
-        payload: {
-            userId: string;
-            role: string;
-            businessId: string | null;
-        };
-        user: {
-            userId: string;
-            role: string;
-            businessId: string | null;
-        };
+        user:
+        | { userId: string; role: string; businessId: string | null }
+        | { userId: string; jti: string };
     }
 }
 

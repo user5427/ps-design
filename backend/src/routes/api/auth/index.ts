@@ -3,6 +3,16 @@ import * as bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import type { AuthUser } from '../../../plugins/app/auth'
+import {
+	createJti,
+	signAccessToken,
+	signRefreshToken,
+	persistRefreshToken,
+	setRefreshCookie,
+	setAccessCookie,
+	hashToken,
+	rotateRefreshToken,
+} from './auth-utils'
 
 const SALT_LENGTH = 10
 
@@ -53,21 +63,27 @@ export default async function authRoutes(fastify: FastifyInstance) {
 				const ok = await bcrypt.compare(password, user.passwordHash)
 				if (!ok) return reply.unauthorized()
 
-				const token = await reply.jwtSign({
+				// Issue access token
+				const accessToken = signAccessToken(fastify, user)
+
+				// Issue refresh token
+				const jti = createJti()
+				const refreshToken = signRefreshToken(fastify, user.id, jti)
+
+				// Persist refresh token in database
+				await persistRefreshToken(fastify, {
 					userId: user.id,
-					role: user.role,
-					businessId: user.businessId
+					refreshToken,
+					jti,
+					ip: request.ip,
 				})
 
-				reply.setCookie('token', token, {
-					httpOnly: true,
-					secure: fastify.config.NODE_ENV === 'production',
-					sameSite: 'lax',
-					path: '/',
-					maxAge: fastify.config.ACCESS_COOKIE_MAX_AGE
-				})
+				setRefreshCookie(fastify, reply, refreshToken)
+				setAccessCookie(fastify, reply, accessToken)
 
-				return reply.send(publicUserData(user))
+				return reply.send({
+					...publicUserData(user),
+				})
 			} catch (err) {
 				request.log.error({ err }, 'Login handler failed')
 				return reply.internalServerError()
@@ -77,8 +93,30 @@ export default async function authRoutes(fastify: FastifyInstance) {
 
 	server.post(
 		'/logout',
-		async (_: FastifyRequest, reply: FastifyReply) => {
-			return reply.clearCookie('token', { path: '/' }).send({ success: true })
+		async (request: FastifyRequest, reply: FastifyReply) => {
+			try {
+				const token = request.cookies.refresh_token
+				if (token) {
+					const tokenHash = hashToken(token)
+					const tokenDoc = await fastify.prisma.refreshToken.findUnique({
+						where: { tokenHash },
+					})
+
+					if (tokenDoc && !tokenDoc.revokedAt) {
+						await fastify.prisma.refreshToken.update({
+							where: { id: tokenDoc.id },
+							data: { revokedAt: new Date() },
+						})
+					}
+				}
+
+				reply.clearCookie('refresh_token', { path: '/api/auth/refresh' })
+				reply.clearCookie('token', { path: '/' })
+				return reply.send({ success: true })
+			} catch (err) {
+				request.log.error({ err }, 'Logout handler failed')
+				return reply.internalServerError()
+			}
 		}
 	)
 
@@ -133,4 +171,56 @@ export default async function authRoutes(fastify: FastifyInstance) {
 			}
 		}
 	)
+
+	server.post('/refresh', async (request: FastifyRequest, reply: FastifyReply) => {
+		try {
+			const token = request.cookies.refresh_token
+			if (!token) {
+				return reply.unauthorized('No refresh token')
+			}
+
+			let decoded: { userId: string; jti: string }
+			try {
+				decoded = await fastify.jwt.verify(token, {
+					key: fastify.config.REFRESH_TOKEN_SECRET,
+				})
+			} catch (err) {
+				return reply.unauthorized('Invalid or expired refresh token')
+			}
+
+			const tokenHash = hashToken(token)
+			const tokenDoc = await fastify.prisma.refreshToken.findUnique({
+				where: { tokenHash },
+			})
+
+			if (!tokenDoc) {
+				return reply.unauthorized('Refresh token not recognized')
+			}
+
+			if (tokenDoc.jti !== decoded.jti) {
+				return reply.unauthorized('Token ID mismatch')
+			}
+
+			if (tokenDoc.revokedAt) {
+				return reply.unauthorized('Refresh token revoked')
+			}
+
+			if (tokenDoc.expiresAt < new Date()) {
+				return reply.unauthorized('Refresh token expired')
+			}
+
+			const result = await rotateRefreshToken(
+				fastify,
+				tokenDoc,
+				decoded.userId,
+				request,
+				reply
+			)
+
+			return reply.send({ accessToken: result.accessToken })
+		} catch (err) {
+			request.log.error({ err }, 'Refresh handler failed')
+			return reply.internalServerError()
+		}
+	})
 }
