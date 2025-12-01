@@ -7,7 +7,7 @@ on:
 jobs:
   biome-format:
     # Skip if the last commit was made by the bot to prevent infinite loops
-    if: github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'github-actions[bot]'
+    if: github.event.pull_request.head.repo.full_name == github.repository && !contains(github.event.head_commit.message, '[skip ci]')
     runs-on: ubuntu-latest
 
     steps:
@@ -43,7 +43,7 @@ jobs:
 
           git add -A
 
-          git diff --cached --quiet || git commit -m "Apply Frontend Biome linting and formatting"
+          git diff --cached --quiet || git commit -m "Apply Frontend Biome linting and formatting [skip ci]"
 
           git push origin ${{ github.head_ref }}
 
