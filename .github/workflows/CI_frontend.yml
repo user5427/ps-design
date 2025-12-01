@@ -7,6 +7,8 @@ on:
 jobs:
   biome-format:
     runs-on: ubuntu-latest
+    # Skip if the last commit was made by github-actions to prevent infinite loops
+    if: github.actor != 'github-actions[bot]' && github.event.pusher.name != 'github-actions'
 
     steps:
       - name: Checkout repository
@@ -41,7 +43,7 @@ jobs:
 
           git add -A
 
-          git diff --cached --quiet || git commit -m "Apply Frontend Biome linting and formatting"
+          git diff --cached --quiet || git commit -m "Apply Frontend Biome linting and formatting [skip ci]"
 
           git push origin ${{ github.head_ref }}
 
