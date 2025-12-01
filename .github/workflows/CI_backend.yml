@@ -6,7 +6,7 @@ on:
 
 jobs:
   biome-format:
-    # Skip if the last commit was made by the bot to prevent infinite loops
+    # Skip if the workflow is triggered by the bot to prevent infinite loops, or if PR is from a fork
     if: github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
