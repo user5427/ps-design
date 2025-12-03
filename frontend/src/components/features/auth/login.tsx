@@ -14,7 +14,6 @@ export const Login: React.FC = () => {
         if (loginMutation.isSuccess && loginMutation.data) {
             const { isPasswordResetRequired } = loginMutation.data
 
-            // Redirect based on password reset requirement (always true for now)
             if (isPasswordResetRequired) {
                 navigate({ to: '/auth/change-password' })
             } else {
