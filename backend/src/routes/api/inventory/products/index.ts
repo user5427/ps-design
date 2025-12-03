@@ -6,17 +6,30 @@ import { getBusinessId } from "../../../../shared/auth-utils";
 import { isUniqueConstraintError } from "../../../../shared/prisma-error-utils";
 import { uuid } from "../../../../shared/zod-schemas";
 
+const MIN_NAME_LENGTH = 1;
+const MAX_NAME_LENGTH = 100;
+
+const MIN_NAME_MESSAGE = `Name must be at least ${MIN_NAME_LENGTH} characters`;
+const MAX_NAME_MESSAGE = `Name must be at most ${MAX_NAME_LENGTH} characters`;
+
 const productIdParam = z.object({ productId: uuid() });
 
 const createProductSchema = z.object({
-    name: z.string().min(1, "Name is required"),
+    name: z
+        .string()
+        .min(MIN_NAME_LENGTH, MIN_NAME_MESSAGE)
+        .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE),
     description: z.string().optional(),
     productUnitId: uuid("Invalid product unit ID"),
 });
 
 const updateProductSchema = z.object({
-    name: z.string().min(1).optional(),
-    description: z.string().nullable().optional(),
+    name: z
+        .string()
+        .min(MIN_NAME_LENGTH, MIN_NAME_MESSAGE)
+        .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE)
+        .optional(),
+    description: z.string().optional(),
     productUnitId: uuid().optional(),
     isDisabled: z.boolean().optional(),
 });

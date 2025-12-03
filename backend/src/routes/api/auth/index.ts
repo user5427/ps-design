@@ -16,14 +16,17 @@ import {
 
 const SALT_LENGTH = 10;
 
+const MIN_PASSWORD_LENGTH = 8;
+const MIN_PASSWORD_MESSAGE = `Password must be at least ${MIN_PASSWORD_LENGTH} characters`;
+
 const loginSchema = z.object({
     email: z.email("Invalid email format"),
-    password: z.string().min(1, "Password is required"),
+    password: z.string().min(MIN_PASSWORD_LENGTH, MIN_PASSWORD_MESSAGE),
 });
 
 const changePasswordSchema = z.object({
-    currentPassword: z.string().min(1, "Current password is required"),
-    newPassword: z.string().min(8, "New password must be at least 8 characters"),
+    currentPassword: z.string().min(MIN_PASSWORD_LENGTH, MIN_PASSWORD_MESSAGE),
+    newPassword: z.string().min(MIN_PASSWORD_LENGTH, MIN_PASSWORD_MESSAGE),
 });
 
 type LoginBody = z.infer<typeof loginSchema>;

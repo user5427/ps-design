@@ -13,7 +13,7 @@ const createStockChangeSchema = z.object({
     productId: uuid("Invalid product ID"),
     quantity: z.number(),
     type: stockChangeTypeEnum,
-    expirationDate: datetime().optional().nullable(),
+    expirationDate: datetime().optional()
 });
 
 const stockQuerySchema = paginationSchema.extend({

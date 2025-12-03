@@ -6,16 +6,40 @@ import { getBusinessId } from "../../../../shared/auth-utils";
 import { isUniqueConstraintError } from "../../../../shared/prisma-error-utils";
 import { uuid } from "../../../../shared/zod-schemas";
 
+const MIN_LENGTH = 1;
+const MAX_NAME_LENGTH = 100;
+const MAX_SYMBOL_LENGTH = 10;
+
+const MIN_NAME_MESSAGE = `Name must be at least ${MIN_LENGTH} characters`;
+const MAX_NAME_MESSAGE = `Name must be at most ${MAX_NAME_LENGTH} characters`;
+const MIN_SYMBOL_MESSAGE = `Symbol must be at least ${MIN_LENGTH} characters`;
+const MAX_SYMBOL_MESSAGE = `Symbol must be at most ${MAX_SYMBOL_LENGTH} characters`;
+
 const unitIdParam = z.object({ unitId: uuid() });
 
 const createProductUnitSchema = z.object({
-    name: z.string().min(1, "Name is required"),
-    symbol: z.string().min(1).optional(),
+    name: z
+        .string()
+        .min(MIN_LENGTH, MIN_NAME_MESSAGE)
+        .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE),
+    symbol: z
+        .string()
+        .min(MIN_LENGTH, MIN_SYMBOL_MESSAGE)
+        .max(MAX_SYMBOL_LENGTH, MAX_SYMBOL_MESSAGE)
+        .optional(),
 });
 
 const updateProductUnitSchema = z.object({
-    name: z.string().min(1).optional(),
-    symbol: z.string().min(1).nullable().optional(),
+    name: z
+        .string()
+        .min(MIN_LENGTH, MIN_NAME_MESSAGE)
+        .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE)
+        .optional(),
+    symbol: z
+        .string()
+        .min(MIN_LENGTH, MIN_SYMBOL_MESSAGE)
+        .max(MAX_SYMBOL_LENGTH, MAX_SYMBOL_MESSAGE)
+        .optional(),
 });
 
 export default async function unitsRoutes(fastify: FastifyInstance) {
@@ -92,7 +116,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
 
             const { unitId } = request.params;
 
-            const unit = await fastify.prisma.productUnit.findFirst({
+            const unit = await fastify.prisma.productUnit.findUnique({
                 where: { id: unitId, businessId, deletedAt: null },
             });
 
@@ -133,7 +157,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
 
             const { unitId } = request.params;
 
-            const unit = await fastify.prisma.productUnit.findFirst({
+            const unit = await fastify.prisma.productUnit.findUnique({
                 where: { id: unitId, businessId, deletedAt: null },
             });
 
