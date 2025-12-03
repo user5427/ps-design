@@ -4,21 +4,20 @@ import httpStatus from "http-status";
 import { z } from "zod";
 import { getBusinessId } from "../../../../shared/auth-utils";
 import { paginationSchema } from "../../../../shared/response-utils";
+import { uuid, datetime } from "../../../../shared/zod-schemas";
+import { stockChangeTypeEnum } from "../inventory-schemas";
 
-const uuidParam = z.uuid();
-const changeIdParam = z.object({ changeId: uuidParam });
-
-const stockChangeTypeEnum = z.enum(["SUPPLY", "USAGE", "ADJUSTMENT", "WASTE"]);
+const changeIdParam = z.object({ changeId: uuid() });
 
 const createStockChangeSchema = z.object({
-    productId: z.uuid("Invalid product ID"),
+    productId: uuid("Invalid product ID"),
     quantity: z.number(),
     type: stockChangeTypeEnum,
-    expirationDate: z.iso.datetime().optional().nullable(),
+    expirationDate: datetime().optional()
 });
 
 const stockQuerySchema = paginationSchema.extend({
-    productId: z.uuid().optional(),
+    productId: uuid().optional(),
     type: stockChangeTypeEnum.optional(),
 });
 
