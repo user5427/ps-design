@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { Box, TextField, Button, Typography, Alert } from '@mui/material'
-import { useLogin } from '@/hooks/auth-hooks'
+import { useLogin } from '@/hooks/auth/auth-hooks'
 
 export const Login: React.FC = () => {
     const [email, setEmail] = useState('')

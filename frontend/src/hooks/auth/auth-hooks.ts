@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useAuthStore } from '@/store/auth-store'
-import { login, logout, getCurrentUser, changePassword, refreshToken } from '@/api/endpoints'
+import { useAuthStore } from '@/store/auth'
+import { login, logout, getCurrentUser, changePassword, refreshToken } from '@/api/auth'
 
 export const authKeys = {
     all: ['auth'] as const,

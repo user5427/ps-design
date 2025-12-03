@@ -2,8 +2,8 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { Container, Paper, Typography, Box, Button, Stack, Chip } from "@mui/material";
 import { useState } from "react";
-import { useAuthUser, useLogout } from "@/hooks/auth-hooks";
-import { useAuthStore } from "@/store/auth-store";
+import { useAuthUser, useLogout } from "@/hooks/auth/auth-hooks";
+import { useAuthStore } from "@/store/auth";
 import { ChangePassword } from "@/components/features/auth";
 
 export const Route = createFileRoute("/dashboard")({
