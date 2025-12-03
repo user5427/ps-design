@@ -3,9 +3,10 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
 import { z } from "zod";
 import { getBusinessId } from "../../../../shared/auth-utils";
+import { isUniqueConstraintError } from "../../../../shared/prisma-error-utils";
+import { uuid } from "../../../../shared/zod-schemas";
 
-const uuidParam = z.uuid();
-const unitIdParam = z.object({ unitId: uuidParam });
+const unitIdParam = z.object({ unitId: uuid() });
 
 const createProductUnitSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -62,8 +63,8 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
                     },
                 });
                 return reply.code(httpStatus.CREATED).send();
-            } catch (error: any) {
-                if (error.code === "P2002") {
+            } catch (error) {
+                if (isUniqueConstraintError(error)) {
                     return reply.code(httpStatus.CONFLICT).send({ message: "Product unit with this name already exists" });
                 }
                 throw error;
@@ -105,8 +106,8 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
                     data: request.body,
                 });
                 return reply.send();
-            } catch (error: any) {
-                if (error.code === "P2002") {
+            } catch (error) {
+                if (isUniqueConstraintError(error)) {
                     return reply.code(httpStatus.CONFLICT).send({ message: "Product unit with this name already exists" });
                 }
                 throw error;

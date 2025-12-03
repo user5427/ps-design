@@ -3,20 +3,21 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
 import { z } from "zod";
 import { getBusinessId } from "../../../../shared/auth-utils";
+import { isUniqueConstraintError } from "../../../../shared/prisma-error-utils";
+import { uuid } from "../../../../shared/zod-schemas";
 
-const uuidParam = z.uuid();
-const productIdParam = z.object({ productId: uuidParam });
+const productIdParam = z.object({ productId: uuid() });
 
 const createProductSchema = z.object({
     name: z.string().min(1, "Name is required"),
     description: z.string().optional(),
-    productUnitId: z.uuid("Invalid product unit ID"),
+    productUnitId: uuid("Invalid product unit ID"),
 });
 
 const updateProductSchema = z.object({
     name: z.string().min(1).optional(),
     description: z.string().nullable().optional(),
-    productUnitId: z.uuid().optional(),
+    productUnitId: uuid().optional(),
     isDisabled: z.boolean().optional(),
 });
 
@@ -81,9 +82,9 @@ export default async function productsRoutes(fastify: FastifyInstance) {
                     },
                 });
 
-                return reply.code(201).send(product);
-            } catch (error: any) {
-                if (error.code === "P2002") {
+                return reply.code(httpStatus.CREATED).send(product);
+            } catch (error) {
+                if (isUniqueConstraintError(error)) {
                     return reply.code(httpStatus.CONFLICT).send({ message: "Product with this name already exists" });
                 }
                 throw error;
@@ -178,8 +179,8 @@ export default async function productsRoutes(fastify: FastifyInstance) {
                 });
 
                 return reply.send(updated);
-            } catch (error: any) {
-                if (error.code === "P2002") {
+            } catch (error) {
+                if (isUniqueConstraintError(error)) {
                     return reply.code(httpStatus.CONFLICT).send({ message: "Product with this name already exists" });
                 }
                 throw error;
@@ -218,7 +219,7 @@ export default async function productsRoutes(fastify: FastifyInstance) {
                 data: { deletedAt: new Date() },
             });
 
-            return reply.code(204).send();
+            return reply.code(httpStatus.NO_CONTENT).send();
         },
     );
 }
