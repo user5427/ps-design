@@ -1,6 +1,6 @@
 import { apiClient } from '@/api/client'
-import { LoginRequestSchema, LoginResponseSchema, ChangePasswordRequestSchema, ChangePasswordResponseSchema } from '@/api/types'
-import type { LoginRequest, LoginResponse, ChangePasswordRequest, ChangePasswordResponse } from '@/api/types'
+import { LoginRequestSchema, LoginResponseSchema, ChangePasswordRequestSchema, ChangePasswordResponseSchema } from '@/schemas/auth'
+import type { LoginRequest, LoginResponse, ChangePasswordRequest, ChangePasswordResponse } from '@/schemas/auth'
 
 export async function login(request: LoginRequest): Promise<LoginResponse> {
     const validated = LoginRequestSchema.parse(request)

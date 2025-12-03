@@ -1,7 +1,13 @@
 import axios, { type AxiosInstance, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
-import { useAuthStore } from '@/store/auth-store'
+import { useAuthStore } from '@/store/auth'
 
 const API_BASE_URL = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/api`
+
+let routerInstance: any = null
+
+export function setRouterInstance(router: any) {
+    routerInstance = router
+}
 
 export const apiClient: AxiosInstance = axios.create({
     baseURL: API_BASE_URL,
@@ -65,7 +71,12 @@ apiClient.interceptors.response.use(
             } catch (refreshError) {
                 isRefreshing = false
                 useAuthStore.getState().setAccessToken(null)
-                window.location.href = '/auth/login'
+
+                // Only redirect to login if we're not already on the login page
+                if (routerInstance && routerInstance.state.location.pathname !== '/auth/login') {
+                    routerInstance.navigate({ to: '/auth/login' })
+                }
+
                 return Promise.reject(refreshError)
             }
         }
