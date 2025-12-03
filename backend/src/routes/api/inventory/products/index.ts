@@ -26,8 +26,8 @@ const createProductSchema = z.object({
 const updateProductSchema = z.object({
     name: z
         .string()
-        .min(MIN_NAME_LENGTH, MIN_NAME_MESSAGE)
-        .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE)
+        .min(MIN_NAME_LENGTH, `Name must be at least ${MIN_NAME_LENGTH} characters`)
+        .max(MAX_NAME_LENGTH, `Name must be at most ${MAX_NAME_LENGTH} characters`)
         .optional(),
     description: z.string().optional(),
     productUnitId: uuid().optional(),

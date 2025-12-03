@@ -8,6 +8,7 @@ import { uuid, datetime } from "../../../../shared/zod-schemas";
 import { stockChangeTypeEnum } from "../inventory-schemas";
 
 const changeIdParam = z.object({ changeId: uuid() });
+const productIdParam = z.object({ productId: uuid() });
 
 const createStockChangeSchema = z.object({
     productId: uuid("Invalid product ID"),
@@ -26,27 +27,14 @@ export default async function stockRoutes(fastify: FastifyInstance) {
 
     server.get(
         "/",
-        {
-            schema: {
-                querystring: stockQuerySchema,
-            },
-        },
-        async (
-            request: FastifyRequest<{
-                Querystring: z.infer<typeof stockQuerySchema>;
-            }>,
-            reply: FastifyReply,
-        ) => {
+        async (request: FastifyRequest, reply: FastifyReply) => {
             const businessId = getBusinessId(request, reply);
             if (!businessId) return;
-
-            const { productId } = request.query;
 
             const products = await fastify.prisma.product.findMany({
                 where: {
                     businessId,
                     deletedAt: null,
-                    ...(productId && { id: productId }),
                 },
                 include: {
                     productUnit: true,
@@ -64,6 +52,53 @@ export default async function stockRoutes(fastify: FastifyInstance) {
             }));
 
             return reply.send(stockLevels);
+        },
+    );
+
+    server.get(
+        "/:productId",
+        {
+            schema: {
+                params: productIdParam,
+            },
+        },
+        async (
+            request: FastifyRequest<{
+                Params: z.infer<typeof productIdParam>;
+            }>,
+            reply: FastifyReply,
+        ) => {
+            const businessId = getBusinessId(request, reply);
+            if (!businessId) return;
+
+            const { productId } = request.params;
+
+            const product = await fastify.prisma.product.findFirst({
+                where: {
+                    id: productId,
+                    businessId,
+                    deletedAt: null,
+                },
+                include: {
+                    productUnit: true,
+                },
+            });
+
+            if (!product) {
+                return reply.code(httpStatus.NOT_FOUND).send({ message: "Product not found" });
+            }
+
+            const stockLevel = await fastify.prisma.stockLevel.findUnique({
+                where: { productId },
+            });
+
+            return reply.send({
+                productId: product.id,
+                productName: product.name,
+                productUnit: product.productUnit,
+                isDisabled: product.isDisabled,
+                totalQuantity: stockLevel ? Number(stockLevel.quantity) : 0,
+            });
         },
     );
 
