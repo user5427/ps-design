@@ -1,6 +1,7 @@
 import * as bcrypt from "bcryptjs";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
+import httpStatus from "http-status";
 import { z } from "zod";
 import type { AuthUser } from "../../../plugins/app/auth";
 import {
@@ -57,10 +58,10 @@ export default async function authRoutes(fastify: FastifyInstance) {
                     where: { email },
                 });
 
-                if (!user) return reply.unauthorized();
+                if (!user) return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Unauthorized" });
 
                 const ok = await bcrypt.compare(password, user.passwordHash);
-                if (!ok) return reply.unauthorized();
+                if (!ok) return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Unauthorized" });
 
                 const accessToken = signAccessToken(fastify, user);
 
@@ -82,7 +83,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
                 });
             } catch (err) {
                 request.log.error({ err }, "Login handler failed");
-                return reply.internalServerError();
+                return reply.code(httpStatus.INTERNAL_SERVER_ERROR).send({ message: "Internal Server Error" });
             }
         },
     );
@@ -110,14 +111,14 @@ export default async function authRoutes(fastify: FastifyInstance) {
                 return reply.send({ success: true });
             } catch (err) {
                 request.log.error({ err }, "Logout handler failed");
-                return reply.internalServerError();
+                return reply.code(httpStatus.INTERNAL_SERVER_ERROR).send({ message: "Internal Server Error" });
             }
         },
     );
 
     server.get("/me", async (request: FastifyRequest, reply: FastifyReply) => {
         const user = request.authUser;
-        if (!user) return reply.unauthorized();
+        if (!user) return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Unauthorized" });
         return reply.send(publicUserData(user));
     });
 
@@ -133,7 +134,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
             const { currentPassword, newPassword } = request.body;
             const user = request.authUser;
 
-            if (!user) return reply.unauthorized();
+            if (!user) return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Unauthorized" });
 
             try {
                 const dbUser = await fastify.prisma.user.findUnique({
@@ -141,13 +142,13 @@ export default async function authRoutes(fastify: FastifyInstance) {
                     select: { passwordHash: true },
                 });
 
-                if (!dbUser) return reply.unauthorized();
+                if (!dbUser) return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Unauthorized" });
 
                 const valid = await bcrypt.compare(
                     currentPassword,
                     dbUser.passwordHash,
                 );
-                if (!valid) return reply.unauthorized();
+                if (!valid) return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Unauthorized" });
 
                 const newHash = await bcrypt.hash(newPassword, SALT_LENGTH);
 
@@ -162,7 +163,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
                 return reply.send({ success: true });
             } catch (err) {
                 request.log.error({ err }, "Change-password handler failed");
-                return reply.internalServerError();
+                return reply.code(httpStatus.INTERNAL_SERVER_ERROR).send({ message: "Internal Server Error" });
             }
         },
     );
@@ -173,7 +174,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
             try {
                 const token = request.cookies.refresh_token;
                 if (!token) {
-                    return reply.unauthorized("No refresh token");
+                    return reply.code(httpStatus.UNAUTHORIZED).send({ message: "No refresh token" });
                 }
 
                 let decoded: { userId: string; jti: string };
@@ -182,7 +183,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
                         key: fastify.config.REFRESH_TOKEN_SECRET,
                     });
                 } catch (err) {
-                    return reply.unauthorized("Invalid or expired refresh token");
+                    return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Invalid or expired refresh token" });
                 }
 
                 const tokenHash = hashToken(token);
@@ -191,19 +192,19 @@ export default async function authRoutes(fastify: FastifyInstance) {
                 });
 
                 if (!tokenDoc) {
-                    return reply.unauthorized("Refresh token not recognized");
+                    return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Refresh token not recognized" });
                 }
 
                 if (tokenDoc.jti !== decoded.jti) {
-                    return reply.unauthorized("Token ID mismatch");
+                    return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Token ID mismatch" });
                 }
 
                 if (tokenDoc.revokedAt) {
-                    return reply.unauthorized("Refresh token revoked");
+                    return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Refresh token revoked" });
                 }
 
                 if (tokenDoc.expiresAt < new Date()) {
-                    return reply.unauthorized("Refresh token expired");
+                    return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Refresh token expired" });
                 }
 
                 const result = await rotateRefreshToken(
@@ -217,7 +218,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
                 return reply.send({ accessToken: result.accessToken });
             } catch (err) {
                 request.log.error({ err }, "Refresh handler failed");
-                return reply.internalServerError();
+                return reply.code(httpStatus.INTERNAL_SERVER_ERROR).send({ message: "Internal Server Error" });
             }
         },
     );
