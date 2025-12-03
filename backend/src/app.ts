@@ -36,8 +36,13 @@ export default async function serviceApp(
 
     // Protect all routes except public ones
     fastify.addHook("onRequest", async (request, reply) => {
-        const publicEndpoints = ["/api/auth/login", "/api/auth/refresh"];
-        if (publicEndpoints.includes(request.url)) {
+        const publicPrefixes = [
+            "/api/auth/login",
+            "/api/auth/refresh",
+            "/api-docs",
+        ];
+        
+        if (publicPrefixes.some(prefix => request.url.startsWith(prefix))) {
             return;
         }
 

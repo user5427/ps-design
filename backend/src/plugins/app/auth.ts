@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
+import HttpStatus from "http-status";
 
 export interface AuthUser {
   id: string;
@@ -43,12 +44,12 @@ export default fp(async function authGuard(fastify: FastifyInstance) {
         });
 
         if (!user) {
-          return reply.unauthorized();
+          return reply.code(HttpStatus.UNAUTHORIZED).send();
         }
 
         request.authUser = user as AuthUser;
       } catch (err) {
-        return reply.unauthorized();
+        return reply.code(HttpStatus.UNAUTHORIZED).send();
       }
     },
   );
