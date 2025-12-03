@@ -6,6 +6,7 @@ import { useLogin } from '@/hooks/auth/auth-hooks'
 export const Login: React.FC = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [validationError, setValidationError] = useState('')
     const navigate = useNavigate()
     const loginMutation = useLogin()
 
@@ -24,10 +25,11 @@ export const Login: React.FC = () => {
 
     const handleLogin = () => {
         if (!email || !password) {
-            alert('Please enter both email and password')
+            setValidationError('Please enter both email and password')
             return
         }
 
+        setValidationError('')
         loginMutation.mutate({
             email,
             password,
@@ -53,6 +55,12 @@ export const Login: React.FC = () => {
             <Typography variant="h4" sx={{ mb: 4, textAlign: 'center' }}>
                 Sign In
             </Typography>
+
+            {validationError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {validationError}
+                </Alert>
+            )}
 
             {hasError && (
                 <Alert severity="error" sx={{ mb: 2 }}>

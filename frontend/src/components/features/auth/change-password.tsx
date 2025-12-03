@@ -20,13 +20,11 @@ export const ChangePassword: React.FC = () => {
     const handleSubmit = () => {
         // Validate passwords match
         if (newPassword !== confirmPassword) {
-            alert('Passwords do not match')
             return
         }
 
         // Validate password strength
         if (!passwordStrength.isValid) {
-            alert('Password does not meet requirements:\n' + passwordStrength.feedback.join('\n'))
             return
         }
 
@@ -137,7 +135,7 @@ export const ChangePassword: React.FC = () => {
                     />
                     {passwordStrength.feedback.length > 0 && (
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                            {passwordStrength.feedback.map((message, index) => (
+                            {passwordStrength.feedback.map((message: string, index: number) => (
                                 <Typography
                                     key={index}
                                     variant="caption"
@@ -160,7 +158,7 @@ export const ChangePassword: React.FC = () => {
             )}
 
             {/* Confirm Password */}
-            <Box sx={{ mb: 4 }}>
+            <Box sx={{ mb: 1 }}>
                 <Typography variant="body2" sx={{ mb: 0.5, color: 'text.secondary', textAlign: 'left' }}>
                     Confirm Password
                 </Typography>
@@ -175,6 +173,25 @@ export const ChangePassword: React.FC = () => {
                     disabled={changePasswordMutation.isPending}
                 />
             </Box>
+
+            {confirmPassword.length > 0 && !passwordsMatch && (
+                <Alert severity="error" sx={{ mb: 4 }}>
+                    Passwords do not match
+                </Alert>
+            )}
+
+            {!passwordStrength.isValid && newPassword.length > 0 && (
+                <Alert severity="error" sx={{ mb: 4 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                        Password does not meet requirements:
+                        {passwordStrength.feedback.map((message: string, index: number) => (
+                            <Typography key={index} variant="caption">
+                                • {message}
+                            </Typography>
+                        ))}
+                    </Box>
+                </Alert>
+            )}
 
             {/* Submit Button */}
             <Button
