@@ -1,18 +1,12 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
 import HttpStatus from "http-status";
+import type { IAuthUser } from "../../modules/user";
 
-export interface AuthUser {
-  id: string;
-  businessId: string | null;
-  email: string;
-  role: string;
-  isPasswordResetRequired: boolean;
-}
 
 declare module "fastify" {
   interface FastifyRequest {
-    authUser?: AuthUser;
+    authUser?: IAuthUser;
   }
   interface FastifyInstance {
     authenticate: (request: FastifyRequest, reply: any) => Promise<void>;
@@ -32,22 +26,13 @@ export default fp(async function authGuard(fastify: FastifyInstance) {
           businessId: string | null;
         };
 
-        const user = await fastify.prisma.user.findUnique({
-          where: { id: jwtUser.userId },
-          select: {
-            id: true,
-            email: true,
-            role: true,
-            businessId: true,
-            isPasswordResetRequired: true,
-          },
-        });
+        const user = await fastify.db.user.findByIdForAuth(jwtUser.userId);
 
         if (!user) {
           return reply.code(HttpStatus.UNAUTHORIZED).send();
         }
 
-        request.authUser = user as AuthUser;
+        request.authUser = user;
       } catch (err) {
         return reply.code(HttpStatus.UNAUTHORIZED).send();
       }

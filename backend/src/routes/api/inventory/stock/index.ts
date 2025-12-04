@@ -3,9 +3,11 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
 import { z } from "zod";
 import { getBusinessId } from "../../../../shared/auth-utils";
-import { paginationSchema } from "../../../../shared/response-utils";
+import { paginationSchema } from "../../../../shared/zod-schemas";
 import { uuid, datetime } from "../../../../shared/zod-schemas";
 import { stockChangeTypeEnum } from "../inventory-schemas";
+import { StockChange } from "../../../../modules/stock-change/StockChange.entity";
+import { StockLevel } from "../../../../modules/stock-level/StockLevel.entity";
 
 const changeIdParam = z.object({ changeId: uuid() });
 const productIdParam = z.object({ productId: uuid() });
@@ -31,24 +33,14 @@ export default async function stockRoutes(fastify: FastifyInstance) {
             const businessId = getBusinessId(request, reply);
             if (!businessId) return;
 
-            const products = await fastify.prisma.product.findMany({
-                where: {
-                    businessId,
-                    deletedAt: null,
-                },
-                include: {
-                    productUnit: true,
-                    stockLevel: true,
-                },
-                orderBy: { name: "asc" },
-            });
+            const products = await fastify.db.product.findAllByBusinessId(businessId);
 
             const stockLevels = products.map((product) => ({
                 productId: product.id,
                 productName: product.name,
                 productUnit: product.productUnit,
                 isDisabled: product.isDisabled,
-                totalQuantity: product.stockLevel ? Number(product.stockLevel.quantity) : 0,
+                totalQuantity: product.stockLevel?.quantity ?? 0,
             }));
 
             return reply.send(stockLevels);
@@ -73,31 +65,20 @@ export default async function stockRoutes(fastify: FastifyInstance) {
 
             const { productId } = request.params;
 
-            const product = await fastify.prisma.product.findFirst({
-                where: {
-                    id: productId,
-                    businessId,
-                    deletedAt: null,
-                },
-                include: {
-                    productUnit: true,
-                },
-            });
+            const product = await fastify.db.product.findByIdAndBusinessId(productId, businessId);
 
             if (!product) {
                 return reply.code(httpStatus.NOT_FOUND).send({ message: "Product not found" });
             }
 
-            const stockLevel = await fastify.prisma.stockLevel.findUnique({
-                where: { productId },
-            });
+            const stockLevel = await fastify.db.stockLevel.findByProductId(productId);
 
             return reply.send({
                 productId: product.id,
                 productName: product.name,
                 productUnit: product.productUnit,
                 isDisabled: product.isDisabled,
-                totalQuantity: stockLevel ? Number(stockLevel.quantity) : 0,
+                totalQuantity: stockLevel?.quantity ?? 0,
             });
         },
     );
@@ -121,49 +102,47 @@ export default async function stockRoutes(fastify: FastifyInstance) {
             const { productId, quantity, type, expirationDate } = request.body;
             const user = request.authUser!;
 
-            const product = await fastify.prisma.product.findFirst({
-                where: { id: productId, businessId },
-            });
+            const product = await fastify.db.product.findByIdSimple(productId, businessId);
 
             if (!product) {
                 return reply.code(httpStatus.BAD_REQUEST).send({ message: "Invalid product" });
             }
 
-            const stockChange = await fastify.prisma.$transaction(async (tx) => {
-                const change = await tx.stockChange.create({
-                    data: {
+            const stockChange = await fastify.db.dataSource.transaction(async (manager) => {
+                const stockChangeRepo = manager.getRepository(
+                    StockChange
+                );
+                const stockLevelRepo = manager.getRepository(
+                    StockLevel
+                );
+
+                const change = stockChangeRepo.create({
+                    productId,
+                    businessId,
+                    quantity,
+                    type,
+                    expirationDate: expirationDate ? new Date(expirationDate) : null,
+                    createdByUserId: user.id,
+                });
+                const savedChange = await stockChangeRepo.save(change);
+
+                const existingLevel = await stockLevelRepo.findOne({ where: { productId } });
+                if (existingLevel) {
+                    const newQuantity = existingLevel.quantity + quantity;
+                    await stockLevelRepo.update(existingLevel.id, { quantity: newQuantity });
+                } else {
+                    const newLevel = stockLevelRepo.create({
                         productId,
                         businessId,
                         quantity,
-                        type,
-                        expirationDate: expirationDate ? new Date(expirationDate) : null,
-                        createdByUserId: user.id,
-                    },
-                    include: {
-                        product: {
-                            include: {
-                                productUnit: true,
-                            },
-                        },
-                        createdBy: {
-                            select: { id: true, name: true, email: true },
-                        },
-                    },
-                });
+                    });
+                    await stockLevelRepo.save(newLevel);
+                }
 
-                await tx.stockLevel.upsert({
-                    where: { productId },
-                    create: {
-                        productId,
-                        businessId,
-                        quantity,
-                    },
-                    update: {
-                        quantity: { increment: quantity },
-                    },
+                return stockChangeRepo.findOne({
+                    where: { id: savedChange.id },
+                    relations: ["product", "product.productUnit", "createdBy"],
                 });
-
-                return change;
             });
 
             return reply.code(httpStatus.CREATED).send(stockChange);
@@ -188,24 +167,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
 
             const { productId } = request.query;
 
-            const changes = await fastify.prisma.stockChange.findMany({
-                where: {
-                    businessId,
-                    deletedAt: null,
-                    ...(productId && { productId }),
-                },
-                include: {
-                    product: {
-                        include: {
-                            productUnit: true,
-                        },
-                    },
-                    createdBy: {
-                        select: { id: true, name: true, email: true },
-                    },
-                },
-                orderBy: { createdAt: "desc" },
-            });
+            const changes = await fastify.db.stockChange.findAllByBusinessId(businessId, productId);
 
             return reply.send(changes);
         },
@@ -229,26 +191,27 @@ export default async function stockRoutes(fastify: FastifyInstance) {
 
             const { changeId } = request.params;
 
-            const change = await fastify.prisma.stockChange.findFirst({
-                where: { id: changeId, businessId, deletedAt: null },
-            });
+            const change = await fastify.db.stockChange.findByIdAndBusinessId(changeId, businessId);
 
             if (!change) {
                 return reply.code(httpStatus.NOT_FOUND).send({ message: "Stock change not found" });
             }
 
-            await fastify.prisma.$transaction(async (tx) => {
-                await tx.stockChange.update({
-                    where: { id: changeId },
-                    data: { deletedAt: new Date() },
-                });
+            await fastify.db.dataSource.transaction(async (manager) => {
+                const stockChangeRepo = manager.getRepository(
+                    StockChange
+                );
+                const stockLevelRepo = manager.getRepository(
+                    StockLevel
+                );
 
-                await tx.stockLevel.update({
-                    where: { productId: change.productId },
-                    data: {
-                        quantity: { decrement: Number(change.quantity) },
-                    },
-                });
+                await stockChangeRepo.update(changeId, { deletedAt: new Date() });
+
+                const stockLevel = await stockLevelRepo.findOne({ where: { productId: change.productId } });
+                if (stockLevel) {
+                    const newQuantity = stockLevel.quantity - change.quantity;
+                    await stockLevelRepo.update(stockLevel.id, { quantity: newQuantity });
+                }
             });
 
             return reply.code(httpStatus.NO_CONTENT).send();

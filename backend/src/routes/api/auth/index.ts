@@ -2,8 +2,14 @@ import * as bcrypt from "bcryptjs";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
-import { z } from "zod";
 import type { AuthUser } from "../../../plugins/app/auth";
+import type { User } from "../../../modules/user";
+import {
+    loginSchema,
+    changePasswordSchema,
+    type LoginBody,
+    type ChangePasswordBody,
+} from "./schemas";
 import {
     createJti,
     hashToken,
@@ -16,23 +22,7 @@ import {
 
 const SALT_LENGTH = 10;
 
-const MIN_PASSWORD_LENGTH = 8;
-const MIN_PASSWORD_MESSAGE = `Password must be at least ${MIN_PASSWORD_LENGTH} characters`;
-
-const loginSchema = z.object({
-    email: z.email("Invalid email format"),
-    password: z.string().min(MIN_PASSWORD_LENGTH, MIN_PASSWORD_MESSAGE),
-});
-
-const changePasswordSchema = z.object({
-    currentPassword: z.string().min(MIN_PASSWORD_LENGTH, MIN_PASSWORD_MESSAGE),
-    newPassword: z.string().min(MIN_PASSWORD_LENGTH, MIN_PASSWORD_MESSAGE),
-});
-
-type LoginBody = z.infer<typeof loginSchema>;
-type ChangePasswordBody = z.infer<typeof changePasswordSchema>;
-
-function publicUserData(user: AuthUser) {
+function publicUserData(user: AuthUser | User) {
     return {
         userId: user.id,
         email: user.email,
@@ -57,9 +47,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
             const { email, password } = request.body;
 
             try {
-                const user = await fastify.prisma.user.findUnique({
-                    where: { email },
-                });
+                const user = await fastify.db.user.findByEmail(email);
 
                 if (!user) return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Unauthorized" });
 
@@ -98,15 +86,10 @@ export default async function authRoutes(fastify: FastifyInstance) {
                 const token = request.cookies.refresh_token;
                 if (token) {
                     const tokenHash = hashToken(token);
-                    const tokenDoc = await fastify.prisma.refreshToken.findUnique({
-                        where: { tokenHash },
-                    });
+                    const tokenDoc = await fastify.db.refreshToken.findByTokenHash(tokenHash);
 
                     if (tokenDoc && !tokenDoc.revokedAt) {
-                        await fastify.prisma.refreshToken.update({
-                            where: { id: tokenDoc.id },
-                            data: { revokedAt: new Date() },
-                        });
+                        await fastify.db.refreshToken.revoke(tokenDoc.id);
                     }
                 }
 
@@ -140,10 +123,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
             if (!user) return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Unauthorized" });
 
             try {
-                const dbUser = await fastify.prisma.user.findUnique({
-                    where: { id: user.id },
-                    select: { passwordHash: true },
-                });
+                const dbUser = await fastify.db.user.findById(user.id);
 
                 if (!dbUser) return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Unauthorized" });
 
@@ -155,12 +135,9 @@ export default async function authRoutes(fastify: FastifyInstance) {
 
                 const newHash = await bcrypt.hash(newPassword, SALT_LENGTH);
 
-                await fastify.prisma.user.update({
-                    where: { id: user.id },
-                    data: {
-                        passwordHash: newHash,
-                        isPasswordResetRequired: false,
-                    },
+                await fastify.db.user.update(user.id, {
+                    passwordHash: newHash,
+                    isPasswordResetRequired: false,
                 });
 
                 return reply.send({ success: true });
@@ -190,9 +167,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
                 }
 
                 const tokenHash = hashToken(token);
-                const tokenDoc = await fastify.prisma.refreshToken.findUnique({
-                    where: { tokenHash },
-                });
+                const tokenDoc = await fastify.db.refreshToken.findByTokenHash(tokenHash);
 
                 if (!tokenDoc) {
                     return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Refresh token not recognized" });

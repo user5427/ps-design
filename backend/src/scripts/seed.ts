@@ -1,7 +1,8 @@
 import "dotenv/config";
-import { PrismaPg } from "@prisma/adapter-pg";
 import * as bcrypt from "bcryptjs";
-import { $Enums, PrismaClient } from "../generated/prisma/client";
+import { createDataSource } from "../database/data-source";
+import { Business } from "../modules/business";
+import { User, Role } from "../modules/user";
 
 async function main() {
   const connectionString = process.env.DATABASE_URL;
@@ -9,21 +10,26 @@ async function main() {
     throw new Error("DATABASE_URL is not set. Configure it in .env");
   }
 
-  const adapter = new PrismaPg({ connectionString });
-  const prisma = new PrismaClient({
-    adapter,
-    log: ["query", "error", "warn"],
-    errorFormat: "pretty",
+  const dataSource = createDataSource({
+    url: connectionString,
+    logging: true,
   });
+
+  await dataSource.initialize();
+  console.log("TypeORM DataSource initialized");
+
+  const businessRepo = dataSource.getRepository(Business);
+  const userRepo = dataSource.getRepository(User);
 
   try {
     // Create or reuse a default business
     const businessName = "Default Business";
-    let business = await prisma.business.findFirst({
+    let business = await businessRepo.findOne({
       where: { name: businessName },
     });
     if (!business) {
-      business = await prisma.business.create({ data: { name: businessName } });
+      business = businessRepo.create({ name: businessName });
+      business = await businessRepo.save(business);
       console.log(`Created business: ${business.name}`);
     } else {
       console.log(`Using existing business: ${business.name}`);
@@ -37,53 +43,55 @@ async function main() {
     const users: Array<{
       email: string;
       name: string;
-      role: $Enums.Role;
+      role: Role;
       businessId?: string | null;
       isPasswordResetRequired?: boolean;
     }> = [
-      {
-        email: "superadmin@demo.local",
-        name: "SupAdminas",
-        role: $Enums.Role.SUPER_ADMIN,
-        businessId: null,
-        isPasswordResetRequired: true,
-      },
-      {
-        email: "admin@demo.local",
-        name: "AdminasUseris",
-        role: $Enums.Role.ADMIN,
-        businessId: business.id,
-        isPasswordResetRequired: true,
-      },
-      {
-        email: "user@demo.local",
-        name: "Johnny",
-        role: $Enums.Role.USER,
-        businessId: business.id,
-        isPasswordResetRequired: true,
-      },
-    ];
+        {
+          email: "superadmin@demo.local",
+          name: "SupAdminas",
+          role: Role.SUPER_ADMIN,
+          businessId: null,
+          isPasswordResetRequired: true,
+        },
+        {
+          email: "admin@demo.local",
+          name: "AdminasUseris",
+          role: Role.ADMIN,
+          businessId: business.id,
+          isPasswordResetRequired: true,
+        },
+        {
+          email: "user@demo.local",
+          name: "Johnny",
+          role: Role.USER,
+          businessId: business.id,
+          isPasswordResetRequired: true,
+        },
+      ];
 
     for (const u of users) {
-      const created = await prisma.user.upsert({
-        where: { email: u.email },
-        update: {},
-        create: {
+      let existing = await userRepo.findOne({ where: { email: u.email } });
+      if (!existing) {
+        existing = userRepo.create({
           email: u.email,
           name: u.name,
           role: u.role,
           passwordHash,
           isPasswordResetRequired: u.isPasswordResetRequired ?? true,
           businessId: u.businessId ?? undefined,
-        },
-      });
-      console.log(`Ensured user: ${created.email} (${created.role})`);
+        });
+        existing = await userRepo.save(existing);
+        console.log(`Created user: ${existing.email} (${existing.role})`);
+      } else {
+        console.log(`User already exists: ${existing.email} (${existing.role})`);
+      }
     }
 
     console.log("Seed complete. You can login with the default password.");
     console.log(`Default password: ${defaultPassword}`);
   } finally {
-    // Ensure the process exits after disconnect
+    await dataSource.destroy();
     // eslint-disable-next-line no-process-exit
     process.exit(0);
   }

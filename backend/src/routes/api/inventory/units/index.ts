@@ -3,7 +3,7 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
 import { z } from "zod";
 import { getBusinessId } from "../../../../shared/auth-utils";
-import { isUniqueConstraintError } from "../../../../shared/prisma-error-utils";
+import { isUniqueConstraintError } from "../../../../shared/typeorm-error-utils";
 import { uuid } from "../../../../shared/zod-schemas";
 
 const MIN_LENGTH = 1;
@@ -51,10 +51,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
             const businessId = getBusinessId(request, reply);
             if (!businessId) return;
 
-            const units = await fastify.prisma.productUnit.findMany({
-                where: { businessId, deletedAt: null },
-                orderBy: { name: "asc" },
-            });
+            const units = await fastify.db.productUnit.findAllByBusinessId(businessId);
 
             return reply.send(units);
         },
@@ -79,12 +76,10 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
             const { name, symbol } = request.body;
 
             try {
-                await fastify.prisma.productUnit.create({
-                    data: {
-                        name,
-                        symbol,
-                        businessId,
-                    },
+                await fastify.db.productUnit.create({
+                    name,
+                    symbol,
+                    businessId,
                 });
                 return reply.code(httpStatus.CREATED).send();
             } catch (error) {
@@ -116,19 +111,14 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
 
             const { unitId } = request.params;
 
-            const unit = await fastify.prisma.productUnit.findUnique({
-                where: { id: unitId, businessId, deletedAt: null },
-            });
+            const unit = await fastify.db.productUnit.findByIdAndBusinessId(unitId, businessId);
 
             if (!unit) {
                 return reply.code(httpStatus.NOT_FOUND).send({ message: "Product unit not found" });
             }
 
             try {
-                await fastify.prisma.productUnit.update({
-                    where: { id: unitId },
-                    data: request.body,
-                });
+                await fastify.db.productUnit.update(unitId, request.body);
                 return reply.send();
             } catch (error) {
                 if (isUniqueConstraintError(error)) {
@@ -157,26 +147,19 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
 
             const { unitId } = request.params;
 
-            const unit = await fastify.prisma.productUnit.findUnique({
-                where: { id: unitId, businessId, deletedAt: null },
-            });
+            const unit = await fastify.db.productUnit.findByIdAndBusinessId(unitId, businessId);
 
             if (!unit) {
                 return reply.code(httpStatus.NOT_FOUND).send({ message: "Product unit not found" });
             }
 
-            const productsCount = await fastify.prisma.product.count({
-                where: { productUnitId: unitId, deletedAt: null },
-            });
+            const productsCount = await fastify.db.product.countByProductUnitId(unitId);
 
             if (productsCount > 0) {
                 return reply.code(httpStatus.CONFLICT).send({ message: "Cannot delete product unit that is in use by products" });
             }
 
-            await fastify.prisma.productUnit.update({
-                where: { id: unitId },
-                data: { deletedAt: new Date() },
-            });
+            await fastify.db.productUnit.softDelete(unitId);
 
             return reply.code(httpStatus.NO_CONTENT).send();
         },

@@ -1,0 +1,48 @@
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    CreateDateColumn,
+    UpdateDateColumn,
+    ManyToOne,
+    OneToMany,
+    Index,
+    Unique,
+    JoinColumn,
+    type Relation,
+} from "typeorm";
+import type { Business } from "../business/Business.entity";
+import type { Product } from "../product/Product.entity";
+
+@Entity("ProductUnit")
+@Unique(["businessId", "name"])
+export class ProductUnit {
+    @PrimaryGeneratedColumn("uuid")
+    id: string;
+
+    @Column({ type: "varchar" })
+    name: string;
+
+    @Column({ type: "varchar", nullable: true })
+    symbol: string | null;
+
+    @Column({ type: "uuid" })
+    @Index()
+    businessId: string;
+
+    @ManyToOne("Business", "productUnits", { onDelete: "CASCADE" })
+    @JoinColumn({ name: "businessId" })
+    business: Relation<Business>;
+
+    @OneToMany("Product", "productUnit")
+    products: Relation<Product[]>;
+
+    @Column({ type: "timestamp", nullable: true })
+    deletedAt: Date | null;
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+}

@@ -1,6 +1,7 @@
 import * as crypto from "crypto";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import type { RefreshToken, User } from "../../../generated/prisma/client";
+import type { RefreshToken } from "../../../modules/refresh-token";
+import type { User } from "../../../modules/user";
 
 export function hashToken(token: string): string {
     return crypto.createHash("sha256").update(token).digest("hex");
@@ -47,14 +48,12 @@ export async function persistRefreshToken(
         Date.now() + fastify.config.REFRESH_TOKEN_TTL_SEC * 1000,
     );
 
-    await fastify.prisma.refreshToken.create({
-        data: {
-            userId: params.userId,
-            tokenHash,
-            jti: params.jti,
-            expiresAt,
-            ip: params.ip,
-        },
+    await fastify.db.refreshToken.create({
+        userId: params.userId,
+        tokenHash,
+        jti: params.jti,
+        expiresAt,
+        ip: params.ip ?? null,
     });
 }
 
@@ -80,14 +79,9 @@ export async function rotateRefreshToken(
     request: FastifyRequest,
     reply: FastifyReply,
 ): Promise<{ accessToken: string }> {
-    await fastify.prisma.refreshToken.update({
-        where: { id: oldToken.id },
-        data: { revokedAt: new Date() },
-    });
+    await fastify.db.refreshToken.revoke(oldToken.id);
 
-    const user = await fastify.prisma.user.findUnique({
-        where: { id: userId },
-    });
+    const user = await fastify.db.user.findById(userId);
 
     if (!user) {
         throw new Error("User not found");
