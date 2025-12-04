@@ -4,19 +4,6 @@ export enum Role {
     USER = "USER",
 }
 
-export interface IUser {
-    id: string;
-    email: string;
-    passwordHash: string;
-    name: string;
-    role: Role;
-    isPasswordResetRequired: boolean;
-    businessId: string | null;
-    deletedAt: Date | null;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
 export interface ICreateUser {
     email: string;
     passwordHash: string;

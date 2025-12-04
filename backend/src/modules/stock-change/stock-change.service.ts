@@ -1,9 +1,16 @@
-import { IsNull, Repository } from "typeorm";
+import { IsNull, Repository, type DataSource } from "typeorm";
 import { StockChange } from "./stock-change.entity";
-import type { ICreateStockChange } from "./stock-change.types";
+import { ICreateStockChange, StockChangeType } from "./stock-change.types";
+import { NotFoundError, BadRequestError } from "../../shared/errors";
+import type { Product } from "../product/product.entity";
+import { StockLevel } from "../stock-level/stock-level.entity";
 
 export class StockChangeService {
-    constructor(private repository: Repository<StockChange>) { }
+    constructor(
+        private repository: Repository<StockChange>,
+        private productRepository: Repository<Product>,
+        private dataSource: DataSource,
+    ) { }
 
     async findAllByBusinessId(businessId: string, productId?: string): Promise<StockChange[]> {
         const where: any = { businessId, deletedAt: IsNull() };
@@ -31,9 +38,66 @@ export class StockChangeService {
     }
 
     async create(data: ICreateStockChange): Promise<StockChange> {
-        const change = this.repository.create(data);
-        const saved = await this.repository.save(change);
-        return this.findById(saved.id) as Promise<StockChange>;
+        const product = await this.productRepository.findOne({
+            where: { id: data.productId, businessId: data.businessId, deletedAt: IsNull() },
+        });
+
+        if (!product) {
+            throw new BadRequestError("Invalid product");
+        }
+
+        return this.dataSource.transaction(async (manager) => {
+            const stockChangeRepo = manager.getRepository(StockChange);
+            const stockLevelRepo = manager.getRepository(StockLevel);
+
+            const change = stockChangeRepo.create({
+                productId: data.productId,
+                businessId: data.businessId,
+                quantity: data.quantity,
+                type: data.type as StockChangeType,
+                expirationDate: data.expirationDate ? new Date(data.expirationDate) : null,
+                createdByUserId: data.createdByUserId,
+            });
+            const savedChange = await stockChangeRepo.save(change);
+
+            const existingLevel = await stockLevelRepo.findOne({ where: { productId: data.productId } });
+            if (existingLevel) {
+                const newQuantity = existingLevel.quantity + data.quantity;
+                await stockLevelRepo.update(existingLevel.id, { quantity: newQuantity });
+            } else {
+                const newLevel = stockLevelRepo.create({
+                    productId: data.productId,
+                    businessId: data.businessId,
+                    quantity: data.quantity,
+                });
+                await stockLevelRepo.save(newLevel);
+            }
+
+            return (await stockChangeRepo.findOne({
+                where: { id: savedChange.id },
+                relations: ["product", "product.productUnit", "createdBy"],
+            }))!;
+        });
+    }
+
+    async delete(id: string, businessId: string): Promise<void> {
+        const change = await this.findByIdAndBusinessId(id, businessId);
+        if (!change) {
+            throw new NotFoundError("Stock change not found");
+        }
+
+        await this.dataSource.transaction(async (manager) => {
+            const stockChangeRepo = manager.getRepository(StockChange);
+            const stockLevelRepo = manager.getRepository(StockLevel);
+
+            await stockChangeRepo.update(id, { deletedAt: new Date() });
+
+            const stockLevel = await stockLevelRepo.findOne({ where: { productId: change.productId } });
+            if (stockLevel) {
+                const newQuantity = stockLevel.quantity - change.quantity;
+                await stockLevelRepo.update(stockLevel.id, { quantity: newQuantity });
+            }
+        });
     }
 
     async softDelete(id: string): Promise<void> {

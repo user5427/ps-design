@@ -1,46 +1,16 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
-import { z } from "zod";
 import { getBusinessId } from "../../../../shared/auth-utils";
-import { isUniqueConstraintError } from "../../../../shared/typeorm-error-utils";
-import { uuid } from "../../../../shared/zod-utils";
-
-const MIN_LENGTH = 1;
-const MAX_NAME_LENGTH = 100;
-const MAX_SYMBOL_LENGTH = 10;
-
-const MIN_NAME_MESSAGE = `Name must be at least ${MIN_LENGTH} characters`;
-const MAX_NAME_MESSAGE = `Name must be at most ${MAX_NAME_LENGTH} characters`;
-const MIN_SYMBOL_MESSAGE = `Symbol must be at least ${MIN_LENGTH} characters`;
-const MAX_SYMBOL_MESSAGE = `Symbol must be at most ${MAX_SYMBOL_LENGTH} characters`;
-
-const unitIdParam = z.object({ unitId: uuid() });
-
-const createProductUnitSchema = z.object({
-    name: z
-        .string()
-        .min(MIN_LENGTH, MIN_NAME_MESSAGE)
-        .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE),
-    symbol: z
-        .string()
-        .min(MIN_LENGTH, MIN_SYMBOL_MESSAGE)
-        .max(MAX_SYMBOL_LENGTH, MAX_SYMBOL_MESSAGE)
-        .optional(),
-});
-
-const updateProductUnitSchema = z.object({
-    name: z
-        .string()
-        .min(MIN_LENGTH, MIN_NAME_MESSAGE)
-        .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE)
-        .optional(),
-    symbol: z
-        .string()
-        .min(MIN_LENGTH, MIN_SYMBOL_MESSAGE)
-        .max(MAX_SYMBOL_LENGTH, MAX_SYMBOL_MESSAGE)
-        .optional(),
-});
+import { handleServiceError } from "../../../../shared/error-handler";
+import {
+    unitIdParam,
+    createProductUnitSchema,
+    updateProductUnitSchema,
+    type CreateProductUnitBody,
+    type UpdateProductUnitBody,
+    type UnitIdParams,
+} from "./request-types";
 
 export default async function unitsRoutes(fastify: FastifyInstance) {
     const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -66,7 +36,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
         },
         async (
             request: FastifyRequest<{
-                Body: z.infer<typeof createProductUnitSchema>;
+                Body: CreateProductUnitBody;
             }>,
             reply: FastifyReply,
         ) => {
@@ -76,17 +46,14 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
             const { name, symbol } = request.body;
 
             try {
-                await fastify.db.productUnit.create({
+                const unit = await fastify.db.productUnit.create({
                     name,
                     symbol,
                     businessId,
                 });
-                return reply.code(httpStatus.CREATED).send();
+                return reply.code(httpStatus.CREATED).send(unit);
             } catch (error) {
-                if (isUniqueConstraintError(error)) {
-                    return reply.code(httpStatus.CONFLICT).send({ message: "Product unit with this name already exists" });
-                }
-                throw error;
+                return handleServiceError(error, reply);
             }
         },
     );
@@ -101,8 +68,8 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
         },
         async (
             request: FastifyRequest<{
-                Params: z.infer<typeof unitIdParam>;
-                Body: z.infer<typeof updateProductUnitSchema>;
+                Params: UnitIdParams;
+                Body: UpdateProductUnitBody;
             }>,
             reply: FastifyReply,
         ) => {
@@ -111,20 +78,11 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
 
             const { unitId } = request.params;
 
-            const unit = await fastify.db.productUnit.findByIdAndBusinessId(unitId, businessId);
-
-            if (!unit) {
-                return reply.code(httpStatus.NOT_FOUND).send({ message: "Product unit not found" });
-            }
-
             try {
-                await fastify.db.productUnit.update(unitId, request.body);
-                return reply.send();
+                const unit = await fastify.db.productUnit.update(unitId, businessId, request.body);
+                return reply.send(unit);
             } catch (error) {
-                if (isUniqueConstraintError(error)) {
-                    return reply.code(httpStatus.CONFLICT).send({ message: "Product unit with this name already exists" });
-                }
-                throw error;
+                return handleServiceError(error, reply);
             }
         },
     );
@@ -138,7 +96,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
         },
         async (
             request: FastifyRequest<{
-                Params: z.infer<typeof unitIdParam>;
+                Params: UnitIdParams;
             }>,
             reply: FastifyReply,
         ) => {
@@ -147,21 +105,12 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
 
             const { unitId } = request.params;
 
-            const unit = await fastify.db.productUnit.findByIdAndBusinessId(unitId, businessId);
-
-            if (!unit) {
-                return reply.code(httpStatus.NOT_FOUND).send({ message: "Product unit not found" });
+            try {
+                await fastify.db.productUnit.delete(unitId, businessId);
+                return reply.code(httpStatus.NO_CONTENT).send();
+            } catch (error) {
+                return handleServiceError(error, reply);
             }
-
-            const productsCount = await fastify.db.product.countByProductUnitId(unitId);
-
-            if (productsCount > 0) {
-                return reply.code(httpStatus.CONFLICT).send({ message: "Cannot delete product unit that is in use by products" });
-            }
-
-            await fastify.db.productUnit.softDelete(unitId);
-
-            return reply.code(httpStatus.NO_CONTENT).send();
         },
     );
 }

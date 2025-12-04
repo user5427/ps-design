@@ -43,10 +43,20 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
         business: new BusinessService(dataSource.getRepository(Business)),
         user: new UserService(dataSource.getRepository(User)),
         refreshToken: new RefreshTokenService(dataSource.getRepository(RefreshToken)),
-        productUnit: new ProductUnitService(dataSource.getRepository(ProductUnit)),
-        product: new ProductService(dataSource.getRepository(Product)),
+        productUnit: new ProductUnitService(
+            dataSource.getRepository(ProductUnit),
+            dataSource.getRepository(Product),
+        ),
+        product: new ProductService(
+            dataSource.getRepository(Product),
+            dataSource.getRepository(ProductUnit),
+        ),
         stockLevel: new StockLevelService(dataSource.getRepository(StockLevel)),
-        stockChange: new StockChangeService(dataSource.getRepository(StockChange)),
+        stockChange: new StockChangeService(
+            dataSource.getRepository(StockChange),
+            dataSource.getRepository(Product),
+            dataSource,
+        ),
     };
 
     fastify.decorate("db", services);

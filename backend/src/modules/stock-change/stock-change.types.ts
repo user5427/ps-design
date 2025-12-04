@@ -20,7 +20,7 @@ export interface IStockChange {
 export interface ICreateStockChange {
     quantity: number;
     type: StockChangeType;
-    expirationDate?: Date | null;
+    expirationDate?: string | null;
     businessId: string;
     productId: string;
     createdByUserId: string;

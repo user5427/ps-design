@@ -1,6 +1,3 @@
-import type { ProductUnit } from "../product-unit/product-unit.entity";
-import type { StockLevel } from "../stock-level/stock-level.entity";
-
 export interface IProduct {
     id: string;
     name: string;
@@ -25,9 +22,4 @@ export interface IUpdateProduct {
     description?: string | null;
     productUnitId?: string;
     isDisabled?: boolean;
-}
-
-export interface IProductWithRelations extends IProduct {
-    productUnit: ProductUnit;
-    stockLevel: StockLevel | null;
 }
