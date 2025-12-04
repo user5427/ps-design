@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { paginationSchema } from "../../../../shared/request-types";
 import { datetime, uuid } from "../../../../shared/zod-utils";
-import { stockChangeTypeEnum } from "../inventory-schemas";
+import { StockChangeType } from "../../../../modules/inventory/stock-change/stock-change.types";
+
+const stockChangeTypeEnum = z.enum(StockChangeType);
 
 export const changeIdParam = z.object({ changeId: uuid() });
 export const productIdParam = z.object({ productId: uuid() });
