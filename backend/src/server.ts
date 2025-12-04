@@ -1,10 +1,6 @@
-import fastifyCors from "@fastify/cors";
-import fastifySwagger from "@fastify/swagger";
-import fastifySwaggerUI from "@fastify/swagger-ui";
 import closeWithGrace from "close-with-grace";
 import Fastify from "fastify";
 import serviceApp from "./app";
-import swaggerDocument from "./generated/swagger-output.json";
 import envPlugin, { autoConfig as envOptions } from "./plugins/config/env";
 
 const app = Fastify({
@@ -13,28 +9,6 @@ const app = Fastify({
 
 async function init() {
   await app.register(envPlugin, envOptions);
-
-  // Register CORS - allow all origins
-  await app.register(fastifyCors, {
-    origin: true,
-    credentials: true,
-  });
-
-  // Register Swagger
-  await app.register(fastifySwagger, {
-    mode: "static",
-    specification: {
-      document: swaggerDocument,
-    },
-  });
-
-  await app.register(fastifySwaggerUI, {
-    routePrefix: "/api-docs",
-    uiConfig: {
-      docExpansion: "list",
-      deepLinking: false,
-    },
-  });
 
   await app.register(serviceApp);
 

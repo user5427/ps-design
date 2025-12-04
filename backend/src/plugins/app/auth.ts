@@ -1,27 +1,24 @@
-import type { FastifyInstance, FastifyRequest } from "fastify";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
-
-export interface AuthUser {
-  id: string;
-  businessId: string | null;
-  email: string;
-  role: string;
-  isPasswordResetRequired: boolean;
-}
+import HttpStatus from "http-status";
+import type { IAuthUser } from "../../modules/user";
 
 declare module "fastify" {
   interface FastifyRequest {
-    authUser?: AuthUser;
+    authUser?: IAuthUser;
   }
   interface FastifyInstance {
-    authenticate: (request: FastifyRequest, reply: any) => Promise<void>;
+    authenticate: (
+      request: FastifyRequest,
+      reply: FastifyReply,
+    ) => Promise<void>;
   }
 }
 
 export default fp(async function authGuard(fastify: FastifyInstance) {
   fastify.decorate(
     "authenticate",
-    async (request: FastifyRequest, reply: any) => {
+    async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         await request.jwtVerify();
 
@@ -31,24 +28,15 @@ export default fp(async function authGuard(fastify: FastifyInstance) {
           businessId: string | null;
         };
 
-        const user = await fastify.prisma.user.findUnique({
-          where: { id: jwtUser.userId },
-          select: {
-            id: true,
-            email: true,
-            role: true,
-            businessId: true,
-            isPasswordResetRequired: true,
-          },
-        });
+        const user = await fastify.db.user.findByIdForAuth(jwtUser.userId);
 
         if (!user) {
-          return reply.unauthorized();
+          return reply.code(HttpStatus.UNAUTHORIZED).send();
         }
 
-        request.authUser = user as AuthUser;
+        request.authUser = user;
       } catch (err) {
-        return reply.unauthorized();
+        return reply.code(HttpStatus.UNAUTHORIZED).send();
       }
     },
   );

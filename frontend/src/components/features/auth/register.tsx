@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { Box, TextField, Button, Typography, Link as MuiLink } from '@mui/material';
+import { Box, TextField, Button, Typography, Link as MuiLink, Alert } from '@mui/material';
 
 
 export const Register: React.FC = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [validationError, setValidationError] = useState('');
 
     const handleRegister = () => {
         if (password !== confirmPassword) {
-            alert('Passwords do not match!');
+            setValidationError('Passwords do not match!');
             return;
         }
+        setValidationError('');
         console.log('Register:', { username, password });
     };
 
@@ -32,6 +34,12 @@ export const Register: React.FC = () => {
             <Typography variant="h4" sx={{ mb: 4, textAlign: 'center' }}>
                 Create Account
             </Typography>
+
+            {validationError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {validationError}
+                </Alert>
+            )}
 
             <Box sx={{ mb: 3 }}>
                 <Typography variant="body2" sx={{ mb: 0.5, color: 'text.secondary', textAlign: 'left' }}>

@@ -1,10 +1,17 @@
 # Backend
 
-Fastify
-TypeScript
-Zod (validation)
-Prisma (DB ORM + migrations?) ????
+```
+npm install
+```
 
-Database
+```
+docker compose up -d
+```
 
-PostgreSQL (launch through docker compose pls)
+```
+npm run dev
+```
+
+```
+docker compose down
+```

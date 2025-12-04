@@ -1,8 +1,7 @@
 import * as bcrypt from "bcryptjs";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { z } from "zod";
-import type { AuthUser } from "../../../plugins/app/auth";
+import httpStatus from "http-status";
 import {
   createJti,
   hashToken,
@@ -12,31 +11,21 @@ import {
   signAccessToken,
   signRefreshToken,
 } from "./auth-utils";
+import {
+  type ChangePasswordBody,
+  changePasswordSchema,
+  type LoginBody,
+  loginSchema,
+} from "./request-types";
+import {
+  errorResponseSchema,
+  loginResponseSchema,
+  refreshResponseSchema,
+  successResponseSchema,
+  userResponseSchema,
+} from "./response-types";
 
 const SALT_LENGTH = 10;
-
-const loginSchema = z.object({
-  email: z.email("Invalid email format"),
-  password: z.string().min(1, "Password is required"),
-});
-
-const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: z.string().min(8, "New password must be at least 8 characters"),
-});
-
-type LoginBody = z.infer<typeof loginSchema>;
-type ChangePasswordBody = z.infer<typeof changePasswordSchema>;
-
-function publicUserData(user: AuthUser) {
-  return {
-    userId: user.id,
-    email: user.email,
-    role: user.role,
-    businessId: user.businessId,
-    isPasswordResetRequired: user.isPasswordResetRequired,
-  };
-}
 
 export default async function authRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -44,7 +33,13 @@ export default async function authRoutes(fastify: FastifyInstance) {
   server.post(
     "/login",
     {
-      schema: { body: loginSchema },
+      schema: {
+        body: loginSchema,
+        response: {
+          200: loginResponseSchema,
+          401: errorResponseSchema,
+        },
+      },
     },
     async (
       request: FastifyRequest<{ Body: LoginBody }>,
@@ -53,23 +48,24 @@ export default async function authRoutes(fastify: FastifyInstance) {
       const { email, password } = request.body;
 
       try {
-        const user = await fastify.prisma.user.findUnique({
-          where: { email },
-        });
+        const user = await fastify.db.user.findByEmail(email);
 
-        if (!user) return reply.unauthorized();
+        if (!user)
+          return reply
+            .code(httpStatus.UNAUTHORIZED)
+            .send({ message: "Unauthorized" });
 
         const ok = await bcrypt.compare(password, user.passwordHash);
-        if (!ok) return reply.unauthorized();
+        if (!ok)
+          return reply
+            .code(httpStatus.UNAUTHORIZED)
+            .send({ message: "Unauthorized" });
 
-        // Issue access token
         const accessToken = signAccessToken(fastify, user);
 
-        // Issue refresh token
         const jti = createJti();
         const refreshToken = signRefreshToken(fastify, user.id, jti);
 
-        // Persist refresh token in database
         await persistRefreshToken(fastify, {
           userId: user.id,
           refreshToken,
@@ -80,32 +76,37 @@ export default async function authRoutes(fastify: FastifyInstance) {
         setRefreshCookie(fastify, reply, refreshToken);
 
         return reply.send({
-          ...publicUserData(user),
+          ...user,
           accessToken,
         });
       } catch (err) {
         request.log.error({ err }, "Login handler failed");
-        return reply.internalServerError();
+        return reply
+          .code(httpStatus.INTERNAL_SERVER_ERROR)
+          .send({ message: "Internal Server Error" });
       }
     },
   );
 
   server.post(
     "/logout",
+    {
+      schema: {
+        response: {
+          200: successResponseSchema,
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const token = request.cookies.refresh_token;
         if (token) {
           const tokenHash = hashToken(token);
-          const tokenDoc = await fastify.prisma.refreshToken.findUnique({
-            where: { tokenHash },
-          });
+          const tokenDoc =
+            await fastify.db.refreshToken.findByTokenHash(tokenHash);
 
           if (tokenDoc && !tokenDoc.revokedAt) {
-            await fastify.prisma.refreshToken.update({
-              where: { id: tokenDoc.id },
-              data: { revokedAt: new Date() },
-            });
+            await fastify.db.refreshToken.revoke(tokenDoc.id);
           }
         }
 
@@ -113,21 +114,43 @@ export default async function authRoutes(fastify: FastifyInstance) {
         return reply.send({ success: true });
       } catch (err) {
         request.log.error({ err }, "Logout handler failed");
-        return reply.internalServerError();
+        return reply
+          .code(httpStatus.INTERNAL_SERVER_ERROR)
+          .send({ message: "Internal Server Error" });
       }
     },
   );
 
-  server.get("/me", async (request: FastifyRequest, reply: FastifyReply) => {
-    const user = request.authUser;
-    if (!user) return reply.unauthorized();
-    return reply.send(publicUserData(user));
-  });
+  server.get(
+    "/me",
+    {
+      schema: {
+        response: {
+          200: userResponseSchema,
+          401: errorResponseSchema,
+        },
+      },
+    },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const user = request.authUser;
+      if (!user)
+        return reply
+          .code(httpStatus.UNAUTHORIZED)
+          .send({ message: "Unauthorized" });
+      return reply.send(user);
+    },
+  );
 
   server.post(
     "/change-password",
     {
-      schema: { body: changePasswordSchema },
+      schema: {
+        body: changePasswordSchema,
+        response: {
+          200: successResponseSchema,
+          401: errorResponseSchema,
+        },
+      },
     },
     async (
       request: FastifyRequest<{ Body: ChangePasswordBody }>,
@@ -136,47 +159,62 @@ export default async function authRoutes(fastify: FastifyInstance) {
       const { currentPassword, newPassword } = request.body;
       const user = request.authUser;
 
-      if (!user) return reply.unauthorized();
+      if (!user)
+        return reply
+          .code(httpStatus.UNAUTHORIZED)
+          .send({ message: "Unauthorized" });
 
       try {
-        const dbUser = await fastify.prisma.user.findUnique({
-          where: { id: user.id },
-          select: { passwordHash: true },
-        });
+        const dbUser = await fastify.db.user.findById(user.id);
 
-        if (!dbUser) return reply.unauthorized();
+        if (!dbUser)
+          return reply
+            .code(httpStatus.UNAUTHORIZED)
+            .send({ message: "Unauthorized" });
 
         const valid = await bcrypt.compare(
           currentPassword,
           dbUser.passwordHash,
         );
-        if (!valid) return reply.unauthorized();
+        if (!valid)
+          return reply
+            .code(httpStatus.UNAUTHORIZED)
+            .send({ message: "Unauthorized" });
 
         const newHash = await bcrypt.hash(newPassword, SALT_LENGTH);
 
-        await fastify.prisma.user.update({
-          where: { id: user.id },
-          data: {
-            passwordHash: newHash,
-            isPasswordResetRequired: false,
-          },
+        await fastify.db.user.update(user.id, {
+          passwordHash: newHash,
+          isPasswordResetRequired: false,
         });
 
         return reply.send({ success: true });
       } catch (err) {
         request.log.error({ err }, "Change-password handler failed");
-        return reply.internalServerError();
+        return reply
+          .code(httpStatus.INTERNAL_SERVER_ERROR)
+          .send({ message: "Internal Server Error" });
       }
     },
   );
 
   server.post(
     "/refresh",
+    {
+      schema: {
+        response: {
+          200: refreshResponseSchema,
+          401: errorResponseSchema,
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const token = request.cookies.refresh_token;
         if (!token) {
-          return reply.unauthorized("No refresh token");
+          return reply
+            .code(httpStatus.UNAUTHORIZED)
+            .send({ message: "No refresh token" });
         }
 
         let decoded: { userId: string; jti: string };
@@ -185,28 +223,37 @@ export default async function authRoutes(fastify: FastifyInstance) {
             key: fastify.config.REFRESH_TOKEN_SECRET,
           });
         } catch (err) {
-          return reply.unauthorized("Invalid or expired refresh token");
+          return reply
+            .code(httpStatus.UNAUTHORIZED)
+            .send({ message: "Invalid or expired refresh token" });
         }
 
         const tokenHash = hashToken(token);
-        const tokenDoc = await fastify.prisma.refreshToken.findUnique({
-          where: { tokenHash },
-        });
+        const tokenDoc =
+          await fastify.db.refreshToken.findByTokenHash(tokenHash);
 
         if (!tokenDoc) {
-          return reply.unauthorized("Refresh token not recognized");
+          return reply
+            .code(httpStatus.UNAUTHORIZED)
+            .send({ message: "Refresh token not recognized" });
         }
 
         if (tokenDoc.jti !== decoded.jti) {
-          return reply.unauthorized("Token ID mismatch");
+          return reply
+            .code(httpStatus.UNAUTHORIZED)
+            .send({ message: "Token ID mismatch" });
         }
 
         if (tokenDoc.revokedAt) {
-          return reply.unauthorized("Refresh token revoked");
+          return reply
+            .code(httpStatus.UNAUTHORIZED)
+            .send({ message: "Refresh token revoked" });
         }
 
         if (tokenDoc.expiresAt < new Date()) {
-          return reply.unauthorized("Refresh token expired");
+          return reply
+            .code(httpStatus.UNAUTHORIZED)
+            .send({ message: "Refresh token expired" });
         }
 
         const result = await rotateRefreshToken(
@@ -220,7 +267,9 @@ export default async function authRoutes(fastify: FastifyInstance) {
         return reply.send({ accessToken: result.accessToken });
       } catch (err) {
         request.log.error({ err }, "Refresh handler failed");
-        return reply.internalServerError();
+        return reply
+          .code(httpStatus.INTERNAL_SERVER_ERROR)
+          .send({ message: "Internal Server Error" });
       }
     },
   );

@@ -10,6 +10,7 @@ import {
   serializerCompiler,
   validatorCompiler,
 } from "fastify-type-provider-zod";
+import httpStatus from "http-status";
 import path from "path";
 
 export default async function serviceApp(
@@ -35,8 +36,13 @@ export default async function serviceApp(
 
   // Protect all routes except public ones
   fastify.addHook("onRequest", async (request, reply) => {
-    const publicEndpoints = ["/api/auth/login", "/api/auth/refresh"];
-    if (publicEndpoints.includes(request.url)) {
+    const publicPrefixes = [
+      "/api/auth/login",
+      "/api/auth/refresh",
+      "/api-docs",
+    ];
+
+    if (publicPrefixes.some((prefix) => request.url.startsWith(prefix))) {
       return;
     }
 
@@ -88,7 +94,7 @@ export default async function serviceApp(
         },
         "Resource not found",
       );
-      reply.notFound("Not Found");
+      reply.code(httpStatus.NOT_FOUND).send({ message: "Not Found" });
     },
   );
 }
