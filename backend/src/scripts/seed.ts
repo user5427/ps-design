@@ -12,6 +12,7 @@ async function main() {
 
   const dataSource = createDataSource({
     url: connectionString,
+    synchronize: true,
     logging: true,
   });
 

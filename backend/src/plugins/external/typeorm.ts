@@ -41,6 +41,7 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
 
   const dataSource = createDataSource({
     url: fastify.config.DATABASE_URL,
+    synchronize: !isProd,
     logging: !isProd,
   });
 

@@ -69,7 +69,11 @@ export class ProductUnitService {
 
     try {
       await this.repository.update(id, data);
-      return (await this.findById(id))!;
+      const updatedUnit = await this.findById(id);
+      if (!updatedUnit) {
+        throw new NotFoundError("Product unit not found after update");
+      }
+      return updatedUnit;
     } catch (error) {
       if (isUniqueConstraintError(error)) {
         throw new ConflictError("Product unit with this name already exists");

@@ -1,7 +1,7 @@
 # Backend
 
 ```
-npm run i
+npm install
 ```
 
 ```

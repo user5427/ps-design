@@ -1,4 +1,4 @@
-import { type DataSource, IsNull, type Repository } from "typeorm";
+import { type DataSource, type FindOptionsWhere, IsNull, type Repository } from "typeorm";
 import { BadRequestError, NotFoundError } from "../../../shared/errors";
 import type { Product } from "../product/product.entity";
 import { StockLevel } from "../stock-level/stock-level.entity";
@@ -16,7 +16,7 @@ export class StockChangeService {
     businessId: string,
     productId?: string,
   ): Promise<StockChange[]> {
-    const where: any = { businessId, deletedAt: IsNull() };
+    const where: FindOptionsWhere<StockChange> = { businessId, deletedAt: IsNull() };
     if (productId) {
       where.productId = productId;
     }
@@ -89,10 +89,14 @@ export class StockChangeService {
         await stockLevelRepo.save(newLevel);
       }
 
-      return (await stockChangeRepo.findOne({
+        const foundChange = await stockChangeRepo.findOne({
         where: { id: savedChange.id },
         relations: ["product", "product.productUnit", "createdBy"],
-      }))!;
+      });
+      if (!foundChange) {
+        throw new NotFoundError("Stock change not found after saving");
+      }
+      return foundChange;
     });
   }
 

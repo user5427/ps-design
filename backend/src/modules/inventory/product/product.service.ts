@@ -109,8 +109,11 @@ export class ProductService {
     }
 
     try {
-      await this.repository.update(id, data);
-      return (await this.findById(id))!;
+      const updatedProduct = await this.findById(id);
+      if (!updatedProduct) {
+        throw new NotFoundError("Product not found after update");
+      }
+      return updatedProduct;
     } catch (error) {
       if (isUniqueConstraintError(error)) {
         throw new ConflictError("Product with this name already exists");

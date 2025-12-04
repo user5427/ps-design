@@ -13,7 +13,11 @@ export {
 export const stockLevelResponseSchema = z.object({
   productId: uuid(),
   productName: z.string(),
-  productUnit: z.any(), // ProductUnit entity
+  productUnit: z.object({
+    id: uuid(),
+    name: z.string(),
+    symbol: z.string().nullable(),
+  }),
   isDisabled: z.boolean(),
   totalQuantity: z.number(),
 });

@@ -1,4 +1,4 @@
-import type { FastifyInstance, FastifyRequest } from "fastify";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
 import HttpStatus from "http-status";
 import type { IAuthUser } from "../../modules/user";
@@ -8,14 +8,14 @@ declare module "fastify" {
     authUser?: IAuthUser;
   }
   interface FastifyInstance {
-    authenticate: (request: FastifyRequest, reply: any) => Promise<void>;
+    authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
   }
 }
 
 export default fp(async function authGuard(fastify: FastifyInstance) {
   fastify.decorate(
     "authenticate",
-    async (request: FastifyRequest, reply: any) => {
+    async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         await request.jwtVerify();
 

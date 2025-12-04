@@ -1,5 +1,5 @@
 import type { FastifyReply } from "fastify";
-import { AppError, isAppError } from "./errors";
+import { isAppError } from "./errors";
 
 export function handleServiceError(
   error: unknown,
