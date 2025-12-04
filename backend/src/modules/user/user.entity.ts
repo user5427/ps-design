@@ -12,7 +12,7 @@ import {
 } from "typeorm";
 import type { Business } from "../business/business.entity";
 import type { RefreshToken } from "../refresh-token/refresh-token.entity";
-import type { StockChange } from "../stock-change/stock-change.entity";
+import type { StockChange } from "../inventory/stock-change/stock-change.entity";
 import { Role } from "./user.types";
 
 @Entity("User")

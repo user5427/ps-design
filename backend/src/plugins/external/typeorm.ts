@@ -5,10 +5,10 @@ import { createDataSource } from "../../database/data-source";
 import { Business, BusinessService } from "../../modules/business";
 import { User, UserService } from "../../modules/user";
 import { RefreshToken, RefreshTokenService } from "../../modules/refresh-token";
-import { ProductUnit, ProductUnitService } from "../../modules/product-unit";
-import { Product, ProductService } from "../../modules/product";
-import { StockLevel, StockLevelService } from "../../modules/stock-level";
-import { StockChange, StockChangeService } from "../../modules/stock-change";
+import { ProductUnit, ProductUnitService } from "../../modules/inventory/product-unit";
+import { Product, ProductService } from "../../modules/inventory/product";
+import { StockLevel, StockLevelService } from "../../modules/inventory/stock-level";
+import { StockChange, StockChangeService } from "../../modules/inventory/stock-change";
 
 export interface Services {
     dataSource: DataSource;

@@ -8,9 +8,9 @@ import {
     type Relation,
 } from "typeorm";
 import type { User } from "../user/user.entity";
-import type { ProductUnit } from "../product-unit/product-unit.entity";
-import type { Product } from "../product/product.entity";
-import type { StockChange } from "../stock-change/stock-change.entity";
+import type { ProductUnit } from "../inventory/product-unit/product-unit.entity";
+import type { Product } from "../inventory/product/product.entity";
+import type { StockChange } from "../inventory/stock-change/stock-change.entity";
 
 @Entity("Business")
 export class Business {

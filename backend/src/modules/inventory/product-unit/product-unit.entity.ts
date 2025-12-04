@@ -11,7 +11,7 @@ import {
     JoinColumn,
     type Relation,
 } from "typeorm";
-import type { Business } from "../business/business.entity";
+import type { Business } from "../../business/business.entity";
 import type { Product } from "../product/product.entity";
 
 @Entity("ProductUnit")

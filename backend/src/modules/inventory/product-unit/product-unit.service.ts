@@ -1,8 +1,8 @@
 import { IsNull, Repository } from "typeorm";
 import { ProductUnit } from "./product-unit.entity";
 import type { ICreateProductUnit, IUpdateProductUnit } from "./product-unit.types";
-import { NotFoundError, ConflictError } from "../../shared/errors";
-import { isUniqueConstraintError } from "../../shared/typeorm-error-utils";
+import { NotFoundError, ConflictError } from "../../../shared/errors";
+import { isUniqueConstraintError } from "../../../shared/typeorm-error-utils";
 import type { Product } from "../product/product.entity";
 
 export class ProductUnitService {

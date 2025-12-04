@@ -1,7 +1,7 @@
 import { IsNull, Repository, type DataSource } from "typeorm";
 import { StockChange } from "./stock-change.entity";
 import { ICreateStockChange, StockChangeType } from "./stock-change.types";
-import { NotFoundError, BadRequestError } from "../../shared/errors";
+import { NotFoundError, BadRequestError } from "../../../shared/errors";
 import type { Product } from "../product/product.entity";
 import { StockLevel } from "../stock-level/stock-level.entity";
 

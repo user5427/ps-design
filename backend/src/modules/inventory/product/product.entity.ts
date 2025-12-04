@@ -12,7 +12,7 @@ import {
     JoinColumn,
     type Relation,
 } from "typeorm";
-import type { Business } from "../business/business.entity";
+import type { Business } from "../../business/business.entity";
 import type { ProductUnit } from "../product-unit/product-unit.entity";
 import type { StockChange } from "../stock-change/stock-change.entity";
 import type { StockLevel } from "../stock-level/stock-level.entity";

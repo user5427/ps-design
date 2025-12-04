@@ -9,7 +9,7 @@ import {
     type Relation,
 } from "typeorm";
 import type { Product } from "../product/product.entity";
-import { decimalTransformer } from "../../shared/decimal-transformer";
+import { decimalTransformer } from "../../../shared/decimal-transformer";
 
 @Entity("StockLevel")
 @Index(["businessId"])
