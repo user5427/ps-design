@@ -17,19 +17,20 @@ export class StockLevelService {
     });
   }
 
-async upsertSafe(data: ICreateStockLevel): Promise<StockLevel> {
-    const updateResult = await this.repository.createQueryBuilder()
-        .update(StockLevel)
-        .set({ quantity: () => `quantity + ${data.quantity}` }) 
-        .where("productId = :productId", { productId: data.productId })
-        .andWhere("businessId = :businessId", { businessId: data.businessId }) 
-        .execute();
+  async upsertSafe(data: ICreateStockLevel): Promise<StockLevel> {
+    const updateResult = await this.repository
+      .createQueryBuilder()
+      .update(StockLevel)
+      .set({ quantity: () => `quantity + ${data.quantity}` })
+      .where("productId = :productId", { productId: data.productId })
+      .andWhere("businessId = :businessId", { businessId: data.businessId })
+      .execute();
 
     if (updateResult.affected && updateResult.affected > 0) {
-        return this.findByProductId(data.productId) as Promise<StockLevel>;
+      return this.findByProductId(data.productId) as Promise<StockLevel>;
     }
 
     const level = this.repository.create(data);
     return this.repository.save(level);
-}
+  }
 }
