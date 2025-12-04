@@ -1,6 +1,6 @@
 import { Repository } from "typeorm";
-import { StockLevel } from "./StockLevel.entity";
-import type { ICreateStockLevel } from "./StockLevel.types";
+import { StockLevel } from "./stock-level.entity";
+import type { ICreateStockLevel } from "./stock-level.types";
 
 export class StockLevelService {
     constructor(private repository: Repository<StockLevel>) { }

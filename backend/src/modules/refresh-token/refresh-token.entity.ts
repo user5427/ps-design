@@ -8,7 +8,7 @@ import {
     JoinColumn,
     type Relation,
 } from "typeorm";
-import type { User } from "../user/User.entity";
+import type { User } from "../user/user.entity";
 
 @Entity("RefreshToken")
 export class RefreshToken {

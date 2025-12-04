@@ -7,10 +7,10 @@ import {
     OneToMany,
     type Relation,
 } from "typeorm";
-import type { User } from "../user/User.entity";
-import type { ProductUnit } from "../product-unit/ProductUnit.entity";
-import type { Product } from "../product/Product.entity";
-import type { StockChange } from "../stock-change/StockChange.entity";
+import type { User } from "../user/user.entity";
+import type { ProductUnit } from "../product-unit/product-unit.entity";
+import type { Product } from "../product/product.entity";
+import type { StockChange } from "../stock-change/stock-change.entity";
 
 @Entity("Business")
 export class Business {

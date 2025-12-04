@@ -1,5 +1,5 @@
-import type { ProductUnit } from "../product-unit/ProductUnit.entity";
-import type { StockLevel } from "../stock-level/StockLevel.entity";
+import type { ProductUnit } from "../product-unit/product-unit.entity";
+import type { StockLevel } from "../stock-level/stock-level.entity";
 
 export interface IProduct {
     id: string;

@@ -1,6 +1,6 @@
 import { IsNull, Repository } from "typeorm";
-import { Product } from "./Product.entity";
-import type { ICreateProduct, IUpdateProduct } from "./Product.types";
+import { Product } from "./product.entity";
+import type { ICreateProduct, IUpdateProduct } from "./product.types";
 
 export class ProductService {
     constructor(private repository: Repository<Product>) { }

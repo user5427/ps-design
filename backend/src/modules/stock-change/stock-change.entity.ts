@@ -8,11 +8,11 @@ import {
     JoinColumn,
     type Relation,
 } from "typeorm";
-import type { Business } from "../business/Business.entity";
-import type { Product } from "../product/Product.entity";
-import type { User } from "../user/User.entity";
+import type { Business } from "../business/business.entity";
+import type { Product } from "../product/product.entity";
+import type { User } from "../user/user.entity";
 import { decimalTransformer } from "../../shared/decimal-transformer";
-import { StockChangeType } from "./StockChange.types";
+import { StockChangeType } from "./stock-change.types";
 
 @Entity("StockChange")
 @Index(["businessId"])

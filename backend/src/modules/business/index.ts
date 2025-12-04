@@ -1,3 +1,3 @@
-export { Business } from "./Business.entity";
-export { BusinessService } from "./BusinessService";
-export * from "./Business.types";
+export { Business } from "./business.entity";
+export { BusinessService } from "./business.service";
+export * from "./business.types";

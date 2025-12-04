@@ -8,7 +8,7 @@ import {
     JoinColumn,
     type Relation,
 } from "typeorm";
-import type { Product } from "../product/Product.entity";
+import type { Product } from "../product/product.entity";
 import { decimalTransformer } from "../../shared/decimal-transformer";
 
 @Entity("StockLevel")

@@ -1,6 +1,6 @@
 import { IsNull, Repository } from "typeorm";
-import { Business } from "./Business.entity";
-import type { ICreateBusiness, IUpdateBusiness } from "./Business.types";
+import { Business } from "./business.entity";
+import type { ICreateBusiness, IUpdateBusiness } from "./business.types";
 
 export class BusinessService {
     constructor(private repository: Repository<Business>) { }

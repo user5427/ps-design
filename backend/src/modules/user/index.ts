@@ -1,3 +1,3 @@
-export { User } from "./User.entity";
-export { UserService } from "./UserService";
-export * from "./User.types";
+export { User } from "./user.entity";
+export { UserService } from "./user.service";
+export * from "./user.types";

@@ -1,6 +1,6 @@
 import { IsNull, Repository } from "typeorm";
-import { RefreshToken } from "./RefreshToken.entity";
-import type { ICreateRefreshToken } from "./RefreshToken.types";
+import { RefreshToken } from "./refresh-token.entity";
+import type { ICreateRefreshToken } from "./refresh-token.types";
 
 export class RefreshTokenService {
     constructor(private repository: Repository<RefreshToken>) { }

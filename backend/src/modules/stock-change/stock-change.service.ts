@@ -1,6 +1,6 @@
 import { IsNull, Repository } from "typeorm";
-import { StockChange } from "./StockChange.entity";
-import type { ICreateStockChange } from "./StockChange.types";
+import { StockChange } from "./stock-change.entity";
+import type { ICreateStockChange } from "./stock-change.types";
 
 export class StockChangeService {
     constructor(private repository: Repository<StockChange>) { }

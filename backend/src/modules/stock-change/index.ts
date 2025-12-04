@@ -1,3 +1,3 @@
-export { StockChange } from "./StockChange.entity";
-export { StockChangeService } from "./StockChangeService";
-export * from "./StockChange.types";
+export { StockChange } from "./stock-change.entity";
+export { StockChangeService } from "./stock-change.service";
+export * from "./stock-change.types";

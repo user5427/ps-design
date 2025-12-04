@@ -1,6 +1,6 @@
 import { IsNull, Repository } from "typeorm";
-import { User } from "./User.entity";
-import type { ICreateUser, IUpdateUser, IAuthUser } from "./User.types";
+import { User } from "./user.entity";
+import type { ICreateUser, IUpdateUser, IAuthUser } from "./user.types";
 
 export class UserService {
     constructor(private repository: Repository<User>) { }

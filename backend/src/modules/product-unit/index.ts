@@ -1,3 +1,3 @@
-export { ProductUnit } from "./ProductUnit.entity";
-export { ProductUnitService } from "./ProductUnitService";
-export * from "./ProductUnit.types";
+export { ProductUnit } from "./product-unit.entity";
+export { ProductUnitService } from "./product-unit.service";
+export * from "./product-unit.types";

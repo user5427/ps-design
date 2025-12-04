@@ -6,8 +6,8 @@ import { getBusinessId } from "../../../../shared/auth-utils";
 import { paginationSchema } from "../../../../shared/request-types";
 import { uuid, datetime } from "../../../../shared/zod-utils";
 import { stockChangeTypeEnum } from "../inventory-schemas";
-import { StockChange } from "../../../../modules/stock-change/StockChange.entity";
-import { StockLevel } from "../../../../modules/stock-level/StockLevel.entity";
+import { StockChange } from "../../../../modules/stock-change/stock-change.entity";
+import { StockLevel } from "../../../../modules/stock-level/stock-level.entity";
 
 const changeIdParam = z.object({ changeId: uuid() });
 const productIdParam = z.object({ productId: uuid() });

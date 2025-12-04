@@ -12,10 +12,10 @@ import {
     JoinColumn,
     type Relation,
 } from "typeorm";
-import type { Business } from "../business/Business.entity";
-import type { ProductUnit } from "../product-unit/ProductUnit.entity";
-import type { StockChange } from "../stock-change/StockChange.entity";
-import type { StockLevel } from "../stock-level/StockLevel.entity";
+import type { Business } from "../business/business.entity";
+import type { ProductUnit } from "../product-unit/product-unit.entity";
+import type { StockChange } from "../stock-change/stock-change.entity";
+import type { StockLevel } from "../stock-level/stock-level.entity";
 
 @Entity("Product")
 @Unique(["businessId", "name"])
