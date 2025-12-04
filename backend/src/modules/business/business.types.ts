@@ -1,15 +1,15 @@
 export interface IBusiness {
-    id: string;
-    name: string;
-    deletedAt: Date | null;
-    createdAt: Date;
-    updatedAt: Date;
+  id: string;
+  name: string;
+  deletedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ICreateBusiness {
-    name: string;
+  name: string;
 }
 
 export interface IUpdateBusiness {
-    name?: string;
+  name?: string;
 }

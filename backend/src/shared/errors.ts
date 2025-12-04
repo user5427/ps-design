@@ -1,38 +1,38 @@
 export class AppError extends Error {
-    constructor(
-        message: string,
-        public readonly statusCode: number,
-    ) {
-        super(message);
-        this.name = this.constructor.name;
-        Error.captureStackTrace(this, this.constructor);
-    }
+  constructor(
+    message: string,
+    public readonly statusCode: number,
+  ) {
+    super(message);
+    this.name = this.constructor.name;
+    Error.captureStackTrace(this, this.constructor);
+  }
 }
 
 export class NotFoundError extends AppError {
-    constructor(message = "Resource not found") {
-        super(message, 404);
-    }
+  constructor(message = "Resource not found") {
+    super(message, 404);
+  }
 }
 
 export class ConflictError extends AppError {
-    constructor(message = "Resource conflict") {
-        super(message, 409);
-    }
+  constructor(message = "Resource conflict") {
+    super(message, 409);
+  }
 }
 
 export class BadRequestError extends AppError {
-    constructor(message = "Bad request") {
-        super(message, 400);
-    }
+  constructor(message = "Bad request") {
+    super(message, 400);
+  }
 }
 
 export class UnauthorizedError extends AppError {
-    constructor(message = "Unauthorized") {
-        super(message, 401);
-    }
+  constructor(message = "Unauthorized") {
+    super(message, 401);
+  }
 }
 
 export function isAppError(error: unknown): error is AppError {
-    return error instanceof AppError;
+  return error instanceof AppError;
 }

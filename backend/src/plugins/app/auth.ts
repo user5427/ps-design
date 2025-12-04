@@ -3,7 +3,6 @@ import fp from "fastify-plugin";
 import HttpStatus from "http-status";
 import type { IAuthUser } from "../../modules/user";
 
-
 declare module "fastify" {
   interface FastifyRequest {
     authUser?: IAuthUser;

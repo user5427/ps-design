@@ -4,158 +4,159 @@ import httpStatus from "http-status";
 import { getBusinessId } from "../../../../shared/auth-utils";
 import { handleServiceError } from "../../../../shared/error-handler";
 import {
-    changeIdParam,
-    productIdParam,
-    createStockChangeSchema,
-    stockQuerySchema,
-    type CreateStockChangeBody,
-    type StockQuery,
-    type ChangeIdParams,
-    type ProductIdParams,
+  type ChangeIdParams,
+  type CreateStockChangeBody,
+  changeIdParam,
+  createStockChangeSchema,
+  type ProductIdParams,
+  productIdParam,
+  type StockQuery,
+  stockQuerySchema,
 } from "./request-types";
 
 export default async function stockRoutes(fastify: FastifyInstance) {
-    const server = fastify.withTypeProvider<ZodTypeProvider>();
+  const server = fastify.withTypeProvider<ZodTypeProvider>();
 
-    server.get(
-        "/",
-        async (request: FastifyRequest, reply: FastifyReply) => {
-            const businessId = getBusinessId(request, reply);
-            if (!businessId) return;
+  server.get("/", async (request: FastifyRequest, reply: FastifyReply) => {
+    const businessId = getBusinessId(request, reply);
+    if (!businessId) return;
 
-            const products = await fastify.db.product.findAllByBusinessId(businessId);
+    const products = await fastify.db.product.findAllByBusinessId(businessId);
 
-            const stockLevels = products.map((product) => ({
-                productId: product.id,
-                productName: product.name,
-                productUnit: product.productUnit,
-                isDisabled: product.isDisabled,
-                totalQuantity: product.stockLevel?.quantity ?? 0,
-            }));
+    const stockLevels = products.map((product) => ({
+      productId: product.id,
+      productName: product.name,
+      productUnit: product.productUnit,
+      isDisabled: product.isDisabled,
+      totalQuantity: product.stockLevel?.quantity ?? 0,
+    }));
 
-            return reply.send(stockLevels);
-        },
-    );
+    return reply.send(stockLevels);
+  });
 
-    server.get(
-        "/:productId",
-        {
-            schema: {
-                params: productIdParam,
-            },
-        },
-        async (
-            request: FastifyRequest<{
-                Params: ProductIdParams;
-            }>,
-            reply: FastifyReply,
-        ) => {
-            const businessId = getBusinessId(request, reply);
-            if (!businessId) return;
+  server.get(
+    "/:productId",
+    {
+      schema: {
+        params: productIdParam,
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Params: ProductIdParams;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
 
-            const { productId } = request.params;
+      const { productId } = request.params;
 
-            try {
-                const product = await fastify.db.product.getById(productId, businessId);
-                const stockLevel = await fastify.db.stockLevel.findByProductId(productId);
+      try {
+        const product = await fastify.db.product.getById(productId, businessId);
+        const stockLevel =
+          await fastify.db.stockLevel.findByProductId(productId);
 
-                return reply.send({
-                    productId: product.id,
-                    productName: product.name,
-                    productUnit: product.productUnit,
-                    isDisabled: product.isDisabled,
-                    totalQuantity: stockLevel?.quantity ?? 0,
-                });
-            } catch (error) {
-                return handleServiceError(error, reply);
-            }
-        },
-    );
+        return reply.send({
+          productId: product.id,
+          productName: product.name,
+          productUnit: product.productUnit,
+          isDisabled: product.isDisabled,
+          totalQuantity: stockLevel?.quantity ?? 0,
+        });
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
 
-    server.post(
-        "/changes",
-        {
-            schema: {
-                body: createStockChangeSchema,
-            },
-        },
-        async (
-            request: FastifyRequest<{
-                Body: CreateStockChangeBody;
-            }>,
-            reply: FastifyReply,
-        ) => {
-            const businessId = getBusinessId(request, reply);
-            if (!businessId) return;
+  server.post(
+    "/changes",
+    {
+      schema: {
+        body: createStockChangeSchema,
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Body: CreateStockChangeBody;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
 
-            const { productId, quantity, type, expirationDate } = request.body;
-            const user = request.authUser!;
+      const { productId, quantity, type, expirationDate } = request.body;
+      const user = request.authUser!;
 
-            try {
-                const stockChange = await fastify.db.stockChange.create({
-                    productId,
-                    quantity,
-                    type,
-                    expirationDate,
-                    businessId,
-                    createdByUserId: user.id,
-                });
+      try {
+        const stockChange = await fastify.db.stockChange.create({
+          productId,
+          quantity,
+          type,
+          expirationDate,
+          businessId,
+          createdByUserId: user.id,
+        });
 
-                return reply.code(httpStatus.CREATED).send(stockChange);
-            } catch (error) {
-                return handleServiceError(error, reply);
-            }
-        },
-    );
+        return reply.code(httpStatus.CREATED).send(stockChange);
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
 
-    server.get(
-        "/changes",
-        {
-            schema: {
-                querystring: stockQuerySchema,
-            },
-        },
-        async (
-            request: FastifyRequest<{
-                Querystring: StockQuery;
-            }>,
-            reply: FastifyReply,
-        ) => {
-            const businessId = getBusinessId(request, reply);
-            if (!businessId) return;
+  server.get(
+    "/changes",
+    {
+      schema: {
+        querystring: stockQuerySchema,
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Querystring: StockQuery;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
 
-            const { productId } = request.query;
+      const { productId } = request.query;
 
-            const changes = await fastify.db.stockChange.findAllByBusinessId(businessId, productId);
+      const changes = await fastify.db.stockChange.findAllByBusinessId(
+        businessId,
+        productId,
+      );
 
-            return reply.send(changes);
-        },
-    );
+      return reply.send(changes);
+    },
+  );
 
-    server.delete(
-        "/changes/:changeId",
-        {
-            schema: {
-                params: changeIdParam,
-            },
-        },
-        async (
-            request: FastifyRequest<{
-                Params: ChangeIdParams;
-            }>,
-            reply: FastifyReply,
-        ) => {
-            const businessId = getBusinessId(request, reply);
-            if (!businessId) return;
+  server.delete(
+    "/changes/:changeId",
+    {
+      schema: {
+        params: changeIdParam,
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Params: ChangeIdParams;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
 
-            const { changeId } = request.params;
+      const { changeId } = request.params;
 
-            try {
-                await fastify.db.stockChange.delete(changeId, businessId);
-                return reply.code(httpStatus.NO_CONTENT).send();
-            } catch (error) {
-                return handleServiceError(error, reply);
-            }
-        },
-    );
+      try {
+        await fastify.db.stockChange.delete(changeId, businessId);
+        return reply.code(httpStatus.NO_CONTENT).send();
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
 }

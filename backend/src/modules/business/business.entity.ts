@@ -1,43 +1,43 @@
 import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    CreateDateColumn,
-    UpdateDateColumn,
-    OneToMany,
-    type Relation,
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  type Relation,
+  UpdateDateColumn,
 } from "typeorm";
-import type { User } from "../user/user.entity";
-import type { ProductUnit } from "../inventory/product-unit/product-unit.entity";
 import type { Product } from "../inventory/product/product.entity";
+import type { ProductUnit } from "../inventory/product-unit/product-unit.entity";
 import type { StockChange } from "../inventory/stock-change/stock-change.entity";
+import type { User } from "../user/user.entity";
 
 @Entity("Business")
 export class Business {
-    @PrimaryGeneratedColumn("uuid")
-    id: string;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
-    @Column({ type: "varchar" })
-    name: string;
+  @Column({ type: "varchar" })
+  name: string;
 
-    @OneToMany("User", "business")
-    users: Relation<User[]>;
+  @OneToMany("User", "business")
+  users: Relation<User[]>;
 
-    @OneToMany("ProductUnit", "business")
-    productUnits: Relation<ProductUnit[]>;
+  @OneToMany("ProductUnit", "business")
+  productUnits: Relation<ProductUnit[]>;
 
-    @OneToMany("Product", "business")
-    products: Relation<Product[]>;
+  @OneToMany("Product", "business")
+  products: Relation<Product[]>;
 
-    @OneToMany("StockChange", "business")
-    stockChanges: Relation<StockChange[]>;
+  @OneToMany("StockChange", "business")
+  stockChanges: Relation<StockChange[]>;
 
-    @Column({ type: "timestamp", nullable: true })
-    deletedAt: Date | null;
+  @Column({ type: "timestamp", nullable: true })
+  deletedAt: Date | null;
 
-    @CreateDateColumn()
-    createdAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

@@ -2,7 +2,7 @@ import "dotenv/config";
 import * as bcrypt from "bcryptjs";
 import { createDataSource } from "../database/data-source";
 import { Business } from "../modules/business";
-import { User, Role } from "../modules/user";
+import { Role, User } from "../modules/user";
 
 async function main() {
   const connectionString = process.env.DATABASE_URL;
@@ -47,28 +47,28 @@ async function main() {
       businessId?: string | null;
       isPasswordResetRequired?: boolean;
     }> = [
-        {
-          email: "superadmin@demo.local",
-          name: "SupAdminas",
-          role: Role.SUPER_ADMIN,
-          businessId: null,
-          isPasswordResetRequired: true,
-        },
-        {
-          email: "admin@demo.local",
-          name: "AdminasUseris",
-          role: Role.ADMIN,
-          businessId: business.id,
-          isPasswordResetRequired: true,
-        },
-        {
-          email: "user@demo.local",
-          name: "Johnny",
-          role: Role.USER,
-          businessId: business.id,
-          isPasswordResetRequired: true,
-        },
-      ];
+      {
+        email: "superadmin@demo.local",
+        name: "SupAdminas",
+        role: Role.SUPER_ADMIN,
+        businessId: null,
+        isPasswordResetRequired: true,
+      },
+      {
+        email: "admin@demo.local",
+        name: "AdminasUseris",
+        role: Role.ADMIN,
+        businessId: business.id,
+        isPasswordResetRequired: true,
+      },
+      {
+        email: "user@demo.local",
+        name: "Johnny",
+        role: Role.USER,
+        businessId: business.id,
+        isPasswordResetRequired: true,
+      },
+    ];
 
     for (const u of users) {
       let existing = await userRepo.findOne({ where: { email: u.email } });
@@ -84,7 +84,9 @@ async function main() {
         existing = await userRepo.save(existing);
         console.log(`Created user: ${existing.email} (${existing.role})`);
       } else {
-        console.log(`User already exists: ${existing.email} (${existing.role})`);
+        console.log(
+          `User already exists: ${existing.email} (${existing.role})`,
+        );
       }
     }
 

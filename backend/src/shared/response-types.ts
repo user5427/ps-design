@@ -1,11 +1,11 @@
 import { z } from "zod";
 
 export const successResponseSchema = z.object({
-    success: z.boolean(),
+  success: z.boolean(),
 });
 
 export const errorResponseSchema = z.object({
-    message: z.string(),
+  message: z.string(),
 });
 
 export type SuccessResponse = z.infer<typeof successResponseSchema>;
