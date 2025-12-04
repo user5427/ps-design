@@ -2,14 +2,14 @@ import * as bcrypt from "bcryptjs";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
-import type { AuthUser } from "../../../plugins/app/auth";
-import type { User } from "../../../modules/user";
+import { loginSchema, changePasswordSchema, type LoginBody, type ChangePasswordBody } from "./request-types";
 import {
-    loginSchema,
-    changePasswordSchema,
-    type LoginBody,
-    type ChangePasswordBody,
-} from "./schemas";
+    loginResponseSchema,
+    userResponseSchema,
+    successResponseSchema,
+    refreshResponseSchema,
+    errorResponseSchema,
+} from "./response-types";
 import {
     createJti,
     hashToken,
@@ -22,23 +22,19 @@ import {
 
 const SALT_LENGTH = 10;
 
-function publicUserData(user: AuthUser | User) {
-    return {
-        userId: user.id,
-        email: user.email,
-        role: user.role,
-        businessId: user.businessId,
-        isPasswordResetRequired: user.isPasswordResetRequired,
-    };
-}
-
 export default async function authRoutes(fastify: FastifyInstance) {
     const server = fastify.withTypeProvider<ZodTypeProvider>();
 
     server.post(
         "/login",
         {
-            schema: { body: loginSchema },
+            schema: {
+                body: loginSchema,
+                response: {
+                    200: loginResponseSchema,
+                    401: errorResponseSchema,
+                },
+            },
         },
         async (
             request: FastifyRequest<{ Body: LoginBody }>,
@@ -69,7 +65,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
                 setRefreshCookie(fastify, reply, refreshToken);
 
                 return reply.send({
-                    ...publicUserData(user),
+                    ...(user),
                     accessToken,
                 });
             } catch (err) {
@@ -81,6 +77,13 @@ export default async function authRoutes(fastify: FastifyInstance) {
 
     server.post(
         "/logout",
+        {
+            schema: {
+                response: {
+                    200: successResponseSchema,
+                },
+            },
+        },
         async (request: FastifyRequest, reply: FastifyReply) => {
             try {
                 const token = request.cookies.refresh_token;
@@ -102,16 +105,33 @@ export default async function authRoutes(fastify: FastifyInstance) {
         },
     );
 
-    server.get("/me", async (request: FastifyRequest, reply: FastifyReply) => {
-        const user = request.authUser;
-        if (!user) return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Unauthorized" });
-        return reply.send(publicUserData(user));
-    });
+    server.get(
+        "/me",
+        {
+            schema: {
+                response: {
+                    200: userResponseSchema,
+                    401: errorResponseSchema,
+                },
+            },
+        },
+        async (request: FastifyRequest, reply: FastifyReply) => {
+            const user = request.authUser;
+            if (!user) return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Unauthorized" });
+            return reply.send(user);
+        },
+    );
 
     server.post(
         "/change-password",
         {
-            schema: { body: changePasswordSchema },
+            schema: {
+                body: changePasswordSchema,
+                response: {
+                    200: successResponseSchema,
+                    401: errorResponseSchema,
+                },
+            },
         },
         async (
             request: FastifyRequest<{ Body: ChangePasswordBody }>,
@@ -150,6 +170,14 @@ export default async function authRoutes(fastify: FastifyInstance) {
 
     server.post(
         "/refresh",
+        {
+            schema: {
+                response: {
+                    200: refreshResponseSchema,
+                    401: errorResponseSchema,
+                },
+            },
+        },
         async (request: FastifyRequest, reply: FastifyReply) => {
             try {
                 const token = request.cookies.refresh_token;

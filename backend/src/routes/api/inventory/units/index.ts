@@ -4,7 +4,7 @@ import httpStatus from "http-status";
 import { z } from "zod";
 import { getBusinessId } from "../../../../shared/auth-utils";
 import { isUniqueConstraintError } from "../../../../shared/typeorm-error-utils";
-import { uuid } from "../../../../shared/zod-schemas";
+import { uuid } from "../../../../shared/zod-utils";
 
 const MIN_LENGTH = 1;
 const MAX_NAME_LENGTH = 100;
