@@ -1,3 +1,4 @@
+
 import axios, {
   type AxiosError,
   type AxiosInstance,
@@ -7,9 +8,7 @@ import axios, {
 import { URLS } from "@/constants/urls";
 import { useAuthStore } from "@/store/auth";
 
-const API_BASE_URL = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${
-  import.meta.env.VITE_BACKEND_HOST
-}:${import.meta.env.VITE_BACKEND_PORT}/api`;
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 interface RouterLike {
   state: {
