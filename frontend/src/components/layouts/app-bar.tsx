@@ -35,7 +35,7 @@ const Logo: React.FC<LogoProps> = ({ image, logoText, size = 40 }) => (
 export const AppBar: React.FC<AppBarProps> = ({ logo }) => {
   return (
     <MUIAppBar
-      position="absolute"
+      position="relative"
       elevation={1}
       sx={{
         color: "text.primary",
