@@ -12,6 +12,7 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ sidebarSections }) => {
   return (
     <Drawer
+      aria-label="Navigation sidebar"
       variant="permanent"
       sx={{
         width: DRAWER_WIDTH,

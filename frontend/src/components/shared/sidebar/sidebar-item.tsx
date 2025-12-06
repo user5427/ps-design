@@ -25,7 +25,7 @@ interface SidebarItemProps {
   section: Section;
   isSelected: boolean;
   selected: string;
-  onSelect: (label: Section) => void;
+  onSelect: (section: Section) => void;
   isOpen: boolean;
   onToggle: (label: string) => void;
 }
@@ -61,7 +61,7 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
       {hasChildren && (
         <Collapse in={isOpen} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-            {section.children!.map((child) => (
+            {section.children?.map((child) => (
               <ListItemButton
                 key={child.label}
                 sx={{ pl: 4 }}
