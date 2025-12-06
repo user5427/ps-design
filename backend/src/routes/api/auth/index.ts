@@ -22,7 +22,7 @@ import {
   loginResponseSchema,
   refreshResponseSchema,
   successResponseSchema,
-  userResponseSchema,
+  authUserResponseSchema,
 } from "./response-types";
 
 const SALT_LENGTH = 10;
@@ -126,7 +126,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
     {
       schema: {
         response: {
-          200: userResponseSchema,
+          200: authUserResponseSchema,
           401: errorResponseSchema,
         },
       },
