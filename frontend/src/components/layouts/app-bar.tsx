@@ -39,6 +39,7 @@ export const AppBar: React.FC<AppBarProps> = ({ logo, logoText }) => {
         sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 ,
         color: "text.primary",
         bgcolor: "background.paper",}}
+        component="header"
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
         <Logo logo={logo} logoText={logoText} />

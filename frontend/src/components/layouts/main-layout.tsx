@@ -26,6 +26,7 @@ const MainLayout = ({ children, hideNavigation = false }: MainLayoutProps) => {
           display: "flex",
           mt: hideNavigation ? 0 : `${AppBarData.size}px`,
       }}
+      component="main"
     >
         {children}
     </Box>
