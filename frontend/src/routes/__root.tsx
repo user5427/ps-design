@@ -1,5 +1,3 @@
-// src/routes/__root.tsx
-
 import { Box } from "@mui/material";
 import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
@@ -14,11 +12,16 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async () => {
     const store = useAuthStore.getState();
 
-    try {
-      const { accessToken } = await refreshToken();
-      store.setAccessToken(accessToken);
-    } catch {
-      store.setAccessToken(null);
+    // Only attempt refresh token on first load
+    if (!store.isAuthInitialized()) {
+      try {
+        const { accessToken } = await refreshToken();
+        store.setAccessToken(accessToken);
+      } catch {
+        store.setAccessToken(null);
+      } finally {
+        store.setInitialized(true);
+      }
     }
   },
   component: RootComponent,

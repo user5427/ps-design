@@ -4,7 +4,6 @@ import {
   getCurrentUser,
   login,
   logout,
-  refreshToken,
 } from "@/api/auth";
 import { useAuthStore } from "@/store/auth";
 
@@ -56,19 +55,6 @@ export function useLogout() {
     onError: () => {
       store.setAccessToken(null);
       queryClient.removeQueries({ queryKey: authKeys.all });
-    },
-  });
-}
-
-export function useRefreshToken() {
-  const queryClient = useQueryClient();
-  const store = useAuthStore();
-
-  return useMutation({
-    mutationFn: async () => refreshToken(),
-    onSuccess: (data) => {
-      store.setAccessToken(data.accessToken);
-      queryClient.invalidateQueries({ queryKey: authKeys.me() });
     },
   });
 }
