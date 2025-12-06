@@ -17,13 +17,9 @@ const MainLayout = ({ children, hideNavigation = false }: MainLayoutProps) => {
     <Box
       sx={{
         flex: 1,
-            flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
         height: "100%",
         width: "100%",
           bgcolor: "white",
-          display: "flex",
           mt: hideNavigation ? 0 : `${AppBarData.size}px`,
       }}
       component="main"
