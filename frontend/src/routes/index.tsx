@@ -1,8 +1,8 @@
 import { Box, Button, Typography } from "@mui/material";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { PublicLayout } from "@/components/layouts";
 import { URLS } from "@/constants/urls";
 import { useAuthStore } from "@/store/auth";
-import { PublicLayout } from "@/components/layouts";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
