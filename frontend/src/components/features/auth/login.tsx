@@ -39,12 +39,7 @@ export const Login: React.FC = () => {
   const hasError = loginMutation.isError;
 
   return (
-    <AuthFormLayout
-      title="Sign In"
-      switchText="Don't have an account?"
-      switchLink={URLS.REGISTER}
-      switchLinkText="Register"
-    >
+    <AuthFormLayout title="Sign In">
       {validationError && <FormAlert message={validationError} />}
       {hasError && (
         <FormAlert

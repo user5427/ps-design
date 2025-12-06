@@ -15,5 +15,7 @@ export const Route = createFileRoute("/auth/login")({
 });
 
 function LoginPage() {
-  return <Login />;
+  return (
+      <Login />
+  );
 }

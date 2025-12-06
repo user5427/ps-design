@@ -1,5 +1,5 @@
 import React from "react";
-import type { AppBarProps } from "@/components/layouts";
+import type { AppBarProps } from "@/components/layouts/app-bar";
 
 export const AppBarData: AppBarProps = {
   logo: {

@@ -5,8 +5,7 @@ import { FormAlert, FormField } from "@/components/elements/form";
 import { useChangePassword } from "@/queries/auth";
 import { checkPasswordStrength } from "@/utils/auth";
 import { getReadableError } from "@/utils/get-readable-error";
-import { PasswordRequirements } from "./password-requirements";
-import { PasswordStrengthIndicator } from "./password-strength-indicator";
+import { PasswordRequirements, PasswordStrengthIndicator } from "@/components/elements/auth";
 
 export const ChangePassword: React.FC = () => {
   const [currentPassword, setCurrentPassword] = useState("");
