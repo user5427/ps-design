@@ -1,8 +1,6 @@
 import { Login } from '@/components/features/auth'
-import { MainLayout, AppBar } from '@/components/layouts'
-import Box from '@mui/material/Box'
+import { MainLayout } from '@/components/layouts'
 import { createFileRoute } from '@tanstack/react-router'
-import { AppBarData } from '@/constants'
 export const Route = createFileRoute('/auth/login')({
     component: RouteComponent,
 })
@@ -10,11 +8,8 @@ export const Route = createFileRoute('/auth/login')({
 
 function RouteComponent() {
     return (
-        <MainLayout>
-            <AppBar {...AppBarData} />
-            <Box sx={{ textAlign: 'center', mt: 8 }}>
+        <MainLayout isBarHidden>
                 <Login />
-            </Box>
         </MainLayout>
     )
 }

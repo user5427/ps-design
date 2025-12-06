@@ -9,8 +9,8 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
     return (
-        <MainLayout>
-            <Box sx={{ textAlign: 'center', mt: 8 }}>
+        <MainLayout isBarHidden>
+            <Box sx={{ textAlign: 'center', mt: 8, flex:1, alignItems: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <Typography variant="h2" gutterBottom>
                     Welcome to ADEPI
                 </Typography>
