@@ -1,6 +1,6 @@
-import { AppBarData } from "@/constants";
 import { Box, AppBar as MUIAppBar, Toolbar, Typography } from "@mui/material";
 import type React from "react";
+import { AppBarData } from "@/constants";
 
 interface LogoProps {
   logo: React.ReactNode;
@@ -10,7 +10,11 @@ interface LogoProps {
 
 export interface AppBarProps extends LogoProps {}
 
-const Logo: React.FC<LogoProps> = ({ logo, logoText, size = AppBarData.size }) => (
+const Logo: React.FC<LogoProps> = ({
+  logo,
+  logoText,
+  size = AppBarData.size,
+}) => (
   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
     <Box
       sx={{
@@ -36,10 +40,12 @@ export const AppBar: React.FC<AppBarProps> = ({ logo, logoText }) => {
 
   return (
     <MUIAppBar
-        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 ,
+      sx={{
+        zIndex: (theme) => theme.zIndex.drawer + 1,
         color: "text.primary",
-        bgcolor: "background.paper",}}
-        component="header"
+        bgcolor: "background.paper",
+      }}
+      component="header"
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
         <Logo logo={logo} logoText={logoText} />

@@ -1,11 +1,17 @@
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import { ListItemButton, ListItemIcon, ListItemText, Collapse, List } from "@mui/material";
+import {
+  Collapse,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
 
 type ChildSection = {
   label: string;
   icon: React.ReactNode;
-  path?: string; 
+  path?: string;
 };
 
 export type Section = {
@@ -14,7 +20,6 @@ export type Section = {
   path?: string;
   children?: ChildSection[];
 };
-
 
 interface SidebarItemProps {
   section: Section;
@@ -25,7 +30,14 @@ interface SidebarItemProps {
   onToggle: (label: string) => void;
 }
 
-export const SidebarItem: React.FC<SidebarItemProps> = ({ section, isSelected, selected, onSelect, isOpen, onToggle }) => {
+export const SidebarItem: React.FC<SidebarItemProps> = ({
+  section,
+  isSelected,
+  selected,
+  onSelect,
+  isOpen,
+  onToggle,
+}) => {
   const hasChildren = !!section.children && section.children.length > 0;
 
   const handleParentClick = () => {
@@ -65,4 +77,4 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({ section, isSelected, s
       )}
     </>
   );
-}
+};

@@ -1,10 +1,10 @@
 import { Box, Typography } from "@mui/material";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { Dashboard } from "@/components/features/dashboard";
 import { MainLayout } from "@/components/layouts/main-layout";
 import { URLS } from "@/constants/urls";
 import { useAuthUser, useLogout } from "@/hooks/auth/auth-hooks";
 import { useAuthStore } from "@/store/auth";
-import { Dashboard } from "@/components/features/dashboard";
 
 export const Route = createFileRoute("/dashboard")({
   beforeLoad: async () => {
@@ -45,14 +45,16 @@ function DashboardPage() {
   }
 
   return (
-    <MainLayout>    
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center"}} >  
-      <Dashboard
-        user={user}
-        handleLogout={handleLogout}
-        logoutMutation={logoutMutation}
-        navigate={navigate}
-      />
+    <MainLayout>
+      <Box
+        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+      >
+        <Dashboard
+          user={user}
+          handleLogout={handleLogout}
+          logoutMutation={logoutMutation}
+          navigate={navigate}
+        />
       </Box>
     </MainLayout>
   );

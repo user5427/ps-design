@@ -1,7 +1,7 @@
 import { List } from "@mui/material";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import React from "react";
 import { type Section, SidebarItem } from "./sidebar-item";
-import { useRouterState, useNavigate } from "@tanstack/react-router";
 
 interface SidebarContentProps {
   sections: Section[];
@@ -16,7 +16,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({ sections }) => {
     for (const section of sections) {
       if (section.path === location) return section.label;
       if (section.children) {
-        const matchingChild = section.children.find(c => c.path === location);
+        const matchingChild = section.children.find((c) => c.path === location);
         if (matchingChild) return matchingChild.label;
       }
     }
@@ -32,7 +32,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({ sections }) => {
   });
 
   const toggle = (label: string) => {
-    setOpen(prev => ({
+    setOpen((prev) => ({
       ...prev,
       [label]: !prev[label],
     }));
@@ -46,13 +46,14 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({ sections }) => {
 
   return (
     <List component="nav">
-      {sections.map(section => (
+      {sections.map((section) => (
         <SidebarItem
           key={section.label}
           section={section}
           isSelected={
             section.label === selected ||
-            section.children?.some(c => c.label === selected) || false
+            section.children?.some((c) => c.label === selected) ||
+            false
           }
           selected={selected}
           onSelect={handleSelect}
