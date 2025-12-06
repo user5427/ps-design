@@ -1,13 +1,14 @@
 import { Box, Button, Typography } from "@mui/material";
 import type React from "react";
 import { useState } from "react";
+import {
+  PasswordRequirements,
+  PasswordStrengthIndicator,
+} from "@/components/elements/auth";
+import { FormAlert, FormField } from "@/components/elements/form";
 import { useChangePassword } from "@/queries/auth";
 import { checkPasswordStrength } from "@/utils/auth";
 import { getReadableError } from "@/utils/get-readable-error";
-import { FormAlert } from "./form-alert";
-import { FormField } from "./form-field";
-import { PasswordRequirements } from "./password-requirements";
-import { PasswordStrengthIndicator } from "./password-strength-indicator";
 
 export const ChangePassword: React.FC = () => {
   const [currentPassword, setCurrentPassword] = useState("");

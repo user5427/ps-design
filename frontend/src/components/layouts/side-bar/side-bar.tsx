@@ -1,7 +1,6 @@
-import { Drawer, Toolbar } from "@mui/material";
-import { AppBarData } from "@/constants";
-import { SidebarContent } from "./sidebar-content";
-import type { Section } from "./sidebar-item";
+import { Drawer, useTheme } from "@mui/material";
+import { SidebarContent } from "./side-bar-content";
+import type { Section } from "./side-bar-item";
 
 const DRAWER_WIDTH = 240;
 
@@ -10,6 +9,9 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ sidebarSections }) => {
+  const theme = useTheme();
+  const appBarHeight = theme.mixins.toolbar.minHeight as number;
+
   return (
     <Drawer
       aria-label="Navigation sidebar"
@@ -20,10 +22,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ sidebarSections }) => {
         [`& .MuiDrawer-paper`]: {
           width: DRAWER_WIDTH,
           boxSizing: "border-box",
+          marginTop: `${appBarHeight}px`,
         },
       }}
     >
-      <Toolbar sx={{ minHeight: `${AppBarData.size}px` }} />
       <SidebarContent sections={sidebarSections} />
     </Drawer>
   );

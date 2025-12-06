@@ -17,30 +17,23 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   return (
-    <PublicLayout>
-      <Box
-        sx={{
-          textAlign: "center",
-          mt: 8,
-          flex: 1,
-          alignItems: "center",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-        }}
-      >
-        <Typography variant="h2" gutterBottom>
-          Welcome to ADEPI
-        </Typography>
-        <Button
-          component={Link}
-          to={URLS.LOGIN}
-          variant="contained"
-          size="large"
-        >
-          Get Started
-        </Button>
-      </Box>
-    </PublicLayout>
+    <Box
+      sx={{
+        textAlign: "center",
+        mt: 8,
+        flex: 1,
+        alignItems: "center",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+      }}
+    >
+      <Typography variant="h2" gutterBottom>
+        Welcome to ADEPI
+      </Typography>
+      <Button component={Link} to={URLS.LOGIN} variant="contained" size="large">
+        Get Started
+      </Button>
+    </Box>
   );
 }

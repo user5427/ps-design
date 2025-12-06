@@ -1,6 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Login } from "@/components/features/auth";
-import { PublicLayout } from "@/components/layouts";
 import { URLS } from "@/constants/urls";
 import { useAuthStore } from "@/store/auth/auth-store";
 
@@ -16,9 +15,5 @@ export const Route = createFileRoute("/auth/login")({
 });
 
 function LoginPage() {
-  return (
-    <PublicLayout>
-      <Login />
-    </PublicLayout>
-  );
+  return <Login />;
 }

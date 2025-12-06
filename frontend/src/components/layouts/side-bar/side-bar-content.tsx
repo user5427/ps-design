@@ -1,7 +1,7 @@
 import { List } from "@mui/material";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import React from "react";
-import { type Section, SidebarItem } from "./sidebar-item";
+import { type Section, SidebarItem } from "./side-bar-item";
 
 interface SidebarContentProps {
   sections: Section[];

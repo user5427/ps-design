@@ -1,30 +1,19 @@
-import { Box } from "@mui/material";
+import { Box, Container } from "@mui/material";
 import type React from "react";
-import { Sidebar } from "@/components/shared/sidebar";
-import { AppBarData, sidebarSections } from "@/constants";
-import { AppBar } from ".";
+import { Sidebar } from "@/components/layouts/side-bar";
+import { sidebarSections } from "@/constants";
 
-interface MainLayoutProps {
+export interface MainLayoutProps {
   children?: React.ReactNode;
 }
 
-const MainLayout = ({ children }: MainLayoutProps) => {
+const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box>
       <Sidebar sidebarSections={sidebarSections} />
-      <AppBar {...AppBarData} />
-      <Box
-        sx={{
-          flex: 1,
-          height: "100%",
-          width: "100%",
-          bgcolor: "white",
-          mt: `${AppBarData.size}px`,
-        }}
-        component="main"
-      >
+      <Container maxWidth="lg" sx={{ pt: 4, pb: 4 }}>
         {children}
-      </Box>
+      </Container>
     </Box>
   );
 };

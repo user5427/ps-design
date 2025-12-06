@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Container } from "@mui/material";
 import type React from "react";
 
 interface PublicLayoutProps {
@@ -7,18 +7,8 @@ interface PublicLayoutProps {
 
 export const PublicLayout = ({ children }: PublicLayoutProps) => {
   return (
-    <Box
-      component="main"
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "100vh",
-        width: "100%",
-      }}
-    >
+    <Container maxWidth="lg" sx={{ pt: 4, pb: 4 }}>
       {children}
-    </Box>
+    </Container>
   );
 };

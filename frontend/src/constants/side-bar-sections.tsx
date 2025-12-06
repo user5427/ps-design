@@ -6,7 +6,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import type { Section } from "@/components/shared/sidebar/sidebar-item";
+import type { Section } from "@/components/layouts/side-bar/side-bar-item";
 import { URLS } from "./urls";
 
 export const sidebarSections: Section[] = [

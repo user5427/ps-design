@@ -1,7 +1,7 @@
 import { Box, TextField, Typography } from "@mui/material";
 import type React from "react";
 
-interface FormFieldProps {
+export interface FormFieldProps {
   label: string;
   type?: string;
   value: string;

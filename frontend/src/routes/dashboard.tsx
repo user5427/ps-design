@@ -1,7 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { Dashboard } from "@/components/features/dashboard";
-import { MainLayout } from "@/components/layouts/main-layout";
 import { URLS } from "@/constants/urls";
 import { useAuthUser, useLogout } from "@/hooks/auth/auth-hooks";
 import { useAuthStore } from "@/store/auth";
@@ -37,25 +36,19 @@ function DashboardPage() {
   };
 
   if (isLoading || !user) {
-    return (
-      <MainLayout>
-        <Typography>Loading...</Typography>
-      </MainLayout>
-    );
+    return <Typography>Loading...</Typography>;
   }
 
   return (
-    <MainLayout>
-      <Box
-        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
-      >
-        <Dashboard
-          user={user}
-          handleLogout={handleLogout}
-          logoutMutation={logoutMutation}
-          navigate={navigate}
-        />
-      </Box>
-    </MainLayout>
+    <Box
+      sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+    >
+      <Dashboard
+        user={user}
+        handleLogout={handleLogout}
+        logoutMutation={logoutMutation}
+        navigate={navigate}
+      />
+    </Box>
   );
 }

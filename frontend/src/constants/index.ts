@@ -1,2 +1,2 @@
 export { AppBarData } from "./app-bar";
-export { sidebarSections } from "./sidebar-sections";
+export { sidebarSections } from "./side-bar-sections";
