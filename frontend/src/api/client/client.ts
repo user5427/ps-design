@@ -7,8 +7,17 @@ import axios, {
 import { URLS } from "@/constants/urls";
 import { useAuthStore } from "@/store/auth";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_BASE_URL = (() => {
+    const protocol = import.meta.env.VITE_BACKEND_PROTOCOL;
+    const host = import.meta.env.VITE_BACKEND_HOST;
+    const port = import.meta.env.VITE_BACKEND_PORT;
+
+    if (protocol && host && port) {
+        return `${protocol}://${host}:${port}/api`;
+    }
+
+    return import.meta.env.VITE_API_URL;
+})();
 
 interface RouterLike {
   state: {
