@@ -5,4 +5,3 @@ export { FormField } from "./form-field";
 export { Login } from "./login";
 export { PasswordRequirements } from "./password-requirements";
 export { PasswordStrengthIndicator } from "./password-strength-indicator";
-export { Register } from "./register";

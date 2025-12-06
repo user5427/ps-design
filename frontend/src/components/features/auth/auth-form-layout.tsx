@@ -5,9 +5,9 @@ import type React from "react";
 interface AuthFormLayoutProps {
   title: string;
   children: React.ReactNode;
-  switchText: string;
-  switchLink: string;
-  switchLinkText: string;
+  switchText?: string;
+  switchLink?: string;
+  switchLinkText?: string;
 }
 
 export const AuthFormLayout: React.FC<AuthFormLayoutProps> = ({

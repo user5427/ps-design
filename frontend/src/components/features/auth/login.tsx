@@ -42,9 +42,6 @@ export const Login: React.FC = () => {
   return (
     <AuthFormLayout
       title="Sign In"
-      switchText="Don't have an account?"
-      switchLink={URLS.REGISTER}
-      switchLinkText="Register"
     >
       {validationError && <FormAlert message={validationError} />}
       {hasError && (
