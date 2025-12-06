@@ -48,7 +48,7 @@ export const AppBar: React.FC<AppBarProps> = ({ logo, logoText }) => {
       }}
       component="header"
     >
-      <Toolbar sx={{ justifyContent: "space-between" }}>
+      <Toolbar sx={{ justifyContent: "space-between", height: `${AppBarData.size}px` }}>
         <Logo logo={logo} logoText={logoText} />
       </Toolbar>
     </MUIAppBar>
