@@ -24,11 +24,16 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({ sections }) => {
   }, [sections, location]);
 
   const [open, setOpen] = React.useState<Record<string, boolean>>(() => {
-    return sections.reduce((acc, section) => {
-      const containsSelected = section.children?.some(child => child.label === selected);
-      acc[section.label] = containsSelected || false;
-      return acc;
-    }, {} as Record<string, boolean>);
+    return sections.reduce(
+      (acc, section) => {
+        const containsSelected = section.children?.some(
+          (child) => child.label === selected,
+        );
+        acc[section.label] = containsSelected || false;
+        return acc;
+      },
+      {} as Record<string, boolean>,
+    );
   });
 
   const toggle = (label: string) => {

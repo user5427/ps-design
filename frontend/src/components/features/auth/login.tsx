@@ -40,9 +40,7 @@ export const Login: React.FC = () => {
   const hasError = loginMutation.isError;
 
   return (
-    <AuthFormLayout
-      title="Sign In"
-    >
+    <AuthFormLayout title="Sign In">
       {validationError && <FormAlert message={validationError} />}
       {hasError && (
         <FormAlert
