@@ -20,15 +20,13 @@ const MainLayout = ({ children, hideNavigation = false }: MainLayoutProps) => {
             flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-        height: "100vh",
+        height: "100%",
         width: "100%",
           bgcolor: "white",
           display: "flex",
-
+          mt: hideNavigation ? 0 : `${AppBarData.size}px`,
       }}
     >
-
-     
         {children}
     </Box>
     </Box>

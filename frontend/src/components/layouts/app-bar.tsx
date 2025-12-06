@@ -1,3 +1,4 @@
+import { AppBarData } from "@/constants";
 import { Box, AppBar as MUIAppBar, Toolbar, Typography } from "@mui/material";
 import type React from "react";
 
@@ -9,7 +10,7 @@ interface LogoProps {
 
 export interface AppBarProps extends LogoProps {}
 
-const Logo: React.FC<LogoProps> = ({ logo, logoText, size = 40 }) => (
+const Logo: React.FC<LogoProps> = ({ logo, logoText, size = AppBarData.size }) => (
   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
     <Box
       sx={{
