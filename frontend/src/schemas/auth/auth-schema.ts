@@ -6,10 +6,10 @@ export const LoginRequestSchema = z.object({
 })
 
 export const LoginResponseSchema = z.object({
-    userId: z.string(),
-    email: z.string(),
+    id: z.uuid(),
+    email: z.email(),
     role: z.string(),
-    businessId: z.string().nullable(),
+    businessId: z.uuid(),
     isPasswordResetRequired: z.boolean(),
     accessToken: z.string(),
 })
