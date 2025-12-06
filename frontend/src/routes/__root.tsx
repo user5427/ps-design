@@ -3,6 +3,8 @@ import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { refreshToken } from "@/api/auth";
 import { useAuthStore } from "@/store/auth";
+import { AppBar, MainLayout } from "@/components/layouts";
+import { AppBarData } from "@/constants/app-bar";
 
 interface RouterContext {
   queryClient: QueryClient;
@@ -30,7 +32,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function RootComponent() {
   return (
     <Box>
-      <Outlet />
+        <MainLayout>
+            <AppBar {...AppBarData} />
+            <Outlet />
+        </MainLayout>
     </Box>
   );
 }

@@ -1,39 +1,15 @@
-import { Box } from "@mui/material";
+import { Container } from "@mui/material";
 import type React from "react";
-import { AppBarData } from "@/constants";
-import { AppBar } from ".";
 
-interface MainLayoutProps {
+export interface MainLayoutProps {
   children?: React.ReactNode;
-  isBarHidden?: boolean;
 }
 
-const MainLayout = ({ children, isBarHidden = false }: MainLayoutProps) => {
+const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        minHeight: "100vh",
-        minWidth: "100vw",
-        bgcolor: "#f5f5f5",
-      }}
-    >
-      {!isBarHidden && <AppBar {...AppBarData} />}
-      <Box
-        sx={{
-          flex: 1,
-          width: "100%",
-          bgcolor: "white",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
+    <Container maxWidth="lg" sx={{ pt: 10, pb: 4 }}>
         {children}
-      </Box>
-    </Box>
+    </Container>
   );
 };
 

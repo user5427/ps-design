@@ -1,7 +1,6 @@
 import { Box } from "@mui/material";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { ChangePassword } from "@/components/features/auth";
-import { MainLayout } from "@/components/layouts";
 import { URLS } from "@/constants/urls";
 import { useAuthStore } from "@/store/auth";
 
@@ -18,10 +17,8 @@ export const Route = createFileRoute("/auth/change-password")({
 
 function ChangePasswordPage() {
   return (
-    <MainLayout>
       <Box sx={{ textAlign: "center", mt: 8 }}>
         <ChangePassword />
       </Box>
-    </MainLayout>
   );
 }

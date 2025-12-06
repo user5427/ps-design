@@ -44,7 +44,6 @@ function DashboardPage() {
   }
 
   return (
-    <MainLayout>
       <Paper sx={{ p: 4, width: "100%", maxWidth: 600 }}>
         <Typography variant="h4" gutterBottom>
           Dashboard
@@ -92,6 +91,5 @@ function DashboardPage() {
           </Button>
         </Stack>
       </Paper>
-    </MainLayout>
   );
 }

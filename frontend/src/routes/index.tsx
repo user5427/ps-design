@@ -17,7 +17,6 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   return (
-    <MainLayout isBarHidden>
       <Box
         sx={{
           textAlign: "center",
@@ -44,6 +43,5 @@ function HomePage() {
           Get Started
         </Button>
       </Box>
-    </MainLayout>
   );
 }

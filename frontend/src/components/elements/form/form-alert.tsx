@@ -1,7 +1,7 @@
 import { Alert } from "@mui/material";
 import type React from "react";
 
-interface FormAlertProps {
+export interface FormAlertProps {
   message: string | React.ReactNode;
   severity?: "error" | "warning" | "info" | "success";
   sx?: object;
