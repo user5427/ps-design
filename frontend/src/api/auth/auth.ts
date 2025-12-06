@@ -1,6 +1,6 @@
 import { apiClient } from '@/api/client'
-import { LoginRequestSchema, LoginResponseSchema, ChangePasswordRequestSchema, ChangePasswordResponseSchema } from '@/schemas/auth'
-import type { LoginRequest, LoginResponse, ChangePasswordRequest, ChangePasswordResponse } from '@/schemas/auth'
+import { LoginRequestSchema, LoginResponseSchema, ChangePasswordRequestSchema, ChangePasswordResponseSchema, AuthUserResponseSchema } from '@/schemas/auth'
+import type { LoginRequest, LoginResponse, ChangePasswordRequest, ChangePasswordResponse, AuthUserResponse } from '@/schemas/auth'
 
 export async function login(request: LoginRequest): Promise<LoginResponse> {
     const validated = LoginRequestSchema.parse(request)
@@ -12,9 +12,9 @@ export async function logout(): Promise<void> {
     await apiClient.post('/auth/logout')
 }
 
-export async function getCurrentUser(): Promise<LoginResponse> {
-    const response = await apiClient.get<LoginResponse>('/auth/me')
-    return LoginResponseSchema.parse(response.data)
+export async function getCurrentUser(): Promise<AuthUserResponse> {
+    const response = await apiClient.get<AuthUserResponse>('/auth/me')
+    return AuthUserResponseSchema.parse(response.data)
 }
 
 export async function refreshToken(): Promise<{ accessToken: string }> {

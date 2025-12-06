@@ -5,12 +5,15 @@ export const LoginRequestSchema = z.object({
     password: z.string().min(8, 'Password must be at least 8 characters'),
 })
 
-export const LoginResponseSchema = z.object({
+export const AuthUserResponseSchema = z.object({
     id: z.uuid(),
     email: z.email(),
     role: z.string(),
     businessId: z.uuid(),
     isPasswordResetRequired: z.boolean(),
+})
+
+export const LoginResponseSchema = AuthUserResponseSchema.extend({
     accessToken: z.string(),
 })
 
@@ -25,5 +28,6 @@ export const ChangePasswordResponseSchema = z.object({
 
 export type LoginRequest = z.infer<typeof LoginRequestSchema>
 export type LoginResponse = z.infer<typeof LoginResponseSchema>
+export type AuthUserResponse = z.infer<typeof AuthUserResponseSchema>
 export type ChangePasswordRequest = z.infer<typeof ChangePasswordRequestSchema>
 export type ChangePasswordResponse = z.infer<typeof ChangePasswordResponseSchema>
