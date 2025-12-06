@@ -7,7 +7,7 @@ export interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
-    <Container maxWidth="lg" sx={{ pt: 4, pb: 4 }}>
+    <Container maxWidth="lg" sx={{ pt: 10, pb: 4 }}>
         {children}
     </Container>
   );
