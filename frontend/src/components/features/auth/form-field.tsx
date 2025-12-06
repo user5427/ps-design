@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Typography, TextField } from '@mui/material';
+import { Box, TextField, Typography } from "@mui/material";
+import type React from "react";
 
 interface FormFieldProps {
   label: string;
@@ -13,7 +13,7 @@ interface FormFieldProps {
 
 export const FormField: React.FC<FormFieldProps> = ({
   label,
-  type = 'text',
+  type = "text",
   value,
   onChange,
   placeholder,
@@ -21,7 +21,10 @@ export const FormField: React.FC<FormFieldProps> = ({
   sx = {},
 }) => (
   <Box sx={{ mb: 3, ...sx }}>
-    <Typography variant="body2" sx={{ mb: 0.5, color: 'text.secondary', textAlign: 'left' }}>
+    <Typography
+      variant="body2"
+      sx={{ mb: 0.5, color: "text.secondary", textAlign: "left" }}
+    >
       {label}
     </Typography>
     <TextField

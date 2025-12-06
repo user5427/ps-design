@@ -1,1 +1,7 @@
-export { login, logout, getCurrentUser, changePassword, refreshToken } from './auth'
+export {
+  changePassword,
+  getCurrentUser,
+  login,
+  logout,
+  refreshToken,
+} from "./auth";
