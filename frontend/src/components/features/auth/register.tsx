@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Link } from '@tanstack/react-router';
-import { Box, TextField, Button, Typography, Link as MuiLink, Alert } from '@mui/material';
-
+import { Button } from '@mui/material';
+import { FormField } from './form-field';
+import { FormAlert } from './form-alert';
+import { AuthFormLayout } from './auth-form-layout';
+import { URLS } from '@/constants/urls';
 
 export const Register: React.FC = () => {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [validationError, setValidationError] = useState('');
@@ -15,70 +17,37 @@ export const Register: React.FC = () => {
             return;
         }
         setValidationError('');
-        console.log('Register:', { username, password });
     };
 
     return (
-        <Box
-            sx={{
-                width: '100%',
-                maxWidth: '360px',
-                aspectRatio: '9/16',
-                margin: '0 auto',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                px: 3
-            }}
+        <AuthFormLayout
+            title="Create Account"
+            switchText="Already have an account?"
+            switchLink={URLS.LOGIN}
+            switchLinkText="Login"
         >
-            <Typography variant="h4" sx={{ mb: 4, textAlign: 'center' }}>
-                Create Account
-            </Typography>
-
-            {validationError && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                    {validationError}
-                </Alert>
-            )}
-
-            <Box sx={{ mb: 3 }}>
-                <Typography variant="body2" sx={{ mb: 0.5, color: 'text.secondary', textAlign: 'left' }}>
-                    Username
-                </Typography>
-                <TextField
-                    fullWidth
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Choose a username"
-                />
-            </Box>
-
-            <Box sx={{ mb: 3 }}>
-                <Typography variant="body2" sx={{ mb: 0.5, color: 'text.secondary', textAlign: 'left' }}>
-                    Password
-                </Typography>
-                <TextField
-                    fullWidth
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Create a password"
-                />
-            </Box>
-
-            <Box sx={{ mb: 4 }}>
-                <Typography variant="body2" sx={{ mb: 0.5, color: 'text.secondary', textAlign: 'left' }}>
-                    Confirm Password
-                </Typography>
-                <TextField
-                    fullWidth
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm your password"
-                />
-            </Box>
-
+            {validationError && <FormAlert message={validationError} />}
+            <FormField
+                label="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+            />
+            <FormField
+                label="Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Create a password"
+            />
+            <FormField
+                label="Confirm Password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm your password"
+                sx={{ mb: 4 }}
+            />
             <Button
                 fullWidth
                 variant="contained"
@@ -88,13 +57,6 @@ export const Register: React.FC = () => {
             >
                 Register
             </Button>
-
-            <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary' }}>
-                Already have an account?{' '}
-                <MuiLink component={Link} to="/auth/login" sx={{ fontWeight: 500 }}>
-                    Login
-                </MuiLink>
-            </Typography>
-        </Box>
+        </AuthFormLayout>
     );
 };

@@ -1,0 +1,14 @@
+import React from 'react';
+import { Alert } from '@mui/material';
+
+interface FormAlertProps {
+  message: string;
+  severity?: 'error' | 'warning' | 'info' | 'success';
+  sx?: object;
+}
+
+export const FormAlert: React.FC<FormAlertProps> = ({ message, severity = 'error', sx = {} }) => (
+  <Alert severity={severity} sx={{ mb: 2, ...sx }}>
+    {message}
+  </Alert>
+);

@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { Box, TextField, Button, Typography, Alert } from '@mui/material'
+import { Button } from '@mui/material'
 import { useLogin } from '@/hooks/auth/auth-hooks'
+import { FormField } from './form-field'
+import { FormAlert } from './form-alert'
+import { AuthFormLayout } from './auth-form-layout'
+import { URLS } from '@/constants/urls'
 
 export const Login: React.FC = () => {
     const [email, setEmail] = useState('')
@@ -10,15 +14,13 @@ export const Login: React.FC = () => {
     const navigate = useNavigate()
     const loginMutation = useLogin()
 
-    // Handle successful login
     useEffect(() => {
         if (loginMutation.isSuccess && loginMutation.data) {
             const { isPasswordResetRequired } = loginMutation.data
-
             if (isPasswordResetRequired) {
-                navigate({ to: '/auth/change-password' })
+                navigate({ to: URLS.CHANGE_PASSWORD })
             } else {
-                navigate({ to: '/dashboard' })
+                navigate({ to: URLS.DASHBOARD })
             }
         }
     }, [loginMutation.isSuccess, loginMutation.data, navigate])
@@ -28,74 +30,41 @@ export const Login: React.FC = () => {
             setValidationError('Please enter both email and password')
             return
         }
-
         setValidationError('')
-        loginMutation.mutate({
-            email,
-            password,
-        })
+        loginMutation.mutate({ email, password })
     }
 
     const isLoading = loginMutation.isPending
     const hasError = loginMutation.isError
 
     return (
-        <Box
-            sx={{
-                width: '100%',
-                maxWidth: '360px',
-                aspectRatio: '9/16',
-                margin: '0 auto',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                px: 3,
-            }}
+        <AuthFormLayout
+            title="Sign In"
+            switchText="Don't have an account?"
+            switchLink={URLS.REGISTER}
+            switchLinkText="Register"
         >
-            <Typography variant="h4" sx={{ mb: 4, textAlign: 'center' }}>
-                Sign In
-            </Typography>
-
-            {validationError && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                    {validationError}
-                </Alert>
-            )}
-
+            {validationError && <FormAlert message={validationError} />}
             {hasError && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                    {loginMutation.error?.message || 'Login failed. Please try again.'}
-                </Alert>
+                <FormAlert message={loginMutation.error?.message || 'Login failed. Please try again.'} />
             )}
-
-            <Box sx={{ mb: 3 }}>
-                <Typography variant="body2" sx={{ mb: 0.5, color: 'text.secondary', textAlign: 'left' }}>
-                    Email
-                </Typography>
-                <TextField
-                    fullWidth
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email"
-                    disabled={isLoading}
-                />
-            </Box>
-
-            <Box sx={{ mb: 4 }}>
-                <Typography variant="body2" sx={{ mb: 0.5, color: 'text.secondary', textAlign: 'left' }}>
-                    Password
-                </Typography>
-                <TextField
-                    fullWidth
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    disabled={isLoading}
-                />
-            </Box>
-
+            <FormField
+                label="Email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                disabled={isLoading}
+            />
+            <FormField
+                label="Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                disabled={isLoading}
+                sx={{ mb: 4 }}
+            />
             <Button
                 fullWidth
                 variant="contained"
@@ -106,6 +75,6 @@ export const Login: React.FC = () => {
             >
                 {isLoading ? 'Logging in...' : 'Login'}
             </Button>
-        </Box>
+        </AuthFormLayout>
     )
 }
