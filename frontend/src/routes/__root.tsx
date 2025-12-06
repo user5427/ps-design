@@ -1,11 +1,15 @@
 import { Box } from "@mui/material";
 import type { QueryClient } from "@tanstack/react-query";
-import { createRootRouteWithContext, Outlet, useLocation } from "@tanstack/react-router";
+import {
+  createRootRouteWithContext,
+  Outlet,
+  useLocation,
+} from "@tanstack/react-router";
 import { refreshToken } from "@/api/auth";
+import { MainLayout, PublicLayout } from "@/components/layouts";
 import { AppBar } from "@/components/layouts/app-bar";
 import { AppBarData } from "@/constants/app-bar";
 import { useAuthStore } from "@/store/auth";
-import { MainLayout, PublicLayout } from "@/components/layouts";
 
 interface RouterContext {
   queryClient: QueryClient;
@@ -32,12 +36,14 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
 function RootComponent() {
   const location = useLocation();
-  const isPublicRoute = ["/", "/auth/login", "/auth/change-password"].includes(location.pathname);
+  const isPublicRoute = ["/", "/auth/login", "/auth/change-password"].includes(
+    location.pathname,
+  );
   const Layout = isPublicRoute ? PublicLayout : MainLayout;
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-    <AppBar {...AppBarData} />
+      <AppBar {...AppBarData} />
       <Layout>
         <Outlet />
       </Layout>

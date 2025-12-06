@@ -40,15 +40,15 @@ function DashboardPage() {
   }
 
   return (
-      <Box
-        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
-      >
-        <Dashboard
-          user={user}
-          handleLogout={handleLogout}
-          logoutMutation={logoutMutation}
-          navigate={navigate}
-        />
-      </Box>
+    <Box
+      sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+    >
+      <Dashboard
+        user={user}
+        handleLogout={handleLogout}
+        logoutMutation={logoutMutation}
+        navigate={navigate}
+      />
+    </Box>
   );
 }
