@@ -18,11 +18,11 @@ import {
   loginSchema,
 } from "./request-types";
 import {
+  authUserResponseSchema,
   errorResponseSchema,
   loginResponseSchema,
   refreshResponseSchema,
   successResponseSchema,
-  authUserResponseSchema,
 } from "./response-types";
 
 const SALT_LENGTH = 10;
