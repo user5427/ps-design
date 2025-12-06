@@ -1,7 +1,10 @@
 import React, { useState } from 'react'
-import { Box, TextField, Button, Typography, LinearProgress, Alert } from '@mui/material'
-import { checkPasswordStrength, getPasswordStrengthColor, getPasswordStrengthLabel } from '@/utils/auth'
+import { Box, TextField, Button, Typography } from '@mui/material'
+import { checkPasswordStrength } from '@/utils/auth'
 import { useChangePassword } from '@/queries/auth'
+import { PasswordStrengthIndicator } from './password-strength-indicator'
+import { PasswordRequirements } from './password-requirements'
+import { FormAlert } from './form-alert'
 
 export const ChangePassword: React.FC = () => {
     const [currentPassword, setCurrentPassword] = useState('')
@@ -18,17 +21,12 @@ export const ChangePassword: React.FC = () => {
     }
 
     const handleSubmit = () => {
-        // Validate passwords match
         if (newPassword !== confirmPassword) {
             return
         }
-
-        // Validate password strength
         if (!passwordStrength.isValid) {
             return
         }
-
-        // Submit change password request
         changePasswordMutation.mutate({
             currentPassword,
             newPassword,
@@ -60,20 +58,14 @@ export const ChangePassword: React.FC = () => {
                 Change Password
             </Typography>
 
-            {/* Error messages */}
             {changePasswordMutation.isError && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                    {changePasswordMutation.error?.message || 'Failed to change password'}
-                </Alert>
+                <FormAlert message={changePasswordMutation.error?.message || 'Failed to change password'} />
             )}
 
             {changePasswordMutation.isSuccess && (
-                <Alert severity="success" sx={{ mb: 2 }}>
-                    Password changed successfully!
-                </Alert>
+                <FormAlert message="Password changed successfully!" severity="success" />
             )}
 
-            {/* Current Password */}
             <Box sx={{ mb: 3 }}>
                 <Typography variant="body2" sx={{ mb: 0.5, color: 'text.secondary', textAlign: 'left' }}>
                     Current Password
@@ -88,7 +80,6 @@ export const ChangePassword: React.FC = () => {
                 />
             </Box>
 
-            {/* New Password */}
             <Box sx={{ mb: 1 }}>
                 <Typography variant="body2" sx={{ mb: 0.5, color: 'text.secondary', textAlign: 'left' }}>
                     New Password
@@ -103,61 +94,10 @@ export const ChangePassword: React.FC = () => {
                 />
             </Box>
 
-            {/* Password Strength Indicator */}
             {newPassword.length > 0 && (
-                <Box sx={{ mb: 3, display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                            Password Strength
-                        </Typography>
-                        <Typography
-                            variant="caption"
-                            sx={{
-                                fontWeight: 600,
-                                color: getPasswordStrengthColor(passwordStrength.score),
-                            }}
-                        >
-                            {getPasswordStrengthLabel(passwordStrength.score)}
-                        </Typography>
-                    </Box>
-                    <LinearProgress
-                        variant="determinate"
-                        value={(passwordStrength.score / 3) * 100}
-                        sx={{
-                            height: 6,
-                            borderRadius: 3,
-                            backgroundColor: '#e0e0e0',
-                            '& .MuiLinearProgress-bar': {
-                                backgroundColor: getPasswordStrengthColor(passwordStrength.score),
-                                borderRadius: 3,
-                            },
-                        }}
-                    />
-                    {passwordStrength.feedback.length > 0 && (
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                            {passwordStrength.feedback.map((message: string, index: number) => (
-                                <Typography
-                                    key={index}
-                                    variant="caption"
-                                    sx={{
-                                        color: '#d32f2f',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        '&:before': {
-                                            content: '"• "',
-                                            marginRight: '4px',
-                                        },
-                                    }}
-                                >
-                                    {message}
-                                </Typography>
-                            ))}
-                        </Box>
-                    )}
-                </Box>
+                <PasswordStrengthIndicator score={passwordStrength.score} feedback={passwordStrength.feedback} />
             )}
 
-            {/* Confirm Password */}
             <Box sx={{ mb: 1 }}>
                 <Typography variant="body2" sx={{ mb: 0.5, color: 'text.secondary', textAlign: 'left' }}>
                     Confirm Password
@@ -175,25 +115,13 @@ export const ChangePassword: React.FC = () => {
             </Box>
 
             {confirmPassword.length > 0 && !passwordsMatch && (
-                <Alert severity="error" sx={{ mb: 4 }}>
-                    Passwords do not match
-                </Alert>
+                <FormAlert message="Passwords do not match" sx={{ mb: 4 }} />
             )}
 
             {!passwordStrength.isValid && newPassword.length > 0 && (
-                <Alert severity="error" sx={{ mb: 4 }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                        Password does not meet requirements:
-                        {passwordStrength.feedback.map((message: string, index: number) => (
-                            <Typography key={index} variant="caption">
-                                • {message}
-                            </Typography>
-                        ))}
-                    </Box>
-                </Alert>
+                <FormAlert message={<PasswordRequirements feedback={passwordStrength.feedback} />} sx={{ mb: 4 }} />
             )}
 
-            {/* Submit Button */}
             <Button
                 fullWidth
                 variant="contained"

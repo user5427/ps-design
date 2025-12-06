@@ -2,7 +2,7 @@ import React from 'react';
 import { Alert } from '@mui/material';
 
 interface FormAlertProps {
-  message: string;
+  message: string | React.ReactNode;
   severity?: 'error' | 'warning' | 'info' | 'success';
   sx?: object;
 }
