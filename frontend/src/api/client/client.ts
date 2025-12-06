@@ -59,8 +59,14 @@ apiClient.interceptors.response.use(
       _retry?: boolean;
     };
 
-    const isLoginOrRefresh = originalRequest.url?.includes("/auth/login") || originalRequest.url?.includes("/auth/refresh");
-    if (error.response?.status === 401 && !originalRequest._retry && !isLoginOrRefresh) {
+    const isLoginOrRefresh =
+      originalRequest.url?.includes("/auth/login") ||
+      originalRequest.url?.includes("/auth/refresh");
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isLoginOrRefresh
+    ) {
       if (isRefreshing) {
         return new Promise((resolve) => {
           addRefreshSubscriber((token) => {
