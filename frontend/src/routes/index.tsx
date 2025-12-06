@@ -1,6 +1,6 @@
 import { Box, Button, Typography } from "@mui/material";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { MainLayout } from "@/components/layouts/main-layout";
+import { PublicLayout } from "@/components/layouts";
 import { URLS } from "@/constants/urls";
 import { useAuthStore } from "@/store/auth";
 
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   return (
-    <MainLayout isBarHidden>
+    <PublicLayout>
       <Box
         sx={{
           textAlign: "center",
@@ -32,9 +32,6 @@ function HomePage() {
         <Typography variant="h2" gutterBottom>
           Welcome to ADEPI
         </Typography>
-        <Typography variant="h5" color="text.secondary" component="p">
-          Your ADEPI homepage
-        </Typography>
         <Button
           component={Link}
           to={URLS.LOGIN}
@@ -44,6 +41,6 @@ function HomePage() {
           Get Started
         </Button>
       </Box>
-    </MainLayout>
+    </PublicLayout>
   );
 }

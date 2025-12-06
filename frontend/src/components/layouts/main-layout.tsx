@@ -1,35 +1,27 @@
 import { Box } from "@mui/material";
 import type React from "react";
-import { AppBarData } from "@/constants";
+import { Sidebar } from "@/components/shared/sidebar";
+import { AppBarData, sidebarSections } from "@/constants";
 import { AppBar } from ".";
 
 interface MainLayoutProps {
   children?: React.ReactNode;
-  isBarHidden?: boolean;
 }
 
-const MainLayout = ({ children, isBarHidden = false }: MainLayoutProps) => {
+const MainLayout = ({ children }: MainLayoutProps) => {
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        minHeight: "100vh",
-        minWidth: "100vw",
-        bgcolor: "#f5f5f5",
-      }}
-    >
-      {!isBarHidden && <AppBar {...AppBarData} />}
+    <Box sx={{ display: "flex" }}>
+      <Sidebar sidebarSections={sidebarSections} />
+      <AppBar {...AppBarData} />
       <Box
         sx={{
           flex: 1,
+          height: "100%",
           width: "100%",
           bgcolor: "white",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
+          mt: `${AppBarData.size}px`,
         }}
+        component="main"
       >
         {children}
       </Box>
