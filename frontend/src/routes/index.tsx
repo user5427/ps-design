@@ -17,7 +17,7 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   return (
-    <MainLayout isBarHidden>
+    <MainLayout hideNavigation>
       <Box
         sx={{
           textAlign: "center",

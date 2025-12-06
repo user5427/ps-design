@@ -17,7 +17,7 @@ export const Route = createFileRoute("/auth/register")({
 
 function RegisterPage() {
   return (
-    <MainLayout isBarHidden>
+    <MainLayout hideNavigation>
       <Register />
     </MainLayout>
   );

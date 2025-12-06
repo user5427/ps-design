@@ -17,7 +17,7 @@ export const Route = createFileRoute("/auth/login")({
 
 function LoginPage() {
   return (
-    <MainLayout isBarHidden>
+    <MainLayout hideNavigation>
       <Login />
     </MainLayout>
   );

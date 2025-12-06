@@ -35,13 +35,9 @@ export const AppBar: React.FC<AppBarProps> = ({ logo, logoText }) => {
 
   return (
     <MUIAppBar
-      position="absolute"
-      elevation={1}
-      sx={{
+        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 ,
         color: "text.primary",
-        bgcolor: "background.paper",
-        width: "100%",
-      }}
+        bgcolor: "background.paper",}}
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
         <Logo logo={logo} logoText={logoText} />
