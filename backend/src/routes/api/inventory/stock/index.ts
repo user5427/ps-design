@@ -4,12 +4,12 @@ import httpStatus from "http-status";
 import { getBusinessId } from "../../../../shared/auth-utils";
 import { handleServiceError } from "../../../../shared/error-handler";
 import {
+  ChangeIdParam,
   type ChangeIdParams,
   type CreateStockChangeBody,
-  ChangeIdParam,
   CreateStockChangeSchema,
-  type ProductIdParams,
   ProductIdParam,
+  type ProductIdParams,
   type StockQuery,
   StockQuerySchema,
 } from "./request-types";

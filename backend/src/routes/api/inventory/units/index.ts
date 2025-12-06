@@ -6,9 +6,9 @@ import { handleServiceError } from "../../../../shared/error-handler";
 import {
   type CreateProductUnitBody,
   CreateProductUnitSchema,
+  UnitIdParam,
   type UnitIdParams,
   type UpdateProductUnitBody,
-  UnitIdParam,
   UpdateProductUnitSchema,
 } from "./request-types";
 
