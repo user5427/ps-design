@@ -6,21 +6,20 @@ import { Sidebar } from "@/components/shared/sidebar";
 
 interface MainLayoutProps {
   children?: React.ReactNode;
-  hideNavigation?: boolean;
 }
 
-const MainLayout = ({ children, hideNavigation = false }: MainLayoutProps) => {
+const MainLayout = ({ children,}: MainLayoutProps) => {
   return (
     <Box sx={{ display: 'flex' }}>
-    {!hideNavigation && <Sidebar sidebarSections={sidebarSections} />}
-    {!hideNavigation && <AppBar {...AppBarData} />}
+    <Sidebar sidebarSections={sidebarSections} />
+    <AppBar {...AppBarData} />
     <Box
       sx={{
         flex: 1,
         height: "100%",
         width: "100%",
           bgcolor: "white",
-          mt: hideNavigation ? 0 : `${AppBarData.size}px`,
+          mt: `${AppBarData.size}px`,
       }}
       component="main"
     >
