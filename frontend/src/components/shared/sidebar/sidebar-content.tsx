@@ -48,7 +48,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({ sections }) => {
   };
 
   return (
-    <List component="nav" disablePadding>
+    <List component="nav">
       {sections.map(section => (
         <SidebarItem
           key={section.label}

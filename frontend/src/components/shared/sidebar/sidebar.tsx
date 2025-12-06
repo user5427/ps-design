@@ -4,6 +4,7 @@ import {
 } from "@mui/material";
 import { SidebarContent } from "./sidebar-content";
 import type { Section } from "./sidebar-item";
+import { AppBarData } from "@/constants";
 
 const DRAWER_WIDTH = 240;
 
@@ -21,7 +22,7 @@ export const Sidebar: React.FC<SidebarProps> = ({sidebarSections}) => {
           [`& .MuiDrawer-paper`]: { width: DRAWER_WIDTH, boxSizing: 'border-box' },
         }}
       > 
-      <Toolbar/>
+      <Toolbar sx={{ minHeight: `${AppBarData.size}px` }} />
       <SidebarContent sections={sidebarSections} />
     </Drawer>
   );
