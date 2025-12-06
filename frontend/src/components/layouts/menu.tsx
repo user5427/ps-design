@@ -48,8 +48,8 @@ export const Menu: React.FC<MenuProps> = ({
                             </Typography>
                         </Box>
                     )}
-                    {cat.links.map((link, idx) => (
-                        <React.Fragment key={idx}>
+                    {cat.links.map((link) => (
+                        <React.Fragment key={link.to || link.label}>
                             <ListItem disablePadding>
                                 <MuiLink
                                     component={Link}
@@ -79,7 +79,7 @@ export const Menu: React.FC<MenuProps> = ({
                                     />
                                 </MuiLink>
                             </ListItem>
-                            {idx < cat.links.length - 1 && (
+                            {cat.links.indexOf(link) < cat.links.length - 1 && (
                                 <Divider component="li" sx={{ mx: 3 }} />
                             )}
                         </React.Fragment>

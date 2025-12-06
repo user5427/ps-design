@@ -35,7 +35,7 @@ let isRefreshing = false
 let refreshSubscribers: Array<(token: string) => void> = []
 
 function onRefreshed(token: string) {
-  refreshSubscribers.forEach(cb => cb(token))
+  refreshSubscribers.forEach((cb) => { cb(token); });
   refreshSubscribers = []
 }
 
