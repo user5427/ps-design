@@ -46,7 +46,7 @@ export const Login: React.FC = () => {
         >
             {validationError && <FormAlert message={validationError} />}
             {hasError && (
-                <FormAlert message={loginMutation.error?.message || 'Login failed. Please try again.'} />
+                <FormAlert message={'Incorrect credentials. Please try again.'} />
             )}
             <FormField
                 label="Email"
