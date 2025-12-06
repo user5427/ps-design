@@ -1,15 +1,16 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { Container, Paper, Typography, Box, Button, Stack, Chip } from "@mui/material";
+import { Paper, Typography, Box, Button, Stack, Chip } from "@mui/material";
 import { useAuthUser, useLogout } from "@/hooks/auth/auth-hooks";
 import { useAuthStore } from "@/store/auth";
 import { MainLayout } from '@/components/layouts/main-layout';
+import { URLS } from "@/constants/urls";
 
 export const Route = createFileRoute("/dashboard")({
     beforeLoad: async () => {
         const store = useAuthStore.getState();
         const token = store.getAccessToken();
         if (!token) {
-            throw redirect({ to: "/" });
+            throw redirect({ to: URLS.HOME });
         }
     },
     component: DashboardPage,
@@ -21,7 +22,8 @@ function DashboardPage() {
     const logoutMutation = useLogout();
 
     if (isError) {
-        throw redirect({ to: "/" });
+        navigate({ to: "/" });
+        return null;
     }
 
     const handleLogout = async () => {
@@ -76,7 +78,7 @@ function DashboardPage() {
                     <Stack direction="row" spacing={2} sx={{ mt: 4 }}>
                         <Button
                             variant="outlined"
-                            onClick={() => navigate({ to: "/auth/change-password" })}
+                            onClick={() => navigate({ to: URLS.CHANGE_PASSWORD })}
                         >
                             Change Password
                         </Button>

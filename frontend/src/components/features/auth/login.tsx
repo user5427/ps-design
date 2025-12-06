@@ -6,6 +6,7 @@ import { FormField } from './form-field'
 import { FormAlert } from './form-alert'
 import { AuthFormLayout } from './auth-form-layout'
 import { URLS } from '@/constants/urls'
+import { getReadableError } from '@/utils/get-readable-error'
 
 export const Login: React.FC = () => {
     const [email, setEmail] = useState('')
@@ -46,7 +47,7 @@ export const Login: React.FC = () => {
         >
             {validationError && <FormAlert message={validationError} />}
             {hasError && (
-                <FormAlert message={'Incorrect credentials. Please try again.'} />
+                <FormAlert message={getReadableError(loginMutation.error, 'Incorrect credentials. Please try again.')} />
             )}
             <FormField
                 label="Email"

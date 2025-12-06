@@ -6,6 +6,7 @@ import { PasswordStrengthIndicator } from './password-strength-indicator'
 import { PasswordRequirements } from './password-requirements'
 import { FormAlert } from './form-alert'
 import { FormField } from './form-field'
+import { getReadableError } from '@/utils/get-readable-error'
 
 export const ChangePassword: React.FC = () => {
     const [currentPassword, setCurrentPassword] = useState('')
@@ -13,7 +14,7 @@ export const ChangePassword: React.FC = () => {
     const [confirmPassword, setConfirmPassword] = useState('')
     const [passwordStrength, setPasswordStrength] = useState(checkPasswordStrength(''))
 
-    const clearInputs = ()   => {
+    const clearInputs = () => {
         setCurrentPassword('')
         setNewPassword('')
         setConfirmPassword('')
@@ -38,8 +39,11 @@ export const ChangePassword: React.FC = () => {
         changePasswordMutation.mutate({
             currentPassword,
             newPassword,
+        },{
+            onSuccess: () => {
+                clearInputs()
+            }
         })
-        clearInputs()
     }
 
     const passwordsMatch = newPassword === confirmPassword && newPassword.length > 0
@@ -68,7 +72,7 @@ export const ChangePassword: React.FC = () => {
             </Typography>
 
             {changePasswordMutation.isError && (
-                <FormAlert message={changePasswordMutation.error?.message || 'Failed to change password'} />
+                <FormAlert message={getReadableError(changePasswordMutation.error, 'Failed to change password')} />
             )}
 
             {changePasswordMutation.isSuccess && (

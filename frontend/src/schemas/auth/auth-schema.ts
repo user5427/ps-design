@@ -9,7 +9,7 @@ export const AuthUserResponseSchema = z.object({
     id: z.uuid(),
     email: z.email(),
     role: z.string(),
-    businessId: z.uuid(),
+    businessId: z.uuid().nullable(),
     isPasswordResetRequired: z.boolean(),
 })
 

@@ -1,6 +1,6 @@
 import { ChangePassword } from '@/components/features/auth'
-import { AppBar, MainLayout } from '@/components/layouts'
-import { AppBarData } from '@/constants'
+import { MainLayout } from '@/components/layouts'
+import { URLS } from '@/constants/urls'
 import { useAuthStore } from '@/store/auth'
 import { Box } from '@mui/material'
 import { createFileRoute, redirect } from '@tanstack/react-router'
@@ -10,7 +10,7 @@ export const Route = createFileRoute("/auth/change-password")({
         const store = useAuthStore.getState();
         const token = store.getAccessToken();
         if (!token) {
-            throw redirect({ to: "/" });
+            throw redirect({ to: URLS.HOME });
         }
     },
     component: ChangePasswordPage,
@@ -19,7 +19,6 @@ export const Route = createFileRoute("/auth/change-password")({
 function ChangePasswordPage() {
     return (
         <MainLayout>
-            <AppBar {...AppBarData} />
             <Box sx={{ textAlign: 'center', mt: 8 }}>
                 <ChangePassword />
             </Box>
