@@ -37,7 +37,7 @@ async function main() {
     }
 
     // Default password for initial users
-    const defaultPassword = "Geras123";
+    const defaultPassword = "Geras@123";
     const passwordHash = await bcrypt.hash(defaultPassword, 10);
 
     // Initial users to create/upsert

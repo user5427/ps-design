@@ -1,33 +1,40 @@
-import React from 'react';
-import { Box, useMediaQuery, useTheme } from '@mui/material';
+import { Box } from "@mui/material";
+import type React from "react";
+import { AppBarData } from "@/constants";
+import { AppBar } from ".";
 
-const MainLayout = ({ children }: { children?: React.ReactNode }) => {
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+interface MainLayoutProps {
+  children?: React.ReactNode;
+  isBarHidden?: boolean;
+}
 
-    return (
-        <Box
-            sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                minHeight: '100vh',
-                bgcolor: '#f5f5f5',
-            }}
-        >
-            <Box
-                sx={{
-                    position: 'relative',
-                    width: isMobile ? '100%' : 'calc(100vh * 9 / 16)',
-                    height: '100vh',
-                    bgcolor: 'white',
-                    boxShadow: isMobile ? 'none' : '0 0 20px rgba(0,0,0,0.1)',
-                }}
-            >
-                {children}
-            </Box>
-        </Box>
-    );
+const MainLayout = ({ children, isBarHidden = false }: MainLayoutProps) => {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        minWidth: "100vw",
+        bgcolor: "#f5f5f5",
+      }}
+    >
+      {!isBarHidden && <AppBar {...AppBarData} />}
+      <Box
+        sx={{
+          flex: 1,
+          width: "100%",
+          bgcolor: "white",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {children}
+      </Box>
+    </Box>
+  );
 };
 
 export { MainLayout };

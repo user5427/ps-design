@@ -1,1 +1,5 @@
-export { checkPasswordStrength, getPasswordStrengthColor, getPasswordStrengthLabel } from './password-strength'
+export {
+  checkPasswordStrength,
+  getPasswordStrengthColor,
+  getPasswordStrengthLabel,
+} from "./password-strength";

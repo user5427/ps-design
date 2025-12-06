@@ -1,20 +1,27 @@
-import { ChangePassword } from '@/components/features/auth'
-import { AppBar, MainLayout } from '@/components/layouts'
-import { AppBarData } from '@/constants'
-import { Box } from '@mui/material'
-import { createFileRoute } from '@tanstack/react-router'
+import { Box } from "@mui/material";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { ChangePassword } from "@/components/features/auth";
+import { MainLayout } from "@/components/layouts";
+import { URLS } from "@/constants/urls";
+import { useAuthStore } from "@/store/auth";
 
-export const Route = createFileRoute('/auth/change-password')({
-    component: RouteComponent,
-})
+export const Route = createFileRoute("/auth/change-password")({
+  beforeLoad: async () => {
+    const store = useAuthStore.getState();
+    const token = store.getAccessToken();
+    if (!token) {
+      throw redirect({ to: URLS.HOME });
+    }
+  },
+  component: ChangePasswordPage,
+});
 
-function RouteComponent() {
-    return (
-        <MainLayout>
-            <AppBar {...AppBarData} />
-            <Box sx={{ textAlign: 'center', mt: 8 }}>
-                <ChangePassword />
-            </Box>
-        </MainLayout>
-    )
+function ChangePasswordPage() {
+  return (
+    <MainLayout>
+      <Box sx={{ textAlign: "center", mt: 8 }}>
+        <ChangePassword />
+      </Box>
+    </MainLayout>
+  );
 }

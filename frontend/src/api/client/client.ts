@@ -1,88 +1,110 @@
-import axios, { type AxiosInstance, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
-import { useAuthStore } from '@/store/auth'
+import axios, {
+  type AxiosError,
+  type AxiosInstance,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from "axios";
+import { URLS } from "@/constants/urls";
+import { useAuthStore } from "@/store/auth";
 
-const API_BASE_URL = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/api`
+const API_BASE_URL = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${
+  import.meta.env.VITE_BACKEND_HOST
+}:${import.meta.env.VITE_BACKEND_PORT}/api`;
 
-let routerInstance: any = null
+interface RouterLike {
+  state: {
+    location: {
+      pathname: string;
+    };
+  };
+  navigate: (opts: { to: string }) => void;
+}
 
-export function setRouterInstance(router: any) {
-    routerInstance = router
+let routerInstance: RouterLike | null = null;
+
+export function setRouterInstance(router: RouterLike) {
+  routerInstance = router;
 }
 
 export const apiClient: AxiosInstance = axios.create({
-    baseURL: API_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    withCredentials: true,
-})
+  baseURL: API_BASE_URL,
+  headers: { "Content-Type": "application/json" },
+  withCredentials: true,
+});
 
-let isRefreshing = false
-let refreshSubscribers: ((token: string) => void)[] = []
+let isRefreshing = false;
+let refreshSubscribers: Array<(token: string) => void> = [];
 
 function onRefreshed(token: string) {
-    refreshSubscribers.forEach((callback) => callback(token))
-    refreshSubscribers = []
+  refreshSubscribers.forEach((cb) => {
+    cb(token);
+  });
+  refreshSubscribers = [];
 }
 
 function addRefreshSubscriber(callback: (token: string) => void) {
-    refreshSubscribers.push(callback)
+  refreshSubscribers.push(callback);
 }
 
-// Add request interceptor to add access token
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    const token = useAuthStore.getState().getAccessToken()
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-})
+  const token = useAuthStore.getState().getAccessToken();
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 
-// Add response interceptor for token refresh on 401
 apiClient.interceptors.response.use(
-    (response: AxiosResponse) => response,
-    async (error: any) => {
-        const originalRequest = error.config
+  (response: AxiosResponse) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
-            if (isRefreshing) {
-                return new Promise((resolve) => {
-                    addRefreshSubscriber((token: string) => {
-                        originalRequest.headers.Authorization = `Bearer ${token}`
-                        resolve(apiClient(originalRequest))
-                    })
-                })
-            }
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        return new Promise((resolve) => {
+          addRefreshSubscriber((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            resolve(apiClient(originalRequest));
+          });
+        });
+      }
 
-            originalRequest._retry = true
-            isRefreshing = true
+      originalRequest._retry = true;
+      isRefreshing = true;
 
-            try {
-                const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, {
-                    withCredentials: true,
-                })
+      try {
+        const response = await axios.post(
+          `${API_BASE_URL}/auth/refresh`,
+          {},
+          { withCredentials: true },
+        );
 
-                const { accessToken } = response.data
-                useAuthStore.getState().setAccessToken(accessToken)
-                originalRequest.headers.Authorization = `Bearer ${accessToken}`
-                isRefreshing = false
-                onRefreshed(accessToken)
-                return apiClient(originalRequest)
-            } catch (refreshError) {
-                isRefreshing = false
-                useAuthStore.getState().setAccessToken(null)
+        const { accessToken } = response.data as { accessToken: string };
 
-                // Only redirect to login if we're not already on the login page
-                if (routerInstance && routerInstance.state.location.pathname !== '/auth/login') {
-                    routerInstance.navigate({ to: '/auth/login' })
-                }
+        useAuthStore.getState().setAccessToken(accessToken);
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
-                return Promise.reject(refreshError)
-            }
+        isRefreshing = false;
+        onRefreshed(accessToken);
+
+        return apiClient(originalRequest);
+      } catch (refreshError) {
+        isRefreshing = false;
+        useAuthStore.getState().setAccessToken(null);
+
+        if (
+          routerInstance &&
+          routerInstance.state.location.pathname !== URLS.LOGIN
+        ) {
+          routerInstance.navigate({ to: URLS.LOGIN });
         }
 
-        return Promise.reject(error)
+        return Promise.reject(refreshError);
+      }
     }
-)
 
-export default apiClient
+    return Promise.reject(error);
+  },
+);
+
+export default apiClient;

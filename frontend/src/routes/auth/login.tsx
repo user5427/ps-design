@@ -1,20 +1,24 @@
-import { Login } from '@/components/features/auth'
-import { MainLayout, AppBar } from '@/components/layouts'
-import Box from '@mui/material/Box'
-import { createFileRoute } from '@tanstack/react-router'
-import { AppBarData } from '@/constants'
-export const Route = createFileRoute('/auth/login')({
-    component: RouteComponent,
-})
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { Login } from "@/components/features/auth";
+import { MainLayout } from "@/components/layouts";
+import { URLS } from "@/constants/urls";
+import { useAuthStore } from "@/store/auth/auth-store";
 
+export const Route = createFileRoute("/auth/login")({
+  beforeLoad: async () => {
+    const store = useAuthStore.getState();
+    const token = store.getAccessToken();
+    if (token) {
+      throw redirect({ to: URLS.DASHBOARD });
+    }
+  },
+  component: LoginPage,
+});
 
-function RouteComponent() {
-    return (
-        <MainLayout>
-            <AppBar {...AppBarData} />
-            <Box sx={{ textAlign: 'center', mt: 8 }}>
-                <Login />
-            </Box>
-        </MainLayout>
-    )
+function LoginPage() {
+  return (
+    <MainLayout isBarHidden>
+      <Login />
+    </MainLayout>
+  );
 }
