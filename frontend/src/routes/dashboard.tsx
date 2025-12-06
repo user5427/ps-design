@@ -36,17 +36,14 @@ function DashboardPage() {
     if (isLoading || !user) {
         return (
             <MainLayout>
-                <Container maxWidth="md" sx={{ mt: 4 }}>
                     <Typography>Loading...</Typography>
-                </Container>
             </MainLayout>
         );
     }
 
     return (
         <MainLayout>
-            <Container maxWidth="md" >
-                <Paper elevation={3} sx={{ p: 4 }}>
+                <Paper sx={{ p: 4, width: '100%', maxWidth: 600 }}>
                     <Typography variant="h4" gutterBottom>
                         Dashboard
                     </Typography>
@@ -93,7 +90,6 @@ function DashboardPage() {
                         </Button>
                     </Stack>
                 </Paper>
-            </Container>
         </MainLayout>
     );
 }

@@ -13,7 +13,7 @@ const MainLayout = ({ children, isBarHidden = false }: MainLayoutProps) => {
         <Box
             sx={{
                 display: 'flex',
-                alignItems: 'center',
+                flexDirection: 'column',
                 minHeight: '100vh',
                 minWidth: '100vw',
                 bgcolor: '#f5f5f5',
@@ -22,11 +22,13 @@ const MainLayout = ({ children, isBarHidden = false }: MainLayoutProps) => {
             {!isBarHidden && <AppBar {...AppBarData} />}
             <Box
                 sx={{
+                    flex: 1,
                     width: '100%',
-                    height: '100vh',
                     bgcolor: 'white',
                     display: 'flex',
                     flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                 }}
             >
                 {children}
