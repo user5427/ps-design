@@ -41,9 +41,9 @@ export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps>
     />
     {feedback.length > 0 && (
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-        {feedback.map((message: string, index: number) => (
+        {feedback.map((message: string) => (
           <Typography
-            key={index}
+            key={message}
             variant="caption"
             sx={{
               color: '#d32f2f',

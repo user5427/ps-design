@@ -40,7 +40,7 @@ export const Menu: React.FC<MenuProps> = ({
     const menuContent = (
         <List sx={{ pt: 2, height: '100%' }}>
             {categories.map((cat, catIndex) => (
-                <Box key={catIndex}>
+                <Box key={cat.category || catIndex}>
                     {cat.category && (
                         <Box sx={{ px: 3, pt: 2, pb: 1 }}>
                             <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
