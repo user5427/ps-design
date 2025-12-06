@@ -13,6 +13,13 @@ export const ChangePassword: React.FC = () => {
     const [confirmPassword, setConfirmPassword] = useState('')
     const [passwordStrength, setPasswordStrength] = useState(checkPasswordStrength(''))
 
+    const clearInputs = ()   => {
+        setCurrentPassword('')
+        setNewPassword('')
+        setConfirmPassword('')
+        setPasswordStrength(checkPasswordStrength(''))
+    }
+
     const changePasswordMutation = useChangePassword()
 
     const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,6 +39,7 @@ export const ChangePassword: React.FC = () => {
             currentPassword,
             newPassword,
         })
+        clearInputs()
     }
 
     const passwordsMatch = newPassword === confirmPassword && newPassword.length > 0
