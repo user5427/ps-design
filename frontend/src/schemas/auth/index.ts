@@ -1,2 +1,2 @@
-export { LoginRequestSchema, LoginResponseSchema, ChangePasswordRequestSchema, ChangePasswordResponseSchema } from './auth-schema'
-export type { LoginRequest, LoginResponse, ChangePasswordRequest, ChangePasswordResponse } from './auth-schema'
+export { LoginRequestSchema, LoginResponseSchema, AuthUserResponseSchema, ChangePasswordRequestSchema, ChangePasswordResponseSchema } from './auth-schema'
+export type { LoginRequest, LoginResponse, AuthUserResponse, ChangePasswordRequest, ChangePasswordResponse } from './auth-schema'
