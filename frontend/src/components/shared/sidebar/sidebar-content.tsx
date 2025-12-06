@@ -23,16 +23,13 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({ sections }) => {
     return "";
   }, [sections, location]);
 
-  // Open parent sections that contain the selected child
-  const initialOpenState = React.useMemo(() => {
+  const [open, setOpen] = React.useState<Record<string, boolean>>(() => {
     return sections.reduce((acc, section) => {
       const containsSelected = section.children?.some(child => child.label === selected);
       acc[section.label] = containsSelected || false;
       return acc;
     }, {} as Record<string, boolean>);
-  }, [sections, selected]);
-
-  const [open, setOpen] = React.useState<Record<string, boolean>>(initialOpenState);
+  });
 
   const toggle = (label: string) => {
     setOpen(prev => ({
