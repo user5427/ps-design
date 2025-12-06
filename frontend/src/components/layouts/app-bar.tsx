@@ -33,8 +33,6 @@ const Logo: React.FC<LogoProps> = ({ image, logoText, size = 40 }) => (
 );
 
 export const AppBar: React.FC<AppBarProps> = ({ logo }) => {
-  if (!logo) return null;
-
   return (
     <MUIAppBar
       position="absolute"

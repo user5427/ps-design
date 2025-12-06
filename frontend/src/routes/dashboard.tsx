@@ -1,6 +1,5 @@
 import { Box, Button, Chip, Paper, Stack, Typography } from "@mui/material";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { MainLayout } from "@/components/layouts/main-layout";
 import { URLS } from "@/constants/urls";
 import { useAuthUser, useLogout } from "@/hooks/auth/auth-hooks";
 import { useAuthStore } from "@/store/auth";
@@ -37,9 +36,7 @@ function DashboardPage() {
 
   if (isLoading || !user) {
     return (
-      <MainLayout>
         <Typography>Loading...</Typography>
-      </MainLayout>
     );
   }
 
