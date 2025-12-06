@@ -35,8 +35,8 @@ services:
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       DB_NAME: ${DB_NAME:-uniserve}
-      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-this-in-production}
-      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-your-different-refresh-secret-key-change-this-in-production}
+      JWT_SECRET: ${JWT_SECRET:-REPLACE_WITH_SECURE_RANDOM_STRING}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-REPLACE_WITH_SECURE_RANDOM_STRING}
       ACCESS_TOKEN_TTL: ${ACCESS_TOKEN_TTL:-180}
       REFRESH_TOKEN_TTL_SEC: ${REFRESH_TOKEN_TTL_SEC:-604800}
       FASTIFY_GRACEFUL_SHUTDOWN_DELAY: ${FASTIFY_GRACEFUL_SHUTDOWN_DELAY:-500}
