@@ -45,7 +45,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({ sections }) => {
   };
 
   return (
-    <List component="nav">
+    <List component="nav" aria-label="Navigation menu">
       {sections.map((section) => (
         <SidebarItem
           key={section.label}
