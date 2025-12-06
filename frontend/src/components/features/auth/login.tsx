@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 import { URLS } from "@/constants/urls";
 import { useLogin } from "@/hooks/auth/auth-hooks";
 import { getReadableError } from "@/utils/get-readable-error";
-import { AuthFormLayout } from "./auth-form-layout";
 import { FormAlert } from "../../elements/form/form-alert";
 import { FormField } from "../../elements/form/form-field";
+import { AuthFormLayout } from "./auth-form-layout";
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState("");

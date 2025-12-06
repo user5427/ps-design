@@ -17,8 +17,8 @@ export const Route = createFileRoute("/auth/change-password")({
 
 function ChangePasswordPage() {
   return (
-      <Box sx={{ textAlign: "center", mt: 8 }}>
-        <ChangePassword />
-      </Box>
+    <Box sx={{ textAlign: "center", mt: 8 }}>
+      <ChangePassword />
+    </Box>
   );
 }

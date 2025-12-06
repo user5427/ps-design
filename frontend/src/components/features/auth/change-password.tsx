@@ -1,11 +1,10 @@
 import { Box, Button, Typography } from "@mui/material";
 import type React from "react";
 import { useState } from "react";
+import { FormAlert, FormField } from "@/components/elements/form";
 import { useChangePassword } from "@/queries/auth";
 import { checkPasswordStrength } from "@/utils/auth";
 import { getReadableError } from "@/utils/get-readable-error";
-import { FormAlert } from "@/components/elements/form";
-import { FormField } from "@/components/elements/form";
 import { PasswordRequirements } from "./password-requirements";
 import { PasswordStrengthIndicator } from "./password-strength-indicator";
 

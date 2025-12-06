@@ -8,7 +8,7 @@ interface LogoProps {
 }
 
 export interface AppBarProps {
-    logo: LogoProps
+  logo: LogoProps;
 }
 
 const Logo: React.FC<LogoProps> = ({ image, logoText, size = 40 }) => (
