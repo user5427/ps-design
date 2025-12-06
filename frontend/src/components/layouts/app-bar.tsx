@@ -41,6 +41,7 @@ export const AppBar: React.FC<AppBarProps> = ({ logo, logoText }) => {
   return (
     <MUIAppBar
       sx={{
+        position: "fixed",
         zIndex: (theme) => theme.zIndex.drawer + 1,
         color: "text.primary",
         bgcolor: "background.paper",
