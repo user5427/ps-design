@@ -5,11 +5,11 @@ export type {
   SuccessResponse,
 } from "../../../shared/response-types";
 export {
-  errorResponseSchema,
-  successResponseSchema,
+  ErrorResponseSchema,
+  SuccessResponseSchema,
 } from "../../../shared/response-types";
 
-export const authUserResponseSchema = z.object({
+export const AuthUserResponseSchema = z.object({
   id: z.uuid(),
   email: z.email(),
   businessId: z.uuid(),
@@ -17,14 +17,14 @@ export const authUserResponseSchema = z.object({
   isPasswordResetRequired: z.boolean(),
 });
 
-export const loginResponseSchema = authUserResponseSchema.extend({
+export const LoginResponseSchema = AuthUserResponseSchema.extend({
   accessToken: z.string(),
 });
 
-export const refreshResponseSchema = z.object({
+export const RefreshResponseSchema = z.object({
   accessToken: z.string(),
 });
 
-export type UserResponse = z.infer<typeof authUserResponseSchema>;
-export type LoginResponse = z.infer<typeof loginResponseSchema>;
-export type RefreshResponse = z.infer<typeof refreshResponseSchema>;
+export type UserResponse = z.infer<typeof AuthUserResponseSchema>;
+export type LoginResponse = z.infer<typeof LoginResponseSchema>;
+export type RefreshResponse = z.infer<typeof RefreshResponseSchema>;
