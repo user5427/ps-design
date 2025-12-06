@@ -6,11 +6,11 @@ export type {
   SuccessResponse,
 } from "../../../../shared/response-types";
 export {
-  errorResponseSchema,
-  successResponseSchema,
+  ErrorResponseSchema,
+  SuccessResponseSchema,
 } from "../../../../shared/response-types";
 
-export const productUnitResponseSchema = z.object({
+export const ProductUnitResponseSchema = z.object({
   id: uuid(),
   name: z.string(),
   symbol: z.string().nullable(),
@@ -19,4 +19,4 @@ export const productUnitResponseSchema = z.object({
   updatedAt: z.date(),
 });
 
-export type ProductUnitResponse = z.infer<typeof productUnitResponseSchema>;
+export type ProductUnitResponse = z.infer<typeof ProductUnitResponseSchema>;

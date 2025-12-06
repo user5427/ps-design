@@ -13,16 +13,16 @@ import {
 } from "./auth-utils";
 import {
   type ChangePasswordBody,
-  changePasswordSchema,
+  ChangePasswordSchema,
   type LoginBody,
-  loginSchema,
+  LoginSchema,
 } from "./request-types";
 import {
-  authUserResponseSchema,
-  errorResponseSchema,
-  loginResponseSchema,
-  refreshResponseSchema,
-  successResponseSchema,
+  AuthUserResponseSchema,
+  ErrorResponseSchema,
+  LoginResponseSchema,
+  RefreshResponseSchema,
+  SuccessResponseSchema,
 } from "./response-types";
 
 const SALT_LENGTH = 10;
@@ -34,10 +34,10 @@ export default async function authRoutes(fastify: FastifyInstance) {
     "/login",
     {
       schema: {
-        body: loginSchema,
+        body: LoginSchema,
         response: {
-          200: loginResponseSchema,
-          401: errorResponseSchema,
+          200: LoginResponseSchema,
+          401: ErrorResponseSchema,
         },
       },
     },
@@ -93,7 +93,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
     {
       schema: {
         response: {
-          200: successResponseSchema,
+          200: SuccessResponseSchema,
         },
       },
     },
@@ -126,8 +126,8 @@ export default async function authRoutes(fastify: FastifyInstance) {
     {
       schema: {
         response: {
-          200: authUserResponseSchema,
-          401: errorResponseSchema,
+          200: AuthUserResponseSchema,
+          401: ErrorResponseSchema,
         },
       },
     },
@@ -145,10 +145,10 @@ export default async function authRoutes(fastify: FastifyInstance) {
     "/change-password",
     {
       schema: {
-        body: changePasswordSchema,
+        body: ChangePasswordSchema,
         response: {
-          200: successResponseSchema,
-          401: errorResponseSchema,
+          200: SuccessResponseSchema,
+          401: ErrorResponseSchema,
         },
       },
     },
@@ -203,8 +203,8 @@ export default async function authRoutes(fastify: FastifyInstance) {
     {
       schema: {
         response: {
-          200: refreshResponseSchema,
-          401: errorResponseSchema,
+          200: RefreshResponseSchema,
+          401: ErrorResponseSchema,
         },
       },
     },

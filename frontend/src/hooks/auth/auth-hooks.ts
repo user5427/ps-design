@@ -1,11 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  changePassword,
-  getCurrentUser,
-  login,
-  logout,
-  refreshToken,
-} from "@/api/auth";
+import { changePassword, getCurrentUser, login, logout } from "@/api/auth";
 import { useAuthStore } from "@/store/auth";
 
 export const authKeys = {
@@ -56,19 +50,6 @@ export function useLogout() {
     onError: () => {
       store.setAccessToken(null);
       queryClient.removeQueries({ queryKey: authKeys.all });
-    },
-  });
-}
-
-export function useRefreshToken() {
-  const queryClient = useQueryClient();
-  const store = useAuthStore();
-
-  return useMutation({
-    mutationFn: async () => refreshToken(),
-    onSuccess: (data) => {
-      store.setAccessToken(data.accessToken);
-      queryClient.invalidateQueries({ queryKey: authKeys.me() });
     },
   });
 }

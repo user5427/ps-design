@@ -6,11 +6,11 @@ export type {
   SuccessResponse,
 } from "../../../../shared/response-types";
 export {
-  errorResponseSchema,
-  successResponseSchema,
+  ErrorResponseSchema,
+  SuccessResponseSchema,
 } from "../../../../shared/response-types";
 
-export const stockLevelResponseSchema = z.object({
+export const StockLevelResponseSchema = z.object({
   productId: uuid(),
   productName: z.string(),
   productUnit: z.object({
@@ -22,7 +22,7 @@ export const stockLevelResponseSchema = z.object({
   totalQuantity: z.number(),
 });
 
-export const stockChangeResponseSchema = z.object({
+export const StockChangeResponseSchema = z.object({
   id: uuid(),
   productId: uuid(),
   businessId: uuid(),
@@ -35,5 +35,5 @@ export const stockChangeResponseSchema = z.object({
   deletedAt: datetime().nullable(),
 });
 
-export type StockLevelResponse = z.infer<typeof stockLevelResponseSchema>;
-export type StockChangeResponse = z.infer<typeof stockChangeResponseSchema>;
+export type StockLevelResponse = z.infer<typeof StockLevelResponseSchema>;
+export type StockChangeResponse = z.infer<typeof StockChangeResponseSchema>;

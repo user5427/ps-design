@@ -10,9 +10,9 @@ const MAX_NAME_MESSAGE = `Name must be at most ${MAX_NAME_LENGTH} characters`;
 const MIN_SYMBOL_MESSAGE = `Symbol must be at least ${MIN_LENGTH} characters`;
 const MAX_SYMBOL_MESSAGE = `Symbol must be at most ${MAX_SYMBOL_LENGTH} characters`;
 
-export const unitIdParam = z.object({ unitId: uuid() });
+export const UnitIdParam = z.object({ unitId: uuid() });
 
-export const createProductUnitSchema = z.object({
+export const CreateProductUnitSchema = z.object({
   name: z
     .string()
     .min(MIN_LENGTH, MIN_NAME_MESSAGE)
@@ -24,7 +24,7 @@ export const createProductUnitSchema = z.object({
     .optional(),
 });
 
-export const updateProductUnitSchema = z.object({
+export const UpdateProductUnitSchema = z.object({
   name: z
     .string()
     .min(MIN_LENGTH, MIN_NAME_MESSAGE)
@@ -37,6 +37,6 @@ export const updateProductUnitSchema = z.object({
     .optional(),
 });
 
-export type CreateProductUnitBody = z.infer<typeof createProductUnitSchema>;
-export type UpdateProductUnitBody = z.infer<typeof updateProductUnitSchema>;
-export type UnitIdParams = z.infer<typeof unitIdParam>;
+export type CreateProductUnitBody = z.infer<typeof CreateProductUnitSchema>;
+export type UpdateProductUnitBody = z.infer<typeof UpdateProductUnitSchema>;
+export type UnitIdParams = z.infer<typeof UnitIdParam>;
