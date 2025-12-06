@@ -6,12 +6,12 @@ import { handleServiceError } from "../../../../shared/error-handler";
 import {
   type ChangeIdParams,
   type CreateStockChangeBody,
-  changeIdParam,
-  createStockChangeSchema,
+  ChangeIdParam,
+  CreateStockChangeSchema,
   type ProductIdParams,
-  productIdParam,
+  ProductIdParam,
   type StockQuery,
-  stockQuerySchema,
+  StockQuerySchema,
 } from "./request-types";
 
 export default async function stockRoutes(fastify: FastifyInstance) {
@@ -38,7 +38,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
     "/:productId",
     {
       schema: {
-        params: productIdParam,
+        params: ProductIdParam,
       },
     },
     async (
@@ -74,7 +74,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
     "/changes",
     {
       schema: {
-        body: createStockChangeSchema,
+        body: CreateStockChangeSchema,
       },
     },
     async (
@@ -110,7 +110,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
     "/changes",
     {
       schema: {
-        querystring: stockQuerySchema,
+        querystring: StockQuerySchema,
       },
     },
     async (
@@ -137,7 +137,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
     "/changes/:changeId",
     {
       schema: {
-        params: changeIdParam,
+        params: ChangeIdParam,
       },
     },
     async (

@@ -7,9 +7,9 @@ const MAX_NAME_LENGTH = 100;
 const MIN_NAME_MESSAGE = `Name must be at least ${MIN_NAME_LENGTH} characters`;
 const MAX_NAME_MESSAGE = `Name must be at most ${MAX_NAME_LENGTH} characters`;
 
-export const productIdParam = z.object({ productId: uuid() });
+export const ProductIdParam = z.object({ productId: uuid() });
 
-export const createProductSchema = z.object({
+export const CreateProductSchema = z.object({
   name: z
     .string()
     .min(MIN_NAME_LENGTH, MIN_NAME_MESSAGE)
@@ -18,7 +18,7 @@ export const createProductSchema = z.object({
   productUnitId: uuid("Invalid product unit ID"),
 });
 
-export const updateProductSchema = z.object({
+export const UpdateProductSchema = z.object({
   name: z
     .string()
     .min(MIN_NAME_LENGTH, `Name must be at least ${MIN_NAME_LENGTH} characters`)
@@ -29,6 +29,6 @@ export const updateProductSchema = z.object({
   isDisabled: z.boolean().optional(),
 });
 
-export type CreateProductBody = z.infer<typeof createProductSchema>;
-export type UpdateProductBody = z.infer<typeof updateProductSchema>;
-export type ProductIdParams = z.infer<typeof productIdParam>;
+export type CreateProductBody = z.infer<typeof CreateProductSchema>;
+export type UpdateProductBody = z.infer<typeof UpdateProductSchema>;
+export type ProductIdParams = z.infer<typeof ProductIdParam>;

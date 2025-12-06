@@ -5,11 +5,11 @@ import { getBusinessId } from "../../../../shared/auth-utils";
 import { handleServiceError } from "../../../../shared/error-handler";
 import {
   type CreateProductUnitBody,
-  createProductUnitSchema,
+  CreateProductUnitSchema,
   type UnitIdParams,
   type UpdateProductUnitBody,
-  unitIdParam,
-  updateProductUnitSchema,
+  UnitIdParam,
+  UpdateProductUnitSchema,
 } from "./request-types";
 
 export default async function unitsRoutes(fastify: FastifyInstance) {
@@ -28,7 +28,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
     "/",
     {
       schema: {
-        body: createProductUnitSchema,
+        body: CreateProductUnitSchema,
       },
     },
     async (
@@ -59,8 +59,8 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
     "/:unitId",
     {
       schema: {
-        params: unitIdParam,
-        body: updateProductUnitSchema,
+        params: UnitIdParam,
+        body: UpdateProductUnitSchema,
       },
     },
     async (
@@ -92,7 +92,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
     "/:unitId",
     {
       schema: {
-        params: unitIdParam,
+        params: UnitIdParam,
       },
     },
     async (
