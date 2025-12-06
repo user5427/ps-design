@@ -1,11 +1,20 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { Box, Typography, Button } from '@mui/material'
 import { Link } from '@tanstack/react-router'
 import { MainLayout } from '@/components/layouts/main-layout'
+import { useAuthStore } from '@/store/auth'
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute("/")({
+    beforeLoad: async () => {
+        const store = useAuthStore.getState();
+        const token = store.getAccessToken();
+        if (token) {
+            throw redirect({ to: "/dashboard" });
+        }
+    },
     component: HomePage,
-})
+});
+
 
 function HomePage() {
     return (

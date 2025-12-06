@@ -14,10 +14,10 @@ export const Route = createFileRoute("/dashboard")({
             throw redirect({ to: "/" });
         }
     },
-    component: Dashboard,
+    component: DashboardPage,
 });
 
-function Dashboard() {
+function DashboardPage() {
     const navigate = useNavigate();
     const { data: user, isLoading, isError } = useAuthUser();
     const logoutMutation = useLogout();
