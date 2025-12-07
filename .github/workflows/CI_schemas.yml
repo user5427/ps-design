@@ -41,8 +41,7 @@ jobs:
 
           git diff --cached --quiet || git commit -m "Apply Schemas Biome linting and formatting"
 
-          git pull --rebase origin ${{ github.head_ref }}
-          git push origin ${{ github.head_ref }}
+          git push origin ${{ github.head_ref }} --force-with-lease
 
       - name: Validate lint on schemas
         run: biome lint schemas/src
