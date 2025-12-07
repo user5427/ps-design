@@ -47,3 +47,6 @@ jobs:
 
       - name: Validate lint
         run: npm run lint:frontend
+
+      - name: Type check
+        run: npm run typecheck
