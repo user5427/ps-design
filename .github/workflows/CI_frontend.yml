@@ -33,7 +33,7 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Apply Frontend Biome linting and formatting"
-          file_pattern: frontend/src/**/*.ts frontend/src/**/*.tsx
+          file_pattern: frontend/src
 
       - name: Validate lint on frontend
         run: biome lint frontend/src

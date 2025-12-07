@@ -33,7 +33,7 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Apply Schemas Biome linting and formatting"
-          file_pattern: schemas/src/**/*.ts
+          file_pattern: schemas/src
 
       - name: Validate lint on schemas
         run: biome lint schemas/src

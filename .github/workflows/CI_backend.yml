@@ -33,7 +33,7 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Apply Backend Biome linting and formatting"
-          file_pattern: backend/src/**/*.ts backend/src/**/*.tsx
+          file_pattern: backend/src
 
       - name: Validate lint on backend
         run: biome lint backend/src
