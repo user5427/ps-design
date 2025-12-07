@@ -19,13 +19,6 @@ import {
   type ProductIdParams,
   type StockQuery,
   StockQuerySchema,
-  StockChangeType,
-  ErrorResponseSchema,
-  StockChangeResponseSchema,
-  StockLevelResponseSchema,
-  SuccessResponseSchema,
-  type StockChangeResponse,
-  type StockLevelResponse,
 } from "@ps-design/schemas/inventory/stock";
 
 export default async function stockRoutes(fastify: FastifyInstance) {

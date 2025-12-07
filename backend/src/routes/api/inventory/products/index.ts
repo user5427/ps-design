@@ -17,10 +17,6 @@ import {
   type ProductIdParams,
   type UpdateProductBody,
   UpdateProductSchema,
-  ErrorResponseSchema,
-  ProductResponseSchema,
-  SuccessResponseSchema,
-  type ProductResponse,
 } from "@ps-design/schemas/inventory/products";
 
 export default async function productsRoutes(fastify: FastifyInstance) {

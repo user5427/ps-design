@@ -16,10 +16,6 @@ import {
   type UnitIdParams,
   type UpdateProductUnitBody,
   UpdateProductUnitSchema,
-  ErrorResponseSchema,
-  ProductUnitResponseSchema,
-  SuccessResponseSchema,
-  type ProductUnitResponse,
 } from "@ps-design/schemas/inventory/units";
 
 export default async function unitsRoutes(fastify: FastifyInstance) {
