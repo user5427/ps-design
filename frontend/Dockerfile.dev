@@ -26,5 +26,5 @@ COPY schemas/src ./schemas/src
 EXPOSE 3000
 
 # Run development server with hot reload and bind to 0.0.0.0
-CMD ["npm", "run", "dev:frontend", "--", "--host"]
+CMD ["npm", "--prefix", "./frontend", "run", "dev", "--", "--host"]
 

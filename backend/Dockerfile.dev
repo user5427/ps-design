@@ -25,5 +25,4 @@ COPY schemas/src ./schemas/src
 EXPOSE 4000
 
 # Run development server with hot reload
-CMD ["npm", "run", "dev:backend"]
-
+CMD ["npm", "--prefix", "./backend", "run", "dev"]
