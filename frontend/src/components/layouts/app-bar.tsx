@@ -5,7 +5,7 @@ interface LogoProps {
   logo: {
     image: React.ReactNode;
     text?: string;
-  }
+  };
   logoText?: string;
   size?: number;
 }
