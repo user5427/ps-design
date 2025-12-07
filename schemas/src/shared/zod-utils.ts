@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod";
 
 // Common Zod utility functions for reusable primitives
 

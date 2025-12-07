@@ -1,4 +1,4 @@
-name: BiomelLint
+name: BiomeLint
 
 on:
   pull_request:
