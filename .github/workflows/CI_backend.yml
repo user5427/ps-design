@@ -30,18 +30,10 @@ jobs:
       - name: Run Biome lint with auto-fix on backend
         run: biome lint --write backend/src
 
-      - name: Commit formatted files
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-
-          git checkout ${{ github.head_ref }}
-
-          git add -A
-
-          git diff --cached --quiet || git commit -m "Apply Backend Biome linting and formatting"
-
-          git push origin ${{ github.head_ref }} --force-with-lease
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Apply Backend Biome linting and formatting"
+          file_pattern: backend/src/**/*.ts backend/src/**/*.tsx
 
       - name: Validate lint on backend
         run: biome lint backend/src
