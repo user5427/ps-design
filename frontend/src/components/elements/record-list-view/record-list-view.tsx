@@ -154,6 +154,7 @@ export function RecordListView<T extends Record<string, unknown>>({
     enableColumnResizing: true,
     enableGlobalFilter: true,
     enableStickyHeader: true,
+    layoutMode: "grid",
     state: {
       isLoading,
       rowSelection,
