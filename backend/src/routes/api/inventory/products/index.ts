@@ -17,7 +17,11 @@ import {
   type ProductIdParams,
   type UpdateProductBody,
   UpdateProductSchema,
-} from "./request-types";
+  ErrorResponseSchema,
+  ProductResponseSchema,
+  SuccessResponseSchema,
+  type ProductResponse,
+} from "@ps-design/schemas/inventory/products";
 
 export default async function productsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();

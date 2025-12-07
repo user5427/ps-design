@@ -9,6 +9,7 @@ export {
   type UserResponse as AuthUserResponse,
   type LoginResponse,
   SuccessResponseSchema,
+  ErrorResponseSchema,
 } from "@ps-design/schemas/auth";
 
 // ChangePasswordResponse schema

@@ -19,7 +19,14 @@ import {
   type ProductIdParams,
   type StockQuery,
   StockQuerySchema,
-} from "./request-types";
+  StockChangeType,
+  ErrorResponseSchema,
+  StockChangeResponseSchema,
+  StockLevelResponseSchema,
+  SuccessResponseSchema,
+  type StockChangeResponse,
+  type StockLevelResponse,
+} from "@ps-design/schemas/inventory/stock";
 
 export default async function stockRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();

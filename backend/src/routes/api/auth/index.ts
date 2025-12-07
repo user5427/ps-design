@@ -13,14 +13,12 @@ import {
   ChangePasswordSchema,
   type LoginBody,
   LoginSchema,
-} from "./request-types";
-import {
   AuthUserResponseSchema,
   ErrorResponseSchema,
   LoginResponseSchema,
   RefreshResponseSchema,
   SuccessResponseSchema,
-} from "./response-types";
+} from "@ps-design/schemas/auth";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();

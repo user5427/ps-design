@@ -16,7 +16,11 @@ import {
   type UnitIdParams,
   type UpdateProductUnitBody,
   UpdateProductUnitSchema,
-} from "./request-types";
+  ErrorResponseSchema,
+  ProductUnitResponseSchema,
+  SuccessResponseSchema,
+  type ProductUnitResponse,
+} from "@ps-design/schemas/inventory/units";
 
 export default async function unitsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();

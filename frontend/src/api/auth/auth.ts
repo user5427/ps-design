@@ -1,21 +1,21 @@
 import { apiClient } from "@/api/client";
 import type {
-  AuthUserResponse,
-  ChangePasswordRequest,
-  ChangePasswordResponse,
-  LoginRequest,
+  UserResponse,
+  LoginBody,
   LoginResponse,
-} from "@/schemas/auth";
+  ChangePasswordBody,
+  SuccessResponse,
+} from "@ps-design/schemas/auth";
 import {
   AuthUserResponseSchema,
-  ChangePasswordRequestSchema,
-  ChangePasswordResponseSchema,
-  LoginRequestSchema,
+  ChangePasswordSchema,
+  LoginSchema,
   LoginResponseSchema,
-} from "@/schemas/auth";
+  SuccessResponseSchema,
+} from "@ps-design/schemas/auth";
 
-export async function login(request: LoginRequest): Promise<LoginResponse> {
-  const validated = LoginRequestSchema.parse(request);
+export async function login(request: LoginBody): Promise<LoginResponse> {
+  const validated = LoginSchema.parse(request);
   const response = await apiClient.post<LoginResponse>(
     "/auth/login",
     validated,
@@ -27,8 +27,8 @@ export async function logout(): Promise<void> {
   await apiClient.post("/auth/logout");
 }
 
-export async function getCurrentUser(): Promise<AuthUserResponse> {
-  const response = await apiClient.get<AuthUserResponse>("/auth/me");
+export async function getCurrentUser(): Promise<UserResponse> {
+  const response = await apiClient.get<UserResponse>("/auth/me");
   return AuthUserResponseSchema.parse(response.data);
 }
 
@@ -40,12 +40,12 @@ export async function refreshToken(): Promise<{ accessToken: string }> {
 }
 
 export async function changePassword(
-  request: ChangePasswordRequest,
-): Promise<ChangePasswordResponse> {
-  const validated = ChangePasswordRequestSchema.parse(request);
-  const response = await apiClient.post<ChangePasswordResponse>(
+  request: ChangePasswordBody,
+): Promise<SuccessResponse> {
+  const validated = ChangePasswordSchema.parse(request);
+  const response = await apiClient.post<SuccessResponse>(
     "/auth/change-password",
     validated,
   );
-  return ChangePasswordResponseSchema.parse(response.data);
+  return SuccessResponseSchema.parse(response.data);
 }
