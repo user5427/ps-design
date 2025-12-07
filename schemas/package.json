@@ -4,16 +4,6 @@
   "description": "Shared Zod schemas for PS Design application",
   "private": true,
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": "./dist/index.js",
-    "./auth": "./dist/auth/index.js",
-    "./inventory/products": "./dist/inventory/products/index.js",
-    "./inventory/stock": "./dist/inventory/stock/index.js",
-    "./inventory/units": "./dist/inventory/units/index.js",
-    "./shared": "./dist/shared/index.js"
-  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch"
