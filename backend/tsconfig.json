@@ -13,11 +13,19 @@
     "rootDir": "./src",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"],
-   "paths": {
-      "@/*": ["./src/*"]
+  "tsx": {
+    "compilerOptions": {
+      "paths": {
+        "@/*": ["./src/*"]
+      }
     }
+  }
 }

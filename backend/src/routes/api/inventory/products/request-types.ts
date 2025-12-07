@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { uuid } from "../../../../shared/zod-utils";
+import { uuid } from '@/shared/zod-utils';
 
 const MIN_NAME_LENGTH = 1;
 const MAX_NAME_LENGTH = 100;

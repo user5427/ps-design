@@ -2,7 +2,7 @@ import type { Repository } from "typeorm";
 import { StockLevel } from "./stock-level.entity";
 import type { ICreateStockLevel } from "./stock-level.types";
 
-export class StockLevelService {
+export class StockLevelRepository {
   constructor(private repository: Repository<StockLevel>) {}
 
   async findByProductId(productId: string): Promise<StockLevel | null> {

@@ -11,8 +11,8 @@ import {
   Unique,
   UpdateDateColumn,
 } from "typeorm";
-import type { Business } from "../../business/business.entity";
-import type { Product } from "../product/product.entity";
+import type { Business } from '@/modules/business/business.entity';
+import type { Product } from '@/modules/inventory/product/product.entity';
 
 @Entity("ProductUnit")
 @Unique(["businessId", "name"])

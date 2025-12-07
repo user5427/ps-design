@@ -2,7 +2,7 @@ import { IsNull, type Repository } from "typeorm";
 import type { RefreshToken } from "./refresh-token.entity";
 import type { ICreateRefreshToken } from "./refresh-token.types";
 
-export class RefreshTokenService {
+export class RefreshTokenRepository {
   constructor(private repository: Repository<RefreshToken>) {}
 
   async findByTokenHash(tokenHash: string): Promise<RefreshToken | null> {

@@ -7,10 +7,10 @@ import {
   type Relation,
   UpdateDateColumn,
 } from "typeorm";
-import type { Product } from "../inventory/product/product.entity";
-import type { ProductUnit } from "../inventory/product-unit/product-unit.entity";
-import type { StockChange } from "../inventory/stock-change/stock-change.entity";
-import type { User } from "../user/user.entity";
+import type { Product } from '@/modules/inventory/product/product.entity';
+import type { ProductUnit } from '@/modules/inventory/product-unit/product-unit.entity';
+import type { StockChange } from '@/modules/inventory/stock-change/stock-change.entity';
+import type { User } from '@/modules/user/user.entity';
 
 @Entity("Business")
 export class Business {

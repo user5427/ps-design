@@ -1,3 +1,3 @@
 export { ProductUnit } from "./product-unit.entity";
-export { ProductUnitService } from "./product-unit.service";
+export { ProductUnitRepository } from "./product-unit.repository";
 export * from "./product-unit.types";

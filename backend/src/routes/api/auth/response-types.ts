@@ -3,11 +3,11 @@ import { z } from "zod";
 export type {
   ErrorResponse,
   SuccessResponse,
-} from "../../../shared/response-types";
+} from '@/shared/response-types';
 export {
   ErrorResponseSchema,
   SuccessResponseSchema,
-} from "../../../shared/response-types";
+} from '@/shared/response-types';
 
 export const AuthUserResponseSchema = z.object({
   id: z.uuid(),

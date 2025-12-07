@@ -1,33 +1,33 @@
 import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
 import type { DataSource } from "typeorm";
-import { createDataSource } from "../../database/data-source";
-import { Business, BusinessService } from "../../modules/business";
-import { Product, ProductService } from "../../modules/inventory/product";
+import { createDataSource } from '@/database/data-source';
+import { Business, BusinessRepository } from '@/modules/business';
+import { Product, ProductRepository } from '@/modules/inventory/product';
 import {
   ProductUnit,
-  ProductUnitService,
-} from "../../modules/inventory/product-unit";
+  ProductUnitRepository,
+} from '@/modules/inventory/product-unit';
 import {
   StockChange,
-  StockChangeService,
-} from "../../modules/inventory/stock-change";
+  StockChangeRepository,
+} from '@/modules/inventory/stock-change';
 import {
   StockLevel,
-  StockLevelService,
-} from "../../modules/inventory/stock-level";
-import { RefreshToken, RefreshTokenService } from "../../modules/refresh-token";
-import { User, UserService } from "../../modules/user";
+  StockLevelRepository,
+} from '@/modules/inventory/stock-level';
+import { RefreshToken, RefreshTokenRepository } from '@/modules/refresh-token';
+import { User, UserRepository } from '@/modules/user';
 
 export interface Services {
   dataSource: DataSource;
-  business: BusinessService;
-  user: UserService;
-  refreshToken: RefreshTokenService;
-  productUnit: ProductUnitService;
-  product: ProductService;
-  stockLevel: StockLevelService;
-  stockChange: StockChangeService;
+  business: BusinessRepository;
+  user: UserRepository;
+  refreshToken: RefreshTokenRepository;
+  productUnit: ProductUnitRepository;
+  product: ProductRepository;
+  stockLevel: StockLevelRepository;
+  stockChange: StockChangeRepository;
 }
 
 declare module "fastify" {
@@ -50,21 +50,21 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
 
   const services: Services = {
     dataSource,
-    business: new BusinessService(dataSource.getRepository(Business)),
-    user: new UserService(dataSource.getRepository(User)),
-    refreshToken: new RefreshTokenService(
+    business: new BusinessRepository(dataSource.getRepository(Business)),
+    user: new UserRepository(dataSource.getRepository(User)),
+    refreshToken: new RefreshTokenRepository(
       dataSource.getRepository(RefreshToken),
     ),
-    productUnit: new ProductUnitService(
+    productUnit: new ProductUnitRepository(
       dataSource.getRepository(ProductUnit),
       dataSource.getRepository(Product),
     ),
-    product: new ProductService(
+    product: new ProductRepository(
       dataSource.getRepository(Product),
       dataSource.getRepository(ProductUnit),
     ),
-    stockLevel: new StockLevelService(dataSource.getRepository(StockLevel)),
-    stockChange: new StockChangeService(
+    stockLevel: new StockLevelRepository(dataSource.getRepository(StockLevel)),
+    stockChange: new StockChangeRepository(
       dataSource.getRepository(StockChange),
       dataSource.getRepository(Product),
       dataSource,

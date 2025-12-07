@@ -2,7 +2,7 @@ import { IsNull, type Repository } from "typeorm";
 import type { Business } from "./business.entity";
 import type { ICreateBusiness, IUpdateBusiness } from "./business.types";
 
-export class BusinessService {
+export class BusinessRepository {
   constructor(private repository: Repository<Business>) {}
 
   async findAll(): Promise<Business[]> {

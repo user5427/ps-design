@@ -1,8 +1,15 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
-import { getBusinessId } from "../../../../shared/auth-utils";
-import { handleServiceError } from "../../../../shared/error-handler";
+import {
+  createStockChange,
+  deleteStockChange,
+  getAllStockLevels,
+  getStockChanges,
+  getStockLevelByProductId,
+} from "./service";
+import { getBusinessId } from '@/shared/auth-utils';
+import { handleServiceError } from '@/shared/error-handler';
 import {
   ChangeIdParam,
   type ChangeIdParams,
@@ -21,16 +28,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
     const businessId = getBusinessId(request, reply);
     if (!businessId) return;
 
-    const products = await fastify.db.product.findAllByBusinessId(businessId);
-
-    const stockLevels = products.map((product) => ({
-      productId: product.id,
-      productName: product.name,
-      productUnit: product.productUnit,
-      isDisabled: product.isDisabled,
-      totalQuantity: product.stockLevel?.quantity ?? 0,
-    }));
-
+    const stockLevels = await getAllStockLevels(fastify, businessId);
     return reply.send(stockLevels);
   });
 
@@ -53,17 +51,12 @@ export default async function stockRoutes(fastify: FastifyInstance) {
       const { productId } = request.params;
 
       try {
-        const product = await fastify.db.product.getById(productId, businessId);
-        const stockLevel =
-          await fastify.db.stockLevel.findByProductId(productId);
-
-        return reply.send({
-          productId: product.id,
-          productName: product.name,
-          productUnit: product.productUnit,
-          isDisabled: product.isDisabled,
-          totalQuantity: stockLevel?.quantity ?? 0,
-        });
+        const stockLevel = await getStockLevelByProductId(
+          fastify,
+          businessId,
+          productId,
+        );
+        return reply.send(stockLevel);
       } catch (error) {
         return handleServiceError(error, reply);
       }
@@ -86,19 +79,15 @@ export default async function stockRoutes(fastify: FastifyInstance) {
       const businessId = getBusinessId(request, reply);
       if (!businessId) return;
 
-      const { productId, quantity, type, expirationDate } = request.body;
       const user = request.authUser!;
 
       try {
-        const stockChange = await fastify.db.stockChange.create({
-          productId,
-          quantity,
-          type,
-          expirationDate,
+        const stockChange = await createStockChange(
+          fastify,
           businessId,
-          createdByUserId: user.id,
-        });
-
+          user.id,
+          request.body,
+        );
         return reply.code(httpStatus.CREATED).send(stockChange);
       } catch (error) {
         return handleServiceError(error, reply);
@@ -124,11 +113,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
 
       const { productId } = request.query;
 
-      const changes = await fastify.db.stockChange.findAllByBusinessId(
-        businessId,
-        productId,
-      );
-
+      const changes = await getStockChanges(fastify, businessId, productId);
       return reply.send(changes);
     },
   );
@@ -152,7 +137,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
       const { changeId } = request.params;
 
       try {
-        await fastify.db.stockChange.delete(changeId, businessId);
+        await deleteStockChange(fastify, businessId, changeId);
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);

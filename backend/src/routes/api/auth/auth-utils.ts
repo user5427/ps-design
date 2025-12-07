@@ -1,7 +1,7 @@
 import * as crypto from "crypto";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import type { RefreshToken } from "../../../modules/refresh-token";
-import type { User } from "../../../modules/user";
+import type { RefreshToken } from '@/modules/refresh-token';
+import type { User } from '@/modules/user';
 
 export function hashToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");

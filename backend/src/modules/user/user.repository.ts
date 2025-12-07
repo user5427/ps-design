@@ -2,7 +2,7 @@ import { IsNull, type Repository } from "typeorm";
 import type { User } from "./user.entity";
 import type { IAuthUser, ICreateUser, IUpdateUser } from "./user.types";
 
-export class UserService {
+export class UserRepository {
   constructor(private repository: Repository<User>) {}
 
   async findAll(): Promise<User[]> {

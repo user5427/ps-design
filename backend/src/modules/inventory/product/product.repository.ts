@@ -3,13 +3,13 @@ import {
   BadRequestError,
   ConflictError,
   NotFoundError,
-} from "../../../shared/errors";
-import { isUniqueConstraintError } from "../../../shared/typeorm-error-utils";
-import type { ProductUnit } from "../product-unit/product-unit.entity";
+} from '@/shared/errors';
+import { isUniqueConstraintError } from '@/shared/typeorm-error-utils';
+import type { ProductUnit } from '@/modules/inventory/product-unit/product-unit.entity';
 import type { Product } from "./product.entity";
 import type { ICreateProduct, IUpdateProduct } from "./product.types";
 
-export class ProductService {
+export class ProductRepository {
   constructor(
     private repository: Repository<Product>,
     private productUnitRepository: Repository<ProductUnit>,

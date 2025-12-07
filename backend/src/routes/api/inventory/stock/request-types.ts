@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { StockChangeType } from "../../../../modules/inventory/stock-change/stock-change.types";
-import { PaginationSchema } from "../../../../shared/request-types";
-import { datetime, uuid } from "../../../../shared/zod-utils";
+import { StockChangeType } from '@/modules/inventory/stock-change/stock-change.types';
+import { PaginationSchema } from '@/shared/request-types';
+import { datetime, uuid } from '@/shared/zod-utils';
 
 const StockChangeTypeEnum = z.enum(StockChangeType);
 

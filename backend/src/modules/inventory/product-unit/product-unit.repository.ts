@@ -1,14 +1,14 @@
 import { IsNull, type Repository } from "typeorm";
-import { ConflictError, NotFoundError } from "../../../shared/errors";
-import { isUniqueConstraintError } from "../../../shared/typeorm-error-utils";
-import type { Product } from "../product/product.entity";
+import { ConflictError, NotFoundError } from '@/shared/errors';
+import { isUniqueConstraintError } from '@/shared/typeorm-error-utils';
+import type { Product } from '@/modules/inventory/product/product.entity';
 import type { ProductUnit } from "./product-unit.entity";
 import type {
   ICreateProductUnit,
   IUpdateProductUnit,
 } from "./product-unit.types";
 
-export class ProductUnitService {
+export class ProductUnitRepository {
   constructor(
     private repository: Repository<ProductUnit>,
     private productRepository: Repository<Product>,

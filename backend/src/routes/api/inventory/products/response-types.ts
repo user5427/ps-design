@@ -1,14 +1,14 @@
 import { z } from "zod";
-import { uuid } from "../../../../shared/zod-utils";
+import { uuid } from '@/shared/zod-utils';
 
 export type {
   ErrorResponse,
   SuccessResponse,
-} from "../../../../shared/response-types";
+} from '@/shared/response-types';
 export {
   ErrorResponseSchema,
   SuccessResponseSchema,
-} from "../../../../shared/response-types";
+} from '@/shared/response-types';
 
 export const ProductResponseSchema = z.object({
   id: uuid(),
