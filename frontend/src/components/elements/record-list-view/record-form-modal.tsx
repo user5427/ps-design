@@ -43,8 +43,7 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // Initialize form values when modal opens
-  useEffect(() => {
+  const clearForm = () => {
     if (open) {
       const defaultValues: Record<string, unknown> = {};
       for (const field of fields) {
@@ -55,7 +54,7 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
       setErrors({});
       setSubmitError(null);
     }
-  }, [open, fields, initialValues]);
+  };
 
   const validateField = (
     field: FormFieldDefinition,
@@ -132,6 +131,7 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
       );
     } finally {
       setIsSubmitting(false);
+      clearForm();
     }
   };
 
@@ -211,10 +211,6 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
             helperText={error}
             disabled={isSubmitting}
             required={field.required}
-            inputProps={{
-              min: field.validation?.min,
-              max: field.validation?.max,
-            }}
           />
         );
 
@@ -231,7 +227,6 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
             helperText={error}
             disabled={isSubmitting}
             required={field.required}
-            InputLabelProps={{ shrink: true }}
           />
         );
 
@@ -248,7 +243,6 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
             helperText={error}
             disabled={isSubmitting}
             required={field.required}
-            InputLabelProps={{ shrink: true }}
           />
         );
 
