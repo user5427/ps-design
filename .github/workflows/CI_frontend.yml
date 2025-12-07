@@ -20,17 +20,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-          cache-dependency-path: package-lock.json
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install Biome globally
+        run: npm install -g @biomejs/biome
 
-      - name: Run Biome formatter
-        run: npm run fmt:frontend
+      - name: Run Biome formatter on frontend
+        run: biome format --write frontend/src
 
-      - name: Run Biome lint with auto-fix
-        run: npm run lint-fix:frontend
+      - name: Run Biome lint with auto-fix on frontend
+        run: biome lint --write frontend/src
 
       - name: Commit formatted files
         run: |
@@ -45,5 +43,5 @@ jobs:
 
           git push origin ${{ github.head_ref }}
 
-      - name: Validate lint
-        run: npm run lint:frontend
+      - name: Validate lint on frontend
+        run: biome lint frontend/src

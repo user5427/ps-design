@@ -1,4 +1,4 @@
-name: BiomeBackend
+name: BiomeSchemas
 
 on:
   pull_request:
@@ -24,11 +24,11 @@ jobs:
       - name: Install Biome globally
         run: npm install -g @biomejs/biome
 
-      - name: Run Biome formatter on backend
-        run: biome format --write backend/src
+      - name: Run Biome formatter on schemas
+        run: biome format --write schemas/src
 
-      - name: Run Biome lint with auto-fix on backend
-        run: biome lint --write backend/src
+      - name: Run Biome lint with auto-fix on schemas
+        run: biome lint --write schemas/src
 
       - name: Commit formatted files
         run: |
@@ -39,9 +39,9 @@ jobs:
 
           git add -A
 
-          git diff --cached --quiet || git commit -m "Apply Backend Biome linting and formatting"
+          git diff --cached --quiet || git commit -m "Apply Schemas Biome linting and formatting"
 
           git push origin ${{ github.head_ref }}
 
-      - name: Validate lint on backend
-        run: biome lint backend/src
+      - name: Validate lint on schemas
+        run: biome lint schemas/src
