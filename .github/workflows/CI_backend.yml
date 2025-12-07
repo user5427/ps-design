@@ -43,6 +43,7 @@ jobs:
 
           git diff --cached --quiet || git commit -m "Apply Backend Biome linting and formatting"
 
+          git pull --rebase origin ${{ github.head_ref }}
           git push origin ${{ github.head_ref }}
 
       - name: Validate lint
