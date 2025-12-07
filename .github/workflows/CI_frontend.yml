@@ -50,4 +50,4 @@ jobs:
         run: npm run lint:frontend
 
       - name: Type check
-        run: npm run typecheck
+        run: npm run typecheck:frontend

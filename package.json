@@ -18,7 +18,9 @@
         "lint-fix:frontend": "biome check --write frontend",
         "fmt:backend": "biome format --write backend",
         "lint:backend": "biome check backend",
-        "lint-fix:backend": "biome check --write backend"
+        "lint-fix:backend": "biome check --write backend",
+        "typecheck:frontend": "cd frontend && npm run typecheck",
+        "typecheck:backend": "cd backend && npm run typecheck"
     },
     "devDependencies": {
         "@biomejs/biome": "^2.3.8",
