@@ -7,10 +7,9 @@ import {
   hashToken,
   persistRefreshToken,
   rotateRefreshToken,
-  setRefreshCookie,
   signAccessToken,
   signRefreshToken,
-} from '@/routes/api/auth/auth-utils';
+} from '@/shared/auth-utils';
 
 const SALT_LENGTH = 10;
 
