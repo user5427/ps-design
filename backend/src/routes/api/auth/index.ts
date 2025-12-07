@@ -7,7 +7,7 @@ import {
   logout,
   refreshAccessToken,
 } from "./service";
-import { hashToken, setRefreshCookie } from "./auth-utils";
+import { setRefreshCookie } from "@/shared/auth-utils";
 import {
   type ChangePasswordBody,
   ChangePasswordSchema,
