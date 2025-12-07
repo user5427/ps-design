@@ -15,7 +15,7 @@ import {
   TextField,
 } from "@mui/material";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FormAlert } from "@/components/elements/form";
 import type { FormFieldDefinition } from "./types";
 
@@ -227,6 +227,8 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
             helperText={error}
             disabled={isSubmitting}
             required={field.required}
+            InputLabelProps={{ shrink: true }}
+            
           />
         );
 

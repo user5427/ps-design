@@ -91,17 +91,10 @@ export interface GetStockChangesParams {
   type?: string;
 }
 
-export interface PaginatedStockChanges {
-  data: StockChange[];
-  total: number;
-  page: number;
-  limit: number;
-}
-
 export async function getStockChanges(
   params?: GetStockChangesParams
-): Promise<PaginatedStockChanges> {
-  const response = await apiClient.get<PaginatedStockChanges>(
+): Promise<StockChange[]> {
+  const response = await apiClient.get<StockChange[]>(
     "/inventory/stock/changes",
     { params }
   );

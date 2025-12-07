@@ -25,7 +25,7 @@ const stockChangeTypeColors: Record<
 
 export const StockChangesListView = () => {
   const {
-    data: stockChangesData,
+    data: stockChanges = [],
     isLoading,
     error,
     refetch,
@@ -33,8 +33,6 @@ export const StockChangesListView = () => {
   const { data: products = [] } = useProducts();
   const createMutation = useCreateStockChange();
   const deleteMutation = useDeleteStockChange();
-
-  const stockChanges = stockChangesData?.data ?? [];
 
   const columns = useMemo<MRT_ColumnDef<StockChange>[]>(
     () => [
@@ -139,7 +137,7 @@ export const StockChangesListView = () => {
     {
       name: "expirationDate",
       label: "Expiration Date",
-      type: "datetime",
+      type: "date",
     },
   ];
 
@@ -169,7 +167,7 @@ export const StockChangesListView = () => {
       isLoading={isLoading}
       error={error}
       createFormFields={createFormFields}
-      editFormFields={[]} // No edit for stock changes
+      editFormFields={[]} 
       onCreate={handleCreate}
       onEdit={handleEdit}
       onDelete={handleDelete}
