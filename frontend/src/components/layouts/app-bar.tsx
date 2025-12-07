@@ -6,7 +6,6 @@ interface LogoProps {
     image: React.ReactNode;
     text?: string;
   };
-  logoText?: string;
   size?: number;
 }
 
@@ -33,7 +32,7 @@ const Logo: React.FC<LogoProps> = ({ logo, size = 40 }) => (
   </Box>
 );
 
-export const AppBar: React.FC<AppBarProps> = ({ logo, logoText }) => {
+export const AppBar: React.FC<AppBarProps> = ({ logo }) => {
   if (!logo) return null;
 
   return (
@@ -47,7 +46,7 @@ export const AppBar: React.FC<AppBarProps> = ({ logo, logoText }) => {
       }}
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
-        <Logo logo={logo} logoText={logoText} />
+        <Logo logo={logo} />
       </Toolbar>
     </MUIAppBar>
   );
