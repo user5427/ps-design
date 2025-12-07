@@ -1,6 +1,6 @@
 import { apiClient } from "@/api/client";
 import type {
-  UserResponse,
+  AuthUserResponse,
   LoginBody,
   LoginResponse,
   ChangePasswordBody,
@@ -27,8 +27,8 @@ export async function logout(): Promise<void> {
   await apiClient.post("/auth/logout");
 }
 
-export async function getCurrentUser(): Promise<UserResponse> {
-  const response = await apiClient.get<UserResponse>("/auth/me");
+export async function getCurrentUser(): Promise<AuthUserResponse> {
+  const response = await apiClient.get<AuthUserResponse>("/auth/me");
   return AuthUserResponseSchema.parse(response.data);
 }
 
