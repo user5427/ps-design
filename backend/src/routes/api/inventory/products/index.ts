@@ -8,8 +8,8 @@ import {
   getProductById,
   updateProduct,
 } from "./service";
-import { getBusinessId } from '@/shared/auth-utils';
-import { handleServiceError } from '@/shared/error-handler';
+import { getBusinessId } from "@/shared/auth-utils";
+import { handleServiceError } from "@/shared/error-handler";
 import {
   type CreateProductBody,
   CreateProductSchema,

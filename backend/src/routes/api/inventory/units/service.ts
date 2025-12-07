@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import type { ProductUnit } from '@/modules/inventory/product-unit';
+import type { ProductUnit } from "@/modules/inventory/product-unit";
 
 export interface CreateProductUnitInput {
   name: string;
@@ -41,11 +41,7 @@ export async function updateUnit(
   unitId: string,
   input: UpdateProductUnitInput,
 ): Promise<ProductUnit> {
-  const unit = await fastify.db.productUnit.update(
-    unitId,
-    businessId,
-    input,
-  );
+  const unit = await fastify.db.productUnit.update(unitId, businessId, input);
   return unit;
 }
 

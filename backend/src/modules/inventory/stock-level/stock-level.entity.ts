@@ -8,8 +8,8 @@ import {
   type Relation,
   UpdateDateColumn,
 } from "typeorm";
-import { decimalTransformer } from '@/shared/decimal-transformer';
-import type { Product } from '@/modules/inventory/product/product.entity';
+import { decimalTransformer } from "@/shared/decimal-transformer";
+import type { Product } from "@/modules/inventory/product/product.entity";
 
 @Entity("StockLevel")
 @Index(["businessId"])

@@ -41,14 +41,14 @@ export class TaxRepository {
   async delete(id: string): Promise<void> {
     await this.repository.update(
       { id, deletedAt: IsNull() },
-      { deletedAt: new Date() }
+      { deletedAt: new Date() },
     );
   }
 
   async deleteByCountryId(countryId: string): Promise<void> {
     await this.repository.update(
       { countryId, deletedAt: IsNull() },
-      { deletedAt: new Date() }
+      { deletedAt: new Date() },
     );
   }
 }

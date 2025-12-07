@@ -8,10 +8,10 @@ import {
   PrimaryGeneratedColumn,
   type Relation,
 } from "typeorm";
-import { decimalTransformer } from '@/shared/decimal-transformer';
-import type { Business } from '@/modules/business/business.entity';
-import type { User } from '@/modules/user/user.entity';
-import type { Product } from '@/modules/inventory/product/product.entity';
+import { decimalTransformer } from "@/shared/decimal-transformer";
+import type { Business } from "@/modules/business/business.entity";
+import type { User } from "@/modules/user/user.entity";
+import type { Product } from "@/modules/inventory/product/product.entity";
 import { StockChangeType } from "./stock-change.types";
 
 @Entity("StockChange")

@@ -1,23 +1,23 @@
 import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
 import type { DataSource } from "typeorm";
-import { createDataSource } from '@/database/data-source';
-import { Business, BusinessRepository } from '@/modules/business';
-import { Product, ProductRepository } from '@/modules/inventory/product';
+import { createDataSource } from "@/database/data-source";
+import { Business, BusinessRepository } from "@/modules/business";
+import { Product, ProductRepository } from "@/modules/inventory/product";
 import {
   ProductUnit,
   ProductUnitRepository,
-} from '@/modules/inventory/product-unit';
+} from "@/modules/inventory/product-unit";
 import {
   StockChange,
   StockChangeRepository,
-} from '@/modules/inventory/stock-change';
+} from "@/modules/inventory/stock-change";
 import {
   StockLevel,
   StockLevelRepository,
-} from '@/modules/inventory/stock-level';
-import { RefreshToken, RefreshTokenRepository } from '@/modules/refresh-token';
-import { User, UserRepository } from '@/modules/user';
+} from "@/modules/inventory/stock-level";
+import { RefreshToken, RefreshTokenRepository } from "@/modules/refresh-token";
+import { User, UserRepository } from "@/modules/user";
 
 export interface Services {
   dataSource: DataSource;

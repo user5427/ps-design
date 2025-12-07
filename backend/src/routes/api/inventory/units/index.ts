@@ -1,14 +1,9 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
-import {
-  createUnit,
-  deleteUnit,
-  getAllUnits,
-  updateUnit,
-} from "./service";
-import { getBusinessId } from '@/shared/auth-utils';
-import { handleServiceError } from '@/shared/error-handler';
+import { createUnit, deleteUnit, getAllUnits, updateUnit } from "./service";
+import { getBusinessId } from "@/shared/auth-utils";
+import { handleServiceError } from "@/shared/error-handler";
 import {
   type CreateProductUnitBody,
   CreateProductUnitSchema,

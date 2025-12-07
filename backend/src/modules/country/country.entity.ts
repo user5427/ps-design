@@ -7,7 +7,7 @@ import {
   type Relation,
   UpdateDateColumn,
 } from "typeorm";
-import type { Tax } from '@/modules/tax/tax.entity';
+import type { Tax } from "@/modules/tax/tax.entity";
 
 @Entity("Country")
 export class Country {

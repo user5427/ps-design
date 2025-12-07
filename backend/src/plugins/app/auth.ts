@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
 import HttpStatus from "http-status";
-import type { IAuthUser } from '@/modules/user';
+import type { IAuthUser } from "@/modules/user";
 
 declare module "fastify" {
   interface FastifyRequest {

@@ -1,7 +1,7 @@
 import * as bcrypt from "bcryptjs";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import httpStatus from "http-status";
-import type { User } from '@/modules/user';
+import type { User } from "@/modules/user";
 import {
   createJti,
   hashToken,
@@ -9,7 +9,7 @@ import {
   rotateRefreshToken,
   signAccessToken,
   signRefreshToken,
-} from '@/shared/auth-utils';
+} from "@/shared/auth-utils";
 
 const SALT_LENGTH = 10;
 

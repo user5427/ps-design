@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import type { Product } from '@/modules/inventory/product';
+import type { Product } from "@/modules/inventory/product";
 
 export interface CreateStockChangeInput {
   productId: string;

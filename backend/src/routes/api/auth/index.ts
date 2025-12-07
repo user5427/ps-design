@@ -1,12 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
-import {
-  changePassword,
-  login,
-  logout,
-  refreshAccessToken,
-} from "./service";
+import { changePassword, login, logout, refreshAccessToken } from "./service";
 import { setRefreshCookie } from "@/shared/auth-utils";
 import {
   type ChangePasswordBody,
@@ -155,4 +150,3 @@ export default async function authRoutes(fastify: FastifyInstance) {
     },
   );
 }
-

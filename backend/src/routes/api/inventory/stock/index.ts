@@ -8,8 +8,8 @@ import {
   getStockChanges,
   getStockLevelByProductId,
 } from "./service";
-import { getBusinessId } from '@/shared/auth-utils';
-import { handleServiceError } from '@/shared/error-handler';
+import { getBusinessId } from "@/shared/auth-utils";
+import { handleServiceError } from "@/shared/error-handler";
 import {
   ChangeIdParam,
   type ChangeIdParams,

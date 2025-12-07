@@ -40,7 +40,7 @@ export class CountryRepository {
   async delete(id: string): Promise<void> {
     await this.repository.update(
       { id, deletedAt: IsNull() },
-      { deletedAt: new Date() }
+      { deletedAt: new Date() },
     );
   }
 }

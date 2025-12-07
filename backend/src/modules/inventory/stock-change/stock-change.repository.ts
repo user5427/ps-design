@@ -4,9 +4,9 @@ import {
   IsNull,
   type Repository,
 } from "typeorm";
-import { BadRequestError, NotFoundError } from '@/shared/errors';
-import type { Product } from '@/modules/inventory/product/product.entity';
-import { StockLevel } from '@/modules/inventory/stock-level/stock-level.entity';
+import { BadRequestError, NotFoundError } from "@/shared/errors";
+import type { Product } from "@/modules/inventory/product/product.entity";
+import { StockLevel } from "@/modules/inventory/stock-level/stock-level.entity";
 import { StockChange } from "./stock-change.entity";
 import type { ICreateStockChange, StockChangeType } from "./stock-change.types";
 
