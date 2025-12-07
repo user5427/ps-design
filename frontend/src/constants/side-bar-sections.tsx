@@ -22,17 +22,17 @@ export const sidebarSections: Section[] = [
       {
         label: "Product Units",
         icon: <CategoryIcon />,
-        path: "/inventory/units",
+        path: URLS.INVENTORY_UNITS,
       },
       {
         label: "Products",
         icon: <ShoppingCartIcon />,
-        path: "/inventory/products",
+        path: URLS.INVENTORY_PRODUCTS,
       },
       {
-        label: "Stock Levels",
+        label: "Stock Changes",
         icon: <Inventory2Icon />,
-        path: "/inventory/stock",
+        path: URLS.INVENTORY_STOCK,
       },
     ],
   },

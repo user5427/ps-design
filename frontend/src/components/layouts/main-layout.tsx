@@ -11,7 +11,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
     <Box>
       <Sidebar sidebarSections={sidebarSections} />
-      <Container maxWidth="lg" sx={{ pt: 4, pb: 4 }}>
+      <Container sx={{ pt: 4, pb: 4 }}>
         {children}
       </Container>
     </Box>
