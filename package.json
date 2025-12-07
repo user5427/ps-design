@@ -3,6 +3,11 @@
     "version": "1.0.0",
     "description": "PS Design - Full Stack TypeScript Application",
     "private": true,
+    "workspaces": [
+        "backend",
+        "frontend",
+        "schemas"
+    ],
     "scripts": {
         "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
         "dev:backend": "cd backend && npm run dev",

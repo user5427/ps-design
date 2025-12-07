@@ -1,0 +1,28 @@
+{
+  "name": "@ps-design/schemas",
+  "version": "1.0.0",
+  "description": "Shared Zod schemas for PS Design application",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./auth": "./dist/auth/index.js",
+    "./inventory/products": "./dist/inventory/products/index.js",
+    "./inventory/stock": "./dist/inventory/stock/index.js",
+    "./inventory/units": "./dist/inventory/units/index.js",
+    "./shared": "./dist/shared/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "^5.9.3"
+  }
+}

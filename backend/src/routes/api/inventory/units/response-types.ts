@@ -1,22 +1,9 @@
-import { z } from "zod";
-import { uuid } from '@/shared/zod-utils';
-
-export type {
-  ErrorResponse,
-  SuccessResponse,
-} from '@/shared/response-types';
+// Re-export from @ps-design/schemas package
 export {
+  type ErrorResponse,
+  type SuccessResponse,
   ErrorResponseSchema,
   SuccessResponseSchema,
-} from '@/shared/response-types';
-
-export const ProductUnitResponseSchema = z.object({
-  id: uuid(),
-  name: z.string(),
-  symbol: z.string().nullable(),
-  businessId: uuid(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-export type ProductUnitResponse = z.infer<typeof ProductUnitResponseSchema>;
+  ProductUnitResponseSchema,
+  type ProductUnitResponse,
+} from "@ps-design/schemas/inventory/units";

@@ -1,4 +1,8 @@
 {
+  "name": "backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
@@ -9,6 +13,7 @@
     "db:seed": "tsx src/scripts/seed.ts"
   },
   "dependencies": {
+    "@ps-design/schemas": "workspace:*",
     "@fastify/autoload": "^6.3.0",
     "@fastify/cookie": "^11.0.2",
     "@fastify/cors": "^11.1.0",
