@@ -7,7 +7,7 @@
     "db:migrate:generate": "tsx node_modules/typeorm/cli.js migration:generate -d src/database/data-source.cli.ts",
     "db:migrate:revert": "tsx node_modules/typeorm/cli.js migration:revert -d src/database/data-source.cli.ts",
     "db:seed": "tsx src/scripts/seed.ts",
-    "typecheck": "npx tsc --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@fastify/autoload": "^6.3.0",
