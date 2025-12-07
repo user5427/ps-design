@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   type Relation,
 } from "typeorm";
-import type { User } from "../user/user.entity";
+import type { User } from "@/modules/user/user.entity";
 
 @Entity("RefreshToken")
 export class RefreshToken {

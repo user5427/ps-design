@@ -10,9 +10,9 @@ import {
   type Relation,
   UpdateDateColumn,
 } from "typeorm";
-import type { Business } from "../business/business.entity";
-import type { StockChange } from "../inventory/stock-change/stock-change.entity";
-import type { RefreshToken } from "../refresh-token/refresh-token.entity";
+import type { Business } from "@/modules/business/business.entity";
+import type { StockChange } from "@/modules/inventory/stock-change/stock-change.entity";
+import type { RefreshToken } from "@/modules/refresh-token/refresh-token.entity";
 import { Role } from "./user.types";
 
 @Entity("User")

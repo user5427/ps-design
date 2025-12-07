@@ -3,21 +3,28 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-COPY tsconfig*.json ./
-COPY vite.config.ts ./
-COPY index.html ./
+# Copy root workspace files
+COPY package.json package-lock.json ./
+
+# Copy frontend package files
+COPY frontend/package*.json frontend/tsconfig*.json frontend/vite.config.ts frontend/index.html ./frontend/
+
+# Copy schemas package files
+COPY schemas/package.json schemas/tsconfig.json ./schemas/
 
 # Install dependencies
 RUN npm ci
 
-# Copy source code and public assets
-COPY src ./src
-COPY public ./public
+# Copy frontend source code and public assets
+COPY frontend/src ./frontend/src
+COPY frontend/public ./frontend/public
+
+# Copy schemas source code
+COPY schemas/src ./schemas/src
 
 # Expose port
 EXPOSE 3000
 
 # Run development server with hot reload and bind to 0.0.0.0
-CMD ["npm", "run", "dev", "--", "--host"]
+CMD ["npm", "--prefix", "./frontend", "run", "dev", "--", "--host"]
+

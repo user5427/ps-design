@@ -12,10 +12,10 @@ import {
   Unique,
   UpdateDateColumn,
 } from "typeorm";
-import type { Business } from "../../business/business.entity";
-import type { ProductUnit } from "../product-unit/product-unit.entity";
-import type { StockChange } from "../stock-change/stock-change.entity";
-import type { StockLevel } from "../stock-level/stock-level.entity";
+import type { Business } from "@/modules/business/business.entity";
+import type { ProductUnit } from "@/modules/inventory/product-unit/product-unit.entity";
+import type { StockChange } from "@/modules/inventory/stock-change/stock-change.entity";
+import type { StockLevel } from "@/modules/inventory/stock-level/stock-level.entity";
 
 @Entity("Product")
 @Unique(["businessId", "name"])

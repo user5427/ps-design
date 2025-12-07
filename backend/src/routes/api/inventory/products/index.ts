@@ -1,8 +1,15 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
-import { getBusinessId } from "../../../../shared/auth-utils";
-import { handleServiceError } from "../../../../shared/error-handler";
+import {
+  createProduct,
+  deleteProduct,
+  getAllProducts,
+  getProductById,
+  updateProduct,
+} from "./service";
+import { getBusinessId } from "@/shared/auth-utils";
+import { handleServiceError } from "@/shared/error-handler";
 import {
   type CreateProductBody,
   CreateProductSchema,
@@ -10,7 +17,7 @@ import {
   type ProductIdParams,
   type UpdateProductBody,
   UpdateProductSchema,
-} from "./request-types";
+} from "@ps-design/schemas/inventory/products";
 
 export default async function productsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -19,8 +26,7 @@ export default async function productsRoutes(fastify: FastifyInstance) {
     const businessId = getBusinessId(request, reply);
     if (!businessId) return;
 
-    const products = await fastify.db.product.findAllByBusinessId(businessId);
-
+    const products = await getAllProducts(fastify, businessId);
     return reply.send(products);
   });
 
@@ -40,16 +46,8 @@ export default async function productsRoutes(fastify: FastifyInstance) {
       const businessId = getBusinessId(request, reply);
       if (!businessId) return;
 
-      const { name, description, productUnitId } = request.body;
-
       try {
-        const product = await fastify.db.product.create({
-          name,
-          description,
-          productUnitId,
-          businessId,
-        });
-
+        const product = await createProduct(fastify, businessId, request.body);
         return reply.code(httpStatus.CREATED).send(product);
       } catch (error) {
         return handleServiceError(error, reply);
@@ -76,7 +74,7 @@ export default async function productsRoutes(fastify: FastifyInstance) {
       const { productId } = request.params;
 
       try {
-        const product = await fastify.db.product.getById(productId, businessId);
+        const product = await getProductById(fastify, businessId, productId);
         return reply.send(product);
       } catch (error) {
         return handleServiceError(error, reply);
@@ -105,9 +103,10 @@ export default async function productsRoutes(fastify: FastifyInstance) {
       const { productId } = request.params;
 
       try {
-        const updated = await fastify.db.product.update(
-          productId,
+        const updated = await updateProduct(
+          fastify,
           businessId,
+          productId,
           request.body,
         );
         return reply.send(updated);
@@ -136,7 +135,7 @@ export default async function productsRoutes(fastify: FastifyInstance) {
       const { productId } = request.params;
 
       try {
-        await fastify.db.product.delete(productId, businessId);
+        await deleteProduct(fastify, businessId, productId);
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);

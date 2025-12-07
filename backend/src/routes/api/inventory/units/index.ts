@@ -1,8 +1,9 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
-import { getBusinessId } from "../../../../shared/auth-utils";
-import { handleServiceError } from "../../../../shared/error-handler";
+import { createUnit, deleteUnit, getAllUnits, updateUnit } from "./service";
+import { getBusinessId } from "@/shared/auth-utils";
+import { handleServiceError } from "@/shared/error-handler";
 import {
   type CreateProductUnitBody,
   CreateProductUnitSchema,
@@ -10,7 +11,7 @@ import {
   type UnitIdParams,
   type UpdateProductUnitBody,
   UpdateProductUnitSchema,
-} from "./request-types";
+} from "@ps-design/schemas/inventory/units";
 
 export default async function unitsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -19,8 +20,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
     const businessId = getBusinessId(request, reply);
     if (!businessId) return;
 
-    const units = await fastify.db.productUnit.findAllByBusinessId(businessId);
-
+    const units = await getAllUnits(fastify, businessId);
     return reply.send(units);
   });
 
@@ -40,14 +40,8 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
       const businessId = getBusinessId(request, reply);
       if (!businessId) return;
 
-      const { name, symbol } = request.body;
-
       try {
-        const unit = await fastify.db.productUnit.create({
-          name,
-          symbol,
-          businessId,
-        });
+        const unit = await createUnit(fastify, businessId, request.body);
         return reply.code(httpStatus.CREATED).send(unit);
       } catch (error) {
         return handleServiceError(error, reply);
@@ -76,9 +70,10 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
       const { unitId } = request.params;
 
       try {
-        const unit = await fastify.db.productUnit.update(
-          unitId,
+        const unit = await updateUnit(
+          fastify,
           businessId,
+          unitId,
           request.body,
         );
         return reply.send(unit);
@@ -107,7 +102,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
       const { unitId } = request.params;
 
       try {
-        await fastify.db.productUnit.delete(unitId, businessId);
+        await deleteUnit(fastify, businessId, unitId);
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);
