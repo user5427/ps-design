@@ -14,18 +14,11 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "strictPropertyInitialization": false,
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
       "@/*": ["./src/*"]
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules"],
-  "tsx": {
-    "compilerOptions": {
-      "paths": {
-        "@/*": ["./src/*"]
-      }
-    }
-  }
+  "exclude": ["node_modules"]
 }
