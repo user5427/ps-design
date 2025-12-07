@@ -1,17 +1,20 @@
 import { Box, AppBar as MUIAppBar, Toolbar, Typography } from "@mui/material";
 import type React from "react";
 
-interface LogoProps {
+type Logo = {
   image: React.ReactNode;
-  logoText?: string;
+  text?: string;
+}
+
+interface LogoProps {
+  logo: Logo
   size?: number;
 }
 
-export interface AppBarProps {
-  logo: LogoProps;
+export interface AppBarProps extends LogoProps {
 }
 
-const Logo: React.FC<LogoProps> = ({ image, logoText, size = 40 }) => (
+const Logo: React.FC<LogoProps> = ({ logo, size = 40 }) => (
   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
     <Box
       sx={{
@@ -21,12 +24,12 @@ const Logo: React.FC<LogoProps> = ({ image, logoText, size = 40 }) => (
         overflow: "hidden",
       }}
     >
-      {image}
+      {logo.image}
     </Box>
 
-    {logoText && (
+    {logo.text && (
       <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-        {logoText}
+        {logo.text}
       </Typography>
     )}
   </Box>
@@ -44,7 +47,7 @@ export const AppBar: React.FC<AppBarProps> = ({ logo }) => {
       }}
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
-        <Logo {...logo} />
+        <Logo logo={logo} />
       </Toolbar>
     </MUIAppBar>
   );

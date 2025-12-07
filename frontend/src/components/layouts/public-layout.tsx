@@ -1,4 +1,4 @@
-import { Box, Container } from "@mui/material";
+import {  Container } from "@mui/material";
 import type React from "react";
 
 interface PublicLayoutProps {
