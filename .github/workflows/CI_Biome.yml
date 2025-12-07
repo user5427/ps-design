@@ -1,11 +1,11 @@
-name: BiomeSchemas
+name: BiomelLint
 
 on:
   pull_request:
     branches: [ main, master ]
 
 jobs:
-  biome-format:
+  biome-lint-all:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,6 +24,18 @@ jobs:
       - name: Install Biome globally
         run: npm install -g @biomejs/biome
 
+      - name: Run Biome formatter on backend
+        run: biome format --write backend/src
+
+      - name: Run Biome lint with auto-fix on backend
+        run: biome lint --write backend/src
+
+      - name: Run Biome formatter on frontend
+        run: biome format --write frontend/src
+
+      - name: Run Biome lint with auto-fix on frontend
+        run: biome lint --write frontend/src
+
       - name: Run Biome formatter on schemas
         run: biome format --write schemas/src
 
@@ -32,8 +44,17 @@ jobs:
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Apply Schemas Biome linting and formatting"
-          file_pattern: schemas/src
+          commit_message: "Apply Biome linting and formatting"
+          file_pattern: backend/src frontend/src schemas/src
+          push_options: "--force-with-lease"
+          skip_fetch: false
+          skip_dirty_check: false
+
+      - name: Validate lint on backend
+        run: biome lint backend/src
+
+      - name: Validate lint on frontend
+        run: biome lint frontend/src
 
       - name: Validate lint on schemas
         run: biome lint schemas/src
