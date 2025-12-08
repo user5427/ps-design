@@ -81,7 +81,7 @@ export const StockChangesListView = () => {
         size: 150,
         Cell: ({ cell }) => {
           const value = cell.getValue<string>();
-          return value ? new Date(value).toLocaleDateString() : "-";
+          return value ? new Date(value).toLocaleDateString() : "";
         },
       },
       {
@@ -108,7 +108,6 @@ export const StockChangesListView = () => {
 
   const typeOptions = [
     { value: "SUPPLY", label: "Supply" },
-    { value: "USAGE", label: "Usage" },
     { value: "ADJUSTMENT", label: "Adjustment" },
     { value: "WASTE", label: "Waste" },
   ];
