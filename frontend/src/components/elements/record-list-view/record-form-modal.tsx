@@ -227,8 +227,7 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
             helperText={error}
             disabled={isSubmitting}
             required={field.required}
-            InputLabelProps={{ shrink: true }}
-            
+            slotProps={{ inputLabel: { shrink: true } }}
           />
         );
 

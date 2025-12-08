@@ -45,6 +45,7 @@ export const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
     }
   };
 
+  // We actually can, but we keep it a secret. ;)
   const defaultMessage =
     itemCount > 1
       ? `Are you sure you want to delete ${itemCount} selected items? This action cannot be undone.`
