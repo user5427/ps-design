@@ -1,51 +1,48 @@
 import { apiClient } from "@/api/client";
 import type {
-  AuthUserResponse,
-  ChangePasswordRequest,
-  ChangePasswordResponse,
-  LoginRequest,
-  LoginResponse,
-} from "@/schemas/auth";
+  AuthResponse,
+  LoginBody,
+  UserResponse,
+  ChangePasswordBody,
+  RefreshResponse,
+} from "@ps-design/schemas/auth";
 import {
-  AuthUserResponseSchema,
-  ChangePasswordRequestSchema,
-  ChangePasswordResponseSchema,
-  LoginRequestSchema,
-  LoginResponseSchema,
-} from "@/schemas/auth";
+  AuthResponseSchema,
+  ChangePasswordSchema,
+  LoginSchema,
+  UserResponseSchema,
+} from "@ps-design/schemas/auth";
+import { SuccessResponseSchema } from "@ps-design/schemas/shared/response-types";
+import type { SuccessResponse } from "@ps-design/schemas/shared/response-types";
 
-export async function login(request: LoginRequest): Promise<LoginResponse> {
-  const validated = LoginRequestSchema.parse(request);
-  const response = await apiClient.post<LoginResponse>(
-    "/auth/login",
-    validated,
-  );
-  return LoginResponseSchema.parse(response.data);
+export async function login(request: LoginBody): Promise<AuthResponse> {
+  const validated = LoginSchema.parse(request);
+  const response = await apiClient.post<AuthResponse>("/auth/login", validated);
+  return AuthResponseSchema.parse(response.data);
 }
 
-export async function logout(): Promise<void> {
-  await apiClient.post("/auth/logout");
+export async function logout(): Promise<SuccessResponse> {
+  const response = await apiClient.post<SuccessResponse>("/auth/logout");
+  return SuccessResponseSchema.parse(response.data);
 }
 
-export async function getCurrentUser(): Promise<AuthUserResponse> {
-  const response = await apiClient.get<AuthUserResponse>("/auth/me");
-  return AuthUserResponseSchema.parse(response.data);
+export async function getCurrentUser(): Promise<UserResponse> {
+  const response = await apiClient.get<UserResponse>("/auth/me");
+  return UserResponseSchema.parse(response.data);
 }
 
-export async function refreshToken(): Promise<{ accessToken: string }> {
-  const response = await apiClient.post<{ accessToken: string }>(
-    "/auth/refresh",
-  );
+export async function refreshToken(): Promise<RefreshResponse> {
+  const response = await apiClient.post<RefreshResponse>("/auth/refresh");
   return response.data;
 }
 
 export async function changePassword(
-  request: ChangePasswordRequest,
-): Promise<ChangePasswordResponse> {
-  const validated = ChangePasswordRequestSchema.parse(request);
-  const response = await apiClient.post<ChangePasswordResponse>(
+  request: ChangePasswordBody,
+): Promise<SuccessResponse> {
+  const validated = ChangePasswordSchema.parse(request);
+  const response = await apiClient.post<SuccessResponse>(
     "/auth/change-password",
     validated,
   );
-  return ChangePasswordResponseSchema.parse(response.data);
+  return SuccessResponseSchema.parse(response.data);
 }

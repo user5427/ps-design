@@ -1,3 +1,3 @@
 export { RefreshToken } from "./refresh-token.entity";
-export { RefreshTokenService } from "./refresh-token.service";
+export { RefreshTokenRepository } from "./refresh-token.repository";
 export * from "./refresh-token.types";

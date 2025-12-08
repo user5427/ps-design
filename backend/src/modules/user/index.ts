@@ -1,3 +1,3 @@
 export { User } from "./user.entity";
-export { UserService } from "./user.service";
+export { UserRepository } from "./user.repository";
 export * from "./user.types";

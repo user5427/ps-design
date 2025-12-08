@@ -1,8 +1,8 @@
 import "dotenv/config";
 import * as bcrypt from "bcryptjs";
-import { createDataSource } from "../database/data-source";
-import { Business } from "../modules/business";
-import { Role, User } from "../modules/user";
+import { createDataSource } from "@/database/data-source";
+import { Business } from "@/modules/business";
+import { Role, User } from "@/modules/user";
 
 async function main() {
   const connectionString = process.env.DATABASE_URL;

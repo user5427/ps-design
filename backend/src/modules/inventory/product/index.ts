@@ -1,3 +1,3 @@
 export { Product } from "./product.entity";
-export { ProductService } from "./product.service";
+export { ProductRepository } from "./product.repository";
 export * from "./product.types";

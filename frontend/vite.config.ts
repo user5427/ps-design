@@ -26,6 +26,7 @@ export default ({ mode }: { mode: string }) => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "src"),
+        "@ps-design": path.resolve(__dirname, "../schemas/src"),
       },
     },
   });
