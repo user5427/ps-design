@@ -17,10 +17,7 @@ import type { SuccessResponse } from "@ps-design/schemas/shared/response-types";
 
 export async function login(request: LoginBody): Promise<AuthResponse> {
   const validated = LoginSchema.parse(request);
-  const response = await apiClient.post<AuthResponse>(
-    "/auth/login",
-    validated,
-  );
+  const response = await apiClient.post<AuthResponse>("/auth/login", validated);
   return AuthResponseSchema.parse(response.data);
 }
 
@@ -35,9 +32,7 @@ export async function getCurrentUser(): Promise<UserResponse> {
 }
 
 export async function refreshToken(): Promise<RefreshResponse> {
-  const response = await apiClient.post<RefreshResponse>(
-    "/auth/refresh",
-  );
+  const response = await apiClient.post<RefreshResponse>("/auth/refresh");
   return response.data;
 }
 

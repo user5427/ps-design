@@ -10,9 +10,9 @@ import {
   signRefreshToken,
 } from "@/shared/auth-utils";
 import {
-  AuthResponse,
+  type AuthResponse,
   AuthResponseSchema,
-  RefreshResponse,
+  type RefreshResponse,
   RefreshResponseSchema,
   type ChangePasswordBody,
   type LoginBody,
@@ -55,7 +55,7 @@ export async function login(
     jti,
     ip: request.ip,
   });
-  
+
   return AuthResponseSchema.parse({ ...user, accessToken, refreshToken });
 }
 
