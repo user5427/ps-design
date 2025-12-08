@@ -4,15 +4,15 @@ import type {
   LoginBody,
   LoginResponse,
   ChangePasswordBody,
-  SuccessResponse,
-} from "@ps-design/schemas/schemas/auth";
+} from "@ps-design/schemas/auth";
 import {
   AuthUserResponseSchema,
   ChangePasswordSchema,
   LoginSchema,
   LoginResponseSchema,
-  SuccessResponseSchema,
-} from "@ps-design/schemas/schemas/auth";
+} from "@ps-design/schemas/auth";
+import { SuccessResponseSchema } from "@ps-design/schemas/shared/response-types";
+import type { SuccessResponse } from "@ps-design/schemas/shared/response-types";
 
 export async function login(request: LoginBody): Promise<LoginResponse> {
   const validated = LoginSchema.parse(request);

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { uuid } from "@/schemas/shared/zod-utils";
+import { uuid } from "../../shared/zod-utils";
 
 export const ProductResponseSchema = z.object({
   id: uuid(),

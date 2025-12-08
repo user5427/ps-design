@@ -6,8 +6,10 @@ export const LoginResponseSchema = z.object({
   businessId: z.uuid().nullable(),
   role: z.string(),
   isPasswordResetRequired: z.boolean(),
+});
+
+export const AuthUserResponseSchema = LoginResponseSchema.extend({
   accessToken: z.string(),
-  refreshToken: z.string(),
 });
 
 export const RefreshResponseSchema = z.object({
@@ -15,4 +17,5 @@ export const RefreshResponseSchema = z.object({
 });
 
 export type LoginResponse = z.infer<typeof LoginResponseSchema>;
+export type AuthUserResponse = z.infer<typeof AuthUserResponseSchema>;
 export type RefreshResponse = z.infer<typeof RefreshResponseSchema>;

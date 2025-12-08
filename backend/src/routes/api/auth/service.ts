@@ -14,7 +14,7 @@ import {
   type LoginBody,
   type LoginResponse,
   LoginResponseSchema,
-} from "@ps-design/schemas/schemas/auth";
+} from "@ps-design/schemas/auth";
 
 const SALT_LENGTH = 10;
 

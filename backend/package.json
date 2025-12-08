@@ -12,6 +12,7 @@
     "db:seed": "tsx src/scripts/seed.ts"
   },
   "dependencies": {
+    "@ps-design/schemas": "*",
     "@fastify/autoload": "^6.3.0",
     "@fastify/cookie": "^11.0.2",
     "@fastify/cors": "^11.1.0",
