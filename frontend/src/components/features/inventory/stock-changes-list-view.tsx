@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import {
   RecordListView,
   type FormFieldDefinition,
+  ValidationRules,
 } from "@/components/elements/record-list-view";
 import {
   useCreateStockChange,
@@ -132,7 +133,7 @@ export const StockChangesListView = () => {
       label: "Quantity",
       type: "number",
       required: true,
-      validation: { min: 0.01 },
+      validationRules: [ValidationRules.min(0.01, "Quantity must be greater than 0")],
     },
     {
       name: "expirationDate",

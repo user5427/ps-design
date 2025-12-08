@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import {
   RecordListView,
   type FormFieldDefinition,
+ValidationRules
 } from "@/components/elements/record-list-view";
 import {
   useCreateProductUnit,
@@ -49,14 +50,14 @@ export const ProductUnitsListView = () => {
       label: "Name",
       type: "text",
       required: true,
-      validation: { minLength: 1, maxLength: 100 },
+      validationRules: [ValidationRules.minLength(1), ValidationRules.maxLength(100)],
     },
     {
       name: "symbol",
       label: "Symbol",
       type: "text",
       placeholder: "e.g., kg, pcs, L",
-      validation: { maxLength: 10 },
+      validationRules: [ValidationRules.maxLength(10)],
     },
   ];
 

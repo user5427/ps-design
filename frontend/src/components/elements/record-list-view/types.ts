@@ -17,6 +17,11 @@ export interface SelectOption {
   label: string;
 }
 
+export interface ValidationRule {
+  test: (value: unknown, allValues?: Record<string, unknown>) => boolean;
+  message: string;
+}
+
 export interface FormFieldDefinition {
   name: string;
   label: string;
@@ -24,13 +29,7 @@ export interface FormFieldDefinition {
   required?: boolean;
   placeholder?: string;
   options?: SelectOption[]; // For select fields
-  validation?: {
-    minLength?: number;
-    maxLength?: number;
-    min?: number;
-    max?: number;
-    pattern?: RegExp;
-  };
+  validationRules?: ValidationRule[];
   defaultValue?: unknown;
 }
 

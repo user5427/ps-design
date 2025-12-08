@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import {
   RecordListView,
   type FormFieldDefinition,
+  ValidationRules,
 } from "@/components/elements/record-list-view";
 import {
   useCreateProduct,
@@ -82,7 +83,7 @@ export const ProductsListView = () => {
       label: "Name",
       type: "text",
       required: true,
-      validation: { minLength: 1, maxLength: 100 },
+      validationRules: [ValidationRules.minLength(1), ValidationRules.maxLength(100)],
     },
     {
       name: "description",

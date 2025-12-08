@@ -58,34 +58,22 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
 
   const validateField = (
     field: FormFieldDefinition,
-    value: unknown
+    value: unknown,
+    allValues: Record<string, unknown>
   ): string | null => {
     const strValue = String(value ?? "");
 
+    // Check required
     if (field.required && !strValue.trim()) {
       return `${field.label} is required`;
     }
 
-    if (field.validation) {
-      const { minLength, maxLength, min, max, pattern } = field.validation;
-
-      if (minLength && strValue.length < minLength) {
-        return `${field.label} must be at least ${minLength} characters`;
-      }
-      if (maxLength && strValue.length > maxLength) {
-        return `${field.label} must be at most ${maxLength} characters`;
-      }
-      if (field.type === "number") {
-        const numValue = Number(value);
-        if (min !== undefined && numValue < min) {
-          return `${field.label} must be at least ${min}`;
+    // Run custom validation rules
+    if (field.validationRules) {
+      for (const rule of field.validationRules) {
+        if (!rule.test(value, allValues)) {
+          return rule.message;
         }
-        if (max !== undefined && numValue > max) {
-          return `${field.label} must be at most ${max}`;
-        }
-      }
-      if (pattern && !pattern.test(strValue)) {
-        return `${field.label} format is invalid`;
       }
     }
 
@@ -110,7 +98,7 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
     // Validate all fields
     const newErrors: Record<string, string> = {};
     for (const field of fields) {
-      const error = validateField(field, values[field.name]);
+      const error = validateField(field, values[field.name], values);
       if (error) newErrors[field.name] = error;
     }
 
