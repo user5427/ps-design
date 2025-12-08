@@ -37,10 +37,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
         const result = await login(fastify, request, request.body);
         setRefreshCookie(fastify, reply, result.refreshToken);
 
-        return reply.send({
-          ...result.user,
-          accessToken: result.accessToken,
-        });
+        return reply.send(result);
       } catch (err: any) {
         const statusCode = err?.code || httpStatus.INTERNAL_SERVER_ERROR;
         const message = err?.message || "Internal Server Error";

@@ -1,14 +1,4 @@
 import { z } from "zod";
-import { uuid } from "../shared/zod-utils";
-
-export type {
-  ErrorResponse,
-  SuccessResponse,
-} from "../shared/response-types";
-export {
-  ErrorResponseSchema,
-  SuccessResponseSchema,
-} from "../shared/response-types";
 
 export const AuthUserResponseSchema = z.object({
   id: z.uuid(),
@@ -20,6 +10,7 @@ export const AuthUserResponseSchema = z.object({
 
 export const LoginResponseSchema = AuthUserResponseSchema.extend({
   accessToken: z.string(),
+  refreshToken: z.string(),
 });
 
 export const RefreshResponseSchema = z.object({
