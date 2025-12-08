@@ -20,6 +20,7 @@ export const AuthUserResponseSchema = z.object({
 
 export const LoginResponseSchema = AuthUserResponseSchema.extend({
   accessToken: z.string(),
+  refreshToken: z.string(),
 });
 
 export const RefreshResponseSchema = z.object({

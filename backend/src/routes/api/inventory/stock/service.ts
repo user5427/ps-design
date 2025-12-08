@@ -1,25 +1,11 @@
 import type { FastifyInstance } from "fastify";
 import type { Product } from "@/modules/inventory/product";
-
-export interface CreateStockChangeInput {
-  productId: string;
-  quantity: number;
-  type: string;
-  expirationDate?: string;
-}
-
-export interface StockLevelOutput {
-  productId: string;
-  productName: string;
-  productUnit: any;
-  isDisabled: boolean;
-  totalQuantity: number;
-}
+import { CreateStockChangeBody, StockLevelResponse } from "@ps-design/schemas/inventory/stock";
 
 export async function getAllStockLevels(
   fastify: FastifyInstance,
   businessId: string,
-): Promise<StockLevelOutput[]> {
+): Promise<StockLevelResponse[]> {
   const products = await fastify.db.product.findAllByBusinessId(businessId);
 
   const stockLevels = products.map((product: Product) => ({
@@ -37,7 +23,7 @@ export async function getStockLevelByProductId(
   fastify: FastifyInstance,
   businessId: string,
   productId: string,
-): Promise<StockLevelOutput> {
+): Promise<StockLevelResponse> {
   const product = await fastify.db.product.getById(productId, businessId);
   const stockLevel = await fastify.db.stockLevel.findByProductId(productId);
 
@@ -54,7 +40,7 @@ export async function createStockChange(
   fastify: FastifyInstance,
   businessId: string,
   userId: string,
-  input: CreateStockChangeInput,
+  input: CreateStockChangeBody,
 ): Promise<any> {
   const { productId, quantity, type, expirationDate } = input;
 

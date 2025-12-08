@@ -10,30 +10,15 @@ import {
   signAccessToken,
   signRefreshToken,
 } from "@/shared/auth-utils";
+import { ChangePasswordBody, LoginBody, LoginResponse } from "@ps-design/schemas/auth";
 
 const SALT_LENGTH = 10;
-
-export interface LoginInput {
-  email: string;
-  password: string;
-}
-
-export interface ChangePasswordInput {
-  currentPassword: string;
-  newPassword: string;
-}
-
-export interface LoginResult {
-  user: User;
-  accessToken: string;
-  refreshToken: string;
-}
 
 export async function login(
   fastify: FastifyInstance,
   request: FastifyRequest,
-  input: LoginInput,
-): Promise<LoginResult> {
+  input: LoginBody,
+): Promise<LoginResponse> {
   const { email, password } = input;
 
   const user = await fastify.db.user.findByEmail(email);
@@ -65,7 +50,7 @@ export async function login(
     ip: request.ip,
   });
 
-  return { user, accessToken, refreshToken };
+  return { ...user, accessToken, refreshToken };
 }
 
 export async function logout(
@@ -86,7 +71,7 @@ export async function logout(
 export async function changePassword(
   fastify: FastifyInstance,
   userId: string,
-  input: ChangePasswordInput,
+  input: ChangePasswordBody,
 ): Promise<void> {
   const { currentPassword, newPassword } = input;
 

@@ -1,17 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import type { Product } from "@/modules/inventory/product";
-
-export interface CreateProductInput {
-  name: string;
-  description?: string;
-  productUnitId: string;
-}
-
-export interface UpdateProductInput {
-  name?: string;
-  description?: string;
-  productUnitId?: string;
-}
+import { CreateProductBody, UpdateProductBody } from "@ps-design/schemas/inventory/products";
 
 export async function getAllProducts(
   fastify: FastifyInstance,
@@ -24,7 +13,7 @@ export async function getAllProducts(
 export async function createProduct(
   fastify: FastifyInstance,
   businessId: string,
-  input: CreateProductInput,
+  input: CreateProductBody,
 ): Promise<Product> {
   const { name, description, productUnitId } = input;
 
@@ -51,7 +40,7 @@ export async function updateProduct(
   fastify: FastifyInstance,
   businessId: string,
   productId: string,
-  input: UpdateProductInput,
+  input: UpdateProductBody,
 ): Promise<Product> {
   const updated = await fastify.db.product.update(productId, businessId, input);
   return updated;
