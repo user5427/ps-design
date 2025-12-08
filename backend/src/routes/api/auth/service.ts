@@ -9,7 +9,7 @@ import {
   signAccessToken,
   signRefreshToken,
 } from "@/shared/auth-utils";
-import { ChangePasswordBody, LoginBody, LoginResponse } from "@ps-design/schemas/auth";
+import { ChangePasswordBody, LoginBody, LoginResponse, LoginResponseSchema } from "@ps-design/schemas/auth";
 
 const SALT_LENGTH = 10;
 
@@ -49,7 +49,7 @@ export async function login(
     ip: request.ip,
   });
 
-  return { ...user, accessToken, refreshToken };
+  return LoginResponseSchema.parse({ ...user, accessToken, refreshToken });
 }
 
 export async function logout(
