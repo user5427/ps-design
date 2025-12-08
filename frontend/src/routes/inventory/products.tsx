@@ -1,6 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { ProductsListView } from "@/components/features/inventory";
-import { MainLayout } from "@/components/layouts";
 import { URLS } from "@/constants/urls";
 import { useAuthStore } from "@/store/auth";
 
@@ -16,9 +15,5 @@ export const Route = createFileRoute("/inventory/products")({
 });
 
 function ProductsPage() {
-  return (
-    <MainLayout>
-      <ProductsListView />
-    </MainLayout>
-  );
+  return <ProductsListView />;
 }

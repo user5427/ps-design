@@ -39,7 +39,6 @@ export const AppBar: React.FC<AppBarProps> = ({ logo }) => {
   return (
     <MUIAppBar
       position="static"
-      elevation={1}
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
         color: "text.primary",
