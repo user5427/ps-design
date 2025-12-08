@@ -18,6 +18,7 @@ import type React from "react";
 import { useState } from "react";
 import { FormAlert } from "@/components/elements/form";
 import type { FormFieldDefinition } from "./types";
+import { getReadableError } from "@/utils/get-readable-error";
 
 interface RecordFormModalProps {
   open: boolean;
@@ -115,7 +116,7 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
       onClose();
     } catch (err) {
       setSubmitError(
-        err instanceof Error ? err.message : "An error occurred"
+        getReadableError(err)
       );
     } finally {
       setIsSubmitting(false);

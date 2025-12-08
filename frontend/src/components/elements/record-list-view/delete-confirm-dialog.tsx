@@ -10,6 +10,7 @@ import {
 import type React from "react";
 import { useState } from "react";
 import { FormAlert } from "@/components/elements/form";
+import { getReadableError } from "@/utils/get-readable-error";
 
 interface DeleteConfirmDialogProps {
   open: boolean;
@@ -39,7 +40,7 @@ export const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
       await onConfirm();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Delete failed");
+      setError(getReadableError(err));
     } finally {
       setIsDeleting(false);
     }
