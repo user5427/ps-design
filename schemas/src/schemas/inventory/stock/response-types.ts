@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { datetime, uuid } from "@/shared/zod-utils";
+import { datetime, uuid } from "@/schemas/shared/zod-utils";
 
 export const StockLevelResponseSchema = z.object({
   productId: uuid(),

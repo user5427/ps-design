@@ -5,14 +5,14 @@ import type {
   LoginResponse,
   ChangePasswordBody,
   SuccessResponse,
-} from "@ps-design/schemas/auth";
+} from "@ps-design/schemas/schemas/auth";
 import {
   AuthUserResponseSchema,
   ChangePasswordSchema,
   LoginSchema,
   LoginResponseSchema,
   SuccessResponseSchema,
-} from "@ps-design/schemas/auth";
+} from "@ps-design/schemas/schemas/auth";
 
 export async function login(request: LoginBody): Promise<LoginResponse> {
   const validated = LoginSchema.parse(request);

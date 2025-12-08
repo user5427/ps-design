@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { PaginationSchema } from "@/shared/request-types";
-import { datetime, uuid } from "@/shared/zod-utils";
+import { PaginationSchema } from "@/schemas/shared/request-types";
+import { datetime, uuid } from "@/schemas/shared/zod-utils";
 
 const StockChangeTypeEnum = z.enum([
   "SUPPLY",
