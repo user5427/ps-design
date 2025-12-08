@@ -1,9 +1,9 @@
 import { Box, Button, Chip, Paper, Stack, Typography } from "@mui/material";
 import { URLS } from "@/constants/urls";
-import type { AuthUserResponse } from "@/schemas/auth";
+import type { UserResponse } from "@ps-design/schemas/auth";
 
 interface DashboardProps {
-  user: AuthUserResponse;
+  user: UserResponse;
   handleLogout: () => void;
   logoutMutation: {
     isPending: boolean;
@@ -11,12 +11,12 @@ interface DashboardProps {
   navigate: (options: { to: string }) => void;
 }
 
-export const Dashboard = ({
+export const Dashboard: React.FC<DashboardProps> = ({
   user,
   handleLogout,
   logoutMutation,
   navigate,
-}: DashboardProps) => {
+}) => {
   return (
     <Paper sx={{ p: 4, width: "100%", maxWidth: 600 }}>
       <Typography variant="h4" gutterBottom>
