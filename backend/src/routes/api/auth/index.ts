@@ -8,8 +8,8 @@ import {
   ChangePasswordSchema,
   type LoginBody,
   LoginSchema,
-  AuthUserResponseSchema,
-  LoginResponseSchema,
+  AuthResponseSchema,
+  UserResponseSchema,
   RefreshResponseSchema,
 } from "@ps-design/schemas/auth";
 import { ErrorResponseSchema, SuccessResponseSchema } from "@ps-design/schemas/shared/response-types";
@@ -23,7 +23,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
       schema: {
         body: LoginSchema,
         response: {
-          200: LoginResponseSchema,
+          200: AuthResponseSchema,
           401: ErrorResponseSchema,
         },
       },
@@ -74,7 +74,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
     {
       schema: {
         response: {
-          200: AuthUserResponseSchema,
+          200: UserResponseSchema,
           401: ErrorResponseSchema,
         },
       },
@@ -85,7 +85,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
         return reply
           .code(httpStatus.UNAUTHORIZED)
           .send({ message: "Unauthorized" });
-      return reply.send(user);
+      return reply.send(UserResponseSchema.parse(user));
     },
   );
 
@@ -136,7 +136,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const accessToken = await refreshAccessToken(fastify, request, reply);
-        return reply.send({ accessToken });
+        return reply.send(accessToken);
       } catch (err: any) {
         const statusCode = err?.code || httpStatus.INTERNAL_SERVER_ERROR;
         const message = err?.message || "Internal Server Error";

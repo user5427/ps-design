@@ -1,39 +1,41 @@
 import { apiClient } from "@/api/client";
 import type {
-  AuthUserResponse,
+  AuthResponse,
   LoginBody,
-  LoginResponse,
+  UserResponse,
   ChangePasswordBody,
+  RefreshResponse,
 } from "@ps-design/schemas/auth";
 import {
-  AuthUserResponseSchema,
+  AuthResponseSchema,
   ChangePasswordSchema,
   LoginSchema,
-  LoginResponseSchema,
+  UserResponseSchema,
 } from "@ps-design/schemas/auth";
 import { SuccessResponseSchema } from "@ps-design/schemas/shared/response-types";
 import type { SuccessResponse } from "@ps-design/schemas/shared/response-types";
 
-export async function login(request: LoginBody): Promise<LoginResponse> {
+export async function login(request: LoginBody): Promise<AuthResponse> {
   const validated = LoginSchema.parse(request);
-  const response = await apiClient.post<LoginResponse>(
+  const response = await apiClient.post<AuthResponse>(
     "/auth/login",
     validated,
   );
-  return LoginResponseSchema.parse(response.data);
+  return AuthResponseSchema.parse(response.data);
 }
 
-export async function logout(): Promise<void> {
-  await apiClient.post("/auth/logout");
+export async function logout(): Promise<SuccessResponse> {
+  const response = await apiClient.post<SuccessResponse>("/auth/logout");
+  return SuccessResponseSchema.parse(response.data);
 }
 
-export async function getCurrentUser(): Promise<AuthUserResponse> {
-  const response = await apiClient.get<AuthUserResponse>("/auth/me");
-  return AuthUserResponseSchema.parse(response.data);
+export async function getCurrentUser(): Promise<UserResponse> {
+  const response = await apiClient.get<UserResponse>("/auth/me");
+  return UserResponseSchema.parse(response.data);
 }
 
-export async function refreshToken(): Promise<{ accessToken: string }> {
-  const response = await apiClient.post<{ accessToken: string }>(
+export async function refreshToken(): Promise<RefreshResponse> {
+  const response = await apiClient.post<RefreshResponse>(
     "/auth/refresh",
   );
   return response.data;
