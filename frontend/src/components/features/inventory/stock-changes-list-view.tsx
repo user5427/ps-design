@@ -62,7 +62,7 @@ export const StockChangesListView = () => {
       {
         accessorKey: "quantity",
         header: "Quantity",
-        size: 100,
+        size: 150,
         Cell: ({ cell, row }) => {
           const qty = cell.getValue<number>();
           const type = row.original.type;

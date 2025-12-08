@@ -24,7 +24,7 @@ export const ProductUnitsListView = () => {
       {
         accessorKey: "name",
         header: "Name",
-        size: 200,
+        size: 150,
       },
       {
         accessorKey: "symbol",

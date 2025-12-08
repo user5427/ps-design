@@ -27,7 +27,7 @@ export const ProductsListView = () => {
       {
         accessorKey: "name",
         header: "Name",
-        size: 200,
+        size: 150,
       },
       {
         accessorKey: "description",
@@ -46,7 +46,7 @@ export const ProductsListView = () => {
       {
         accessorKey: "isDisabled",
         header: "Status",
-        size: 100,
+        size: 150,
         Cell: ({ cell }) => (
           <Chip
             label={cell.getValue<boolean>() ? "Disabled" : "Active"}
