@@ -1,7 +1,6 @@
 import * as bcrypt from "bcryptjs";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import httpStatus from "http-status";
-import type { User } from "@/modules/user";
 import {
   createJti,
   hashToken,

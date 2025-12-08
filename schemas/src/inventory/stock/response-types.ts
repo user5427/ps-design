@@ -29,7 +29,7 @@ export const StockChangeResponseSchema = z.object({
   quantity: z.number(),
   type: z.string(),
   expirationDate: datetime().nullable(),
-  createdByUserId: uuid(),
+  createdByUserId: uuid().nullable(),
   createdAt: datetime(),
   updatedAt: datetime(),
   deletedAt: datetime().nullable(),

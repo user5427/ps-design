@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import type { Product } from "@/modules/inventory/product";
-import { CreateStockChangeBody, StockLevelResponse } from "@ps-design/schemas/inventory/stock";
+import { CreateStockChangeBody, StockLevelResponse, StockChangeResponse, StockChangeResponseSchema } from "@ps-design/schemas/inventory/stock";
 
 export async function getAllStockLevels(
   fastify: FastifyInstance,
@@ -41,32 +41,32 @@ export async function createStockChange(
   businessId: string,
   userId: string,
   input: CreateStockChangeBody,
-): Promise<any> {
+): Promise<StockChangeResponse> {
   const { productId, quantity, type, expirationDate } = input;
 
   const stockChange = await fastify.db.stockChange.create({
     productId,
     quantity,
-    type,
+    type: type as any, // type is already validated by Zod schema
     expirationDate,
     businessId,
     createdByUserId: userId,
   });
 
-  return stockChange;
+  return StockChangeResponseSchema.parse(stockChange);
 }
 
 export async function getStockChanges(
   fastify: FastifyInstance,
   businessId: string,
   productId?: string,
-): Promise<any[]> {
+): Promise<StockChangeResponse[]> {
   const changes = await fastify.db.stockChange.findAllByBusinessId(
     businessId,
     productId,
   );
 
-  return changes;
+  return changes.map((change) => StockChangeResponseSchema.parse(change));
 }
 
 export async function deleteStockChange(

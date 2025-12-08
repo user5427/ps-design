@@ -59,6 +59,9 @@ export class StockChange {
   @CreateDateColumn()
   createdAt: Date;
 
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP", onUpdate: "CURRENT_TIMESTAMP" })
+  updatedAt: Date;
+
   @Column({ type: "timestamp", nullable: true })
   deletedAt: Date | null;
 }
