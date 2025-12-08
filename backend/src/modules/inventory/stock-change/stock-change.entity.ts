@@ -6,6 +6,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
   type Relation,
 } from "typeorm";
 import { decimalTransformer } from "@/shared/decimal-transformer";
@@ -59,7 +60,7 @@ export class StockChange {
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP", onUpdate: "CURRENT_TIMESTAMP" })
+  @UpdateDateColumn()
   updatedAt: Date;
 
   @Column({ type: "timestamp", nullable: true })
