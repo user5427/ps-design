@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { PaginationSchema } from "../../shared/request-types";
 import { datetime, uuid } from "../../shared/zod-utils";
+import { StockChangeTypeEnum } from "./shared";
 
-const StockChangeTypeEnum = z.enum(["SUPPLY", "USAGE", "ADJUSTMENT", "WASTE"]);
 export const ChangeIdParam = z.object({ changeId: uuid() });
 export const ProductIdParam = z.object({ productId: uuid() });
 
@@ -13,12 +13,19 @@ export const CreateStockChangeSchema = z.object({
   expirationDate: datetime().optional(),
 });
 
+export const UpdateStockChangeSchema = z.object({
+  quantity: z.number().optional(),
+  type: StockChangeTypeEnum.optional(),
+  expirationDate: datetime().optional().nullable(),
+});
+
 export const StockQuerySchema = PaginationSchema.extend({
   productId: uuid().optional(),
   type: StockChangeTypeEnum.optional(),
 });
 
 export type CreateStockChangeBody = z.infer<typeof CreateStockChangeSchema>;
+export type UpdateStockChangeBody = z.infer<typeof UpdateStockChangeSchema>;
 export type StockQuery = z.infer<typeof StockQuerySchema>;
 export type ChangeIdParams = z.infer<typeof ChangeIdParam>;
 export type ProductIdParams = z.infer<typeof ProductIdParam>;

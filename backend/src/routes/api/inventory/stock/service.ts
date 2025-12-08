@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import type { Product } from "@/modules/inventory/product";
 import {
   type CreateStockChangeBody,
+  type UpdateStockChangeBody,
   type StockLevelResponse,
   type StockChangeResponse,
   StockChangeResponseSchema,
@@ -52,11 +53,30 @@ export async function createStockChange(
   const stockChange = await fastify.db.stockChange.create({
     productId,
     quantity,
-    type: type as any, // type is already validated by Zod schema
+    type: type as any,
     expirationDate,
     businessId,
     createdByUserId: userId,
   });
+
+  return StockChangeResponseSchema.parse(stockChange);
+}
+
+export async function updateStockChange(
+  fastify: FastifyInstance,
+  businessId: string,
+  changeId: string,
+  input: UpdateStockChangeBody,
+): Promise<StockChangeResponse> {
+  const stockChange = await fastify.db.stockChange.update(
+    changeId,
+    businessId,
+    {
+      quantity: input.quantity,
+      type: input.type as any,
+      expirationDate: input.expirationDate,
+    },
+  );
 
   return StockChangeResponseSchema.parse(stockChange);
 }
@@ -80,4 +100,12 @@ export async function deleteStockChange(
   changeId: string,
 ): Promise<void> {
   await fastify.db.stockChange.delete(changeId, businessId);
+}
+
+export async function bulkDeleteStockChanges(
+  fastify: FastifyInstance,
+  businessId: string,
+  ids: string[],
+): Promise<void> {
+  await fastify.db.stockChange.bulkDelete(ids, businessId);
 }

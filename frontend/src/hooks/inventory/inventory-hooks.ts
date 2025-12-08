@@ -1,5 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  bulkDeleteProducts,
+  bulkDeleteProductUnits,
+  bulkDeleteStockChanges,
   createProduct,
   createProductUnit,
   createStockChange,
@@ -12,6 +15,7 @@ import {
   getStockLevels,
   updateProduct,
   updateProductUnit,
+  updateStockChange,
   type GetStockChangesParams,
 } from "@/api/inventory";
 import type {
@@ -20,6 +24,7 @@ import type {
   CreateStockChange,
   UpdateProduct,
   UpdateProductUnit,
+  UpdateStockChange,
 } from "@/schemas/inventory";
 
 // Query keys
@@ -71,6 +76,16 @@ export function useDeleteProductUnit() {
   });
 }
 
+export function useBulkDeleteProductUnits() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (ids: string[]) => bulkDeleteProductUnits(ids),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.units() });
+    },
+  });
+}
+
 // --- Products Hooks ---
 export function useProducts() {
   return useQuery({
@@ -112,6 +127,17 @@ export function useDeleteProduct() {
   });
 }
 
+export function useBulkDeleteProducts() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (ids: string[]) => bulkDeleteProducts(ids),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.products() });
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.stockLevels() });
+    },
+  });
+}
+
 // --- Stock Levels Hooks ---
 export function useStockLevels() {
   return useQuery({
@@ -139,10 +165,33 @@ export function useCreateStockChange() {
   });
 }
 
+export function useUpdateStockChange() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateStockChange }) =>
+      updateStockChange(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.stockChanges() });
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.stockLevels() });
+    },
+  });
+}
+
 export function useDeleteStockChange() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteStockChange(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.stockChanges() });
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.stockLevels() });
+    },
+  });
+}
+
+export function useBulkDeleteStockChanges() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (ids: string[]) => bulkDeleteStockChanges(ids),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: inventoryKeys.stockChanges() });
       queryClient.invalidateQueries({ queryKey: inventoryKeys.stockLevels() });

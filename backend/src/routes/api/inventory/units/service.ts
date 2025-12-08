@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import type { ProductUnitResponse } from "@ps-design/schemas/inventory/units";
+import type { ProductUnit } from "../../../../modules/inventory/product-unit/product-unit.entity";
 
 export interface CreateProductUnitInput {
   name: string;
@@ -14,7 +14,7 @@ export interface UpdateProductUnitInput {
 export async function getAllUnits(
   fastify: FastifyInstance,
   businessId: string,
-): Promise<ProductUnitResponse[]> {
+): Promise<ProductUnit[]> {
   const units = await fastify.db.productUnit.findAllByBusinessId(businessId);
   return units;
 }
@@ -23,7 +23,7 @@ export async function createUnit(
   fastify: FastifyInstance,
   businessId: string,
   input: CreateProductUnitInput,
-): Promise<ProductUnitResponse> {
+): Promise<ProductUnit> {
   const { name, symbol } = input;
 
   const unit = await fastify.db.productUnit.create({
@@ -40,7 +40,7 @@ export async function updateUnit(
   businessId: string,
   unitId: string,
   input: UpdateProductUnitInput,
-): Promise<ProductUnitResponse> {
+): Promise<ProductUnit> {
   const unit = await fastify.db.productUnit.update(unitId, businessId, input);
   return unit;
 }
@@ -51,4 +51,12 @@ export async function deleteUnit(
   unitId: string,
 ): Promise<void> {
   await fastify.db.productUnit.delete(unitId, businessId);
+}
+
+export async function bulkDeleteUnits(
+  fastify: FastifyInstance,
+  businessId: string,
+  ids: string[],
+): Promise<void> {
+  await fastify.db.productUnit.bulkDelete(ids, businessId);
 }

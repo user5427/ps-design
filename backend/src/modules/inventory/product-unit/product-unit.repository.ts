@@ -101,6 +101,27 @@ export class ProductUnitRepository {
     await this.repository.update(id, { deletedAt: new Date() });
   }
 
+  async bulkDelete(ids: string[], businessId: string): Promise<void> {
+    for (const id of ids) {
+      const unit = await this.findByIdAndBusinessId(id, businessId);
+      if (!unit) {
+        throw new NotFoundError(`Product unit ${id} not found`);
+      }
+
+      const productsCount = await this.productRepository.count({
+        where: { productUnitId: id, deletedAt: IsNull() },
+      });
+
+      if (productsCount > 0) {
+        throw new ConflictError(
+          `Cannot delete product unit "${unit.name}" that is in use by products`,
+        );
+      }
+    }
+
+    await this.repository.update(ids, { deletedAt: new Date() });
+  }
+
   async softDelete(id: string): Promise<void> {
     await this.repository.update(id, { deletedAt: new Date() });
   }

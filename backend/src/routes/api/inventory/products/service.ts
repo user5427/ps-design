@@ -1,14 +1,14 @@
 import type { FastifyInstance } from "fastify";
-import type { ProductResponse } from "@ps-design/schemas/inventory/products";
 import type {
   CreateProductBody,
   UpdateProductBody,
 } from "@ps-design/schemas/inventory/products";
+import type { Product } from "../../../../modules/inventory/product/product.entity";
 
 export async function getAllProducts(
   fastify: FastifyInstance,
   businessId: string,
-): Promise<ProductResponse[]> {
+): Promise<Product[]> {
   const products = await fastify.db.product.findAllByBusinessId(businessId);
   return products;
 }
@@ -17,7 +17,7 @@ export async function createProduct(
   fastify: FastifyInstance,
   businessId: string,
   input: CreateProductBody,
-): Promise<ProductResponse> {
+): Promise<Product> {
   const { name, description, productUnitId } = input;
 
   const product = await fastify.db.product.create({
@@ -34,7 +34,7 @@ export async function getProductById(
   fastify: FastifyInstance,
   businessId: string,
   productId: string,
-): Promise<ProductResponse> {
+): Promise<Product> {
   const product = await fastify.db.product.getById(productId, businessId);
   return product;
 }
@@ -44,7 +44,7 @@ export async function updateProduct(
   businessId: string,
   productId: string,
   input: UpdateProductBody,
-): Promise<ProductResponse> {
+): Promise<Product> {
   const updated = await fastify.db.product.update(productId, businessId, input);
   return updated;
 }
@@ -55,4 +55,12 @@ export async function deleteProduct(
   productId: string,
 ): Promise<void> {
   await fastify.db.product.delete(productId, businessId);
+}
+
+export async function bulkDeleteProducts(
+  fastify: FastifyInstance,
+  businessId: string,
+  ids: string[],
+): Promise<void> {
+  await fastify.db.product.bulkDelete(ids, businessId);
 }

@@ -130,6 +130,90 @@ export class StockChangeRepository {
     });
   }
 
+  async update(
+    id: string,
+    businessId: string,
+    data: { quantity?: number; type?: StockChangeType; expirationDate?: string | null },
+  ): Promise<StockChange> {
+    const existingChange = await this.findByIdAndBusinessId(id, businessId);
+    if (!existingChange) {
+      throw new NotFoundError("Stock change not found");
+    }
+
+    return this.dataSource.transaction(async (manager) => {
+      const stockChangeRepo = manager.getRepository(StockChange);
+      const stockLevelRepo = manager.getRepository(StockLevel);
+
+      const oldQuantity = existingChange.quantity;
+      const newQuantity = data.quantity ?? oldQuantity;
+      const quantityDiff = newQuantity - oldQuantity;
+
+      const updateData: Partial<StockChange> = {};
+      if (data.quantity !== undefined) updateData.quantity = data.quantity;
+      if (data.type !== undefined) updateData.type = data.type;
+      if (data.expirationDate !== undefined) {
+        updateData.expirationDate = data.expirationDate ? new Date(data.expirationDate) : null;
+      }
+
+      await stockChangeRepo.update(id, updateData);
+
+      if (quantityDiff !== 0) {
+        const stockLevel = await stockLevelRepo.findOne({
+          where: { productId: existingChange.productId },
+        });
+        if (stockLevel) {
+          await stockLevelRepo.update(stockLevel.id, {
+            quantity: stockLevel.quantity + quantityDiff,
+          });
+        }
+      }
+
+      const updatedChange = await stockChangeRepo.findOne({
+        where: { id },
+        relations: ["product", "product.productUnit", "createdBy"],
+      });
+      if (!updatedChange) {
+        throw new NotFoundError("Stock change not found after update");
+      }
+      return updatedChange;
+    });
+  }
+
+  async bulkDelete(ids: string[], businessId: string): Promise<void> {
+    const changes = await this.repository.find({
+      where: ids.map((id) => ({ id, businessId, deletedAt: IsNull() })),
+    });
+
+    if (changes.length === 0) return;
+
+    await this.dataSource.transaction(async (manager) => {
+      const stockChangeRepo = manager.getRepository(StockChange);
+      const stockLevelRepo = manager.getRepository(StockLevel);
+
+      const quantityByProduct: Record<string, number> = {};
+      for (const change of changes) {
+        quantityByProduct[change.productId] =
+          (quantityByProduct[change.productId] || 0) + change.quantity;
+      }
+
+      await stockChangeRepo.update(
+        changes.map((c) => c.id),
+        { deletedAt: new Date() },
+      );
+
+      for (const [productId, totalQuantity] of Object.entries(quantityByProduct)) {
+        const stockLevel = await stockLevelRepo.findOne({
+          where: { productId },
+        });
+        if (stockLevel) {
+          await stockLevelRepo.update(stockLevel.id, {
+            quantity: stockLevel.quantity - totalQuantity,
+          });
+        }
+      }
+    });
+  }
+
   async softDelete(id: string): Promise<void> {
     await this.repository.update(id, { deletedAt: new Date() });
   }

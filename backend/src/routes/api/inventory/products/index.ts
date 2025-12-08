@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
 import {
+  bulkDeleteProducts,
   createProduct,
   deleteProduct,
   getAllProducts,
@@ -18,6 +19,7 @@ import {
   type UpdateProductBody,
   UpdateProductSchema,
 } from "@ps-design/schemas/inventory/products";
+import { BulkDeleteSchema, type BulkDeleteBody } from "@ps-design/schemas/shared";
 
 export default async function productsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -136,6 +138,31 @@ export default async function productsRoutes(fastify: FastifyInstance) {
 
       try {
         await deleteProduct(fastify, businessId, productId);
+        return reply.code(httpStatus.NO_CONTENT).send();
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
+
+  server.post(
+    "/bulk-delete",
+    {
+      schema: {
+        body: BulkDeleteSchema,
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Body: BulkDeleteBody;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
+
+      try {
+        await bulkDeleteProducts(fastify, businessId, request.body.ids);
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);

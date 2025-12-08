@@ -1,13 +1,13 @@
 import { z } from "zod";
-import { uuid } from "../../shared/zod-utils";
+import { datetime, uuid } from "../../shared/zod-utils";
 
 export const ProductUnitResponseSchema = z.object({
   id: uuid(),
   name: z.string(),
   symbol: z.string().nullable(),
   businessId: uuid(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: datetime(),
+  updatedAt: datetime(),
 });
 
 export type ProductUnitResponse = z.infer<typeof ProductUnitResponseSchema>;
