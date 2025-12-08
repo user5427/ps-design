@@ -1,6 +1,9 @@
 import type { FastifyInstance } from "fastify";
 import type { ProductResponse } from "@ps-design/schemas/inventory/products";
-import { CreateProductBody, UpdateProductBody } from "@ps-design/schemas/inventory/products";
+import type {
+  CreateProductBody,
+  UpdateProductBody,
+} from "@ps-design/schemas/inventory/products";
 
 export async function getAllProducts(
   fastify: FastifyInstance,

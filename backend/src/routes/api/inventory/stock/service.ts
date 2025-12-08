@@ -1,6 +1,11 @@
 import type { FastifyInstance } from "fastify";
 import type { Product } from "@/modules/inventory/product";
-import { CreateStockChangeBody, StockLevelResponse, StockChangeResponse, StockChangeResponseSchema } from "@ps-design/schemas/inventory/stock";
+import {
+  type CreateStockChangeBody,
+  type StockLevelResponse,
+  type StockChangeResponse,
+  StockChangeResponseSchema,
+} from "@ps-design/schemas/inventory/stock";
 
 export async function getAllStockLevels(
   fastify: FastifyInstance,

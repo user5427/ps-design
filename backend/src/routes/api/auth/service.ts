@@ -9,7 +9,12 @@ import {
   signAccessToken,
   signRefreshToken,
 } from "@/shared/auth-utils";
-import { ChangePasswordBody, LoginBody, LoginResponse, LoginResponseSchema } from "@ps-design/schemas/auth";
+import {
+  type ChangePasswordBody,
+  type LoginBody,
+  type LoginResponse,
+  LoginResponseSchema,
+} from "@ps-design/schemas/auth";
 
 const SALT_LENGTH = 10;
 
