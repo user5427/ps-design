@@ -1,7 +1,6 @@
 import * as bcrypt from "bcryptjs";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import httpStatus from "http-status";
-import type { User } from "@/modules/user";
 import {
   createJti,
   hashToken,
@@ -10,30 +9,20 @@ import {
   signAccessToken,
   signRefreshToken,
 } from "@/shared/auth-utils";
+import {
+  type ChangePasswordBody,
+  type LoginBody,
+  type LoginResponse,
+  LoginResponseSchema,
+} from "@ps-design/schemas/auth";
 
 const SALT_LENGTH = 10;
-
-export interface LoginInput {
-  email: string;
-  password: string;
-}
-
-export interface ChangePasswordInput {
-  currentPassword: string;
-  newPassword: string;
-}
-
-export interface LoginResult {
-  user: User;
-  accessToken: string;
-  refreshToken: string;
-}
 
 export async function login(
   fastify: FastifyInstance,
   request: FastifyRequest,
-  input: LoginInput,
-): Promise<LoginResult> {
+  input: LoginBody,
+): Promise<LoginResponse> {
   const { email, password } = input;
 
   const user = await fastify.db.user.findByEmail(email);
@@ -65,7 +54,7 @@ export async function login(
     ip: request.ip,
   });
 
-  return { user, accessToken, refreshToken };
+  return LoginResponseSchema.parse({ ...user, accessToken, refreshToken });
 }
 
 export async function logout(
@@ -86,7 +75,7 @@ export async function logout(
 export async function changePassword(
   fastify: FastifyInstance,
   userId: string,
-  input: ChangePasswordInput,
+  input: ChangePasswordBody,
 ): Promise<void> {
   const { currentPassword, newPassword } = input;
 
