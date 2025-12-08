@@ -4,5 +4,4 @@ export {
   useChangePassword,
   useLogin,
   useLogout,
-  useRefreshToken,
 } from "./auth-hooks";

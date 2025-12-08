@@ -10,10 +10,12 @@ import {
   signRefreshToken,
 } from "@/shared/auth-utils";
 import {
+  type AuthResponse,
+  AuthResponseSchema,
+  type RefreshResponse,
+  RefreshResponseSchema,
   type ChangePasswordBody,
   type LoginBody,
-  type LoginResponse,
-  LoginResponseSchema,
 } from "@ps-design/schemas/auth";
 
 const SALT_LENGTH = 10;
@@ -22,7 +24,7 @@ export async function login(
   fastify: FastifyInstance,
   request: FastifyRequest,
   input: LoginBody,
-): Promise<LoginResponse> {
+): Promise<AuthResponse> {
   const { email, password } = input;
 
   const user = await fastify.db.user.findByEmail(email);
@@ -54,7 +56,7 @@ export async function login(
     ip: request.ip,
   });
 
-  return LoginResponseSchema.parse({ ...user, accessToken, refreshToken });
+  return AuthResponseSchema.parse({ ...user, accessToken, refreshToken });
 }
 
 export async function logout(
@@ -108,7 +110,7 @@ export async function refreshAccessToken(
   fastify: FastifyInstance,
   request: FastifyRequest,
   reply: FastifyReply,
-): Promise<string> {
+): Promise<RefreshResponse> {
   const token = request.cookies.refresh_token;
   if (!token) {
     throw {
@@ -168,5 +170,5 @@ export async function refreshAccessToken(
     reply,
   );
 
-  return result.accessToken;
+  return RefreshResponseSchema.parse(result);
 }

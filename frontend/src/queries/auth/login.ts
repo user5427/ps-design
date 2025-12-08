@@ -1,9 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 import { login } from "@/api/auth";
-import type { LoginBody, LoginResponse } from "@ps-design/schemas/auth";
+import type { LoginBody, UserResponse } from "@ps-design/schemas/auth";
 
 export function useLogin() {
-  return useMutation<LoginResponse, Error, LoginBody>({
+  return useMutation<UserResponse, Error, LoginBody>({
     mutationFn: async (request) => {
       return login(request);
     },
