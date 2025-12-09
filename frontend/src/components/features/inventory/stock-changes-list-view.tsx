@@ -52,6 +52,17 @@ const adjustmentValidation: ValidationRule = {
   message: "Quantity cannot be zero for Adjustment",
 };
 
+const futureExpirationDateValidation: ValidationRule = {
+  test: (value) => {
+    if (!value) return true; // Expiration date is optional
+    const selectedDate = new Date(String(value));
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); 
+    return selectedDate > today;
+  },
+  message: "Expiration date must be in the future",
+};
+
 export const StockChangesListView = () => {
   const {
     data: stockChanges = [],
@@ -167,6 +178,7 @@ export const StockChangesListView = () => {
       name: "expirationDate",
       label: "Expiration Date",
       type: "date",
+      validationRules: [futureExpirationDateValidation],
     },
   ];
 
