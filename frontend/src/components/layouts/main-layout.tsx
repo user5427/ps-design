@@ -1,4 +1,4 @@
-import { Box, Container } from "@mui/material";
+import { Box } from "@mui/material";
 import type React from "react";
 import { Sidebar } from "@/components/layouts/side-bar";
 import { sidebarSections } from "@/constants";
@@ -9,11 +9,9 @@ export interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
-    <Box>
+    <Box sx={{ display: "flex", width: "100%" }}>
       <Sidebar sidebarSections={sidebarSections} />
-      <Container maxWidth="lg" sx={{ pt: 4, pb: 4 }}>
-        {children}
-      </Container>
+      <Box sx={{ flexGrow: 1, minWidth: 0, padding: 5 }}>{children}</Box>
     </Box>
   );
 };

@@ -8,6 +8,7 @@ export const AppBarData: AppBarProps = {
       alt: "logo",
       style: { width: "100%", height: "100%", objectFit: "cover" },
     }),
-    logoText: "ADEPI",
+    text: "ADEPI",
+    size: 40,
   },
 };

@@ -1,7 +1,12 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
-import { createUnit, deleteUnit, getAllUnits, updateUnit } from "./service";
+import {
+  bulkDeleteUnits,
+  createUnit,
+  getAllUnits,
+  updateUnit,
+} from "./service";
 import { getBusinessId } from "@/shared/auth-utils";
 import { handleServiceError } from "@/shared/error-handler";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
@@ -14,6 +19,10 @@ import {
   type UpdateProductUnitBody,
   UpdateProductUnitSchema,
 } from "@ps-design/schemas/inventory/units";
+import {
+  BulkDeleteSchema,
+  type BulkDeleteBody,
+} from "@ps-design/schemas/shared";
 
 export default async function unitsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -103,30 +112,28 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  server.delete<{ Params: UnitIdParams }>(
-    "/:unitId",
+  server.post<{ Body: BulkDeleteBody }>(
+    "/bulk-delete",
     {
       onRequest: [
         fastify.authenticate,
         requireScope(ScopeNames.INVENTORY_DELETE),
       ],
       schema: {
-        params: UnitIdParam,
+        body: BulkDeleteSchema,
       },
     },
     async (
       request: FastifyRequest<{
-        Params: UnitIdParams;
+        Body: BulkDeleteBody;
       }>,
       reply: FastifyReply,
     ) => {
       const businessId = getBusinessId(request, reply);
       if (!businessId) return;
 
-      const { unitId } = request.params;
-
       try {
-        await deleteUnit(fastify, businessId, unitId);
+        await bulkDeleteUnits(fastify, businessId, request.body.ids);
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);
