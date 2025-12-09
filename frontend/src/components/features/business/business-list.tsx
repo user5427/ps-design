@@ -20,7 +20,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { MainLayout } from "@/components/layouts";
 import { FormAlert, ConfirmationDialog } from "@/components/elements/form";
 import {
   useBusinessesPaginated,
@@ -28,7 +27,7 @@ import {
 } from "@/queries/business";
 import { URLS } from "@/constants/urls";
 
-export const BusinessListPage: React.FC = () => {
+export const BusinessList: React.FC = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -67,7 +66,7 @@ export const BusinessListPage: React.FC = () => {
 
   const handleEditClick = (businessId: string) => {
     navigate({
-      to: "/businesses/$businessId/edit",
+      to: URLS.BUSINESS_EDIT(businessId),
       params: { businessId },
     });
   };
@@ -95,7 +94,7 @@ export const BusinessListPage: React.FC = () => {
   };
 
   return (
-    <MainLayout>
+    <Box>
       <Container maxWidth="lg">
         <Stack spacing={3}>
           <Box
@@ -156,10 +155,9 @@ export const BusinessListPage: React.FC = () => {
                     <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
                       <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
                       <TableCell sx={{ fontWeight: "bold" }}>
-                        Created At
+                        ID
                       </TableCell>
                       <TableCell sx={{ fontWeight: "bold" }}>
-                        Updated At
                       </TableCell>
                       <TableCell sx={{ fontWeight: "bold" }} align="right">
                         Actions
@@ -172,10 +170,7 @@ export const BusinessListPage: React.FC = () => {
                         <TableRow key={business.id} hover>
                           <TableCell>{business.name}</TableCell>
                           <TableCell>
-                            {new Date(business.createdAt).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
-                            {new Date(business.updatedAt).toLocaleDateString()}
+                            {business.id}
                           </TableCell>
                           <TableCell align="right">
                             <IconButton
@@ -237,6 +232,6 @@ export const BusinessListPage: React.FC = () => {
         cancelText="Cancel"
         confirmColor="error"
       />
-    </MainLayout>
+      </Box>
   );
 };

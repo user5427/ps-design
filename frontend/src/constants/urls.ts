@@ -6,4 +6,6 @@ export const URLS = {
   HOME: "/",
   BUSINESS_LIST: "/businesses",
   BUSINESS_CREATE: "/businesses/create",
+  BUSINESS_EDIT: (businessId: string) => `/businesses/${businessId}/edit`,
 };
+

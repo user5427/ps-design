@@ -8,29 +8,18 @@ import {
   Typography,
   CircularProgress,
 } from "@mui/material";
-import { useNavigate, useParams } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { MainLayout } from "@/components/layouts";
+import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { FormAlert } from "@/components/elements/form";
-import { useBusinessById, useUpdateBusiness } from "@/queries/business";
+import { useCreateBusiness } from "@/queries/business";
 import { URLS } from "@/constants/urls";
 
-export const BusinessEditPage: React.FC = () => {
+export const BusinessCreate: React.FC = () => {
   const navigate = useNavigate();
-  const params = useParams({ from: "/businesses/$businessId/edit" });
   const [name, setName] = useState("");
   const [nameError, setNameError] = useState("");
 
-  const { data: business, isLoading: isLoadingBusiness } = useBusinessById(
-    params.businessId,
-  );
-  const updateMutation = useUpdateBusiness(params.businessId);
-
-  useEffect(() => {
-    if (business) {
-      setName(business.name);
-    }
-  }, [business]);
+  const createMutation = useCreateBusiness();
 
   const validateForm = (): boolean => {
     let isValid = true;
@@ -56,10 +45,10 @@ export const BusinessEditPage: React.FC = () => {
     }
 
     try {
-      await updateMutation.mutateAsync({ name });
+      await createMutation.mutateAsync({ name });
       navigate({ to: URLS.BUSINESS_LIST });
     } catch (error) {
-      console.error("Update error:", error);
+      console.error("Create error:", error);
     }
   };
 
@@ -67,30 +56,19 @@ export const BusinessEditPage: React.FC = () => {
     navigate({ to: URLS.BUSINESS_LIST });
   };
 
-  if (isLoadingBusiness) {
-    return (
-      <MainLayout>
-        <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-          <CircularProgress />
-        </Box>
-      </MainLayout>
-    );
-  }
-
   return (
-    <MainLayout>
       <Container maxWidth="sm">
         <Paper sx={{ p: 4 }}>
           <Typography variant="h4" gutterBottom>
-            Edit Business
+            Create Business
           </Typography>
 
-          {updateMutation.isError && (
+          {createMutation.isError && (
             <FormAlert
               message={
-                updateMutation.error instanceof Error
-                  ? updateMutation.error.message
-                  : "Error updating business"
+                createMutation.error instanceof Error
+                  ? createMutation.error.message
+                  : "Error creating business"
               }
               severity="error"
             />
@@ -112,7 +90,7 @@ export const BusinessEditPage: React.FC = () => {
                 fullWidth
                 required
                 placeholder="Enter business name"
-                disabled={updateMutation.isPending}
+                disabled={createMutation.isPending}
               />
 
               <Stack direction="row" spacing={2}>
@@ -121,12 +99,12 @@ export const BusinessEditPage: React.FC = () => {
                   variant="contained"
                   color="primary"
                   fullWidth
-                  disabled={updateMutation.isPending}
+                  disabled={createMutation.isPending}
                 >
-                  {updateMutation.isPending ? (
+                  {createMutation.isPending ? (
                     <CircularProgress size={24} />
                   ) : (
-                    "Update Business"
+                    "Create Business"
                   )}
                 </Button>
                 <Button
@@ -134,7 +112,7 @@ export const BusinessEditPage: React.FC = () => {
                   variant="outlined"
                   fullWidth
                   onClick={handleCancel}
-                  disabled={updateMutation.isPending}
+                  disabled={createMutation.isPending}
                 >
                   Cancel
                 </Button>
@@ -143,6 +121,5 @@ export const BusinessEditPage: React.FC = () => {
           </Box>
         </Paper>
       </Container>
-    </MainLayout>
   );
 };

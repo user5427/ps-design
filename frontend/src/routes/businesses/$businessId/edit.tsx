@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { BusinessEditPage } from "@/components/features/business/business-edit-page";
+import { BusinessEdit } from "@/components/features/business";
 import { useAuthStore } from "@/store/auth";
 import { URLS } from "@/constants/urls";
 
@@ -13,3 +13,7 @@ export const Route = createFileRoute("/businesses/$businessId/edit")({
   },
   component: BusinessEditPage,
 });
+
+function BusinessEditPage() {
+  return <BusinessEdit />;
+}

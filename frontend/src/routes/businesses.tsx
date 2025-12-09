@@ -1,5 +1,4 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { BusinessListPage } from "@/components/features/business/business-list-page";
+import { createFileRoute, redirect, Outlet } from "@tanstack/react-router";
 import { useAuthStore } from "@/store/auth";
 import { URLS } from "@/constants/urls";
 
@@ -11,5 +10,9 @@ export const Route = createFileRoute("/businesses")({
       throw redirect({ to: URLS.LOGIN });
     }
   },
-  component: BusinessListPage,
+  component: BusinessLayoutPage,
 });
+
+function BusinessLayoutPage() {
+  return <Outlet />;
+}

@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { BusinessCreatePage } from "@/components/features/business/business-create-page";
+import { BusinessCreate } from "@/components/features/business/business-create";
 import { useAuthStore } from "@/store/auth";
 import { URLS } from "@/constants/urls";
 
@@ -13,3 +13,7 @@ export const Route = createFileRoute("/businesses/create")({
   },
   component: BusinessCreatePage,
 });
+
+function BusinessCreatePage() {
+  return <BusinessCreate/>;
+}

@@ -26,7 +26,7 @@ import {
   BusinessResponseSchema,
   PaginatedBusinessResponseSchema,
 } from "@ps-design/schemas/business";
-import { ErrorResponseSchema } from "@ps-design/schemas/shared/response-types";
+import { ErrorResponseSchema, SuccessResponseSchema } from "@ps-design/schemas/shared/response-types";
 
 export default async function businessRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -167,7 +167,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
       schema: {
         params: BusinessIdParam,
         response: {
-          204: {},
+          200: SuccessResponseSchema,
           401: ErrorResponseSchema,
         },
       },
@@ -181,7 +181,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
       try {
         const { businessId } = request.params;
         await deleteBusiness(fastify, businessId);
-        return reply.code(httpStatus.NO_CONTENT).send();
+        return reply.send({ success: true });
       } catch (error) {
         return handleServiceError(error, reply);
       }

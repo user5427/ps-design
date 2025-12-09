@@ -5,8 +5,6 @@ import { PaginationMetaSchema } from "../shared/response-types";
 export const BusinessResponseSchema = z.object({
   id: uuid(),
   name: z.string(),
-  createdAt: datetime(),
-  updatedAt: datetime(),
 });
 
 export const PaginatedBusinessResponseSchema = z.object({

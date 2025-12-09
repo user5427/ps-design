@@ -28,7 +28,7 @@ function HomePage() {
       }}
     >
       <Typography variant="h2" gutterBottom>
-        Welcome to ADEPI
+        Welcome to UniServe
       </Typography>
       <Button component={Link} to={URLS.LOGIN} variant="contained" size="large">
         Get Started

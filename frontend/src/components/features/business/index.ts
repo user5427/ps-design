@@ -1,3 +1,3 @@
-export { BusinessListPage } from "./business-list-page";
-export { BusinessCreatePage } from "./business-create-page";
-export { BusinessEditPage } from "./business-edit-page";
+export { BusinessList } from "./business-list";
+export { BusinessCreate } from "./business-create";
+export { BusinessEdit } from "./business-edit";

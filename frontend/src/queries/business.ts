@@ -6,15 +6,16 @@ import type {
   PaginatedBusinessResponse,
   UpdateBusinessBody,
 } from "@ps-design/schemas/business";
+import type { SuccessResponse } from "@ps-design/schemas/shared";
 
-export const BUSINESSES_QUERY_KEY = ["businesses"];
+export const BUSINESSES_QUERY_KEY = ["business"];
 
 export function useBusinessesPaginated(page: number, limit: number, search?: string) {
   return useQuery({
     queryKey: [...BUSINESSES_QUERY_KEY, page, limit, search],
     queryFn: async () => {
       const response = await apiClient.get<PaginatedBusinessResponse>(
-        "/businesses",
+        "/business",
         {
           params: { page, limit, search },
         },
@@ -29,7 +30,7 @@ export function useBusinessById(businessId: string) {
     queryKey: [...BUSINESSES_QUERY_KEY, businessId],
     queryFn: async () => {
       const response = await apiClient.get<BusinessResponse>(
-        `/businesses/${businessId}`,
+        `/business/${businessId}`,
       );
       return response.data;
     },
@@ -42,7 +43,7 @@ export function useCreateBusiness() {
   return useMutation({
     mutationFn: async (data: CreateBusinessBody) => {
       const response = await apiClient.post<BusinessResponse>(
-        "/businesses",
+        "/business",
         data,
       );
       return response.data;
@@ -61,7 +62,7 @@ export function useUpdateBusiness(businessId: string) {
   return useMutation({
     mutationFn: async (data: UpdateBusinessBody) => {
       const response = await apiClient.put<BusinessResponse>(
-        `/businesses/${businessId}`,
+        `/business/${businessId}`,
         data,
       );
       return response.data;
@@ -79,7 +80,7 @@ export function useDeleteBusiness() {
 
   return useMutation({
     mutationFn: async (businessId: string) => {
-      await apiClient.delete(`/businesses/${businessId}`);
+      await apiClient.delete<SuccessResponse>(`/business/${businessId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
