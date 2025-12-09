@@ -1,3 +1,4 @@
+import AssessmentIcon from "@mui/icons-material/Assessment";
 import CategoryIcon from "@mui/icons-material/Category";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import InsightsIcon from "@mui/icons-material/Insights";
@@ -22,17 +23,22 @@ export const sidebarSections: Section[] = [
       {
         label: "Product Units",
         icon: <CategoryIcon />,
-        path: "/inventory/units",
+        path: URLS.INVENTORY_UNITS,
       },
       {
         label: "Products",
         icon: <ShoppingCartIcon />,
-        path: "/inventory/products",
+        path: URLS.INVENTORY_PRODUCTS,
+      },
+      {
+        label: "Stock Changes",
+        icon: <Inventory2Icon />,
+        path: URLS.INVENTORY_STOCK,
       },
       {
         label: "Stock Levels",
-        icon: <Inventory2Icon />,
-        path: "/inventory/stock",
+        icon: <AssessmentIcon />,
+        path: URLS.INVENTORY_STOCK_LEVELS,
       },
     ],
   },

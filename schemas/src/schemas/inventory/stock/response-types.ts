@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { datetime, uuid } from "../../shared/zod-utils";
+import { date, datetime, uuid } from "../../shared/zod-utils";
+import { StockChangeTypeEnum } from "./shared";
 
 export const StockLevelResponseSchema = z.object({
   productId: uuid(),
@@ -18,12 +19,22 @@ export const StockChangeResponseSchema = z.object({
   productId: uuid(),
   businessId: uuid(),
   quantity: z.number(),
-  type: z.string(),
-  expirationDate: datetime().nullable(),
+  type: StockChangeTypeEnum,
+  expirationDate: date().nullable(),
   createdByUserId: uuid().nullable(),
   createdAt: datetime(),
   updatedAt: datetime(),
   deletedAt: datetime().nullable(),
+  product: z.object({
+    id: uuid(),
+    name: z.string(),
+    productUnitId: uuid(),
+    productUnit: z.object({
+      id: uuid(),
+      name: z.string(),
+      symbol: z.string().nullable(),
+    }),
+  }),
 });
 
 export type StockLevelResponse = z.infer<typeof StockLevelResponseSchema>;

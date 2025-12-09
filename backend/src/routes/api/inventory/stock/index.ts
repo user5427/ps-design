@@ -3,18 +3,16 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
 import {
   createStockChange,
-  deleteStockChange,
   getAllStockLevels,
   getStockChanges,
   getStockLevelByProductId,
+  updateStockChange,
 } from "./service";
 import { getBusinessId } from "@/shared/auth-utils";
 import { handleServiceError } from "@/shared/error-handler";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
 import {
-  ChangeIdParam,
-  type ChangeIdParams,
   type CreateStockChangeBody,
   CreateStockChangeSchema,
   ProductIdParam,
@@ -139,37 +137,6 @@ export default async function stockRoutes(fastify: FastifyInstance) {
 
       const changes = await getStockChanges(fastify, businessId, productId);
       return reply.send(changes);
-    },
-  );
-
-  server.delete<{ Params: ChangeIdParams }>(
-    "/changes/:changeId",
-    {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_DELETE),
-      ],
-      schema: {
-        params: ChangeIdParam,
-      },
-    },
-    async (
-      request: FastifyRequest<{
-        Params: ChangeIdParams;
-      }>,
-      reply: FastifyReply,
-    ) => {
-      const businessId = getBusinessId(request, reply);
-      if (!businessId) return;
-
-      const { changeId } = request.params;
-
-      try {
-        await deleteStockChange(fastify, businessId, changeId);
-        return reply.code(httpStatus.NO_CONTENT).send();
-      } catch (error) {
-        return handleServiceError(error, reply);
-      }
     },
   );
 }
