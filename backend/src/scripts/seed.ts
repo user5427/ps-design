@@ -98,8 +98,6 @@ async function main() {
         scopes: [
           ScopeNames.INVENTORY_READ,
           ScopeNames.INVENTORY_WRITE,
-          ScopeNames.STOCK_READ,
-          ScopeNames.STOCK_WRITE,
           ScopeNames.USER_READ,
           ScopeNames.USER_WRITE,
           ScopeNames.BUSINESS_READ,
@@ -107,7 +105,7 @@ async function main() {
       },
       {
         roleName: "USER",
-        scopes: [ScopeNames.INVENTORY_READ, ScopeNames.STOCK_READ],
+        scopes: [ScopeNames.INVENTORY_READ],
       },
     ];
 

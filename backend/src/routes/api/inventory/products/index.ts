@@ -18,21 +18,31 @@ import {
   type UpdateProductBody,
   UpdateProductSchema,
 } from "@ps-design/schemas/inventory/products";
+import { createScopeMiddleware } from "@/shared/scope-middleware";
+import { ScopeNames } from "@/modules/user";
 
 export default async function productsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
+  const { requireScope, requireAllScopes, requireAnyScope } =
+    createScopeMiddleware(fastify);
 
-  server.get("/", async (request: FastifyRequest, reply: FastifyReply) => {
-    const businessId = getBusinessId(request, reply);
-    if (!businessId) return;
+  server.get("/", 
+    {
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_READ)],
+    },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
 
-    const products = await getAllProducts(fastify, businessId);
-    return reply.send(products);
-  });
+      const products = await getAllProducts(fastify, businessId);
+      return reply.send(products);
+    },
+  );
 
-  server.post(
+  server.post<{ Body: CreateProductBody }>(
     "/",
     {
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_WRITE)],
       schema: {
         body: CreateProductSchema,
       },
@@ -55,9 +65,10 @@ export default async function productsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  server.get(
+  server.get<{ Params: ProductIdParams }>(
     "/:productId",
     {
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_READ)],
       schema: {
         params: ProductIdParam,
       },
@@ -82,9 +93,10 @@ export default async function productsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  server.put(
+  server.put<{ Params: ProductIdParams; Body: UpdateProductBody }>(
     "/:productId",
     {
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_WRITE)],
       schema: {
         params: ProductIdParam,
         body: UpdateProductSchema,
@@ -116,9 +128,10 @@ export default async function productsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  server.delete(
+  server.delete<{ Params: ProductIdParams }>(
     "/:productId",
     {
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_DELETE)],
       schema: {
         params: ProductIdParam,
       },
