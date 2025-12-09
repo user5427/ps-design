@@ -1,28 +1,65 @@
 import type { FastifyInstance } from "fastify";
 import type { Product } from "@/modules/inventory/product";
+import type { StockChange } from "@/modules/inventory/stock-change/stock-change.entity";
 import {
   type CreateStockChangeBody,
   type UpdateStockChangeBody,
   type StockLevelResponse,
   type StockChangeResponse,
-  StockChangeResponseSchema,
 } from "@ps-design/schemas/inventory/stock";
+
+function toStockChangeResponse(change: StockChange): StockChangeResponse {
+  // expirationDate is a date-only field that may come as string "YYYY-MM-DD" or Date
+  const formatExpirationDate = (date: Date | string | null): string | null => {
+    if (!date) return null;
+    if (typeof date === "string") return date;
+    return date.toISOString().split("T")[0];
+  };
+
+  return {
+    id: change.id,
+    productId: change.productId,
+    businessId: change.businessId,
+    quantity: change.quantity,
+    type: change.type,
+    expirationDate: formatExpirationDate(change.expirationDate),
+    createdByUserId: change.createdByUserId,
+    createdAt: change.createdAt.toISOString(),
+    updatedAt: change.updatedAt.toISOString(),
+    deletedAt: change.deletedAt?.toISOString() ?? null,
+    product: {
+      id: change.product.id,
+      name: change.product.name,
+      productUnitId: change.product.productUnitId,
+      productUnit: {
+        id: change.product.productUnit.id,
+        name: change.product.productUnit.name,
+        symbol: change.product.productUnit.symbol,
+      },
+    },
+  };
+}
+
+function toStockLevelResponse(product: Product): StockLevelResponse {
+  return {
+    productId: product.id,
+    productName: product.name,
+    productUnit: {
+      id: product.productUnit.id,
+      name: product.productUnit.name,
+      symbol: product.productUnit.symbol,
+    },
+    isDisabled: product.isDisabled,
+    totalQuantity: product.stockLevel?.quantity ?? 0,
+  };
+}
 
 export async function getAllStockLevels(
   fastify: FastifyInstance,
   businessId: string,
 ): Promise<StockLevelResponse[]> {
   const products = await fastify.db.product.findAllByBusinessId(businessId);
-
-  const stockLevels = products.map((product: Product) => ({
-    productId: product.id,
-    productName: product.name,
-    productUnit: product.productUnit,
-    isDisabled: product.isDisabled,
-    totalQuantity: product.stockLevel?.quantity ?? 0,
-  }));
-
-  return stockLevels;
+  return products.map(toStockLevelResponse);
 }
 
 export async function getStockLevelByProductId(
@@ -31,15 +68,7 @@ export async function getStockLevelByProductId(
   productId: string,
 ): Promise<StockLevelResponse> {
   const product = await fastify.db.product.getById(productId, businessId);
-  const stockLevel = await fastify.db.stockLevel.findByProductId(productId);
-
-  return {
-    productId: product.id,
-    productName: product.name,
-    productUnit: product.productUnit,
-    isDisabled: product.isDisabled,
-    totalQuantity: stockLevel?.quantity ?? 0,
-  };
+  return toStockLevelResponse(product);
 }
 
 export async function createStockChange(
@@ -59,7 +88,7 @@ export async function createStockChange(
     createdByUserId: userId,
   });
 
-  return StockChangeResponseSchema.parse(stockChange);
+  return toStockChangeResponse(stockChange);
 }
 
 export async function updateStockChange(
@@ -78,7 +107,7 @@ export async function updateStockChange(
     },
   );
 
-  return StockChangeResponseSchema.parse(stockChange);
+  return toStockChangeResponse(stockChange);
 }
 
 export async function getStockChanges(
@@ -91,7 +120,7 @@ export async function getStockChanges(
     productId,
   );
 
-  return changes.map((change) => StockChangeResponseSchema.parse(change));
+  return changes.map(toStockChangeResponse);
 }
 
 export async function bulkDeleteStockChanges(

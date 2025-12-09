@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { PaginationSchema } from "../../shared/request-types";
-import { datetime, uuid } from "../../shared/zod-utils";
+import { date, uuid } from "../../shared/zod-utils";
 import { StockChangeTypeEnum } from "./shared";
 
 export const ChangeIdParam = z.object({ changeId: uuid() });
@@ -11,13 +11,13 @@ export const CreateStockChangeSchema = z.object({
   productId: uuid("Invalid product ID"),
   quantity: z.number(),
   type: CreateChangeTypeEnum,
-  expirationDate: datetime().optional(),
+  expirationDate: date().optional(),
 });
 
 export const UpdateStockChangeSchema = z.object({
   quantity: z.number().optional(),
   type: CreateChangeTypeEnum.optional(),
-  expirationDate: datetime().optional().nullable(),
+  expirationDate: date().optional().nullable(),
 });
 
 export const StockQuerySchema = PaginationSchema.extend({
