@@ -101,6 +101,9 @@ async function main() {
           ScopeNames.USER_READ,
           ScopeNames.USER_WRITE,
           ScopeNames.BUSINESS_READ,
+          ScopeNames.MENU_DELETE,
+          ScopeNames.MENU_READ,
+          ScopeNames.MENU_WRITE,
         ],
       },
       {
