@@ -10,7 +10,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ sidebarSections }) => {
   const theme = useTheme();
-  const appBarHeight = theme.mixins.toolbar.minHeight as number + 10;
+  const appBarHeight = (theme.mixins.toolbar.minHeight as number) + 10
 
   return (
     <Drawer
