@@ -17,12 +17,27 @@ import {
   StockLevelRepository,
 } from "@/modules/inventory/stock-level";
 import { RefreshToken, RefreshTokenRepository } from "@/modules/refresh-token";
-import { User, UserRepository } from "@/modules/user";
+import {
+  User,
+  UserRepository,
+  Role,
+  RoleRepository,
+  ScopeEntity,
+  ScopeRepository,
+  UserRole,
+  UserRoleRepository,
+  RoleScope,
+  RoleScopeRepository,
+} from "@/modules/user";
 
 export interface Services {
   dataSource: DataSource;
   business: BusinessRepository;
   user: UserRepository;
+  role: RoleRepository;
+  scope: ScopeRepository;
+  userRole: UserRoleRepository;
+  roleScope: RoleScopeRepository;
   refreshToken: RefreshTokenRepository;
   productUnit: ProductUnitRepository;
   product: ProductRepository;
@@ -52,6 +67,10 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
     dataSource,
     business: new BusinessRepository(dataSource.getRepository(Business)),
     user: new UserRepository(dataSource.getRepository(User)),
+    role: new RoleRepository(dataSource.getRepository(Role)),
+    scope: new ScopeRepository(dataSource.getRepository(ScopeEntity)),
+    userRole: new UserRoleRepository(dataSource.getRepository(UserRole)),
+    roleScope: new RoleScopeRepository(dataSource.getRepository(RoleScope)),
     refreshToken: new RefreshTokenRepository(
       dataSource.getRepository(RefreshToken),
     ),
