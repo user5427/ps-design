@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   Checkbox,
@@ -15,7 +16,7 @@ import {
   TextField,
 } from "@mui/material";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FormAlert } from "@/components/elements/form";
 import type { FormFieldDefinition } from "./types";
 import { getReadableError } from "@/utils/get-readable-error";
@@ -44,18 +45,22 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const clearForm = () => {
+  // Reset form when modal opens or initialValues change
+  useEffect(() => {
     if (open) {
       const defaultValues: Record<string, unknown> = {};
       for (const field of fields) {
-        defaultValues[field.name] =
-          initialValues[field.name] ?? field.defaultValue ?? "";
+        // Use initialValues first, then defaultValue, then empty string
+        const initialValue = initialValues[field.name];
+        defaultValues[field.name] = initialValue !== undefined 
+          ? initialValue 
+          : (field.defaultValue ?? "");
       }
       setValues(defaultValues);
       setErrors({});
       setSubmitError(null);
     }
-  };
+  }, [open, initialValues, fields]);
 
   const validateField = (
     field: FormFieldDefinition,
@@ -120,7 +125,6 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
       );
     } finally {
       setIsSubmitting(false);
-      clearForm();
     }
   };
 
@@ -129,6 +133,31 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
     const error = errors[field.name];
 
     switch (field.type) {
+      case "autocomplete": {
+        const selectedOption = field.options?.find(opt => opt.value === value) || null;
+        return (
+          <Autocomplete
+            key={field.name}
+            options={field.options || []}
+            getOptionLabel={(option) => option.label}
+            value={selectedOption}
+            onChange={(_, newValue) => handleChange(field.name, newValue?.value || "")}
+            disabled={isSubmitting}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={field.label}
+                placeholder={field.placeholder}
+                error={!!error}
+                helperText={error}
+                required={field.required}
+              />
+            )}
+            isOptionEqualToValue={(option, val) => option.value === val.value}
+          />
+        );
+      }
+
       case "select":
         return (
           <FormControl fullWidth error={!!error} key={field.name}>

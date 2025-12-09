@@ -1,4 +1,5 @@
 import type { MRT_ColumnDef } from "material-react-table";
+import type React from "react";
 
 export type FieldType =
   | "text"
@@ -6,6 +7,7 @@ export type FieldType =
   | "email"
   | "password"
   | "select"
+  | "autocomplete"
   | "date"
   | "datetime"
   | "textarea"
@@ -27,9 +29,18 @@ export interface FormFieldDefinition {
   type: FieldType;
   required?: boolean;
   placeholder?: string;
-  options?: SelectOption[]; // For select fields
+  options?: SelectOption[]; // For select/autocomplete fields
   validationRules?: ValidationRule[];
   defaultValue?: unknown;
+  /** Whether field is read-only in view mode */
+  viewOnly?: boolean;
+}
+
+export interface ViewFieldDefinition {
+  name: string;
+  label: string;
+  /** Custom render function for the value */
+  render?: (value: unknown, record: Record<string, unknown>) => React.ReactNode;
 }
 
 export interface RecordListViewProps<T extends Record<string, unknown>> {
@@ -59,4 +70,10 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
   idKey?: keyof T;
   /** Callback after successful create/edit/delete for refetching */
   onSuccess?: () => void;
+  /** Field definitions for view modal (if not provided, uses editFormFields) */
+  viewFields?: ViewFieldDefinition[];
+  /** Whether to show view action (default: true) */
+  hasViewAction?: boolean;
+  /** Whether to show edit action (default: true) */
+  hasEditAction?: boolean;
 }

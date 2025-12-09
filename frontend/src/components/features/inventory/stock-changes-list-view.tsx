@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import {
   RecordListView,
   type FormFieldDefinition,
+  type ViewFieldDefinition,
   ValidationRules,
 } from "@/components/elements/record-list-view";
 import {
@@ -101,7 +102,7 @@ export const StockChangesListView = () => {
     () =>
       products.map((p) => ({
         value: p.id,
-        label: p.name,
+        label: `${p.name} (${p.productUnit.symbol || p.productUnit.name})`,
       })),
     [products]
   );
@@ -116,9 +117,10 @@ export const StockChangesListView = () => {
     {
       name: "productId",
       label: "Product",
-      type: "select",
+      type: "autocomplete",
       required: true,
       options: productOptions,
+      placeholder: "Search products...",
     },
     {
       name: "type",
@@ -139,6 +141,52 @@ export const StockChangesListView = () => {
       label: "Expiration Date",
       type: "date",
     },
+  ];
+
+  const viewFields: ViewFieldDefinition[] = [
+    { name: "id", label: "ID" },
+    { 
+      name: "product", 
+      label: "Product",
+      render: (value) => {
+        const product = value as { name: string; productUnit?: { name: string; symbol?: string | null } };
+        if (!product) return "-";
+        const unitLabel = product.productUnit?.symbol || product.productUnit?.name || "";
+        return `${product.name}${unitLabel ? ` (${unitLabel})` : ""}`;
+      }
+    },
+    { 
+      name: "type", 
+      label: "Type",
+      render: (value) => {
+        const type = value as StockChangeType;
+        return (
+          <Chip
+            label={type}
+            color={stockChangeTypeColors[type]}
+            size="small"
+          />
+        );
+      }
+    },
+    { 
+      name: "quantity", 
+      label: "Quantity",
+      render: (value, record) => {
+        const qty = value as number;
+        const type = record.type as StockChangeType;
+        const isNegative = ["USAGE", "WASTE"].includes(type);
+        return (
+          <span style={{ color: isNegative ? "red" : "green" }}>
+            {isNegative ? "-" : "+"}
+            {Math.abs(qty)}
+          </span>
+        );
+      }
+    },
+    { name: "expirationDate", label: "Expiration Date" },
+    { name: "createdAt", label: "Created At" },
+    { name: "updatedAt", label: "Updated At" },
   ];
 
   const handleCreate = async (values: Partial<StockChange>) => {
@@ -169,11 +217,13 @@ export const StockChangesListView = () => {
       isLoading={isLoading}
       error={error}
       createFormFields={createFormFields}
-      editFormFields={[]} 
+      editFormFields={[]}
+      viewFields={viewFields}
       onCreate={handleCreate}
       onEdit={handleEdit}
       onDelete={handleDelete}
       onSuccess={() => refetch()}
+      hasEditAction={false}
     />
   );
 };

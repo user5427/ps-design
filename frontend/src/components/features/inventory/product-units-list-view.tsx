@@ -3,7 +3,8 @@ import { useMemo } from "react";
 import {
   RecordListView,
   type FormFieldDefinition,
-ValidationRules
+  type ViewFieldDefinition,
+  ValidationRules,
 } from "@/components/elements/record-list-view";
 import {
   useCreateProductUnit,
@@ -30,6 +31,7 @@ export const ProductUnitsListView = () => {
         accessorKey: "symbol",
         header: "Symbol",
         size: 100,
+        Cell: ({ cell }) => cell.getValue<string>() || "-",
       },
       {
         accessorKey: "createdAt",
@@ -63,6 +65,14 @@ export const ProductUnitsListView = () => {
 
   const editFormFields: FormFieldDefinition[] = createFormFields;
 
+  const viewFields: ViewFieldDefinition[] = [
+    { name: "id", label: "ID" },
+    { name: "name", label: "Name" },
+    { name: "symbol", label: "Symbol" },
+    { name: "createdAt", label: "Created At" },
+    { name: "updatedAt", label: "Updated At" },
+  ];
+
   const handleCreate = async (values: Partial<ProductUnit>) => {
     await createMutation.mutateAsync({
       name: values.name!,
@@ -93,6 +103,7 @@ export const ProductUnitsListView = () => {
       error={error}
       createFormFields={createFormFields}
       editFormFields={editFormFields}
+      viewFields={viewFields}
       onCreate={handleCreate}
       onEdit={handleEdit}
       onDelete={handleDelete}

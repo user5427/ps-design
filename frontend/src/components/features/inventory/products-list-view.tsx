@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import {
   RecordListView,
   type FormFieldDefinition,
+  type ViewFieldDefinition,
   ValidationRules,
 } from "@/components/elements/record-list-view";
 import {
@@ -91,9 +92,10 @@ export const ProductsListView = () => {
     {
       name: "productUnitId",
       label: "Unit",
-      type: "select",
+      type: "autocomplete",
       required: true,
       options: unitOptions,
+      placeholder: "Search units...",
     },
   ];
 
@@ -104,6 +106,23 @@ export const ProductsListView = () => {
       label: "Disabled",
       type: "checkbox",
     },
+  ];
+
+  const viewFields: ViewFieldDefinition[] = [
+    { name: "id", label: "ID" },
+    { name: "name", label: "Name" },
+    { name: "description", label: "Description" },
+    { 
+      name: "productUnit", 
+      label: "Unit",
+      render: (value) => {
+        const unit = value as { name: string; symbol?: string | null };
+        return unit ? `${unit.name}${unit.symbol ? ` (${unit.symbol})` : ""}` : "-";
+      }
+    },
+    { name: "isDisabled", label: "Disabled" },
+    { name: "createdAt", label: "Created At" },
+    { name: "updatedAt", label: "Updated At" },
   ];
 
   const handleCreate = async (values: Partial<Product>) => {
@@ -139,6 +158,7 @@ export const ProductsListView = () => {
       error={error}
       createFormFields={createFormFields}
       editFormFields={editFormFields}
+      viewFields={viewFields}
       onCreate={handleCreate}
       onEdit={handleEdit}
       onDelete={handleDelete}

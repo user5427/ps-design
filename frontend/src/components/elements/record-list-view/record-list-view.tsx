@@ -1,6 +1,7 @@
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import {
   Alert,
   Box,
@@ -18,7 +19,8 @@ import {
 import { useMemo, useState } from "react";
 import { DeleteConfirmDialog } from "./delete-confirm-dialog";
 import { RecordFormModal } from "./record-form-modal";
-import type { RecordListViewProps } from "./types";
+import { ViewRecordModal } from "./view-record-modal";
+import type { RecordListViewProps, ViewFieldDefinition } from "./types";
 
 export function RecordListView<T extends Record<string, unknown>>({
   title,
@@ -34,12 +36,17 @@ export function RecordListView<T extends Record<string, unknown>>({
   hasActions = true,
   idKey = "id" as keyof T,
   onSuccess,
+  viewFields,
+  hasViewAction = true,
+  hasEditAction = true,
 }: RecordListViewProps<T>) {
   // Modal states
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<T | null>(null);
+  const [viewingRecord, setViewingRecord] = useState<T | null>(null);
   const [deletingIds, setDeletingIds] = useState<string[]>([]);
 
   // Row selection state
@@ -98,6 +105,28 @@ export function RecordListView<T extends Record<string, unknown>>({
     setEditModalOpen(true);
   };
 
+  const openViewModal = (record: T) => {
+    setViewingRecord(record);
+    setViewModalOpen(true);
+  };
+
+  // Generate view fields from edit fields if not provided
+  const computedViewFields: ViewFieldDefinition[] = useMemo(() => {
+    if (viewFields) return viewFields;
+    
+    // Generate from editFormFields
+    return editFormFields.map(field => ({
+      name: field.name,
+      label: field.label,
+      render: field.type === "select" || field.type === "autocomplete"
+        ? (value: unknown) => {
+            const option = field.options?.find(opt => opt.value === value);
+            return option?.label || String(value || "-");
+          }
+        : undefined,
+    }));
+  }, [viewFields, editFormFields]);
+
   const openDeleteDialog = (ids: string[]) => {
     setDeletingIds(ids);
     setDeleteDialogOpen(true);
@@ -112,19 +141,31 @@ export function RecordListView<T extends Record<string, unknown>>({
       {
         id: "actions",
         header: "Actions",
-        size: 100,
+        size: hasViewAction && hasEditAction ? 130 : 100,
         enableSorting: false,
         enableColumnFilter: false,
         Cell: ({ row }: { row: { original: T } }) => (
           <Box sx={{ display: "flex", gap: 0.5 }}>
-            <Tooltip title="Edit">
-              <IconButton
-                size="small"
-                onClick={() => openEditModal(row.original)}
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            {hasViewAction && (
+              <Tooltip title="View">
+                <IconButton
+                  size="small"
+                  onClick={() => openViewModal(row.original)}
+                >
+                  <VisibilityIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+            {hasEditAction && (
+              <Tooltip title="Edit">
+                <IconButton
+                  size="small"
+                  onClick={() => openEditModal(row.original)}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
             <Tooltip title="Delete">
               <IconButton
                 size="small"
@@ -140,7 +181,7 @@ export function RecordListView<T extends Record<string, unknown>>({
         ),
       },
     ];
-  }, [columns, hasActions, idKey]);
+  }, [columns, hasActions, hasViewAction, hasEditAction, idKey]);
 
   // Table instance
   const table = useMaterialReactTable({
@@ -230,6 +271,18 @@ export function RecordListView<T extends Record<string, unknown>>({
         initialValues={editingRecord as Record<string, unknown> | undefined}
         onSubmit={handleEdit}
         submitLabel="Save"
+      />
+
+      {/* View Modal */}
+      <ViewRecordModal
+        open={viewModalOpen}
+        onClose={() => {
+          setViewModalOpen(false);
+          setViewingRecord(null);
+        }}
+        title={`View ${title.replace(/s$/, "")}`}
+        record={viewingRecord as Record<string, unknown> | null}
+        fields={computedViewFields}
       />
 
       {/* Delete Confirmation */}
