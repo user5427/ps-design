@@ -3,7 +3,6 @@ import type {
   CreateStockChangeBody,
   StockChangeResponse,
   StockLevelResponse,
-  UpdateStockChangeBody,
 } from "@ps-design/schemas/inventory/stock";
 
 export async function getStockLevels(): Promise<StockLevelResponse[]> {
@@ -43,23 +42,4 @@ export async function createStockChange(
     data
   );
   return response.data;
-}
-
-export async function updateStockChange(
-  id: string,
-  data: UpdateStockChangeBody
-): Promise<StockChangeResponse> {
-  const response = await apiClient.put<StockChangeResponse>(
-    `/inventory/stock/changes/${id}`,
-    data
-  );
-  return response.data;
-}
-
-export async function deleteStockChange(id: string): Promise<void> {
-  await apiClient.delete(`/inventory/stock/changes/${id}`);
-}
-
-export async function bulkDeleteStockChanges(ids: string[]): Promise<void> {
-  await apiClient.post("/inventory/stock/changes/bulk-delete", { ids });
 }

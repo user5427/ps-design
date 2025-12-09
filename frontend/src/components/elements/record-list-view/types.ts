@@ -76,4 +76,6 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
   hasViewAction?: boolean;
   /** Whether to show edit action (default: true) */
   hasEditAction?: boolean;
+  /** Whether to show delete action (default: true) */
+  hasDeleteAction?: boolean;
 }

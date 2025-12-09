@@ -9,7 +9,6 @@ import {
 } from "@/components/elements/record-list-view";
 import {
   useCreateStockChange,
-  useBulkDeleteStockChanges,
   useProducts,
   useStockChanges,
 } from "@/hooks/inventory";
@@ -34,7 +33,6 @@ export const StockChangesListView = () => {
   } = useStockChanges();
   const { data: products = [] } = useProducts();
   const createMutation = useCreateStockChange();
-  const bulkDeleteMutation = useBulkDeleteStockChanges();
 
   const columns = useMemo<MRT_ColumnDef<StockChange>[]>(
     () => [
@@ -200,13 +198,14 @@ export const StockChangesListView = () => {
     });
   };
 
-  // Stock changes cannot be edited, only deleted
+  // Stock changes cannot be edited or deleted
+  
   const handleEdit = async () => {
     throw new Error("Stock changes cannot be edited");
   };
 
-  const handleDelete = async (ids: string[]) => {
-    await bulkDeleteMutation.mutateAsync(ids);
+  const handleDelete = async () => {
+    throw new Error("Stock changes cannot be deleted");
   };
 
   return (
@@ -224,6 +223,7 @@ export const StockChangesListView = () => {
       onDelete={handleDelete}
       onSuccess={() => refetch()}
       hasEditAction={false}
+      hasDeleteAction={false}
     />
   );
 };

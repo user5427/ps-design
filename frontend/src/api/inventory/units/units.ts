@@ -28,10 +28,6 @@ export async function updateProductUnit(
   return response.data;
 }
 
-export async function deleteProductUnit(id: string): Promise<void> {
-  await apiClient.delete(`/inventory/units/${id}`);
-}
-
 export async function bulkDeleteProductUnits(ids: string[]): Promise<void> {
   await apiClient.post("/inventory/units/bulk-delete", { ids });
 }

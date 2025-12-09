@@ -45,8 +45,7 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // Reset form when modal opens or initialValues change
-  useEffect(() => {
+  const reset = () => {
     if (open) {
       const defaultValues: Record<string, unknown> = {};
       for (const field of fields) {
@@ -60,7 +59,7 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
       setErrors({});
       setSubmitError(null);
     }
-  }, [open, initialValues, fields]);
+  };
 
   const validateField = (
     field: FormFieldDefinition,
@@ -119,6 +118,7 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
     try {
       await onSubmit(values);
       onClose();
+      reset();
     } catch (err) {
       setSubmitError(
         getReadableError(err)

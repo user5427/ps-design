@@ -39,6 +39,7 @@ export function RecordListView<T extends Record<string, unknown>>({
   viewFields,
   hasViewAction = true,
   hasEditAction = true,
+  hasDeleteAction = true,
 }: RecordListViewProps<T>) {
   // Modal states
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -141,7 +142,7 @@ export function RecordListView<T extends Record<string, unknown>>({
       {
         id: "actions",
         header: "Actions",
-        size: hasViewAction && hasEditAction ? 130 : 100,
+        size: hasViewAction && hasEditAction && hasDeleteAction ? 130 : 100,
         enableSorting: false,
         enableColumnFilter: false,
         Cell: ({ row }: { row: { original: T } }) => (
@@ -166,7 +167,7 @@ export function RecordListView<T extends Record<string, unknown>>({
                 </IconButton>
               </Tooltip>
             )}
-            <Tooltip title="Delete">
+           {hasDeleteAction && (<Tooltip title="Delete">
               <IconButton
                 size="small"
                 color="error"
@@ -176,12 +177,12 @@ export function RecordListView<T extends Record<string, unknown>>({
               >
                 <DeleteIcon fontSize="small" />
               </IconButton>
-            </Tooltip>
+            </Tooltip>)}
           </Box>
         ),
       },
     ];
-  }, [columns, hasActions, hasViewAction, hasEditAction, idKey]);
+  }, [columns, hasActions, hasViewAction, hasEditAction, hasDeleteAction, idKey]);
 
   // Table instance
   const table = useMaterialReactTable({
@@ -218,7 +219,7 @@ export function RecordListView<T extends Record<string, unknown>>({
           {title}
         </Typography>
         <Box sx={{ display: "flex", gap: 1 }}>
-          {hasActions && (
+          {hasDeleteAction && (
             <Button
               variant="outlined"
               color="error"
