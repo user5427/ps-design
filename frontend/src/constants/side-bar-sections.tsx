@@ -3,6 +3,8 @@ import CategoryIcon from "@mui/icons-material/Category";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import InsightsIcon from "@mui/icons-material/Insights";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import TimelineIcon from "@mui/icons-material/Timeline";
@@ -39,6 +41,22 @@ export const sidebarSections: Section[] = [
         label: "Stock Levels",
         icon: <AssessmentIcon />,
         path: URLS.INVENTORY_STOCK_LEVELS,
+      },
+    ],
+  },
+  {
+    label: "Menu",
+    icon: <MenuBookIcon />,
+    children: [
+      {
+        label: "Categories",
+        icon: <CategoryIcon />,
+        path: URLS.MENU_CATEGORIES,
+      },
+      {
+        label: "Menu Items",
+        icon: <RestaurantMenuIcon />,
+        path: URLS.MENU_ITEMS,
       },
     ],
   },
