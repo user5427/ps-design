@@ -9,7 +9,7 @@ import {
   type Relation,
 } from "typeorm";
 import type { Role } from "./role.entity";
-import type { ScopeEntity } from "./scope.entity";
+import type { Scope } from "./scope.entity";
 
 @Entity("RoleScope")
 @Index(["roleId", "scopeId"], { unique: true })
@@ -29,7 +29,7 @@ export class RoleScope {
 
   @ManyToOne("Scope", "roleScopes", { nullable: false, onDelete: "CASCADE" })
   @JoinColumn({ name: "scopeId" })
-  scope: Relation<ScopeEntity>;
+  scope: Relation<Scope>;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -3,7 +3,7 @@ export { UserRepository } from "./user.repository";
 export * from "./user.types";
 export { Role } from "./role.entity";
 export { RoleRepository } from "./role.repository";
-export { ScopeEntity } from "./scope.entity";
+export { Scope as ScopeEntity } from "./scope.entity";
 export { ScopeRepository } from "./scope.repository";
 export { UserRole } from "./user-role.entity";
 export { UserRoleRepository } from "./user-role.repository";

@@ -1,22 +1,22 @@
 import type { Repository } from "typeorm";
-import type { ScopeEntity } from "./scope.entity";
+import type { Scope } from "./scope.entity";
 
 export class ScopeRepository {
-  constructor(private repository: Repository<ScopeEntity>) {}
+  constructor(private repository: Repository<Scope>) {}
 
-  async findAll(): Promise<ScopeEntity[]> {
+  async findAll(): Promise<Scope[]> {
     return this.repository.find({
       order: { name: "ASC" },
     });
   }
 
-  async findById(id: string): Promise<ScopeEntity | null> {
+  async findById(id: string): Promise<Scope | null> {
     return this.repository.findOne({
       where: { id },
     });
   }
 
-  async findByName(name: string): Promise<ScopeEntity | null> {
+  async findByName(name: string): Promise<Scope | null> {
     return this.repository.findOne({
       where: { name },
     });
@@ -25,7 +25,7 @@ export class ScopeRepository {
   async create(data: {
     name: string;
     description?: string;
-  }): Promise<ScopeEntity> {
+  }): Promise<Scope> {
     const scope = this.repository.create({
       name: data.name,
       description: data.description ?? null,
@@ -36,7 +36,7 @@ export class ScopeRepository {
   async update(
     id: string,
     data: { name?: string; description?: string },
-  ): Promise<ScopeEntity | null> {
+  ): Promise<Scope | null> {
     await this.repository.update(id, data);
     return this.findById(id);
   }

@@ -10,7 +10,7 @@ import {
 import type { RoleScope } from "./role-scope.entity";
 
 @Entity("Scope")
-export class ScopeEntity {
+export class Scope {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 

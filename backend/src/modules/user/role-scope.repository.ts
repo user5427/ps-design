@@ -1,6 +1,7 @@
 import type { Repository } from "typeorm";
 import type { RoleScope } from "./role-scope.entity";
 import type { ScopeNames } from "./scope.types";
+import { Scope } from "./scope.entity";
 
 export class RoleScopeRepository {
   constructor(private repository: Repository<RoleScope>) {}
@@ -32,7 +33,7 @@ export class RoleScopeRepository {
   async assignScope(roleId: string, scopeName: ScopeNames): Promise<RoleScope> {
     // Find the scope entity by name
     const scope = await this.repository.manager
-      .getRepository("ScopeEntity")
+      .getRepository(Scope)
       .findOne({ where: { name: scopeName } });
 
     if (!scope) {
@@ -52,7 +53,7 @@ export class RoleScopeRepository {
   async removeScope(roleId: string, scopeName: ScopeNames): Promise<void> {
     // Find the scope entity by name
     const scope = await this.repository.manager
-      .getRepository("ScopeEntity")
+      .getRepository(Scope)
       .findOne({ where: { name: scopeName } });
 
     if (!scope) {
@@ -80,7 +81,7 @@ export class RoleScopeRepository {
   async hasScope(roleId: string, scopeName: ScopeNames): Promise<boolean> {
     // Find the scope entity by name
     const scope = await this.repository.manager
-      .getRepository("ScopeEntity")
+      .getRepository(Scope)
       .findOne({ where: { name: scopeName } });
 
     if (!scope) {
