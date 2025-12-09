@@ -25,7 +25,7 @@ import {
 
 export default async function stockRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
-  const { requireScope, requireAllScopes } = createScopeMiddleware(fastify);
+  const { requireScope } = createScopeMiddleware(fastify);
 
   server.get(
     "/",
