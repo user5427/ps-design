@@ -10,6 +10,8 @@ import {
 } from "./service";
 import { getBusinessId } from "@/shared/auth-utils";
 import { handleServiceError } from "@/shared/error-handler";
+import { createScopeMiddleware } from "@/shared/scope-middleware";
+import { ScopeNames } from "@/modules/user";
 import {
   ChangeIdParam,
   type ChangeIdParams,
@@ -23,18 +25,32 @@ import {
 
 export default async function stockRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
-
-  server.get("/", async (request: FastifyRequest, reply: FastifyReply) => {
-    const businessId = getBusinessId(request, reply);
-    if (!businessId) return;
-
-    const stockLevels = await getAllStockLevels(fastify, businessId);
-    return reply.send(stockLevels);
-  });
+  const { requireScope, requireAllScopes } = createScopeMiddleware(fastify);
 
   server.get(
+    "/",
+    {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_READ),
+      ],
+    },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
+
+      const stockLevels = await getAllStockLevels(fastify, businessId);
+      return reply.send(stockLevels);
+    },
+  );
+
+  server.get<{ Params: ProductIdParams }>(
     "/:productId",
     {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_READ),
+      ],
       schema: {
         params: ProductIdParam,
       },
@@ -63,9 +79,13 @@ export default async function stockRoutes(fastify: FastifyInstance) {
     },
   );
 
-  server.post(
+  server.post<{ Body: CreateStockChangeBody }>(
     "/changes",
     {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_WRITE),
+      ],
       schema: {
         body: CreateStockChangeSchema,
       },
@@ -95,9 +115,13 @@ export default async function stockRoutes(fastify: FastifyInstance) {
     },
   );
 
-  server.get(
+  server.get<{ Querystring: StockQuery }>(
     "/changes",
     {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_READ),
+      ],
       schema: {
         querystring: StockQuerySchema,
       },
@@ -118,9 +142,13 @@ export default async function stockRoutes(fastify: FastifyInstance) {
     },
   );
 
-  server.delete(
+  server.delete<{ Params: ChangeIdParams }>(
     "/changes/:changeId",
     {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_DELETE),
+      ],
       schema: {
         params: ChangeIdParam,
       },

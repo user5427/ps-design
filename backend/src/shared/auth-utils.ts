@@ -33,7 +33,6 @@ export function createJti(): string {
 export function signAccessToken(fastify: FastifyInstance, user: User): string {
   const payload = {
     userId: user.id,
-    role: user.role,
     businessId: user.businessId,
   };
   return fastify.jwt.sign(payload, {
