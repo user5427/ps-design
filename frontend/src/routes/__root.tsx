@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { refreshToken } from "@/api/auth";
 import { MainLayout, PublicLayout } from "@/components/layouts";
-import { AppBar } from "@/components/layouts/app-bar";
+import { AppBar } from "@/components/layouts/app-bar/app-bar";
 import { AppBarData } from "@/constants/app-bar";
 import { useAuthStore } from "@/store/auth";
 

@@ -3,23 +3,23 @@ import type React from "react";
 
 type Logo = {
   image: React.ReactNode;
-  text?: string;
+  text: string;
+  size: number;
 }
 
 interface LogoProps {
   logo: Logo
-  size?: number;
 }
 
 export interface AppBarProps extends LogoProps {
 }
 
-const Logo: React.FC<LogoProps> = ({ logo, size = 40 }) => (
+const Logo: React.FC<LogoProps> = ({ logo }) => (
   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
     <Box
       sx={{
-        width: size,
-        height: size,
+        width: logo.size,
+        height: logo.size,
         borderRadius: "50%",
         overflow: "hidden",
       }}
