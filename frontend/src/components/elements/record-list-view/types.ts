@@ -64,8 +64,6 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
   onEdit?: (id: string, values: Partial<T>) => Promise<void>;
   /** Callback for deleting record(s) (optional for read-only mode) */
   onDelete?: (ids: string[]) => Promise<void>;
-  /** Toggle actions column and row selection (default: true) */
-  hasActions?: boolean;
   /** Unique identifier key for records (default: 'id') */
   idKey?: keyof T;
   /** Callback after successful create/edit/delete for refetching */
@@ -75,9 +73,6 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
   /** Whether to show view action (default: true) */
   hasViewAction?: boolean;
   /** Whether to show edit action (default: true) */
-  hasEditAction?: boolean;
-  /** Whether to show delete action (default: true) */
-  hasDeleteAction?: boolean;
   /** Custom function to get row ID */
   getRowId?: (row: T) => string;
 }

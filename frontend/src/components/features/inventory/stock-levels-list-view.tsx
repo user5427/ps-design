@@ -66,7 +66,7 @@ export const StockLevelsListView = () => {
       isLoading={isLoading}
       error={error}
       getRowId={(row) => row.productId}
-      hasActions={false}
+      hasViewAction={true}
     />
   );
 };

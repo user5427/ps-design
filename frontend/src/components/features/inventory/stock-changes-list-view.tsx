@@ -198,16 +198,6 @@ export const StockChangesListView = () => {
     });
   };
 
-  // Stock changes cannot be edited or deleted
-  
-  const handleEdit = async () => {
-    throw new Error("Stock changes cannot be edited");
-  };
-
-  const handleDelete = async () => {
-    throw new Error("Stock changes cannot be deleted");
-  };
-
   return (
     <RecordListView<StockChange>
       title="Stock Changes"
@@ -219,11 +209,7 @@ export const StockChangesListView = () => {
       editFormFields={[]}
       viewFields={viewFields}
       onCreate={handleCreate}
-      onEdit={handleEdit}
-      onDelete={handleDelete}
       onSuccess={() => refetch()}
-      hasEditAction={false}
-      hasDeleteAction={false}
     />
   );
 };

@@ -33,16 +33,12 @@ export function RecordListView<T extends Record<string, unknown>>({
   onCreate,
   onEdit,
   onDelete,
-  hasActions = true,
   idKey = "id" as keyof T,
   onSuccess,
   viewFields,
   hasViewAction = true,
-  hasEditAction = true,
-  hasDeleteAction = true,
   getRowId,
 }: RecordListViewProps<T>) {
-  // Modal states
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -51,10 +47,8 @@ export function RecordListView<T extends Record<string, unknown>>({
   const [viewingRecord, setViewingRecord] = useState<T | null>(null);
   const [deletingIds, setDeletingIds] = useState<string[]>([]);
 
-  // Row selection state
   const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
 
-  // Snackbar state
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -136,16 +130,13 @@ export function RecordListView<T extends Record<string, unknown>>({
     setDeleteDialogOpen(true);
   };
 
-  // Columns with actions
   const tableColumns = useMemo(() => {
-    if (!hasActions) return columns;
-
     return [
       ...columns,
       {
         id: "actions",
         header: "Actions",
-        size: hasViewAction && hasEditAction && hasDeleteAction ? 130 : 100,
+        size: 100,
         enableSorting: false,
         enableColumnFilter: false,
         Cell: ({ row }: { row: { original: T } }) => (
@@ -160,7 +151,7 @@ export function RecordListView<T extends Record<string, unknown>>({
                 </IconButton>
               </Tooltip>
             )}
-            {hasEditAction && (
+            {onEdit && (
               <Tooltip title="Edit">
                 <IconButton
                   size="small"
@@ -170,7 +161,7 @@ export function RecordListView<T extends Record<string, unknown>>({
                 </IconButton>
               </Tooltip>
             )}
-           {hasDeleteAction && (<Tooltip title="Delete">
+           {onDelete && (<Tooltip title="Delete">
               <IconButton
                 size="small"
                 color="error"
@@ -185,13 +176,12 @@ export function RecordListView<T extends Record<string, unknown>>({
         ),
       },
     ];
-  }, [columns, hasActions, hasViewAction, hasEditAction, hasDeleteAction, idKey]);
+  }, [columns, hasViewAction, onEdit, onDelete, idKey]);
 
-  // Table instance
   const table = useMaterialReactTable({
     columns: tableColumns,
     data,
-    enableRowSelection: hasActions && hasDeleteAction,
+    enableRowSelection: !!onDelete,
     enableColumnResizing: true,
     enableGlobalFilter: true,
     enableStickyHeader: true,
@@ -209,7 +199,6 @@ export function RecordListView<T extends Record<string, unknown>>({
 
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
-      {/* Header */}
       <Box
         sx={{
           display: "flex",
@@ -221,43 +210,36 @@ export function RecordListView<T extends Record<string, unknown>>({
         <Typography variant="h4" component="h1">
           {title}
         </Typography>
-        {hasActions && (
           <Box sx={{ display: "flex", gap: 1 }}>
-            {hasDeleteAction && onDelete && (
-              <Button
-                variant="outlined"
-                color="error"
-                startIcon={<DeleteIcon />}
-                onClick={() => openDeleteDialog(selectedIds)}
-                disabled={selectedIds.length === 0}
-              >
-                Delete{selectedIds.length > 0 ? ` (${selectedIds.length})` : ""}
-              </Button>
-            )}
-            {onCreate && (
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteIcon />}
+              onClick={() => openDeleteDialog(selectedIds)}
+              disabled={selectedIds.length === 0 || !onDelete}
+            >
+              Delete{selectedIds.length > 0 ? ` (${selectedIds.length})` : ""}
+            </Button>
+
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={() => setCreateModalOpen(true)}
+                disabled={!onCreate}
               >
                 New
               </Button>
-            )}
           </Box>
-        )}
       </Box>
 
-      {/* Error display */}
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error.message}
         </Alert>
       )}
 
-      {/* Table */}
       <MaterialReactTable table={table} />
 
-      {/* Create Modal */}
       <RecordFormModal
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
@@ -267,7 +249,6 @@ export function RecordListView<T extends Record<string, unknown>>({
         submitLabel="Create"
       />
 
-      {/* Edit Modal */}
       <RecordFormModal
         open={editModalOpen}
         onClose={() => {
@@ -281,7 +262,6 @@ export function RecordListView<T extends Record<string, unknown>>({
         submitLabel="Save"
       />
 
-      {/* View Modal */}
       <ViewRecordModal
         open={viewModalOpen}
         onClose={() => {
@@ -293,7 +273,6 @@ export function RecordListView<T extends Record<string, unknown>>({
         fields={computedViewFields}
       />
 
-      {/* Delete Confirmation */}
       <DeleteConfirmDialog
         open={deleteDialogOpen}
         onClose={() => {
@@ -304,7 +283,7 @@ export function RecordListView<T extends Record<string, unknown>>({
         itemCount={deletingIds.length}
       />
 
-      {/* Success/Error Snackbar */}
+      {/* Success/Error notification bottom right */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
