@@ -4,7 +4,6 @@ export const UserResponseSchema = z.object({
   id: z.uuid(),
   email: z.email(),
   businessId: z.uuid().nullable(),
-  roleIds: z.array(z.uuid()),
   isPasswordResetRequired: z.boolean(),
 });
 
