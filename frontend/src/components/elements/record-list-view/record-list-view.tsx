@@ -16,7 +16,7 @@ import {
   useMaterialReactTable,
   type MRT_RowSelectionState,
 } from "material-react-table";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { DeleteConfirmDialog } from "./delete-confirm-dialog";
 import { RecordFormModal } from "./record-form-modal";
 import { ViewRecordModal } from "./view-record-modal";
@@ -98,15 +98,15 @@ export function RecordListView<T extends Record<string, unknown>>({
     onSuccess?.();
   };
 
-  const openEditModal = (record: T) => {
+  const openEditModal = useCallback((record: T) => {
     setEditingRecord(record);
     setEditModalOpen(true);
-  };
+  }, []);
 
-  const openViewModal = (record: T) => {
+  const openViewModal = useCallback((record: T) => {
     setViewingRecord(record);
     setViewModalOpen(true);
-  };
+  }, []);
 
   // Generate view fields from edit fields if not provided
   const computedViewFields: ViewFieldDefinition[] = useMemo(() => {
@@ -125,10 +125,10 @@ export function RecordListView<T extends Record<string, unknown>>({
     }));
   }, [viewFields, editFormFields]);
 
-  const openDeleteDialog = (ids: string[]) => {
+  const openDeleteDialog = useCallback((ids: string[]) => {
     setDeletingIds(ids);
     setDeleteDialogOpen(true);
-  };
+  }, []);
 
   const tableColumns = useMemo(() => {
     return [
@@ -176,7 +176,7 @@ export function RecordListView<T extends Record<string, unknown>>({
         ),
       },
     ];
-  }, [columns, hasViewAction, onEdit, onDelete, idKey, openViewModal, openEditModal, openDeleteDialog]);
+  }, [columns, hasViewAction, onEdit, onDelete, idKey]);
 
   const table = useMaterialReactTable({
     columns: tableColumns,
