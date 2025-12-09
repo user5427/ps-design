@@ -99,7 +99,7 @@ export async function deleteStockChange(
   businessId: string,
   changeId: string,
 ): Promise<void> {
-  await fastify.db.stockChange.delete(changeId, businessId);
+  await fastify.db.stockChange.bulkDelete([changeId], businessId);
 }
 
 export async function bulkDeleteStockChanges(

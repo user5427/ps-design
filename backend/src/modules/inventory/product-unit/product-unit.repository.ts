@@ -82,25 +82,6 @@ export class ProductUnitRepository {
     }
   }
 
-  async delete(id: string, businessId: string): Promise<void> {
-    const unit = await this.findByIdAndBusinessId(id, businessId);
-    if (!unit) {
-      throw new NotFoundError("Product unit not found");
-    }
-
-    const productsCount = await this.productRepository.count({
-      where: { productUnitId: id, deletedAt: IsNull() },
-    });
-
-    if (productsCount > 0) {
-      throw new ConflictError(
-        "Cannot delete product unit that is in use by products",
-      );
-    }
-
-    await this.repository.update(id, { deletedAt: new Date() });
-  }
-
   async bulkDelete(ids: string[], businessId: string): Promise<void> {
     for (const id of ids) {
       const unit = await this.findByIdAndBusinessId(id, businessId);
@@ -120,9 +101,5 @@ export class ProductUnitRepository {
     }
 
     await this.repository.update(ids, { deletedAt: new Date() });
-  }
-
-  async softDelete(id: string): Promise<void> {
-    await this.repository.update(id, { deletedAt: new Date() });
   }
 }

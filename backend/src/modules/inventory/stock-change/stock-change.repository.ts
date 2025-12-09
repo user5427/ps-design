@@ -107,29 +107,7 @@ export class StockChangeRepository {
       return foundChange;
     });
   }
-
-  async delete(id: string, businessId: string): Promise<void> {
-    const change = await this.findByIdAndBusinessId(id, businessId);
-    if (!change) {
-      throw new NotFoundError("Stock change not found");
-    }
-
-    await this.dataSource.transaction(async (manager) => {
-      const stockChangeRepo = manager.getRepository(StockChange);
-      const stockLevelRepo = manager.getRepository(StockLevel);
-
-      await stockChangeRepo.update(id, { deletedAt: new Date() });
-
-      const stockLevel = await stockLevelRepo.findOne({
-        where: { productId: change.productId },
-      });
-      if (stockLevel) {
-        const newQuantity = stockLevel.quantity - change.quantity;
-        await stockLevelRepo.update(stockLevel.id, { quantity: newQuantity });
-      }
-    });
-  }
-
+  
   async update(
     id: string,
     businessId: string,
@@ -212,9 +190,5 @@ export class StockChangeRepository {
         }
       }
     });
-  }
-
-  async softDelete(id: string): Promise<void> {
-    await this.repository.update(id, { deletedAt: new Date() });
   }
 }

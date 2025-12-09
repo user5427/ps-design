@@ -50,7 +50,7 @@ export async function deleteUnit(
   businessId: string,
   unitId: string,
 ): Promise<void> {
-  await fastify.db.productUnit.delete(unitId, businessId);
+  await fastify.db.productUnit.bulkDelete([unitId], businessId);
 }
 
 export async function bulkDeleteUnits(

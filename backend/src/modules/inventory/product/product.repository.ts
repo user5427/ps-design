@@ -118,15 +118,6 @@ export class ProductRepository {
     }
   }
 
-  async delete(id: string, businessId: string): Promise<void> {
-    const product = await this.findByIdSimple(id, businessId);
-    if (!product) {
-      throw new NotFoundError("Product not found");
-    }
-
-    await this.repository.update(id, { deletedAt: new Date() });
-  }
-
   async bulkDelete(ids: string[], businessId: string): Promise<void> {
     for (const id of ids) {
       const product = await this.findByIdSimple(id, businessId);
@@ -136,9 +127,5 @@ export class ProductRepository {
     }
 
     await this.repository.update(ids, { deletedAt: new Date() });
-  }
-
-  async softDelete(id: string): Promise<void> {
-    await this.repository.update(id, { deletedAt: new Date() });
   }
 }
