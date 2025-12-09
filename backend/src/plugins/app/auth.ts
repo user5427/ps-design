@@ -24,7 +24,6 @@ export default fp(async function authGuard(fastify: FastifyInstance) {
 
         const jwtUser = request.user as {
           userId: string;
-          role: string;
           businessId: string | null;
         };
 

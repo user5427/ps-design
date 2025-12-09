@@ -21,9 +21,19 @@ export class UserRepository {
   async findByIdForAuth(id: string): Promise<IAuthUser | null> {
     const user = await this.repository.findOne({
       where: { id, deletedAt: IsNull() },
-      select: ["id", "email", "role", "businessId", "isPasswordResetRequired"],
+      select: ["id", "email", "businessId", "isPasswordResetRequired"],
+      relations: ["roles"],
     });
-    return user as IAuthUser | null;
+    if (!user) {
+      return null;
+    }
+    return {
+      id: user.id,
+      email: user.email,
+      businessId: user.businessId,
+      isPasswordResetRequired: user.isPasswordResetRequired,
+      roleIds: user.roles?.map((ur) => ur.roleId) ?? [],
+    };
   }
 
   async findByEmail(email: string): Promise<User | null> {
