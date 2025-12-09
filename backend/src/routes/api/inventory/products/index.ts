@@ -19,21 +19,39 @@ import {
   UpdateProductSchema,
 } from "@ps-design/schemas/inventory/products";
 import { BulkDeleteSchema, type BulkDeleteBody } from "@ps-design/schemas/shared";
+import { createScopeMiddleware } from "@/shared/scope-middleware";
+import { ScopeNames } from "@/modules/user";
+import { bulkDeleteUnits } from "../units/service";
 
 export default async function productsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
+  const { requireScope, requireAllScopes, requireAnyScope } =
+    createScopeMiddleware(fastify);
 
-  server.get("/", async (request: FastifyRequest, reply: FastifyReply) => {
-    const businessId = getBusinessId(request, reply);
-    if (!businessId) return;
-
-    const products = await getAllProducts(fastify, businessId);
-    return reply.send(products);
-  });
-
-  server.post(
+  server.get(
     "/",
     {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_READ),
+      ],
+    },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
+
+      const products = await getAllProducts(fastify, businessId);
+      return reply.send(products);
+    },
+  );
+
+  server.post<{ Body: CreateProductBody }>(
+    "/",
+    {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_WRITE),
+      ],
       schema: {
         body: CreateProductSchema,
       },
@@ -56,9 +74,13 @@ export default async function productsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  server.get(
+  server.get<{ Params: ProductIdParams }>(
     "/:productId",
     {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_READ),
+      ],
       schema: {
         params: ProductIdParam,
       },
@@ -83,9 +105,13 @@ export default async function productsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  server.put(
+  server.put<{ Params: ProductIdParams; Body: UpdateProductBody }>(
     "/:productId",
     {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_WRITE),
+      ],
       schema: {
         params: ProductIdParam,
         body: UpdateProductSchema,
@@ -117,9 +143,13 @@ export default async function productsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  server.post(
+  server.post<{ Body: BulkDeleteBody }>(
     "/bulk-delete",
     {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_DELETE),
+      ],
       schema: {
         body: BulkDeleteSchema,
       },
@@ -134,7 +164,7 @@ export default async function productsRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        await bulkDeleteProducts(fastify, businessId, request.body.ids);
+        await bulkDeleteUnits(fastify, businessId, request.body.ids);
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);

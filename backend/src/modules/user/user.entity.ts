@@ -13,7 +13,7 @@ import {
 import type { Business } from "@/modules/business/business.entity";
 import type { StockChange } from "@/modules/inventory/stock-change/stock-change.entity";
 import type { RefreshToken } from "@/modules/refresh-token/refresh-token.entity";
-import { Role } from "./user.types";
+import type { UserRole } from "./user-role.entity";
 
 @Entity("User")
 export class User {
@@ -29,9 +29,6 @@ export class User {
   @Column({ type: "varchar" })
   name: string;
 
-  @Column({ type: "enum", enum: Role })
-  role: Role;
-
   @Column({ type: "boolean", default: true })
   isPasswordResetRequired: boolean;
 
@@ -42,6 +39,9 @@ export class User {
   @ManyToOne("Business", "users", { nullable: true })
   @JoinColumn({ name: "businessId" })
   business: Relation<Business> | null;
+
+  @OneToMany("UserRole", "user")
+  roles: Relation<UserRole[]>;
 
   @OneToMany("RefreshToken", "user")
   refreshTokens: Relation<RefreshToken[]>;
