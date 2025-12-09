@@ -8,4 +8,5 @@ export const URLS = {
   INVENTORY_UNITS: "/inventory/units",
   INVENTORY_PRODUCTS: "/inventory/products",
   INVENTORY_STOCK: "/inventory/stock",
+  INVENTORY_STOCK_LEVELS: "/inventory/stock-levels",
 };

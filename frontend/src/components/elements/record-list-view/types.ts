@@ -54,16 +54,16 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
   isLoading?: boolean;
   /** Error state for the data */
   error?: Error | null;
-  /** Form field definitions for create modal */
-  createFormFields: FormFieldDefinition[];
-  /** Form field definitions for edit modal */
-  editFormFields: FormFieldDefinition[];
-  /** Callback for creating a new record */
-  onCreate: (values: Partial<T>) => Promise<void>;
-  /** Callback for editing a record */
-  onEdit: (id: string, values: Partial<T>) => Promise<void>;
-  /** Callback for deleting record(s) */
-  onDelete: (ids: string[]) => Promise<void>;
+  /** Form field definitions for create modal (optional for read-only mode) */
+  createFormFields?: FormFieldDefinition[];
+  /** Form field definitions for edit modal (optional for read-only mode) */
+  editFormFields?: FormFieldDefinition[];
+  /** Callback for creating a new record (optional for read-only mode) */
+  onCreate?: (values: Partial<T>) => Promise<void>;
+  /** Callback for editing a record (optional for read-only mode) */
+  onEdit?: (id: string, values: Partial<T>) => Promise<void>;
+  /** Callback for deleting record(s) (optional for read-only mode) */
+  onDelete?: (ids: string[]) => Promise<void>;
   /** Toggle actions column and row selection (default: true) */
   hasActions?: boolean;
   /** Unique identifier key for records (default: 'id') */
@@ -78,4 +78,6 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
   hasEditAction?: boolean;
   /** Whether to show delete action (default: true) */
   hasDeleteAction?: boolean;
+  /** Custom function to get row ID */
+  getRowId?: (row: T) => string;
 }

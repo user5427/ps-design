@@ -28,8 +28,8 @@ export function RecordListView<T extends Record<string, unknown>>({
   data,
   isLoading = false,
   error,
-  createFormFields,
-  editFormFields,
+  createFormFields = [],
+  editFormFields = [],
   onCreate,
   onEdit,
   onDelete,
@@ -40,6 +40,7 @@ export function RecordListView<T extends Record<string, unknown>>({
   hasViewAction = true,
   hasEditAction = true,
   hasDeleteAction = true,
+  getRowId,
 }: RecordListViewProps<T>) {
   // Modal states
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -67,6 +68,7 @@ export function RecordListView<T extends Record<string, unknown>>({
 
   // Action handlers
   const handleCreate = async (values: Record<string, unknown>) => {
+    if (!onCreate) return;
     await onCreate(values as Partial<T>);
     setSnackbar({
       open: true,
@@ -77,8 +79,8 @@ export function RecordListView<T extends Record<string, unknown>>({
   };
 
   const handleEdit = async (values: Record<string, unknown>) => {
-    if (!editingRecord) return;
-    const id = String(editingRecord[idKey]);
+    if (!editingRecord || !onEdit) return;
+    const id = getRowId ? getRowId(editingRecord) : String(editingRecord[idKey]);
     await onEdit(id, values as Partial<T>);
     setSnackbar({
       open: true,
@@ -90,6 +92,7 @@ export function RecordListView<T extends Record<string, unknown>>({
   };
 
   const handleDelete = async () => {
+    if (!onDelete) return;
     await onDelete(deletingIds);
     setSnackbar({
       open: true,
@@ -188,7 +191,7 @@ export function RecordListView<T extends Record<string, unknown>>({
   const table = useMaterialReactTable({
     columns: tableColumns,
     data,
-    enableRowSelection: hasActions,
+    enableRowSelection: hasActions && hasDeleteAction,
     enableColumnResizing: true,
     enableGlobalFilter: true,
     enableStickyHeader: true,
@@ -198,7 +201,7 @@ export function RecordListView<T extends Record<string, unknown>>({
       rowSelection,
     },
     onRowSelectionChange: setRowSelection,
-    getRowId: (row) => String(row[idKey]),
+    getRowId: (row) => getRowId ? getRowId(row) : String(row[idKey]),
     muiTableContainerProps: {
       sx: { maxHeight: "calc(100vh - 300px)" },
     },
@@ -218,26 +221,30 @@ export function RecordListView<T extends Record<string, unknown>>({
         <Typography variant="h4" component="h1">
           {title}
         </Typography>
-        <Box sx={{ display: "flex", gap: 1 }}>
-          {hasDeleteAction && (
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<DeleteIcon />}
-              onClick={() => openDeleteDialog(selectedIds)}
-              disabled={selectedIds.length === 0}
-            >
-              Delete{selectedIds.length > 0 ? ` (${selectedIds.length})` : ""}
-            </Button>
-          )}
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setCreateModalOpen(true)}
-          >
-            New
-          </Button>
-        </Box>
+        {hasActions && (
+          <Box sx={{ display: "flex", gap: 1 }}>
+            {hasDeleteAction && onDelete && (
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<DeleteIcon />}
+                onClick={() => openDeleteDialog(selectedIds)}
+                disabled={selectedIds.length === 0}
+              >
+                Delete{selectedIds.length > 0 ? ` (${selectedIds.length})` : ""}
+              </Button>
+            )}
+            {onCreate && (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setCreateModalOpen(true)}
+              >
+                New
+              </Button>
+            )}
+          </Box>
+        )}
       </Box>
 
       {/* Error display */}

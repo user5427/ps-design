@@ -16,7 +16,7 @@ import {
   TextField,
 } from "@mui/material";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FormAlert } from "@/components/elements/form";
 import type { FormFieldDefinition } from "./types";
 import { getReadableError } from "@/utils/get-readable-error";
