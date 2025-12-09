@@ -64,7 +64,7 @@ export const ProductsListView = () => {
         },
       },
     ],
-    []
+    [],
   );
 
   const unitOptions = useMemo(
@@ -73,7 +73,7 @@ export const ProductsListView = () => {
         value: unit.id,
         label: unit.name + (unit.symbol ? ` (${unit.symbol})` : ""),
       })),
-    [units]
+    [units],
   );
 
   const createFormFields: FormFieldDefinition[] = [
@@ -82,7 +82,10 @@ export const ProductsListView = () => {
       label: "Name",
       type: "text",
       required: true,
-      validationRules: [ValidationRules.minLength(1), ValidationRules.maxLength(100)],
+      validationRules: [
+        ValidationRules.minLength(1),
+        ValidationRules.maxLength(100),
+      ],
     },
     {
       name: "description",
@@ -112,13 +115,15 @@ export const ProductsListView = () => {
     { name: "id", label: "ID" },
     { name: "name", label: "Name" },
     { name: "description", label: "Description" },
-    { 
-      name: "productUnit", 
+    {
+      name: "productUnit",
       label: "Unit",
       render: (value) => {
         const unit = value as { name: string; symbol?: string | null };
-        return unit ? `${unit.name}${unit.symbol ? ` (${unit.symbol})` : ""}` : "-";
-      }
+        return unit
+          ? `${unit.name}${unit.symbol ? ` (${unit.symbol})` : ""}`
+          : "-";
+      },
     },
     { name: "isDisabled", label: "Disabled" },
     { name: "createdAt", label: "Created At" },

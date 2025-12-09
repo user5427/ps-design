@@ -1,7 +1,12 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
-import { bulkDeleteUnits, createUnit, getAllUnits, updateUnit } from "./service";
+import {
+  bulkDeleteUnits,
+  createUnit,
+  getAllUnits,
+  updateUnit,
+} from "./service";
 import { getBusinessId } from "@/shared/auth-utils";
 import { handleServiceError } from "@/shared/error-handler";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
@@ -14,7 +19,10 @@ import {
   type UpdateProductUnitBody,
   UpdateProductUnitSchema,
 } from "@ps-design/schemas/inventory/units";
-import { BulkDeleteSchema, type BulkDeleteBody } from "@ps-design/schemas/shared";
+import {
+  BulkDeleteSchema,
+  type BulkDeleteBody,
+} from "@ps-design/schemas/shared";
 
 export default async function unitsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();

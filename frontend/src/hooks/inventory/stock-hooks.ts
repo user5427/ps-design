@@ -5,9 +5,7 @@ import {
   getStockLevels,
   type GetStockChangesParams,
 } from "@/api/inventory";
-import type {
-  CreateStockChange,
-} from "@/schemas/inventory";
+import type { CreateStockChange } from "@/schemas/inventory";
 
 export const stockKeys = {
   all: ["inventory"] as const,

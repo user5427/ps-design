@@ -9,11 +9,7 @@ import { useStockLevels } from "@/hooks/inventory";
 import type { StockLevel } from "@/schemas/inventory";
 
 export const StockLevelsListView = () => {
-  const {
-    data: stockLevels = [],
-    isLoading,
-    error,
-  } = useStockLevels();
+  const { data: stockLevels = [], isLoading, error } = useStockLevels();
 
   const columns = useMemo<MRT_ColumnDef<StockLevel>[]>(
     () => [
@@ -58,7 +54,7 @@ export const StockLevelsListView = () => {
         },
       },
     ],
-    []
+    [],
   );
 
   const viewFields: ViewFieldDefinition[] = [
@@ -77,7 +73,10 @@ export const StockLevelsListView = () => {
       label: "Total Quantity",
       render: (value, record) => {
         const qty = value as number;
-        const unit = record.productUnit as { name: string; symbol: string | null };
+        const unit = record.productUnit as {
+          name: string;
+          symbol: string | null;
+        };
         const unitLabel = unit?.symbol || unit?.name || "";
         return `${qty} ${unitLabel}`;
       },

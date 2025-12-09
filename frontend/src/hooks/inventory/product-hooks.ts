@@ -5,10 +5,7 @@ import {
   getProducts,
   updateProduct,
 } from "@/api/inventory";
-import type {
-  CreateProduct,
-  UpdateProduct,
-} from "@/schemas/inventory";
+import type { CreateProduct, UpdateProduct } from "@/schemas/inventory";
 
 export const productKeys = {
   all: ["inventory", "products"] as const,
@@ -27,7 +24,9 @@ export function useCreateProduct() {
     mutationFn: (data: CreateProduct) => createProduct(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: productKeys.all });
-      queryClient.invalidateQueries({ queryKey: ["inventory", "stock-levels"] });
+      queryClient.invalidateQueries({
+        queryKey: ["inventory", "stock-levels"],
+      });
     },
   });
 }
@@ -49,7 +48,9 @@ export function useBulkDeleteProducts() {
     mutationFn: (ids: string[]) => bulkDeleteProducts(ids),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: productKeys.all });
-      queryClient.invalidateQueries({ queryKey: ["inventory", "stock-levels"] });
+      queryClient.invalidateQueries({
+        queryKey: ["inventory", "stock-levels"],
+      });
     },
   });
 }

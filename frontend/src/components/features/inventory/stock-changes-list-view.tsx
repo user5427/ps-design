@@ -28,7 +28,7 @@ const supplyValidation: ValidationRule = {
   test: (value, allValues) => {
     const qty = Number(value);
     // Pass if type is NOT supply, or if qty is valid
-    if (allValues?.type !== "SUPPLY") return true; 
+    if (allValues?.type !== "SUPPLY") return true;
     return !Number.isNaN(qty) && qty > 0;
   },
   message: "Quantity must be positive for Supply",
@@ -57,7 +57,7 @@ const futureExpirationDateValidation: ValidationRule = {
     if (!value) return true; // Expiration date is optional
     const selectedDate = new Date(String(value));
     const today = new Date();
-    today.setHours(0, 0, 0, 0); 
+    today.setHours(0, 0, 0, 0);
     return selectedDate > today;
   },
   message: "Expiration date must be in the future",
@@ -79,8 +79,7 @@ export const StockChangesListView = () => {
         accessorKey: "product.name",
         header: "Product",
         size: 200,
-        Cell: ({ row }) =>
-          row.original.product.name,
+        Cell: ({ row }) => row.original.product.name,
       },
       {
         accessorKey: "type",
@@ -132,7 +131,7 @@ export const StockChangesListView = () => {
         },
       },
     ],
-    []
+    [],
   );
 
   const productOptions = useMemo(
@@ -141,7 +140,7 @@ export const StockChangesListView = () => {
         value: p.id,
         label: `${p.name} (${p.productUnit.symbol || p.productUnit.name})`,
       })),
-    [products]
+    [products],
   );
 
   const typeOptions = [
@@ -171,7 +170,11 @@ export const StockChangesListView = () => {
       label: "Quantity",
       type: "number",
       required: true,
-      validationRules: [supplyValidation, wasteValidation, adjustmentValidation],
+      validationRules: [
+        supplyValidation,
+        wasteValidation,
+        adjustmentValidation,
+      ],
       placeholder: "Quantity",
     },
     {
@@ -184,32 +187,32 @@ export const StockChangesListView = () => {
 
   const viewFields: ViewFieldDefinition[] = [
     { name: "id", label: "ID" },
-    { 
-      name: "product", 
+    {
+      name: "product",
       label: "Product",
       render: (value) => {
-        const product = value as { name: string; productUnit?: { name: string; symbol?: string | null } };
+        const product = value as {
+          name: string;
+          productUnit?: { name: string; symbol?: string | null };
+        };
         if (!product) return "-";
-        const unitLabel = product.productUnit?.symbol || product.productUnit?.name || "";
+        const unitLabel =
+          product.productUnit?.symbol || product.productUnit?.name || "";
         return `${product.name}${unitLabel ? ` (${unitLabel})` : ""}`;
-      }
+      },
     },
-    { 
-      name: "type", 
+    {
+      name: "type",
       label: "Type",
       render: (value) => {
         const type = value as StockChangeType;
         return (
-          <Chip
-            label={type}
-            color={stockChangeTypeColors[type]}
-            size="small"
-          />
+          <Chip label={type} color={stockChangeTypeColors[type]} size="small" />
         );
-      }
+      },
     },
-    { 
-      name: "quantity", 
+    {
+      name: "quantity",
       label: "Quantity",
       render: (value, record) => {
         const qty = value as number;
@@ -221,7 +224,7 @@ export const StockChangesListView = () => {
             {Math.abs(qty)}
           </span>
         );
-      }
+      },
     },
     { name: "expirationDate", label: "Expiration Date" },
     { name: "createdAt", label: "Created At" },

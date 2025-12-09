@@ -51,9 +51,10 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
       for (const field of fields) {
         // Use initialValues first, then defaultValue, then empty string
         const initialValue = initialValues[field.name];
-        defaultValues[field.name] = initialValue !== undefined 
-          ? initialValue 
-          : (field.defaultValue ?? "");
+        defaultValues[field.name] =
+          initialValue !== undefined
+            ? initialValue
+            : (field.defaultValue ?? "");
       }
       setValues(defaultValues);
       setErrors({});
@@ -64,7 +65,7 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
   const validateField = (
     field: FormFieldDefinition,
     value: unknown,
-    allValues: Record<string, unknown>
+    allValues: Record<string, unknown>,
   ): string | null => {
     const strValue = String(value ?? "");
 
@@ -120,9 +121,7 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
       onClose();
       reset();
     } catch (err) {
-      setSubmitError(
-        getReadableError(err)
-      );
+      setSubmitError(getReadableError(err));
     } finally {
       setIsSubmitting(false);
     }
@@ -134,14 +133,17 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
 
     switch (field.type) {
       case "autocomplete": {
-        const selectedOption = field.options?.find(opt => opt.value === value) || null;
+        const selectedOption =
+          field.options?.find((opt) => opt.value === value) || null;
         return (
           <Autocomplete
             key={field.name}
             options={field.options || []}
             getOptionLabel={(option) => option.label}
             value={selectedOption}
-            onChange={(_, newValue) => handleChange(field.name, newValue?.value || "")}
+            onChange={(_, newValue) =>
+              handleChange(field.name, newValue?.value || "")
+            }
             disabled={isSubmitting}
             renderInput={(params) => (
               <TextField
@@ -175,7 +177,10 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
               ))}
             </Select>
             {error && (
-              <Box component="span" sx={{ color: "error.main", fontSize: 12, mt: 0.5 }}>
+              <Box
+                component="span"
+                sx={{ color: "error.main", fontSize: 12, mt: 0.5 }}
+              >
                 {error}
               </Box>
             )}
@@ -290,7 +295,9 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
         <DialogTitle>{title}</DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
-            {submitError && <FormAlert message={submitError} severity="error" />}
+            {submitError && (
+              <FormAlert message={submitError} severity="error" />
+            )}
             {fields.map(renderField)}
           </Box>
         </DialogContent>

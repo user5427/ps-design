@@ -5,14 +5,13 @@ type Logo = {
   image: React.ReactNode;
   text: string;
   size: number;
-}
+};
 
 interface LogoProps {
-  logo: Logo
+  logo: Logo;
 }
 
-export interface AppBarProps extends LogoProps {
-}
+export interface AppBarProps extends LogoProps {}
 
 const Logo: React.FC<LogoProps> = ({ logo }) => (
   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

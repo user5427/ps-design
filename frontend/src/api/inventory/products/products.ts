@@ -6,27 +6,36 @@ import type {
 } from "@ps-design/schemas/inventory/products";
 
 export async function getProducts(): Promise<ProductResponse[]> {
-  const response = await apiClient.get<ProductResponse[]>("/inventory/products/");
+  const response = await apiClient.get<ProductResponse[]>(
+    "/inventory/products/",
+  );
   return response.data;
 }
 
 export async function getProduct(id: string): Promise<ProductResponse> {
-  const response = await apiClient.get<ProductResponse>(`/inventory/products/${id}`);
+  const response = await apiClient.get<ProductResponse>(
+    `/inventory/products/${id}`,
+  );
   return response.data;
 }
 
-export async function createProduct(data: CreateProductBody): Promise<ProductResponse> {
-  const response = await apiClient.post<ProductResponse>("/inventory/products/", data);
+export async function createProduct(
+  data: CreateProductBody,
+): Promise<ProductResponse> {
+  const response = await apiClient.post<ProductResponse>(
+    "/inventory/products/",
+    data,
+  );
   return response.data;
 }
 
 export async function updateProduct(
   id: string,
-  data: UpdateProductBody
+  data: UpdateProductBody,
 ): Promise<ProductResponse> {
   const response = await apiClient.put<ProductResponse>(
     `/inventory/products/${id}`,
-    data
+    data,
   );
   return response.data;
 }

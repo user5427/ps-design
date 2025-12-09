@@ -5,10 +5,7 @@ import {
   getProductUnits,
   updateProductUnit,
 } from "@/api/inventory";
-import type {
-  CreateProductUnit,
-  UpdateProductUnit,
-} from "@/schemas/inventory";
+import type { CreateProductUnit, UpdateProductUnit } from "@/schemas/inventory";
 
 export const productUnitKeys = {
   all: ["inventory", "units"] as const,

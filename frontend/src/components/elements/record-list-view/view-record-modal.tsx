@@ -53,7 +53,7 @@ export const ViewRecordModal: React.FC<ViewRecordModalProps> = ({
     }
 
     if (typeof value === "object") {
-      // Handle nested objects 
+      // Handle nested objects
       if ("name" in value) {
         return String((value as { name: string }).name);
       }

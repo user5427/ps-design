@@ -6,24 +6,28 @@ import type {
 } from "@ps-design/schemas/inventory/units";
 
 export async function getProductUnits(): Promise<ProductUnitResponse[]> {
-  const response = await apiClient.get<ProductUnitResponse[]>("/inventory/units/");
+  const response =
+    await apiClient.get<ProductUnitResponse[]>("/inventory/units/");
   return response.data;
 }
 
 export async function createProductUnit(
-  data: CreateProductUnitBody
+  data: CreateProductUnitBody,
 ): Promise<ProductUnitResponse> {
-  const response = await apiClient.post<ProductUnitResponse>("/inventory/units/", data);
+  const response = await apiClient.post<ProductUnitResponse>(
+    "/inventory/units/",
+    data,
+  );
   return response.data;
 }
 
 export async function updateProductUnit(
   id: string,
-  data: UpdateProductUnitBody
+  data: UpdateProductUnitBody,
 ): Promise<ProductUnitResponse> {
   const response = await apiClient.put<ProductUnitResponse>(
     `/inventory/units/${id}`,
-    data
+    data,
   );
   return response.data;
 }

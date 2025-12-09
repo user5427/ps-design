@@ -1,11 +1,11 @@
 import type { FastifyInstance } from "fastify";
 import type { Product } from "@/modules/inventory/product";
 import type { StockChange } from "@/modules/inventory/stock-change/stock-change.entity";
-import {
-  type CreateStockChangeBody,
-  type UpdateStockChangeBody,
-  type StockLevelResponse,
-  type StockChangeResponse,
+import type {
+  CreateStockChangeBody,
+  UpdateStockChangeBody,
+  StockLevelResponse,
+  StockChangeResponse,
 } from "@ps-design/schemas/inventory/stock";
 
 function toStockChangeResponse(change: StockChange): StockChangeResponse {

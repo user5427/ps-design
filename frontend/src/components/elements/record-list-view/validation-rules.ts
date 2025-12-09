@@ -126,7 +126,7 @@ export const ValidationRules = {
    */
   custom: (
     test: (value: unknown, allValues?: Record<string, unknown>) => boolean,
-    message: string
+    message: string,
   ): ValidationRule => ({
     test,
     message,

@@ -111,7 +111,11 @@ export class StockChangeRepository {
   async update(
     id: string,
     businessId: string,
-    data: { quantity?: number; type?: StockChangeType; expirationDate?: string | null },
+    data: {
+      quantity?: number;
+      type?: StockChangeType;
+      expirationDate?: string | null;
+    },
   ): Promise<StockChange> {
     const existingChange = await this.findByIdAndBusinessId(id, businessId);
     if (!existingChange) {
@@ -130,7 +134,9 @@ export class StockChangeRepository {
       if (data.quantity !== undefined) updateData.quantity = data.quantity;
       if (data.type !== undefined) updateData.type = data.type;
       if (data.expirationDate !== undefined) {
-        updateData.expirationDate = data.expirationDate ? new Date(data.expirationDate) : null;
+        updateData.expirationDate = data.expirationDate
+          ? new Date(data.expirationDate)
+          : null;
       }
 
       await stockChangeRepo.update(id, updateData);
@@ -179,7 +185,9 @@ export class StockChangeRepository {
         { deletedAt: new Date() },
       );
 
-      for (const [productId, totalQuantity] of Object.entries(quantityByProduct)) {
+      for (const [productId, totalQuantity] of Object.entries(
+        quantityByProduct,
+      )) {
         const stockLevel = await stockLevelRepo.findOne({
           where: { productId },
         });

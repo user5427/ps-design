@@ -6,13 +6,16 @@ import type {
 } from "@ps-design/schemas/inventory/stock";
 
 export async function getStockLevels(): Promise<StockLevelResponse[]> {
-  const response = await apiClient.get<StockLevelResponse[]>("/inventory/stock/");
+  const response =
+    await apiClient.get<StockLevelResponse[]>("/inventory/stock/");
   return response.data;
 }
 
-export async function getStockLevel(productId: string): Promise<StockLevelResponse> {
+export async function getStockLevel(
+  productId: string,
+): Promise<StockLevelResponse> {
   const response = await apiClient.get<StockLevelResponse>(
-    `/inventory/stock/${productId}`
+    `/inventory/stock/${productId}`,
   );
   return response.data;
 }
@@ -25,21 +28,21 @@ export interface GetStockChangesParams {
 }
 
 export async function getStockChanges(
-  params?: GetStockChangesParams
+  params?: GetStockChangesParams,
 ): Promise<StockChangeResponse[]> {
   const response = await apiClient.get<StockChangeResponse[]>(
     "/inventory/stock/changes",
-    { params }
+    { params },
   );
   return response.data;
 }
 
 export async function createStockChange(
-  data: CreateStockChangeBody
+  data: CreateStockChangeBody,
 ): Promise<StockChangeResponse> {
   const response = await apiClient.post<StockChangeResponse>(
     "/inventory/stock/changes",
-    data
+    data,
   );
   return response.data;
 }

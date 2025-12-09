@@ -2,7 +2,7 @@ import axios from "axios";
 
 export function getReadableError(
   error: unknown,
-  badRequestMessage: string = "Invalid request data."
+  badRequestMessage: string = "Invalid request data.",
 ): string {
   if (!error) return "Something went wrong.";
 

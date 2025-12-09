@@ -10,5 +10,5 @@ export const AppBarData: AppBarProps = {
     }),
     text: "ADEPI",
     size: 40,
-    },
+  },
 };

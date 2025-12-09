@@ -43,7 +43,7 @@ export const ProductUnitsListView = () => {
         },
       },
     ],
-    []
+    [],
   );
 
   const createFormFields: FormFieldDefinition[] = [
@@ -52,7 +52,10 @@ export const ProductUnitsListView = () => {
       label: "Name",
       type: "text",
       required: true,
-      validationRules: [ValidationRules.minLength(1), ValidationRules.maxLength(100)],
+      validationRules: [
+        ValidationRules.minLength(1),
+        ValidationRules.maxLength(100),
+      ],
     },
     {
       name: "symbol",

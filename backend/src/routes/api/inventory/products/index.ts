@@ -18,7 +18,10 @@ import {
   type UpdateProductBody,
   UpdateProductSchema,
 } from "@ps-design/schemas/inventory/products";
-import { BulkDeleteSchema, type BulkDeleteBody } from "@ps-design/schemas/shared";
+import {
+  BulkDeleteSchema,
+  type BulkDeleteBody,
+} from "@ps-design/schemas/shared";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
 import { bulkDeleteUnits } from "../units/service";

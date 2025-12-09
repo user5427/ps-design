@@ -74,7 +74,9 @@ export function RecordListView<T extends Record<string, unknown>>({
 
   const handleEdit = async (values: Record<string, unknown>) => {
     if (!editingRecord || !onEdit) return;
-    const id = getRowId ? getRowId(editingRecord) : String(editingRecord[idKey]);
+    const id = getRowId
+      ? getRowId(editingRecord)
+      : String(editingRecord[idKey]);
     await onEdit(id, values as Partial<T>);
     setSnackbar({
       open: true,
@@ -111,17 +113,18 @@ export function RecordListView<T extends Record<string, unknown>>({
   // Generate view fields from edit fields if not provided
   const computedViewFields: ViewFieldDefinition[] = useMemo(() => {
     if (viewFields) return viewFields;
-    
+
     // Generate from editFormFields
-    return editFormFields.map(field => ({
+    return editFormFields.map((field) => ({
       name: field.name,
       label: field.label,
-      render: field.type === "select" || field.type === "autocomplete"
-        ? (value: unknown) => {
-            const option = field.options?.find(opt => opt.value === value);
-            return option?.label || String(value || "-");
-          }
-        : undefined,
+      render:
+        field.type === "select" || field.type === "autocomplete"
+          ? (value: unknown) => {
+              const option = field.options?.find((opt) => opt.value === value);
+              return option?.label || String(value || "-");
+            }
+          : undefined,
     }));
   }, [viewFields, editFormFields]);
 
@@ -161,22 +164,33 @@ export function RecordListView<T extends Record<string, unknown>>({
                 </IconButton>
               </Tooltip>
             )}
-           {onDelete && (<Tooltip title="Delete">
-              <IconButton
-                size="small"
-                color="error"
-                onClick={() =>
-                  openDeleteDialog([String(row.original[idKey])])
-                }
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>)}
+            {onDelete && (
+              <Tooltip title="Delete">
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={() =>
+                    openDeleteDialog([String(row.original[idKey])])
+                  }
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
         ),
       },
     ];
-  }, [columns, hasViewAction, onEdit, onDelete, idKey, openEditModal, openViewModal, openDeleteDialog]);
+  }, [
+    columns,
+    hasViewAction,
+    onEdit,
+    onDelete,
+    idKey,
+    openEditModal,
+    openViewModal,
+    openDeleteDialog,
+  ]);
 
   const table = useMaterialReactTable({
     columns: tableColumns,
@@ -191,7 +205,7 @@ export function RecordListView<T extends Record<string, unknown>>({
       rowSelection,
     },
     onRowSelectionChange: setRowSelection,
-    getRowId: (row) => getRowId ? getRowId(row) : String(row[idKey]),
+    getRowId: (row) => (getRowId ? getRowId(row) : String(row[idKey])),
     muiTableContainerProps: {
       sx: { maxHeight: "calc(100vh - 300px)" },
     },
@@ -210,26 +224,26 @@ export function RecordListView<T extends Record<string, unknown>>({
         <Typography variant="h4" component="h1">
           {title}
         </Typography>
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<DeleteIcon />}
-              onClick={() => openDeleteDialog(selectedIds)}
-              disabled={selectedIds.length === 0 || !onDelete}
-            >
-              Delete{selectedIds.length > 0 ? ` (${selectedIds.length})` : ""}
-            </Button>
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <Button
+            variant="outlined"
+            color="error"
+            startIcon={<DeleteIcon />}
+            onClick={() => openDeleteDialog(selectedIds)}
+            disabled={selectedIds.length === 0 || !onDelete}
+          >
+            Delete{selectedIds.length > 0 ? ` (${selectedIds.length})` : ""}
+          </Button>
 
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => setCreateModalOpen(true)}
-                disabled={!onCreate}
-              >
-                New
-              </Button>
-          </Box>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setCreateModalOpen(true)}
+            disabled={!onCreate}
+          >
+            New
+          </Button>
+        </Box>
       </Box>
 
       {error && (
