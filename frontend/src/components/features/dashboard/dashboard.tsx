@@ -31,12 +31,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <Typography variant="body1">{user.email}</Typography>
         </Box>
 
-        <Box>
+        {/* <Box>
           <Typography variant="subtitle2" color="text.secondary">
             Role
           </Typography>
           <Chip label={user.role} color="primary" size="small" />
-        </Box>
+        </Box> */}
 
         {user.businessId && (
           <Box>
