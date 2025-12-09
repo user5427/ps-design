@@ -19,7 +19,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ sidebarSections }) => {
       sx={{
         width: DRAWER_WIDTH,
         flexShrink: 0,
-        [`& .MuiDrawer-paper`]: {
+        "& .MuiDrawer-paper": {
           width: DRAWER_WIDTH,
           boxSizing: "border-box",
           marginTop: `${appBarHeight}px`,

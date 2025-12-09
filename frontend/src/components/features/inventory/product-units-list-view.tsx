@@ -75,7 +75,7 @@ export const ProductUnitsListView = () => {
 
   const handleCreate = async (values: Partial<ProductUnit>) => {
     await createMutation.mutateAsync({
-      name: values.name!,
+      name: String(values.name),
       symbol: values.symbol || undefined,
     });
   };

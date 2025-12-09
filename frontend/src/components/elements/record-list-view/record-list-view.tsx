@@ -176,7 +176,7 @@ export function RecordListView<T extends Record<string, unknown>>({
         ),
       },
     ];
-  }, [columns, hasViewAction, onEdit, onDelete, idKey]);
+  }, [columns, hasViewAction, onEdit, onDelete, idKey, openViewModal, openEditModal, openDeleteDialog]);
 
   const table = useMaterialReactTable({
     columns: tableColumns,

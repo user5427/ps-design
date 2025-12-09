@@ -232,9 +232,9 @@ export const StockChangesListView = () => {
     // Form only contains create fields (productId, type, quantity, expirationDate)
     // Type is restricted by CreateChangeTypeEnum in the form
     await createMutation.mutateAsync({
-      productId: values.productId!,
+      productId: String(values.productId),
       type: values.type as "SUPPLY" | "ADJUSTMENT" | "WASTE",
-      quantity: values.quantity!,
+      quantity: Number(values.quantity),
       expirationDate: values.expirationDate || undefined,
     });
   };

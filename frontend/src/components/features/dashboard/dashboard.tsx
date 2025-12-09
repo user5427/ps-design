@@ -1,4 +1,4 @@
-import { Box, Button, Chip, Paper, Stack, Typography } from "@mui/material";
+import { Box, Button, Paper, Stack, Typography } from "@mui/material";
 import { URLS } from "@/constants/urls";
 import type { UserResponse } from "@ps-design/schemas/auth";
 
