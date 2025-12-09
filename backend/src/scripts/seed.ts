@@ -3,7 +3,7 @@ import * as bcrypt from "bcryptjs";
 import { createDataSource } from "@/database/data-source";
 import { Business } from "@/modules/business";
 import { User, Role, ScopeEntity, UserRole, RoleScope } from "@/modules/user";
-import { ScopeNames, SCOPE_CONFIG } from "@/modules/user/user.scope.types";
+import { ScopeNames, SCOPE_CONFIG } from "@/modules/user/scope.types";
 
 async function main() {
   const connectionString = process.env.DATABASE_URL;

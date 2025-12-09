@@ -2,7 +2,7 @@ import type { FastifyRequest } from "fastify";
 import HttpStatus from "http-status";
 import type { IAuthUser } from "@/modules/user/user.types";
 import { ScopeChecker } from "./scope-checker";
-import type { ScopeNames } from "@/modules/user/user.scope.types";
+import type { ScopeNames } from "@/modules/user/scope.types";
 
 /**
  * ScopeGuard factory

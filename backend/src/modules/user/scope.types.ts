@@ -3,9 +3,6 @@ export enum ScopeNames {
   INVENTORY_READ = "INVENTORY_READ",
   INVENTORY_WRITE = "INVENTORY_WRITE",
   INVENTORY_DELETE = "INVENTORY_DELETE",
-  STOCK_READ = "STOCK_READ",
-  STOCK_WRITE = "STOCK_WRITE",
-  STOCK_DELETE = "STOCK_DELETE",
   USER_READ = "USER_READ",
   USER_WRITE = "USER_WRITE",
   USER_DELETE = "USER_DELETE",
@@ -27,18 +24,6 @@ export const SCOPE_CONFIG: Record<ScopeNames, { name: ScopeNames; description: s
   [ScopeNames.INVENTORY_DELETE]: {
     name: ScopeNames.INVENTORY_DELETE,
     description: "Delete inventory data",
-  },
-  [ScopeNames.STOCK_READ]: {
-    name: ScopeNames.STOCK_READ,
-    description: "Read stock data",
-  },
-  [ScopeNames.STOCK_WRITE]: {
-    name: ScopeNames.STOCK_WRITE,
-    description: "Create and update stock data",
-  },
-  [ScopeNames.STOCK_DELETE]: {
-    name: ScopeNames.STOCK_DELETE,
-    description: "Delete stock data",
   },
   [ScopeNames.USER_READ]: {
     name: ScopeNames.USER_READ,

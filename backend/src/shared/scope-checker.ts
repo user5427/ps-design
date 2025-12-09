@@ -2,7 +2,7 @@ import type { FastifyInstance } from "fastify";
 import type { FastifyRequest } from "fastify";
 import HttpStatus from "http-status";
 import type { IAuthUser } from "../modules/user/user.types";
-import { ScopeNames } from "../modules/user/user.scope.types";
+import { ScopeNames } from "../modules/user/scope.types";
 
 /**
  * Request-scoped service that checks if the current user's roles have required scopes.

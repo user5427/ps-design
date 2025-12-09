@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import type { ScopeNames } from "@/modules/user/user.scope.types";
+import type { ScopeNames } from "@/modules/user/scope.types";
 import { ScopeChecker } from "./scope-checker";
 
 /**

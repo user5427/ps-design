@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { UserRole } from "./user-role.entity";
-import { RoleScope } from "./user-scope.entity";
+import { RoleScope } from "./role-scope.entity";
 
 @Entity("Role")
 export class Role {
