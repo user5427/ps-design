@@ -1,5 +1,4 @@
 import type { MRT_ColumnDef } from "material-react-table";
-import type React from "react";
 
 export type FieldType =
   | "text"
@@ -56,8 +55,6 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
   onDelete: (ids: string[]) => Promise<void>;
   /** Toggle actions column and row selection (default: true) */
   hasActions?: boolean;
-  /** Custom render for bulk action dropdown items */
-  customActions?: React.ReactNode;
   /** Unique identifier key for records (default: 'id') */
   idKey?: keyof T;
   /** Callback after successful create/edit/delete for refetching */

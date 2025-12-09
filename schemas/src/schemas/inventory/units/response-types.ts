@@ -8,6 +8,7 @@ export const ProductUnitResponseSchema = z.object({
   businessId: uuid(),
   createdAt: datetime(),
   updatedAt: datetime(),
+  deletedAt: datetime().nullable(),
 });
 
 export type ProductUnitResponse = z.infer<typeof ProductUnitResponseSchema>;

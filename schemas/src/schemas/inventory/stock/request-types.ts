@@ -5,17 +5,18 @@ import { StockChangeTypeEnum } from "./shared";
 
 export const ChangeIdParam = z.object({ changeId: uuid() });
 export const ProductIdParam = z.object({ productId: uuid() });
+export const CreateChangeTypeEnum = z.enum(["SUPPLY", "ADJUSTMENT", "WASTE"]);
 
 export const CreateStockChangeSchema = z.object({
   productId: uuid("Invalid product ID"),
   quantity: z.number(),
-  type: StockChangeTypeEnum,
+  type: CreateChangeTypeEnum,
   expirationDate: datetime().optional(),
 });
 
 export const UpdateStockChangeSchema = z.object({
   quantity: z.number().optional(),
-  type: StockChangeTypeEnum.optional(),
+  type: CreateChangeTypeEnum.optional(),
   expirationDate: datetime().optional().nullable(),
 });
 

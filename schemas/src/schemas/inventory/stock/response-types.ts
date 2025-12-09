@@ -28,18 +28,13 @@ export const StockChangeResponseSchema = z.object({
   product: z.object({
     id: uuid(),
     name: z.string(),
-    description: z.string().nullable(),
     productUnitId: uuid(),
-    businessId: uuid(),
-    isDisabled: z.boolean(),
-    createdAt: datetime(),
-    updatedAt: datetime(),
     productUnit: z.object({
       id: uuid(),
       name: z.string(),
       symbol: z.string().nullable(),
-    }).optional(),
-  }).optional(),
+    }),
+  }),
 });
 
 export type StockLevelResponse = z.infer<typeof StockLevelResponseSchema>;

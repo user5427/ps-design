@@ -30,7 +30,7 @@ export class StockChangeRepository {
     }
     return this.repository.find({
       where,
-      relations: ["product", "product.productUnit", "createdBy"],
+      relations: ["product", "product.productUnit"],
       order: { createdAt: "DESC" },
     });
   }
@@ -38,7 +38,7 @@ export class StockChangeRepository {
   async findById(id: string): Promise<StockChange | null> {
     return this.repository.findOne({
       where: { id, deletedAt: IsNull() },
-      relations: ["product", "product.productUnit", "createdBy"],
+      relations: ["product", "product.productUnit"],
     });
   }
 
@@ -99,7 +99,7 @@ export class StockChangeRepository {
 
       const foundChange = await stockChangeRepo.findOne({
         where: { id: savedChange.id },
-        relations: ["product", "product.productUnit", "createdBy"],
+        relations: ["product", "product.productUnit"],
       });
       if (!foundChange) {
         throw new NotFoundError("Stock change not found after saving");
@@ -107,7 +107,7 @@ export class StockChangeRepository {
       return foundChange;
     });
   }
-  
+
   async update(
     id: string,
     businessId: string,
@@ -148,7 +148,7 @@ export class StockChangeRepository {
 
       const updatedChange = await stockChangeRepo.findOne({
         where: { id },
-        relations: ["product", "product.productUnit", "createdBy"],
+        relations: ["product", "product.productUnit"],
       });
       if (!updatedChange) {
         throw new NotFoundError("Stock change not found after update");

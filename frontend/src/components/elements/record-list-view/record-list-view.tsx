@@ -32,7 +32,6 @@ export function RecordListView<T extends Record<string, unknown>>({
   onEdit,
   onDelete,
   hasActions = true,
-  customActions,
   idKey = "id" as keyof T,
   onSuccess,
 }: RecordListViewProps<T>) {

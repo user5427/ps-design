@@ -42,7 +42,7 @@ export const StockChangesListView = () => {
         header: "Product",
         size: 200,
         Cell: ({ row }) =>
-          row.original.product?.name || row.original.productId.slice(0, 8),
+          row.original.product.name,
       },
       {
         accessorKey: "type",
@@ -142,9 +142,11 @@ export const StockChangesListView = () => {
   ];
 
   const handleCreate = async (values: Partial<StockChange>) => {
+    // Form only contains create fields (productId, type, quantity, expirationDate)
+    // Type is restricted by CreateChangeTypeEnum in the form
     await createMutation.mutateAsync({
       productId: values.productId!,
-      type: values.type!,
+      type: values.type as "SUPPLY" | "ADJUSTMENT" | "WASTE",
       quantity: values.quantity!,
       expirationDate: values.expirationDate || undefined,
     });

@@ -39,9 +39,7 @@ export const ProductsListView = () => {
         accessorKey: "productUnit.name",
         header: "Unit",
         size: 120,
-        Cell: ({ row }) =>
-          row.original.productUnit?.name ||
-          row.original.productUnitId.slice(0, 8),
+        Cell: ({ row }) => row.original.productUnit.name,
       },
       {
         accessorKey: "isDisabled",

@@ -10,14 +10,12 @@ export const ProductResponseSchema = z.object({
   isDisabled: z.boolean(),
   createdAt: datetime(),
   updatedAt: datetime(),
+  deletedAt: datetime().nullable(),
   productUnit: z.object({
     id: uuid(),
     name: z.string(),
     symbol: z.string().nullable(),
-    businessId: uuid(),
-    createdAt: datetime(),
-    updatedAt: datetime(),
-  }).optional(),
+  }),
 });
 
 export type ProductResponse = z.infer<typeof ProductResponseSchema>;
