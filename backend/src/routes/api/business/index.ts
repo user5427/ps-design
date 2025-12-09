@@ -54,8 +54,8 @@ export default async function businessRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
-        const { page = 1, limit = 20 } = request.query;
-        const result = await getBusinessesPaginated(fastify, page, limit);
+        const { page = 1, limit = 20, search } = request.query;
+        const result = await getBusinessesPaginated(fastify, page, limit, search);
         return reply.send(result);
       } catch (error) {
         return handleServiceError(error, reply);

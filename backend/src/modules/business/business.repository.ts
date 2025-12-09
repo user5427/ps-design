@@ -18,14 +18,25 @@ export class BusinessRepository {
   async findAllPaginated(
     page: number,
     limit: number,
+    search?: string,
   ): Promise<IPaginatedResult<Business>> {
-    const [items, total] = await this.repository.findAndCount({
-      where: { deletedAt: IsNull() },
-      order: { name: "ASC" },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+    const query = this.repository.createQueryBuilder("business");
 
+    query.where("business.deletedAt IS NULL");
+
+    if (search) {
+      query.andWhere("business.name ILIKE :search", {
+        search: `%${search}%`,
+      });
+    }
+
+    query.orderBy("business.updatedAt", "DESC");
+    query.addOrderBy("business.createdAt", "DESC");
+
+    const skip = (page - 1) * limit;
+    query.skip(skip).take(limit);
+
+    const [items, total] = await query.getManyAndCount();
     const pages = Math.ceil(total / limit);
 
     return {

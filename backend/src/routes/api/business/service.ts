@@ -11,8 +11,9 @@ export async function getBusinessesPaginated(
   fastify: FastifyInstance,
   page: number,
   limit: number,
+  search?: string,
 ): Promise<PaginatedBusinessResponse> {
-  const result = await fastify.db.business.findAllPaginated(page, limit);
+  const result = await fastify.db.business.findAllPaginated(page, limit, search);
   return {
     items: result.items.map((item) => BusinessResponseSchema.parse(item)),
     total: result.total,
