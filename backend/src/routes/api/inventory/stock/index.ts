@@ -4,7 +4,6 @@ import httpStatus from "http-status";
 import {
   bulkDeleteStockChanges,
   createStockChange,
-  deleteStockChange,
   getAllStockLevels,
   getStockChanges,
   getStockLevelByProductId,
@@ -151,33 +150,6 @@ export default async function stockRoutes(fastify: FastifyInstance) {
           request.body,
         );
         return reply.send(stockChange);
-      } catch (error) {
-        return handleServiceError(error, reply);
-      }
-    },
-  );
-
-  server.delete(
-    "/changes/:changeId",
-    {
-      schema: {
-        params: ChangeIdParam,
-      },
-    },
-    async (
-      request: FastifyRequest<{
-        Params: ChangeIdParams;
-      }>,
-      reply: FastifyReply,
-    ) => {
-      const businessId = getBusinessId(request, reply);
-      if (!businessId) return;
-
-      const { changeId } = request.params;
-
-      try {
-        await deleteStockChange(fastify, businessId, changeId);
-        return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);
       }

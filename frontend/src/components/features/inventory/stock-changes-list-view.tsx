@@ -8,7 +8,7 @@ import {
 } from "@/components/elements/record-list-view";
 import {
   useCreateStockChange,
-  useDeleteStockChange,
+  useBulkDeleteStockChanges,
   useProducts,
   useStockChanges,
 } from "@/hooks/inventory";
@@ -33,7 +33,7 @@ export const StockChangesListView = () => {
   } = useStockChanges();
   const { data: products = [] } = useProducts();
   const createMutation = useCreateStockChange();
-  const deleteMutation = useDeleteStockChange();
+  const bulkDeleteMutation = useBulkDeleteStockChanges();
 
   const columns = useMemo<MRT_ColumnDef<StockChange>[]>(
     () => [
@@ -156,7 +156,7 @@ export const StockChangesListView = () => {
   };
 
   const handleDelete = async (ids: string[]) => {
-    await Promise.all(ids.map((id) => deleteMutation.mutateAsync(id)));
+    await bulkDeleteMutation.mutateAsync(ids);
   };
 
   return (

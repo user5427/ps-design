@@ -49,14 +49,6 @@ export async function updateProduct(
   return updated;
 }
 
-export async function deleteProduct(
-  fastify: FastifyInstance,
-  businessId: string,
-  productId: string,
-): Promise<void> {
-  await fastify.db.product.bulkDelete([productId], businessId);
-}
-
 export async function bulkDeleteProducts(
   fastify: FastifyInstance,
   businessId: string,

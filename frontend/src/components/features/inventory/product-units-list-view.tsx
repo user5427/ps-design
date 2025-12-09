@@ -7,7 +7,7 @@ ValidationRules
 } from "@/components/elements/record-list-view";
 import {
   useCreateProductUnit,
-  useDeleteProductUnit,
+  useBulkDeleteProductUnits,
   useProductUnits,
   useUpdateProductUnit,
 } from "@/hooks/inventory";
@@ -17,7 +17,7 @@ export const ProductUnitsListView = () => {
   const { data: units = [], isLoading, error, refetch } = useProductUnits();
   const createMutation = useCreateProductUnit();
   const updateMutation = useUpdateProductUnit();
-  const deleteMutation = useDeleteProductUnit();
+  const bulkDeleteMutation = useBulkDeleteProductUnits();
 
   const columns = useMemo<MRT_ColumnDef<ProductUnit>[]>(
     () => [
@@ -81,7 +81,7 @@ export const ProductUnitsListView = () => {
   };
 
   const handleDelete = async (ids: string[]) => {
-    await Promise.all(ids.map((id) => deleteMutation.mutateAsync(id)));
+    await bulkDeleteMutation.mutateAsync(ids);
   };
 
   return (

@@ -94,14 +94,6 @@ export async function getStockChanges(
   return changes.map((change) => StockChangeResponseSchema.parse(change));
 }
 
-export async function deleteStockChange(
-  fastify: FastifyInstance,
-  businessId: string,
-  changeId: string,
-): Promise<void> {
-  await fastify.db.stockChange.bulkDelete([changeId], businessId);
-}
-
 export async function bulkDeleteStockChanges(
   fastify: FastifyInstance,
   businessId: string,

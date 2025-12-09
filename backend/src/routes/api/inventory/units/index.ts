@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
-import { bulkDeleteUnits, createUnit, deleteUnit, getAllUnits, updateUnit } from "./service";
+import { bulkDeleteUnits, createUnit, getAllUnits, updateUnit } from "./service";
 import { getBusinessId } from "@/shared/auth-utils";
 import { handleServiceError } from "@/shared/error-handler";
 import {
@@ -78,33 +78,6 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
           request.body,
         );
         return reply.send(unit);
-      } catch (error) {
-        return handleServiceError(error, reply);
-      }
-    },
-  );
-
-  server.delete(
-    "/:unitId",
-    {
-      schema: {
-        params: UnitIdParam,
-      },
-    },
-    async (
-      request: FastifyRequest<{
-        Params: UnitIdParams;
-      }>,
-      reply: FastifyReply,
-    ) => {
-      const businessId = getBusinessId(request, reply);
-      if (!businessId) return;
-
-      const { unitId } = request.params;
-
-      try {
-        await deleteUnit(fastify, businessId, unitId);
-        return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);
       }

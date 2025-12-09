@@ -8,7 +8,7 @@ import {
 } from "@/components/elements/record-list-view";
 import {
   useCreateProduct,
-  useDeleteProduct,
+  useBulkDeleteProducts,
   useProductUnits,
   useProducts,
   useUpdateProduct,
@@ -20,7 +20,7 @@ export const ProductsListView = () => {
   const { data: units = [] } = useProductUnits();
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
-  const deleteMutation = useDeleteProduct();
+  const bulkDeleteMutation = useBulkDeleteProducts();
 
   const columns = useMemo<MRT_ColumnDef<Product>[]>(
     () => [
@@ -129,7 +129,7 @@ export const ProductsListView = () => {
   };
 
   const handleDelete = async (ids: string[]) => {
-    await Promise.all(ids.map((id) => deleteMutation.mutateAsync(id)));
+    await bulkDeleteMutation.mutateAsync(ids);
   };
 
   return (

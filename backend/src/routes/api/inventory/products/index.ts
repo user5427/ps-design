@@ -4,7 +4,6 @@ import httpStatus from "http-status";
 import {
   bulkDeleteProducts,
   createProduct,
-  deleteProduct,
   getAllProducts,
   getProductById,
   updateProduct,
@@ -112,33 +111,6 @@ export default async function productsRoutes(fastify: FastifyInstance) {
           request.body,
         );
         return reply.send(updated);
-      } catch (error) {
-        return handleServiceError(error, reply);
-      }
-    },
-  );
-
-  server.delete(
-    "/:productId",
-    {
-      schema: {
-        params: ProductIdParam,
-      },
-    },
-    async (
-      request: FastifyRequest<{
-        Params: ProductIdParams;
-      }>,
-      reply: FastifyReply,
-    ) => {
-      const businessId = getBusinessId(request, reply);
-      if (!businessId) return;
-
-      const { productId } = request.params;
-
-      try {
-        await deleteProduct(fastify, businessId, productId);
-        return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);
       }

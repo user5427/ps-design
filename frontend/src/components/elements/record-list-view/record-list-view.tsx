@@ -55,11 +55,8 @@ export function RecordListView<T extends Record<string, unknown>>({
 
   // Compute selected row IDs
   const selectedIds = useMemo(() => {
-    return Object.keys(rowSelection)
-      .filter((key) => rowSelection[key])
-      .map((index) => String(data[Number(index)]?.[idKey] ?? ""))
-      .filter(Boolean);
-  }, [rowSelection, data, idKey]);
+    return Object.keys(rowSelection).filter((key) => rowSelection[key]);
+  }, [rowSelection]);
 
   // Action handlers
   const handleCreate = async (values: Record<string, unknown>) => {
@@ -164,24 +161,6 @@ export function RecordListView<T extends Record<string, unknown>>({
     muiTableContainerProps: {
       sx: { maxHeight: "calc(100vh - 300px)" },
     },
-    renderTopToolbarCustomActions: () => (
-      <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-        {hasActions && selectedIds.length > 0 && (
-          <>
-            <Button
-              variant="outlined"
-              color="error"
-              size="small"
-              startIcon={<DeleteIcon />}
-              onClick={() => openDeleteDialog(selectedIds)}
-            >
-              Delete ({selectedIds.length})
-            </Button>
-            {customActions}
-          </>
-        )}
-      </Box>
-    ),
   });
 
   return (
@@ -198,13 +177,26 @@ export function RecordListView<T extends Record<string, unknown>>({
         <Typography variant="h4" component="h1">
           {title}
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setCreateModalOpen(true)}
-        >
-          New
-        </Button>
+        <Box sx={{ display: "flex", gap: 1 }}>
+          {hasActions && (
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteIcon />}
+              onClick={() => openDeleteDialog(selectedIds)}
+              disabled={selectedIds.length === 0}
+            >
+              Delete{selectedIds.length > 0 ? ` (${selectedIds.length})` : ""}
+            </Button>
+          )}
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setCreateModalOpen(true)}
+          >
+            New
+          </Button>
+        </Box>
       </Box>
 
       {/* Error display */}
