@@ -7,18 +7,26 @@ export const ChangeIdParam = z.object({ changeId: uuid() });
 export const ProductIdParam = z.object({ productId: uuid() });
 export const CreateChangeTypeEnum = z.enum(["SUPPLY", "ADJUSTMENT", "WASTE"]);
 
-export const CreateStockChangeSchema = z.object({
+
+const BaseCreateStockChangeSchema = z.object({
   productId: uuid("Invalid product ID"),
-  quantity: z.number(),
-  type: CreateChangeTypeEnum,
   expirationDate: date().optional(),
 });
 
-export const UpdateStockChangeSchema = z.object({
-  quantity: z.number().optional(),
-  type: CreateChangeTypeEnum.optional(),
-  expirationDate: date().optional().nullable(),
-});
+export const CreateStockChangeSchema = z.discriminatedUnion("type", [
+  BaseCreateStockChangeSchema.extend({
+    type: z.literal("SUPPLY"),
+    quantity: z.number().positive("Quantity must be positive for Supply"),
+  }),
+  BaseCreateStockChangeSchema.extend({
+    type: z.literal("WASTE"),
+    quantity: z.number().negative("Quantity must be negative for Waste"),
+  }),
+  BaseCreateStockChangeSchema.extend({
+    type: z.literal("ADJUSTMENT"),
+    quantity: z.number().refine((val) => val !== 0, "Quantity cannot be zero"),
+  }),
+]);
 
 export const StockQuerySchema = PaginationSchema.extend({
   productId: uuid().optional(),
@@ -26,7 +34,6 @@ export const StockQuerySchema = PaginationSchema.extend({
 });
 
 export type CreateStockChangeBody = z.infer<typeof CreateStockChangeSchema>;
-export type UpdateStockChangeBody = z.infer<typeof UpdateStockChangeSchema>;
 export type StockQuery = z.infer<typeof StockQuerySchema>;
 export type ChangeIdParams = z.infer<typeof ChangeIdParam>;
 export type ProductIdParams = z.infer<typeof ProductIdParam>;

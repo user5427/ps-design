@@ -5,7 +5,7 @@ import {
   RecordListView,
   type FormFieldDefinition,
   type ViewFieldDefinition,
-  ValidationRules,
+  type ValidationRule,
 } from "@/components/elements/record-list-view";
 import {
   useCreateStockChange,
@@ -22,6 +22,34 @@ const stockChangeTypeColors: Record<
   USAGE: "warning",
   ADJUSTMENT: "info",
   WASTE: "error",
+};
+
+const supplyValidation: ValidationRule = {
+  test: (value, allValues) => {
+    const qty = Number(value);
+    // Pass if type is NOT supply, or if qty is valid
+    if (allValues?.type !== "SUPPLY") return true; 
+    return !Number.isNaN(qty) && qty > 0;
+  },
+  message: "Quantity must be positive for Supply",
+};
+
+const wasteValidation: ValidationRule = {
+  test: (value, allValues) => {
+    const qty = Number(value);
+    if (allValues?.type !== "WASTE") return true;
+    return !Number.isNaN(qty) && qty < 0;
+  },
+  message: "Quantity must be negative for Waste",
+};
+
+const adjustmentValidation: ValidationRule = {
+  test: (value, allValues) => {
+    const qty = Number(value);
+    if (allValues?.type !== "ADJUSTMENT") return true;
+    return !Number.isNaN(qty) && qty !== 0;
+  },
+  message: "Quantity cannot be zero for Adjustment",
 };
 
 export const StockChangesListView = () => {
@@ -132,7 +160,8 @@ export const StockChangesListView = () => {
       label: "Quantity",
       type: "number",
       required: true,
-      validationRules: [ValidationRules.min(0.01, "Quantity must be greater than 0")],
+      validationRules: [supplyValidation, wasteValidation, adjustmentValidation],
+      placeholder: "Quantity",
     },
     {
       name: "expirationDate",

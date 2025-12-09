@@ -15,7 +15,6 @@ export type {
   StockLevelResponse,
   StockChangeResponse,
   CreateStockChangeBody,
-  UpdateStockChangeBody,
   StockChangeType,
 } from "@ps-design/schemas/inventory/stock";
 
@@ -33,4 +32,3 @@ export type UpdateProduct = import("@ps-design/schemas/inventory/products").Upda
 export type StockLevel = import("@ps-design/schemas/inventory/stock").StockLevelResponse;
 export type StockChange = import("@ps-design/schemas/inventory/stock").StockChangeResponse;
 export type CreateStockChange = import("@ps-design/schemas/inventory/stock").CreateStockChangeBody;
-export type UpdateStockChange = import("@ps-design/schemas/inventory/stock").UpdateStockChangeBody;
