@@ -22,7 +22,10 @@ export class ScopeRepository {
     });
   }
 
-  async create(data: { name: string; description?: string }): Promise<ScopeEntity> {
+  async create(data: {
+    name: string;
+    description?: string;
+  }): Promise<ScopeEntity> {
     const scope = this.repository.create({
       name: data.name,
       description: data.description ?? null,

@@ -25,12 +25,15 @@ import {
 
 export default async function stockRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
-  const { requireScope, requireAllScopes } =
-    createScopeMiddleware(fastify);
+  const { requireScope, requireAllScopes } = createScopeMiddleware(fastify);
 
-  server.get("/",
+  server.get(
+    "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_READ)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_READ),
+      ],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);
@@ -44,7 +47,10 @@ export default async function stockRoutes(fastify: FastifyInstance) {
   server.get<{ Params: ProductIdParams }>(
     "/:productId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_READ)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_READ),
+      ],
       schema: {
         params: ProductIdParam,
       },
@@ -76,7 +82,10 @@ export default async function stockRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateStockChangeBody }>(
     "/changes",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_WRITE)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_WRITE),
+      ],
       schema: {
         body: CreateStockChangeSchema,
       },
@@ -109,7 +118,10 @@ export default async function stockRoutes(fastify: FastifyInstance) {
   server.get<{ Querystring: StockQuery }>(
     "/changes",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_READ)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_READ),
+      ],
       schema: {
         querystring: StockQuerySchema,
       },
@@ -133,7 +145,10 @@ export default async function stockRoutes(fastify: FastifyInstance) {
   server.delete<{ Params: ChangeIdParams }>(
     "/changes/:changeId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_DELETE)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_DELETE),
+      ],
       schema: {
         params: ChangeIdParam,
       },

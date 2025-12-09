@@ -184,7 +184,9 @@ async function main() {
               roleId: role.id,
             });
             await userRoleRepo.save(userRole);
-            console.log(`  Assigned role ${roleName} to user ${existing.email}`);
+            console.log(
+              `  Assigned role ${roleName} to user ${existing.email}`,
+            );
           }
         }
       } else {

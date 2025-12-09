@@ -17,12 +17,15 @@ import {
 
 export default async function unitsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
-  const { requireScope, requireAllScopes } =
-    createScopeMiddleware(fastify);
+  const { requireScope, requireAllScopes } = createScopeMiddleware(fastify);
 
-  server.get("/",
+  server.get(
+    "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_READ)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_READ),
+      ],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);
@@ -36,7 +39,10 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateProductUnitBody }>(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_WRITE)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_WRITE),
+      ],
       schema: {
         body: CreateProductUnitSchema,
       },
@@ -62,7 +68,10 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
   server.put<{ Params: UnitIdParams; Body: UpdateProductUnitBody }>(
     "/:unitId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_WRITE)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_WRITE),
+      ],
       schema: {
         params: UnitIdParam,
         body: UpdateProductUnitSchema,
@@ -97,7 +106,10 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
   server.delete<{ Params: UnitIdParams }>(
     "/:unitId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_DELETE)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_DELETE),
+      ],
       schema: {
         params: UnitIdParam,
       },

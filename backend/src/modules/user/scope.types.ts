@@ -12,7 +12,10 @@ export enum ScopeNames {
 }
 
 // Scope configuration with descriptions
-export const SCOPE_CONFIG: Record<ScopeNames, { name: ScopeNames; description: string }> = {
+export const SCOPE_CONFIG: Record<
+  ScopeNames,
+  { name: ScopeNames; description: string }
+> = {
   [ScopeNames.INVENTORY_READ]: {
     name: ScopeNames.INVENTORY_READ,
     description: "Read inventory data",

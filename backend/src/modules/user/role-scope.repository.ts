@@ -1,6 +1,6 @@
 import type { Repository } from "typeorm";
 import type { RoleScope } from "./role-scope.entity";
-import { ScopeNames } from "./scope.types";
+import type { ScopeNames } from "./scope.types";
 
 export class RoleScopeRepository {
   constructor(private repository: Repository<RoleScope>) {}

@@ -30,10 +30,7 @@ export function createJti(): string {
   return crypto.randomBytes(16).toString("hex");
 }
 
-export function signAccessToken(
-  fastify: FastifyInstance,
-  user: User,
-): string {
+export function signAccessToken(fastify: FastifyInstance, user: User): string {
   const payload = {
     userId: user.id,
     businessId: user.businessId,

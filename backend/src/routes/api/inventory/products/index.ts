@@ -26,9 +26,13 @@ export default async function productsRoutes(fastify: FastifyInstance) {
   const { requireScope, requireAllScopes, requireAnyScope } =
     createScopeMiddleware(fastify);
 
-  server.get("/", 
+  server.get(
+    "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_READ)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_READ),
+      ],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);
@@ -42,7 +46,10 @@ export default async function productsRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateProductBody }>(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_WRITE)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_WRITE),
+      ],
       schema: {
         body: CreateProductSchema,
       },
@@ -68,7 +75,10 @@ export default async function productsRoutes(fastify: FastifyInstance) {
   server.get<{ Params: ProductIdParams }>(
     "/:productId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_READ)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_READ),
+      ],
       schema: {
         params: ProductIdParam,
       },
@@ -96,7 +106,10 @@ export default async function productsRoutes(fastify: FastifyInstance) {
   server.put<{ Params: ProductIdParams; Body: UpdateProductBody }>(
     "/:productId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_WRITE)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_WRITE),
+      ],
       schema: {
         params: ProductIdParam,
         body: UpdateProductSchema,
@@ -131,7 +144,10 @@ export default async function productsRoutes(fastify: FastifyInstance) {
   server.delete<{ Params: ProductIdParams }>(
     "/:productId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_DELETE)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_DELETE),
+      ],
       schema: {
         params: ProductIdParam,
       },
