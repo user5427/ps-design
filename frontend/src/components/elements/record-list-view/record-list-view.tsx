@@ -40,6 +40,9 @@ export function RecordListView<T extends Record<string, unknown>>({
   getRowId,
   renderCustomCreateModal,
   renderCustomEditModal,
+  createModalTitle,
+  editModalTitle,
+  viewModalTitle,
 }: RecordListViewProps<T>) {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -274,7 +277,7 @@ export function RecordListView<T extends Record<string, unknown>>({
         <RecordFormModal
           open={createModalOpen}
           onClose={() => setCreateModalOpen(false)}
-          title={`Create ${title.replace(/s$/, "")}`}
+          title={createModalTitle || `Create`}
           fields={createFormFields}
           onSubmit={handleCreate}
           submitLabel="Create"
@@ -307,7 +310,7 @@ export function RecordListView<T extends Record<string, unknown>>({
             setEditModalOpen(false);
             setEditingRecord(null);
           }}
-          title={`Edit ${title.replace(/s$/, "")}`}
+          title={editModalTitle || `Edit`}
           fields={editFormFields}
           initialValues={editingRecord as Record<string, unknown> | undefined}
           onSubmit={handleEdit}
@@ -321,7 +324,7 @@ export function RecordListView<T extends Record<string, unknown>>({
           setViewModalOpen(false);
           setViewingRecord(null);
         }}
-        title={`View ${title.replace(/s$/, "")}`}
+        title={viewModalTitle || `View`}
         record={viewingRecord as Record<string, unknown> | null}
         fields={computedViewFields}
       />

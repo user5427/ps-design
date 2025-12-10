@@ -254,6 +254,8 @@ export const StockChangesListView = () => {
       viewFields={viewFields}
       onCreate={handleCreate}
       onSuccess={() => refetch()}
+      createModalTitle="Create Stock Change"
+      viewModalTitle="View Stock Change"
     />
   );
 };
