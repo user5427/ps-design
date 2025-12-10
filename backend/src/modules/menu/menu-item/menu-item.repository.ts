@@ -125,8 +125,11 @@ export class MenuItemRepository {
     await this.dataSource.transaction(async (manager) => {
       try {
         if (Object.keys(updateData).length > 0) {
-          Object.assign(menuItem, updateData);
-            await manager.save(menuItem);
+          await manager.update(
+            this.repository.target,
+            { id },
+            updateData,
+          );
         }
 
         if (baseProducts !== undefined) {
