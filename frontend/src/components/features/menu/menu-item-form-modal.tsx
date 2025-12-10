@@ -430,6 +430,15 @@ const BaseProductsSection: React.FC<{
     [products],
   );
 
+  const getAvailableOptions = (currentIndex: number) => {
+    const selectedProductIds = baseProducts
+      .map((bp, idx) => (idx !== currentIndex ? bp.productId : null))
+      .filter(Boolean);
+    return productOptions.filter(
+      (opt) => !selectedProductIds.includes(opt.value),
+    );
+  };
+
   return (
     <Box>
       <Stack
@@ -456,36 +465,48 @@ const BaseProductsSection: React.FC<{
         </Typography>
       )}
       <Stack spacing={2}>
-        {baseProducts.map((bp, index) => (
-          <Paper
-            key={bp.productId || `new-${index}`}
-            variant="outlined"
-            sx={{ p: 2 }}
-          >
-            <Stack direction="row" spacing={2} alignItems="flex-start">
-              <Autocomplete
-                sx={{ flex: 2 }}
-                options={productOptions}
-                getOptionLabel={(option) => option.label}
-                value={
-                  productOptions.find((o) => o.value === bp.productId) || null
-                }
-                onChange={(_, newValue) =>
-                  onChange(index, "productId", newValue?.value || "")
-                }
-                disabled={isSubmitting}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Product"
-                    placeholder="Select product..."
-                    required
-                  />
-                )}
-                isOptionEqualToValue={(option, val) =>
-                  option.value === val.value
-                }
-              />
+        {baseProducts.map((bp, index) => {
+          const availableOptions = getAvailableOptions(index);
+          const currentOption = productOptions.find(
+            (o) => o.value === bp.productId,
+          );
+          const optionsToShow = currentOption
+            ? [
+                currentOption,
+                ...availableOptions.filter(
+                  (opt) => opt.value !== currentOption.value,
+                ),
+              ]
+            : availableOptions;
+
+          return (
+            <Paper
+              key={bp.productId || `new-${index}`}
+              variant="outlined"
+              sx={{ p: 2 }}
+            >
+              <Stack direction="row" spacing={2} alignItems="flex-start">
+                <Autocomplete
+                  sx={{ flex: 2 }}
+                  options={optionsToShow}
+                  getOptionLabel={(option) => option.label}
+                  value={currentOption || null}
+                  onChange={(_, newValue) =>
+                    onChange(index, "productId", newValue?.value || "")
+                  }
+                  disabled={isSubmitting}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Product"
+                      placeholder="Select product..."
+                      required
+                    />
+                  )}
+                  isOptionEqualToValue={(option, val) =>
+                    option.value === val.value
+                  }
+                />
               <TextField
                 sx={{ flex: 1 }}
                 label="Quantity"
@@ -521,7 +542,8 @@ const BaseProductsSection: React.FC<{
               </IconButton>
             </Stack>
           </Paper>
-        ))}
+          );
+        })}
       </Stack>
     </Box>
   );
@@ -722,83 +744,97 @@ const VariationsSection: React.FC<{
                     </Typography>
                   ) : (
                     <Stack spacing={1}>
-                      {variation.addonProducts.map((addon, aIndex) => (
-                        <Stack
-                          key={addon.productId || `addon-${vIndex}-${aIndex}`}
-                          direction="row"
-                          spacing={1}
-                          alignItems="center"
-                        >
-                          <Autocomplete
-                            sx={{ flex: 2 }}
-                            size="small"
-                            options={productOptions}
-                            getOptionLabel={(option) => option.label}
-                            value={
-                              productOptions.find(
-                                (o) => o.value === addon.productId,
-                              ) || null
-                            }
-                            onChange={(_, newValue) =>
-                              onChangeAddon(
-                                vIndex,
-                                aIndex,
-                                "productId",
-                                newValue?.value || "",
-                              )
-                            }
-                            disabled={isSubmitting}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label="Product"
-                                size="small"
-                              />
-                            )}
-                            isOptionEqualToValue={(option, val) =>
-                              option.value === val.value
-                            }
-                          />
-                          <TextField
-                            sx={{ flex: 1 }}
-                            size="small"
-                            label="Qty"
-                            type="number"
-                            value={addon.quantity}
-                            onChange={(e) =>
-                              onChangeAddon(
-                                vIndex,
-                                aIndex,
-                                "quantity",
-                                Number(e.target.value),
-                              )
-                            }
-                            disabled={isSubmitting}
-                            slotProps={{
-                              input: {
-                                inputProps: { min: 0.01, step: 0.01 },
-                                endAdornment: addon.productId ? (
-                                  <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    sx={{ ml: 0.5 }}
-                                  >
-                                    {getProductUnit(addon.productId)}
-                                  </Typography>
-                                ) : null,
-                              },
-                            }}
-                          />
-                          <IconButton
-                            size="small"
-                            onClick={() => onRemoveAddon(vIndex, aIndex)}
-                            disabled={isSubmitting}
-                            color="error"
+                      {variation.addonProducts.map((addon, aIndex) => {
+                        const selectedAddonProductIds = variation.addonProducts
+                          .map((p) => p.productId)
+                          .filter((id, idx) => idx !== aIndex && id);
+                        const availableAddonOptions = productOptions.filter(
+                          (opt) =>
+                            !selectedAddonProductIds.includes(opt.value),
+                        );
+                        const currentAddonOption = productOptions.find(
+                          (o) => o.value === addon.productId,
+                        );
+                        const addonOptionsToShow = currentAddonOption
+                          ? [currentAddonOption, ...availableAddonOptions.filter(
+                              (opt) => opt.value !== currentAddonOption.value,
+                            )]
+                          : availableAddonOptions;
+
+                        return (
+                          <Stack
+                            key={addon.productId || `addon-${vIndex}-${aIndex}`}
+                            direction="row"
+                            spacing={1}
+                            alignItems="center"
                           >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Stack>
-                      ))}
+                            <Autocomplete
+                              sx={{ flex: 2 }}
+                              size="small"
+                              options={addonOptionsToShow}
+                              getOptionLabel={(option) => option.label}
+                              value={currentAddonOption || null}
+                              onChange={(_, newValue) =>
+                                onChangeAddon(
+                                  vIndex,
+                                  aIndex,
+                                  "productId",
+                                  newValue?.value || "",
+                                )
+                              }
+                              disabled={isSubmitting}
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  label="Product"
+                                  size="small"
+                                />
+                              )}
+                              isOptionEqualToValue={(option, val) =>
+                                option.value === val.value
+                              }
+                            />
+                            <TextField
+                              sx={{ flex: 1 }}
+                              size="small"
+                              label="Qty"
+                              type="number"
+                              value={addon.quantity}
+                              onChange={(e) =>
+                                onChangeAddon(
+                                  vIndex,
+                                  aIndex,
+                                  "quantity",
+                                  Number(e.target.value),
+                                )
+                              }
+                              disabled={isSubmitting}
+                              slotProps={{
+                                input: {
+                                  inputProps: { min: 0.01, step: 0.01 },
+                                  endAdornment: addon.productId ? (
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
+                                      sx={{ ml: 0.5 }}
+                                    >
+                                      {getProductUnit(addon.productId)}
+                                    </Typography>
+                                  ) : null,
+                                },
+                              }}
+                            />
+                            <IconButton
+                              size="small"
+                              onClick={() => onRemoveAddon(vIndex, aIndex)}
+                              disabled={isSubmitting}
+                              color="error"
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Stack>
+                        );
+                      })}
                     </Stack>
                   )}
                 </Box>
