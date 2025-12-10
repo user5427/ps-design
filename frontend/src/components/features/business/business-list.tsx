@@ -1,237 +1,117 @@
+import type { MRT_ColumnDef } from "material-react-table";
+import { useMemo, useCallback } from "react";
 import {
-  Box,
-  Button,
-  Container,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography,
-  CircularProgress,
-  Stack,
-  TablePagination,
-  IconButton,
-} from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { FormAlert, ConfirmationDialog } from "@/components/elements/form";
+  RecordListView,
+  type FormFieldDefinition,
+  type ViewFieldDefinition,
+  ValidationRules,
+} from "@/components/elements/record-list-view";
 import {
   useBusinessesPaginated,
   useDeleteBusiness,
+  useCreateBusiness,
 } from "@/queries/business";
-import { URLS } from "@/constants/urls";
+import { apiClient } from "@/api/client";
+import type { BusinessResponse } from "@ps-design/schemas/business";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const BusinessList: React.FC = () => {
-  const navigate = useNavigate();
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
-  const [search, setSearch] = useState("");
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(
-    null,
+  const { data, isLoading, error, refetch } = useBusinessesPaginated(
+    1,
+    100,
+    undefined,
   );
-
-  const { data, isLoading, isError, error } = useBusinessesPaginated(
-    page,
-    limit,
-    search || undefined,
-  );
-
+  const queryClient = useQueryClient();
+  const createMutation = useCreateBusiness();
   const deleteMutation = useDeleteBusiness();
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-    setPage(1); // Reset to first page on search
-  };
+  const columns = useMemo<MRT_ColumnDef<BusinessResponse>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Name",
+        size: 200,
+      },
+      {
+        accessorKey: "id",
+        header: "ID",
+        size: 200,
+      },
+    ],
+    [],
+  );
 
-  const handlePageChange = (
-    _event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number,
-  ) => {
-    setPage(newPage + 1); // MUI uses 0-based indexing
-  };
+  const createFormFields: FormFieldDefinition[] = [
+    {
+      name: "name",
+      label: "Name",
+      type: "text",
+      required: true,
+      validationRules: [
+        ValidationRules.minLength(1),
+        ValidationRules.maxLength(100),
+      ],
+    },
+  ];
 
-  const handleRowsPerPageChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setLimit(parseInt(e.target.value, 10));
-    setPage(1);
-  };
+  const editFormFields: FormFieldDefinition[] = [
+    {
+      name: "name",
+      label: "Name",
+      type: "text",
+      required: true,
+      validationRules: [
+        ValidationRules.minLength(1),
+        ValidationRules.maxLength(100),
+      ],
+    },
+  ];
 
-  const handleEditClick = (businessId: string) => {
-    navigate({
-      to: URLS.BUSINESS_EDIT(businessId),
-      params: { businessId },
+  const viewFields: ViewFieldDefinition[] = [
+    { name: "id", label: "ID" },
+    { name: "name", label: "Name" },
+    { name: "createdAt", label: "Created At" },
+    { name: "updatedAt", label: "Updated At" },
+  ];
+
+  const handleCreate = async (values: Partial<BusinessResponse>) => {
+    await createMutation.mutateAsync({
+      name: String(values.name),
     });
   };
 
-  const handleDeleteClick = (businessId: string) => {
-    setSelectedBusinessId(businessId);
-    setDeleteDialogOpen(true);
-  };
+  const handleEdit = useCallback(
+    async (id: string, values: Partial<BusinessResponse>) => {
+      await apiClient.put(`/business/${id}`, {
+        name: String(values.name),
+      });
+      queryClient.invalidateQueries({ queryKey: ["business"] });
+    },
+    [queryClient],
+  );
 
-  const handleDeleteConfirm = async () => {
-    if (selectedBusinessId) {
-      try {
-        await deleteMutation.mutateAsync(selectedBusinessId);
-        setDeleteDialogOpen(false);
-        setSelectedBusinessId(null);
-      } catch (error) {
-        console.error("Delete error:", error);
-      }
+  const handleDelete = async (ids: string[]) => {
+    for (const id of ids) {
+      await deleteMutation.mutateAsync(id);
     }
   };
 
-  const handleDeleteCancel = () => {
-    setDeleteDialogOpen(false);
-    setSelectedBusinessId(null);
-  };
+  const businessData = data?.items || [];
 
   return (
-    <Box>
-      <Container maxWidth="lg">
-        <Stack spacing={3}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Typography variant="h4">View Businesses</Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => navigate({ to: URLS.BUSINESS_CREATE })}
-            >
-              Create Business
-            </Button>
-          </Box>
-
-          <TextField
-            placeholder="Search businesses by name..."
-            variant="outlined"
-            fullWidth
-            value={search}
-            onChange={handleSearchChange}
-            sx={{ mb: 2 }}
-          />
-
-          {isError && (
-            <FormAlert
-              message={
-                error instanceof Error ? error.message : "Error loading businesses"
-              }
-              severity="error"
-            />
-          )}
-
-          {deleteMutation.isError && (
-            <FormAlert
-              message={
-                deleteMutation.error instanceof Error
-                  ? deleteMutation.error.message
-                  : "Error deleting business"
-              }
-              severity="error"
-            />
-          )}
-
-          {isLoading ? (
-            <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-              <CircularProgress />
-            </Box>
-          ) : (
-            <>
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
-                      <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }}>
-                        ID
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }}>
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }} align="right">
-                        Actions
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {data?.items && data.items.length > 0 ? (
-                      data.items.map((business) => (
-                        <TableRow key={business.id} hover>
-                          <TableCell>{business.name}</TableCell>
-                          <TableCell>
-                            {business.id}
-                          </TableCell>
-                          <TableCell align="right">
-                            <IconButton
-                              size="small"
-                              onClick={() => handleEditClick(business.id)}
-                              title="Edit"
-                              disabled={deleteMutation.isPending}
-                            >
-                              <EditIcon fontSize="small" />
-                            </IconButton>
-                            <IconButton
-                              size="small"
-                              color="error"
-                              onClick={() => handleDeleteClick(business.id)}
-                              title="Delete"
-                              disabled={deleteMutation.isPending}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
-                          No businesses found
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-
-              {data && (
-                <TablePagination
-                  rowsPerPageOptions={[5, 10, 25, 50]}
-                  component="div"
-                  count={data.total}
-                  rowsPerPage={limit}
-                  page={page - 1} // MUI uses 0-based indexing
-                  onPageChange={handlePageChange}
-                  onRowsPerPageChange={handleRowsPerPageChange}
-                />
-              )}
-            </>
-          )}
-        </Stack>
-      </Container>
-
-      {/* Delete confirmation dialog */}
-      <ConfirmationDialog
-        open={deleteDialogOpen}
-        title="Delete Business?"
-        description="Are you sure you want to delete this business? This action cannot be undone."
-        onConfirm={handleDeleteConfirm}
-        onCancel={handleDeleteCancel}
-        isLoading={deleteMutation.isPending}
-        confirmText="Delete"
-        cancelText="Cancel"
-        confirmColor="error"
-      />
-      </Box>
+    <RecordListView<BusinessResponse>
+      title="Businesses"
+      columns={columns}
+      data={businessData}
+      isLoading={isLoading}
+      error={error}
+      createFormFields={createFormFields}
+      editFormFields={editFormFields}
+      viewFields={viewFields}
+      onCreate={handleCreate}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
+      onSuccess={() => refetch()}
+    />
   );
 };
