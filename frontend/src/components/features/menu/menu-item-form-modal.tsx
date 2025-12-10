@@ -507,41 +507,41 @@ const BaseProductsSection: React.FC<{
                     option.value === val.value
                   }
                 />
-              <TextField
-                sx={{ flex: 1 }}
-                label="Quantity"
-                type="number"
-                value={bp.quantity}
-                onChange={(e) =>
-                  onChange(index, "quantity", Number(e.target.value))
-                }
-                disabled={isSubmitting}
-                required
-                slotProps={{
-                  input: {
-                    inputProps: { min: 0.01, step: 0.01 },
-                    endAdornment: bp.productId ? (
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ ml: 1 }}
-                      >
-                        {getProductUnit(bp.productId)}
-                      </Typography>
-                    ) : null,
-                  },
-                }}
-              />
-              <IconButton
-                onClick={() => onRemove(index)}
-                disabled={isSubmitting || baseProducts.length === 1}
-                color="error"
-                sx={{ mt: 1 }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Stack>
-          </Paper>
+                <TextField
+                  sx={{ flex: 1 }}
+                  label="Quantity"
+                  type="number"
+                  value={bp.quantity}
+                  onChange={(e) =>
+                    onChange(index, "quantity", Number(e.target.value))
+                  }
+                  disabled={isSubmitting}
+                  required
+                  slotProps={{
+                    input: {
+                      inputProps: { min: 0.01, step: 0.01 },
+                      endAdornment: bp.productId ? (
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ ml: 1 }}
+                        >
+                          {getProductUnit(bp.productId)}
+                        </Typography>
+                      ) : null,
+                    },
+                  }}
+                />
+                <IconButton
+                  onClick={() => onRemove(index)}
+                  disabled={isSubmitting || baseProducts.length === 1}
+                  color="error"
+                  sx={{ mt: 1 }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Stack>
+            </Paper>
           );
         })}
       </Stack>
@@ -681,7 +681,11 @@ const VariationsSection: React.FC<{
                         required
                         onBlur={(e) => {
                           const value = e.target.value;
-                          onChange(vIndex, "type", value ? value.toUpperCase() : value);
+                          onChange(
+                            vIndex,
+                            "type",
+                            value ? value.toUpperCase() : value,
+                          );
                         }}
                       />
                     )}
@@ -749,16 +753,18 @@ const VariationsSection: React.FC<{
                           .map((p) => p.productId)
                           .filter((id, idx) => idx !== aIndex && id);
                         const availableAddonOptions = productOptions.filter(
-                          (opt) =>
-                            !selectedAddonProductIds.includes(opt.value),
+                          (opt) => !selectedAddonProductIds.includes(opt.value),
                         );
                         const currentAddonOption = productOptions.find(
                           (o) => o.value === addon.productId,
                         );
                         const addonOptionsToShow = currentAddonOption
-                          ? [currentAddonOption, ...availableAddonOptions.filter(
-                              (opt) => opt.value !== currentAddonOption.value,
-                            )]
+                          ? [
+                              currentAddonOption,
+                              ...availableAddonOptions.filter(
+                                (opt) => opt.value !== currentAddonOption.value,
+                              ),
+                            ]
                           : availableAddonOptions;
 
                         return (
