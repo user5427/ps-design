@@ -13,4 +13,7 @@ export const URLS = {
   INVENTORY_PRODUCTS: "/inventory/products",
   INVENTORY_STOCK: "/inventory/stock",
   INVENTORY_STOCK_LEVELS: "/inventory/stock-levels",
+  // Menu
+  MENU_CATEGORIES: "/menu/categories",
+  MENU_ITEMS: "/menu/items",
 };

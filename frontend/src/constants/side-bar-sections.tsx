@@ -2,12 +2,11 @@ import AssessmentIcon from "@mui/icons-material/Assessment";
 import CategoryIcon from "@mui/icons-material/Category";
 import BusinessIcon from "@mui/icons-material/Business";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import InsightsIcon from "@mui/icons-material/Insights";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import TimelineIcon from "@mui/icons-material/Timeline";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import AddIcon from "@mui/icons-material/Add";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import type { Section } from "@/components/layouts/side-bar/side-bar-item";
@@ -62,11 +61,19 @@ export const sidebarSections: Section[] = [
     ],
   },
   {
-    label: "Analytics",
-    icon: <InsightsIcon />,
+    label: "Menu",
+    icon: <MenuBookIcon />,
     children: [
-      { label: "Sales", icon: <TrendingUpIcon />, path: "/analytics/sales" },
-      { label: "Traffic", icon: <TimelineIcon />, path: "/analytics/traffic" },
+      {
+        label: "Categories",
+        icon: <CategoryIcon />,
+        path: URLS.MENU_CATEGORIES,
+      },
+      {
+        label: "Items",
+        icon: <RestaurantMenuIcon />,
+        path: URLS.MENU_ITEMS,
+      },
     ],
   },
   {

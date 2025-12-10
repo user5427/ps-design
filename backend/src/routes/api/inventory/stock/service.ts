@@ -3,7 +3,6 @@ import type { Product } from "@/modules/inventory/product";
 import type { StockChange } from "@/modules/inventory/stock-change/stock-change.entity";
 import type {
   CreateStockChangeBody,
-  UpdateStockChangeBody,
   StockLevelResponse,
   StockChangeResponse,
 } from "@ps-design/schemas/inventory/stock";
@@ -87,25 +86,6 @@ export async function createStockChange(
     businessId,
     createdByUserId: userId,
   });
-
-  return toStockChangeResponse(stockChange);
-}
-
-export async function updateStockChange(
-  fastify: FastifyInstance,
-  businessId: string,
-  changeId: string,
-  input: UpdateStockChangeBody,
-): Promise<StockChangeResponse> {
-  const stockChange = await fastify.db.stockChange.update(
-    changeId,
-    businessId,
-    {
-      quantity: input.quantity,
-      type: input.type as any,
-      expirationDate: input.expirationDate,
-    },
-  );
 
   return toStockChangeResponse(stockChange);
 }

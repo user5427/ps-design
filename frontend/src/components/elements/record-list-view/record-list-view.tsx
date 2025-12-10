@@ -38,6 +38,8 @@ export function RecordListView<T extends Record<string, unknown>>({
   viewFields,
   hasViewAction = true,
   getRowId,
+  renderCustomCreateModal,
+  renderCustomEditModal,
 }: RecordListViewProps<T>) {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -114,7 +116,6 @@ export function RecordListView<T extends Record<string, unknown>>({
   const computedViewFields: ViewFieldDefinition[] = useMemo(() => {
     if (viewFields) return viewFields;
 
-    // Generate from editFormFields
     return editFormFields.map((field) => ({
       name: field.name,
       label: field.label,
@@ -254,27 +255,65 @@ export function RecordListView<T extends Record<string, unknown>>({
 
       <MaterialReactTable table={table} />
 
-      <RecordFormModal
-        open={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
-        title={`Create ${title.replace(/s$/, "")}`}
-        fields={createFormFields}
-        onSubmit={handleCreate}
-        submitLabel="Create"
-      />
+      {renderCustomCreateModal ? (
+        renderCustomCreateModal({
+          open: createModalOpen,
+          onClose: () => setCreateModalOpen(false),
+          initialData: null,
+          onSuccess: () => {
+            setCreateModalOpen(false);
+            setSnackbar({
+              open: true,
+              message: "Record created successfully",
+              severity: "success",
+            });
+            onSuccess?.();
+          },
+        })
+      ) : (
+        <RecordFormModal
+          open={createModalOpen}
+          onClose={() => setCreateModalOpen(false)}
+          title={`Create ${title.replace(/s$/, "")}`}
+          fields={createFormFields}
+          onSubmit={handleCreate}
+          submitLabel="Create"
+        />
+      )}
 
-      <RecordFormModal
-        open={editModalOpen}
-        onClose={() => {
-          setEditModalOpen(false);
-          setEditingRecord(null);
-        }}
-        title={`Edit ${title.replace(/s$/, "")}`}
-        fields={editFormFields}
-        initialValues={editingRecord as Record<string, unknown> | undefined}
-        onSubmit={handleEdit}
-        submitLabel="Save"
-      />
+      {renderCustomEditModal ? (
+        renderCustomEditModal({
+          open: editModalOpen,
+          onClose: () => {
+            setEditModalOpen(false);
+            setEditingRecord(null);
+          },
+          initialData: editingRecord,
+          onSuccess: () => {
+            setEditModalOpen(false);
+            setEditingRecord(null);
+            setSnackbar({
+              open: true,
+              message: "Record updated successfully",
+              severity: "success",
+            });
+            onSuccess?.();
+          },
+        })
+      ) : (
+        <RecordFormModal
+          open={editModalOpen}
+          onClose={() => {
+            setEditModalOpen(false);
+            setEditingRecord(null);
+          }}
+          title={`Edit ${title.replace(/s$/, "")}`}
+          fields={editFormFields}
+          initialValues={editingRecord as Record<string, unknown> | undefined}
+          onSubmit={handleEdit}
+          submitLabel="Save"
+        />
+      )}
 
       <ViewRecordModal
         open={viewModalOpen}

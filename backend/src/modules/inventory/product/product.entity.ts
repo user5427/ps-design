@@ -16,6 +16,8 @@ import type { Business } from "@/modules/business/business.entity";
 import type { ProductUnit } from "@/modules/inventory/product-unit/product-unit.entity";
 import type { StockChange } from "@/modules/inventory/stock-change/stock-change.entity";
 import type { StockLevel } from "@/modules/inventory/stock-level/stock-level.entity";
+import type { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product/menu-item-base-product.entity";
+import type { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product/menu-item-variation-product.entity";
 
 @Entity("Product")
 @Unique(["businessId", "name"])
@@ -53,6 +55,12 @@ export class Product {
 
   @OneToOne("StockLevel", "product")
   stockLevel: Relation<StockLevel> | null;
+
+  @OneToMany("MenuItemBaseProduct", "product")
+  menuItemBaseProducts: Relation<MenuItemBaseProduct[]>;
+
+  @OneToMany("MenuItemVariationProduct", "product")
+  menuItemVariationProducts: Relation<MenuItemVariationProduct[]>;
 
   @Column({ type: "timestamp", nullable: true })
   deletedAt: Date | null;
