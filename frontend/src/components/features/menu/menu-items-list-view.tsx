@@ -39,7 +39,7 @@ export const MenuItemsListView = () => {
         Cell: ({ cell }) => `${cell.getValue<number>().toFixed(2)}€`,
       },
       {
-        accessorKey: "category.name",
+        accessorKey: "category",
         header: "Category",
         size: 150,
         Cell: ({ row }) => row.original.category?.name || "",
