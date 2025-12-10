@@ -19,7 +19,7 @@ const CreateVariationSchema = z.object({
     .min(MIN_NAME_LENGTH, MIN_NAME_MESSAGE)
     .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE),
   type: MenuItemVariationTypeSchema,
-  priceAdjustment: z.number().default(0),
+  priceAdjustment: z.number().nonnegative("Price adjustment must be non-negative").default(0),
   isDisabled: z.boolean().default(false),
   addonProducts: z.array(BaseProductRecipeSchema).default([]),
 });
@@ -32,7 +32,7 @@ const UpdateVariationSchema = z.object({
     .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE)
     .optional(),
   type: MenuItemVariationTypeSchema.optional(),
-  priceAdjustment: z.number().optional(),
+  priceAdjustment: z.number().nonnegative("Price adjustment must be non-negative").optional(),
   isDisabled: z.boolean().optional(),
   addonProducts: z.array(BaseProductRecipeSchema).optional(),
 });
@@ -47,7 +47,7 @@ export const CreateMenuItemSchema = z.object({
   basePrice: z.number().nonnegative("Base price must be non-negative"),
   categoryId: uuid().nullable().optional(),
   isDisabled: z.boolean().default(false),
-  baseProducts: z.array(BaseProductRecipeSchema).default([]),
+  baseProducts: z.array(BaseProductRecipeSchema).min(1, "At least one base product is required"),
   variations: z.array(CreateVariationSchema).default([]),
 });
 
@@ -63,7 +63,7 @@ export const UpdateMenuItemSchema = z.object({
     .optional(),
   categoryId: uuid().nullable().optional(),
   isDisabled: z.boolean().optional(),
-  baseProducts: z.array(BaseProductRecipeSchema).optional(),
+  baseProducts: z.array(BaseProductRecipeSchema).min(1, "At least one base product is required").optional(),
   variations: z.array(UpdateVariationSchema).optional(),
   // Array of variation IDs to remove
   removeVariationIds: z.array(uuid()).optional(),
