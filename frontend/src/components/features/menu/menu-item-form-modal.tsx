@@ -29,8 +29,6 @@ import type {
 } from "@/schemas/menu";
 import type { Product } from "@/schemas/inventory";
 
-// --- Types ---
-
 interface BaseProductRecipe {
   productId: string;
   quantity: number;
@@ -126,6 +124,10 @@ const useMenuItemForm = ({
     setErrors({});
     setSubmitError(null);
   }, [mode, initialData]);
+
+  useEffect(() => {
+    reset();
+  }, [reset]);
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
