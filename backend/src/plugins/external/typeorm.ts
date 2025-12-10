@@ -29,6 +29,17 @@ import {
   RoleScope,
   RoleScopeRepository,
 } from "@/modules/user";
+import {
+  MenuItemCategory,
+  MenuItemCategoryRepository,
+} from "@/modules/menu/menu-item-category";
+import {
+  MenuItem,
+  MenuItemRepository,
+} from "@/modules/menu/menu-item";
+import { MenuItemVariation } from "@/modules/menu/menu-item-variation";
+import { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product";
+import { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product";
 
 export interface Services {
   dataSource: DataSource;
@@ -43,6 +54,8 @@ export interface Services {
   product: ProductRepository;
   stockLevel: StockLevelRepository;
   stockChange: StockChangeRepository;
+  menuItemCategory: MenuItemCategoryRepository;
+  menuItem: MenuItemRepository;
 }
 
 declare module "fastify" {
@@ -87,6 +100,20 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
       dataSource.getRepository(StockChange),
       dataSource.getRepository(Product),
       dataSource,
+    ),
+    menuItemCategory: new MenuItemCategoryRepository(
+      dataSource.getRepository(MenuItemCategory),
+      dataSource.getRepository(MenuItem),
+    ),
+    menuItem: new MenuItemRepository(
+      dataSource,
+      dataSource.getRepository(MenuItem),
+      dataSource.getRepository(MenuItemCategory),
+      dataSource.getRepository(MenuItemVariation),
+      dataSource.getRepository(MenuItemBaseProduct),
+      dataSource.getRepository(MenuItemVariationProduct),
+      dataSource.getRepository(Product),
+      dataSource.getRepository(StockLevel),
     ),
   };
 
