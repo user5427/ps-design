@@ -48,7 +48,7 @@ const EntityMap = {
   AuditSecurityLog,
 } as const;
 
-type EntityName = keyof typeof EntityMap;
+export type EntityName = keyof typeof EntityMap;
 
 export class AuditLogService {
   constructor(private dataSource: DataSource) {}
@@ -65,7 +65,7 @@ export class AuditLogService {
   async getEntitySnapshot(entityType: EntityName, entityId: string) {
     const repo = this.getRepository(entityType);
     const entity = await repo.findOne({ where: { id: entityId } });
-    return entity ? { ...entity } : null;
+    return entity ? ({ ...entity } as Record<string, unknown>) : null;
   }
 
   async logBusiness(log: ICreateAuditBusinessLog) {

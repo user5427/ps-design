@@ -24,6 +24,8 @@ export enum ScopeNames {
   TAX_DELETE = "TAX_DELETE",
   AUDIT_BUSINESS_READ = "AUDIT_BUSINESS_READ",
   AUDIT_SECURITY_READ = "AUDIT_SECURITY_READ",
+  MENU_ORDERS_READ = "MENU_ORDERS_READ",
+  MENU_ORDERS_WRITE = "MENU_ORDERS_WRITE",
 }
 
 // Scope configuration with descriptions
@@ -126,6 +128,14 @@ export const SCOPE_CONFIG: Record<
   [ScopeNames.AUDIT_SECURITY_READ]: {
     name: ScopeNames.AUDIT_SECURITY_READ,
     description: "Read security audit logs",
+  },
+  [ScopeNames.MENU_ORDERS_READ]: {
+    name: ScopeNames.MENU_ORDERS_READ,
+    description: "Read restaurant orders",
+  },
+  [ScopeNames.MENU_ORDERS_WRITE]: {
+    name: ScopeNames.MENU_ORDERS_WRITE,
+    description: "Create and update restaurant orders",
   },
 };
 

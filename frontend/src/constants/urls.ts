@@ -2,6 +2,7 @@
 export const URLS = {
   DASHBOARD: "/dashboard",
   AVAILABILITY: "/availability",
+  FLOOR_PLAN: "/floor-plan",
   LOGIN: "/auth/login",
   CHANGE_PASSWORD: "/auth/change-password",
   HOME: "/",
@@ -28,4 +29,6 @@ export const URLS = {
   AUDIT_SECURITY_LOGS: "/audit/security-logs",
   // Tax
   TAX: "/tax",
+  // Orders
+  ORDER_VIEW: (orderId: string) => `/orders/${orderId}`,
 };

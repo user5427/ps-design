@@ -1,0 +1,205 @@
+import type { FastifyInstance } from "fastify";
+import { In, IsNull } from "typeorm";
+import type {
+  FloorPlanResponse,
+  FloorTable,
+  UpdateFloorTableBody,
+} from "@ps-design/schemas/order/floor";
+import {
+  DiningTable,
+  DiningTableStatus,
+  Order,
+  OrderStatus,
+} from "@/modules/order";
+import { ConflictError, NotFoundError } from "@/shared/errors";
+import type { CreateFloorTableBody } from "@ps-design/schemas/order/floor";
+
+export async function getFloorPlan(
+  fastify: FastifyInstance,
+  businessId: string,
+): Promise<FloorPlanResponse> {
+  const tableRepo = fastify.db.dataSource.getRepository(DiningTable);
+  const orderRepo = fastify.db.dataSource.getRepository(Order);
+
+  const tables = await tableRepo.find({
+    where: { businessId, deletedAt: IsNull() },
+  });
+
+  if (tables.length === 0) {
+    return { tables: [] };
+  }
+
+  const tableIds = tables.map((t) => t.id);
+
+  const openOrders = await orderRepo.find({
+    where: {
+      businessId,
+      tableId: In(tableIds),
+      status: OrderStatus.OPEN,
+    },
+  });
+
+  const orderByTableId = new Map<string, string>();
+
+  for (const order of openOrders) {
+    if (order.tableId && !orderByTableId.has(order.tableId)) {
+      orderByTableId.set(order.tableId, order.id);
+    }
+  }
+
+  return {
+    tables: tables.map((table) => {
+      const hasOpenOrder = orderByTableId.has(table.id);
+
+      // Visual status rules for the floor plan:
+      // - AVAILABLE (white/gray): no open order on this table.
+      // - ACTIVE (green): there is an OPEN order linked to the table.
+      // - ATTENTION (orange): manual override to highlight a table
+      //   that needs service; this always wins over other states.
+      let status: DiningTableStatus;
+      if (table.status === DiningTableStatus.ATTENTION) {
+        status = DiningTableStatus.ATTENTION;
+      } else if (hasOpenOrder) {
+        status = DiningTableStatus.ACTIVE;
+      } else {
+        status = DiningTableStatus.AVAILABLE;
+      }
+
+      return {
+        id: table.id,
+        label: table.label,
+        capacity: table.capacity,
+        status,
+        reserved: table.reserved ?? false,
+        orderId: orderByTableId.get(table.id) ?? null,
+      };
+    }),
+  };
+}
+
+export async function updateFloorTable(
+  fastify: FastifyInstance,
+  businessId: string,
+  tableId: string,
+  input: UpdateFloorTableBody,
+): Promise<FloorTable> {
+  const tableRepo = fastify.db.dataSource.getRepository(DiningTable);
+  const orderRepo = fastify.db.dataSource.getRepository(Order);
+
+  const table = await tableRepo.findOne({
+    where: { id: tableId, businessId, deletedAt: IsNull() },
+  });
+
+  if (!table) {
+    throw new NotFoundError("Table not found");
+  }
+
+  if (typeof input.reserved === "boolean") {
+    table.reserved = input.reserved;
+  }
+
+  if (input.status) {
+    table.status = input.status as DiningTableStatus;
+  }
+
+  const saved = await tableRepo.save(table);
+
+  const openOrder = await orderRepo.findOne({
+    where: {
+      businessId,
+      tableId: saved.id,
+      status: OrderStatus.OPEN,
+    },
+  });
+
+  // Keep the same visual rules as getFloorPlan so the
+  // immediate response from this mutation matches what
+  // the floor-plan query will later return:
+  // - ATTENTION: preserved as an explicit highlight.
+  // - ACTIVE: there is an OPEN order on this table.
+  // - AVAILABLE: no open order.
+  let status: DiningTableStatus;
+  if (saved.status === DiningTableStatus.ATTENTION) {
+    status = DiningTableStatus.ATTENTION;
+  } else if (openOrder) {
+    status = DiningTableStatus.ACTIVE;
+  } else {
+    status = DiningTableStatus.AVAILABLE;
+  }
+
+  return {
+    id: saved.id,
+    label: saved.label,
+    capacity: saved.capacity,
+    status,
+    reserved: saved.reserved ?? false,
+    orderId: openOrder?.id ?? null,
+  };
+}
+
+export async function createFloorTable(
+  fastify: FastifyInstance,
+  businessId: string,
+  input: CreateFloorTableBody,
+): Promise<FloorTable> {
+  const tableRepo = fastify.db.dataSource.getRepository(DiningTable);
+
+  const existing = await tableRepo.findOne({
+    where: { businessId, label: input.label, deletedAt: IsNull() },
+  });
+
+  if (existing) {
+    throw new ConflictError("Table with this label already exists");
+  }
+
+  const saved = await tableRepo.save(
+    tableRepo.create({
+      businessId,
+      label: input.label,
+      capacity: input.capacity,
+      status: DiningTableStatus.AVAILABLE,
+      reserved: false,
+    }),
+  );
+
+  return {
+    id: saved.id,
+    label: saved.label,
+    capacity: saved.capacity,
+    status: saved.status,
+    reserved: saved.reserved ?? false,
+    orderId: null,
+  };
+}
+
+export async function deleteFloorTable(
+  fastify: FastifyInstance,
+  businessId: string,
+  tableId: string,
+): Promise<void> {
+  const tableRepo = fastify.db.dataSource.getRepository(DiningTable);
+  const orderRepo = fastify.db.dataSource.getRepository(Order);
+
+  const table = await tableRepo.findOne({
+    where: { id: tableId, businessId, deletedAt: IsNull() },
+  });
+
+  if (!table) {
+    throw new NotFoundError("Table not found");
+  }
+
+  const openOrder = await orderRepo.findOne({
+    where: {
+      businessId,
+      tableId: table.id,
+      status: OrderStatus.OPEN,
+    },
+  });
+
+  if (openOrder) {
+    throw new ConflictError("Cannot delete table with an open order");
+  }
+
+  table.deletedAt = new Date();
+  await tableRepo.save(table);
+}

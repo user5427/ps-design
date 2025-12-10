@@ -58,7 +58,7 @@ export default async function taxesRoutes(fastify: FastifyInstance) {
       const businessId = getBusinessId(request, reply);
       if (!businessId) return;
 
-      const { taxId } = request.params;
+      const { taxId } = request.params as TaxIdParams;
 
       try {
         const tax = await getTaxById(fastify, businessId, taxId);
@@ -121,7 +121,7 @@ export default async function taxesRoutes(fastify: FastifyInstance) {
       const businessId = getBusinessId(request, reply);
       if (!businessId) return;
 
-      const { taxId } = request.params;
+      const { taxId } = request.params as TaxIdParams;
 
       try {
         const wrapUpdateTax = await fastify.audit.generic(
@@ -161,7 +161,7 @@ export default async function taxesRoutes(fastify: FastifyInstance) {
     ) => {
       const businessId = getBusinessId(request, reply);
       if (!businessId) return;
-      const { taxId } = request.params;
+      const { taxId } = request.params as TaxIdParams;
       try {
         const wrapDeleteTax = await fastify.audit.generic(
           deleteTax,

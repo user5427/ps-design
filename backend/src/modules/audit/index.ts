@@ -4,3 +4,4 @@ export { AuditLogRepository } from "./audit-log.repository";
 export { AuditLogService } from "./audit-log.service";
 export { auditLogWrapper } from "./audit.decorator";
 export * from "./audit-log.types";
+export type { EntityName } from "./audit-log.service";

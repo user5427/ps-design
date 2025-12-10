@@ -50,10 +50,10 @@ export class AuditBusinessLog {
   action: AuditActionType;
 
   @Column({ type: "jsonb", nullable: true })
-  oldValues: Record<string, any> | null;
+  oldValues: Record<string, unknown> | null;
 
   @Column({ type: "jsonb", nullable: true })
-  newValues: Record<string, any> | null;
+  newValues: Record<string, unknown> | null;
 
   @Column({
     type: "enum",

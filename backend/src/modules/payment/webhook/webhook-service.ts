@@ -8,12 +8,16 @@ import type {
   WebhookHandlerContext,
 } from "./types";
 import { appointmentPaymentHandler } from "./appointment-handler";
+import { menuPaymentHandler } from "./menu-handler";
 
-const paymentHandlers: Map<PaymentType, PaymentTypeHandler> = new Map([
+const paymentHandlerEntries: [PaymentType, PaymentTypeHandler][] = [
   ["appointment", appointmentPaymentHandler],
-  // Add new handlers here:
-  // ["menu", menuPaymentHandler],
-]);
+  ["menu", menuPaymentHandler],
+];
+
+const paymentHandlers: Map<PaymentType, PaymentTypeHandler> = new Map(
+  paymentHandlerEntries,
+);
 
 function extractPaymentMetadata(
   paymentIntent: Stripe.PaymentIntent,

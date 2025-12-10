@@ -26,8 +26,8 @@ export interface IAuditBusinessLog {
   entityType: string;
   entityId: string;
   action: AuditActionType;
-  oldValues: Record<string, any> | null;
-  newValues: Record<string, any> | null;
+  oldValues: Record<string, unknown> | null;
+  newValues: Record<string, unknown> | null;
   createdAt: Date;
   result: ActionResult | null;
 }
@@ -39,8 +39,8 @@ export interface ICreateAuditBusinessLog {
   entityType: string;
   entityId: string;
   action: AuditActionType;
-  oldValues?: Record<string, any> | null;
-  newValues?: Record<string, any> | null;
+  oldValues?: Record<string, unknown> | null;
+  newValues?: Record<string, unknown> | null;
   result?: ActionResult;
 }
 

@@ -13,8 +13,8 @@ export function createDataSource(config: DataSourceConfig): DataSource {
     url: config.url,
     synchronize: config.synchronize, // AUTO-MIGRATE DB SCHEMA CHANGES BASED ON ENTITIES
     logging: config.logging ?? false,
-    entities: [__dirname + "/../modules/**/*.entity.{ts,js}"],
-    migrations: [__dirname + "/migrations/*.{ts,js}"],
+    entities: [`${__dirname}/../modules/**/*.entity.{ts,js}`],
+    migrations: [`${__dirname}/migrations/*.{ts,js}`],
     subscribers: [],
   });
 }
