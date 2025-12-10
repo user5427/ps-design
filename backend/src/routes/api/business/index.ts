@@ -26,7 +26,10 @@ import {
   BusinessResponseSchema,
   PaginatedBusinessResponseSchema,
 } from "@ps-design/schemas/business";
-import { ErrorResponseSchema, SuccessResponseSchema } from "@ps-design/schemas/shared/response-types";
+import {
+  ErrorResponseSchema,
+  SuccessResponseSchema,
+} from "@ps-design/schemas/shared/response-types";
 
 export default async function businessRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -35,10 +38,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.get<{ Querystring: BusinessQuery }>(
     "/",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.BUSINESS_READ),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ)],
       schema: {
         querystring: BusinessQuerySchema,
         response: {
@@ -55,7 +55,12 @@ export default async function businessRoutes(fastify: FastifyInstance) {
     ) => {
       try {
         const { page = 1, limit = 20, search } = request.query;
-        const result = await getBusinessesPaginated(fastify, page, limit, search);
+        const result = await getBusinessesPaginated(
+          fastify,
+          page,
+          limit,
+          search,
+        );
         return reply.send(result);
       } catch (error) {
         return handleServiceError(error, reply);
@@ -96,10 +101,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.get<{ Params: BusinessIdParams }>(
     "/:businessId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.BUSINESS_READ),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ)],
       schema: {
         params: BusinessIdParam,
         response: {

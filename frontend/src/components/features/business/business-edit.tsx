@@ -68,76 +68,76 @@ export const BusinessEdit: React.FC = () => {
 
   if (isLoadingBusiness) {
     return (
-        <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-          <CircularProgress />
-        </Box>
+      <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+        <CircularProgress />
+      </Box>
     );
   }
 
   return (
-      <Container maxWidth="sm">
-        <Paper sx={{ p: 4 }}>
-          <Typography variant="h4" gutterBottom>
-            Edit Business
-          </Typography>
+    <Container maxWidth="sm">
+      <Paper sx={{ p: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          Edit Business
+        </Typography>
 
-          {updateMutation.isError && (
-            <FormAlert
-              message={
-                updateMutation.error instanceof Error
-                  ? updateMutation.error.message
-                  : "Error updating business"
-              }
-              severity="error"
+        {updateMutation.isError && (
+          <FormAlert
+            message={
+              updateMutation.error instanceof Error
+                ? updateMutation.error.message
+                : "Error updating business"
+            }
+            severity="error"
+          />
+        )}
+
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Stack spacing={2}>
+            <TextField
+              label="Business Name"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (e.target.value.trim()) {
+                  setNameError("");
+                }
+              }}
+              error={!!nameError}
+              helperText={nameError}
+              fullWidth
+              required
+              placeholder="Enter business name"
+              disabled={updateMutation.isPending}
             />
-          )}
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <Stack spacing={2}>
-              <TextField
-                label="Business Name"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                  if (e.target.value.trim()) {
-                    setNameError("");
-                  }
-                }}
-                error={!!nameError}
-                helperText={nameError}
+            <Stack direction="row" spacing={2}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
                 fullWidth
-                required
-                placeholder="Enter business name"
                 disabled={updateMutation.isPending}
-              />
-
-              <Stack direction="row" spacing={2}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  disabled={updateMutation.isPending}
-                >
-                  {updateMutation.isPending ? (
-                    <CircularProgress size={24} />
-                  ) : (
-                    "Update Business"
-                  )}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outlined"
-                  fullWidth
-                  onClick={handleCancel}
-                  disabled={updateMutation.isPending}
-                >
-                  Cancel
-                </Button>
-              </Stack>
+              >
+                {updateMutation.isPending ? (
+                  <CircularProgress size={24} />
+                ) : (
+                  "Update Business"
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outlined"
+                fullWidth
+                onClick={handleCancel}
+                disabled={updateMutation.isPending}
+              >
+                Cancel
+              </Button>
             </Stack>
-          </Box>
-        </Paper>
-      </Container>
+          </Stack>
+        </Box>
+      </Paper>
+    </Container>
   );
 };

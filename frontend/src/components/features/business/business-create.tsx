@@ -57,69 +57,69 @@ export const BusinessCreate: React.FC = () => {
   };
 
   return (
-      <Container maxWidth="sm">
-        <Paper sx={{ p: 4 }}>
-          <Typography variant="h4" gutterBottom>
-            Create Business
-          </Typography>
+    <Container maxWidth="sm">
+      <Paper sx={{ p: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          Create Business
+        </Typography>
 
-          {createMutation.isError && (
-            <FormAlert
-              message={
-                createMutation.error instanceof Error
-                  ? createMutation.error.message
-                  : "Error creating business"
-              }
-              severity="error"
+        {createMutation.isError && (
+          <FormAlert
+            message={
+              createMutation.error instanceof Error
+                ? createMutation.error.message
+                : "Error creating business"
+            }
+            severity="error"
+          />
+        )}
+
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Stack spacing={2}>
+            <TextField
+              label="Business Name"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (e.target.value.trim()) {
+                  setNameError("");
+                }
+              }}
+              error={!!nameError}
+              helperText={nameError}
+              fullWidth
+              required
+              placeholder="Enter business name"
+              disabled={createMutation.isPending}
             />
-          )}
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <Stack spacing={2}>
-              <TextField
-                label="Business Name"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                  if (e.target.value.trim()) {
-                    setNameError("");
-                  }
-                }}
-                error={!!nameError}
-                helperText={nameError}
+            <Stack direction="row" spacing={2}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
                 fullWidth
-                required
-                placeholder="Enter business name"
                 disabled={createMutation.isPending}
-              />
-
-              <Stack direction="row" spacing={2}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  disabled={createMutation.isPending}
-                >
-                  {createMutation.isPending ? (
-                    <CircularProgress size={24} />
-                  ) : (
-                    "Create Business"
-                  )}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outlined"
-                  fullWidth
-                  onClick={handleCancel}
-                  disabled={createMutation.isPending}
-                >
-                  Cancel
-                </Button>
-              </Stack>
+              >
+                {createMutation.isPending ? (
+                  <CircularProgress size={24} />
+                ) : (
+                  "Create Business"
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outlined"
+                fullWidth
+                onClick={handleCancel}
+                disabled={createMutation.isPending}
+              >
+                Cancel
+              </Button>
             </Stack>
-          </Box>
-        </Paper>
-      </Container>
+          </Stack>
+        </Box>
+      </Paper>
+    </Container>
   );
 };

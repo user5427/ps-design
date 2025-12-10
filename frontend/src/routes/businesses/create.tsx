@@ -15,5 +15,5 @@ export const Route = createFileRoute("/businesses/create")({
 });
 
 function BusinessCreatePage() {
-  return <BusinessCreate/>;
+  return <BusinessCreate />;
 }

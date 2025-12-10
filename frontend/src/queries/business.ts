@@ -10,7 +10,11 @@ import type { SuccessResponse } from "@ps-design/schemas/shared";
 
 export const BUSINESSES_QUERY_KEY = ["business"];
 
-export function useBusinessesPaginated(page: number, limit: number, search?: string) {
+export function useBusinessesPaginated(
+  page: number,
+  limit: number,
+  search?: string,
+) {
   return useQuery({
     queryKey: [...BUSINESSES_QUERY_KEY, page, limit, search],
     queryFn: async () => {
