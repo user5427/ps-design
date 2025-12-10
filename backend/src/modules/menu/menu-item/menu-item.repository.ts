@@ -14,7 +14,7 @@ import type { MenuItem } from "./menu-item.entity";
 import type { MenuItemVariation } from "@/modules/menu/menu-item-variation/menu-item-variation.entity";
 import type { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product/menu-item-base-product.entity";
 import type { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product/menu-item-variation-product.entity";
-import type { ICreateMenuItem, IUpdateMenuItem } from "./menu-item.types";
+import type { ICreateMenuItem, ICreateMenuItemVariation, IMenuItemVariationInput, IUpdateMenuItem } from "./menu-item.types";
 
 const MENU_ITEM_RELATIONS = [
   "category",
@@ -124,13 +124,11 @@ export class MenuItemRepository {
 
     await this.dataSource.transaction(async (manager) => {
       try {
-        // Update Core Record
         if (Object.keys(updateData).length > 0) {
-          manager.merge(this.repository.target as any, menuItem, updateData);
-          await manager.save(menuItem);
+          Object.assign(menuItem, updateData);
+            await manager.save(menuItem);
         }
 
-        // Sync Base Products
         if (baseProducts !== undefined) {
           await manager.delete(this.baseProductRepository.target, {
             menuItemId: id,
@@ -219,7 +217,7 @@ export class MenuItemRepository {
   private async createVariationWithAddons(
     manager: EntityManager,
     menuItemId: string,
-    variation: any,
+    variation: ICreateMenuItemVariation,
   ): Promise<void> {
     const variationEntity = manager.create(this.variationRepository.target, {
       ...variation,
@@ -243,7 +241,7 @@ export class MenuItemRepository {
   private async updateExistingVariation(
     manager: EntityManager,
     menuItemId: string,
-    variation: any,
+    variation: IMenuItemVariationInput,
   ): Promise<void> {
     const existing = await manager.findOne(this.variationRepository.target, {
       where: { id: variation.id, menuItemId, deletedAt: IsNull() },
