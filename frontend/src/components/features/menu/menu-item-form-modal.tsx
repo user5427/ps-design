@@ -87,6 +87,7 @@ const useMenuItemForm = ({
     emptyRecipe(),
   ]);
   const [variations, setVariations] = useState<VariationFormData[]>([]);
+  const [removedVariationIds, setRemovedVariationIds] = useState<string[]>([]);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -128,6 +129,7 @@ const useMenuItemForm = ({
       setBaseProducts([emptyRecipe()]);
       setVariations([]);
     }
+    setRemovedVariationIds([]);
     setErrors({});
     setSubmitError(null);
   }, [mode, initialData]);
@@ -201,7 +203,11 @@ const useMenuItemForm = ({
       } else if (initialData) {
         await onSubmit({
           id: initialData.id,
-          data: commonData as UpdateMenuItem,
+          data: {
+            ...commonData,
+            removeVariationIds:
+              removedVariationIds.length > 0 ? removedVariationIds : undefined,
+          } as UpdateMenuItem,
         });
       }
 
@@ -279,8 +285,13 @@ const useMenuItemForm = ({
       handleBaseProductChange,
       handleAddVariation: () =>
         setVariations([...variations, emptyVariation()]),
-      handleRemoveVariation: (i: number) =>
-        setVariations(variations.filter((_, idx) => idx !== i)),
+      handleRemoveVariation: (i: number) => {
+        const removedVariation = variations[i];
+        if (removedVariation.id) {
+          setRemovedVariationIds((prev) => [...prev, removedVariation.id!]);
+        }
+        setVariations(variations.filter((_, idx) => idx !== i));
+      },
       handleVariationChange,
       handleAddAddonProduct: (i: number) => {
         const updated = [...variations];

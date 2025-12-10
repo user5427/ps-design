@@ -107,7 +107,7 @@ function toMenuItemResponse(
 
         return toVariationResponse(
           variation,
-          variationAvailable && !variation.isDisabled,
+          variationAvailable,
         );
       }) ?? [];
 

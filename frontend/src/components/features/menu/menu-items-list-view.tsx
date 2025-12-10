@@ -150,7 +150,7 @@ export const MenuItemsListView = () => {
                     : " (Unavailable)";
                 return (
                   <div key={`${v.name}-${v.type}-${index}`}>
-                    {`${v.name} (${v.type}) ${v.priceAdjustment >= 0 ? "+" : ""} ${v.priceAdjustment.toFixed(2)}${addonText}${statusText}€`}
+                    {`${v.name} (${v.type}) ${v.priceAdjustment >= 0 ? "+" : ""} ${v.priceAdjustment.toFixed(2)}€${addonText}${statusText}`}
                   </div>
                 );
               })}
