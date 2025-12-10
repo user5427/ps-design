@@ -1,7 +1,7 @@
 import { IsNull, type Repository } from "typeorm";
 import { BadRequestError, ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
-import { calculatePaginationMetadata, executePaginatedQuery } from "@/shared/pagination-utils";
+import { executePaginatedQuery } from "@/shared/pagination-utils";
 import { PRODUCT_MAPPING } from "@ps-design/constants/inventory";
 import type { ProductUnit } from "@/modules/inventory/product-unit/product-unit.entity";
 import type { Product } from "./product.entity";

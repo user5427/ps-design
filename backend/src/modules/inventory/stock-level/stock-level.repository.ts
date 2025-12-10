@@ -1,5 +1,5 @@
 import type { Repository } from "typeorm";
-import { calculatePaginationMetadata, executePaginatedQuery } from "@/shared/pagination-utils";
+import { executePaginatedQuery } from "@/shared/pagination-utils";
 import { STOCK_LEVEL_MAPPING } from "@ps-design/constants/inventory";
 import { StockLevel } from "./stock-level.entity";
 import type { ICreateStockLevel } from "./stock-level.types";
@@ -23,7 +23,7 @@ export class StockLevelRepository {
     });
   }
 
-  async findAllPaginatedAdvanced(
+  async findAllPaginated(
     businessId: string,
     query: UniversalPaginationQuery,
   ): Promise<PaginatedResult<StockLevel>> {
@@ -32,27 +32,6 @@ export class StockLevelRepository {
     qb.where("level.businessId = :businessId", { businessId });
 
     return executePaginatedQuery(qb, query, STOCK_LEVEL_MAPPING.fields, "level");
-  }
-
-  async findAllPaginatedByBusinessId(
-    businessId: string,
-    page: number,
-    limit: number,
-  ): Promise<PaginatedResult<StockLevel>> {
-    const query = this.repository.createQueryBuilder("level");
-
-    query.where("level.businessId = :businessId", { businessId });
-    query.orderBy("level.updatedAt", "DESC");
-
-    const skip = (page - 1) * limit;
-    query.skip(skip).take(limit);
-
-    const [items, total] = await query.getManyAndCount();
-
-    return {
-      items,
-      metadata: calculatePaginationMetadata(total, page, limit),
-    };
   }
 
   async upsertSafe(data: ICreateStockLevel): Promise<StockLevel> {

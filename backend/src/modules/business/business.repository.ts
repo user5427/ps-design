@@ -1,7 +1,7 @@
 import { IsNull, type Repository } from "typeorm";
 import { ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
-import { calculatePaginationMetadata, executePaginatedQuery } from "@/shared/pagination-utils";
+import { executePaginatedQuery } from "@/shared/pagination-utils";
 import { BUSINESS_MAPPING } from "@ps-design/constants/business";
 import type { Business } from "./business.entity";
 import type { ICreateBusiness, IUpdateBusiness } from "./business.types";
