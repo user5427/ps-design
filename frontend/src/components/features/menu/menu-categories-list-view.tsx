@@ -53,7 +53,7 @@ export const MenuCategoriesListView = () => {
       required: true,
       validationRules: [
         ValidationRules.minLength(1),
-        ValidationRules.maxLength(100),
+        ValidationRules.maxLength(50),
       ],
     },
   ];

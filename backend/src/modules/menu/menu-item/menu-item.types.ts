@@ -36,7 +36,7 @@ export interface ICreateMenuItem {
   variations: ICreateMenuItemVariation[];
 }
 
-export interface IUpdateMenuItemVariation {
+export interface IMenuItemVariationInput {
   id?: string;
   name?: string;
   type?: MenuItemVariationTypeValue;
@@ -51,6 +51,6 @@ export interface IUpdateMenuItem {
   categoryId?: string | null;
   isDisabled?: boolean;
   baseProducts?: ICreateMenuItemBaseProduct[];
-  variations?: IUpdateMenuItemVariation[];
+  variations?: IMenuItemVariationInput[];
   removeVariationIds?: string[];
 }
