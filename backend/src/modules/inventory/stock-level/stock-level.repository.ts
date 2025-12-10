@@ -1,6 +1,6 @@
 import type { Repository } from "typeorm";
 import { calculatePaginationMetadata, executePaginatedQuery } from "@/shared/pagination-utils";
-import { STOCK_LEVEL_FIELD_MAPPING } from "@/constants/inventory";
+import { STOCK_LEVEL_FIELD_MAPPING } from "@ps-design/constants/inventory";
 import { StockLevel } from "./stock-level.entity";
 import type { ICreateStockLevel } from "./stock-level.types";
 import { PaginatedResult } from "@ps-design/schemas/pagination";

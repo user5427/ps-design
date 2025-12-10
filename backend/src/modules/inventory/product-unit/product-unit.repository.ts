@@ -2,7 +2,7 @@ import { IsNull, type Repository } from "typeorm";
 import { ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
 import { calculatePaginationMetadata, executePaginatedQuery } from "@/shared/pagination-utils";
-import { PRODUCT_UNIT_FIELD_MAPPING } from "@/constants/inventory";
+import { PRODUCT_UNIT_FIELD_MAPPING } from "@ps-design/constants/inventory";
 import type { Product } from "@/modules/inventory/product/product.entity";
 import type { ProductUnit } from "./product-unit.entity";
 import type {
