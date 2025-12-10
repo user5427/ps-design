@@ -1,4 +1,4 @@
-import { IsNull, type Repository, type DataSource, In } from "typeorm";
+import { IsNull, type Repository, type DataSource, In, type EntityManager } from "typeorm";
 import { BadRequestError, ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
 import type { Product } from "@/modules/inventory/product/product.entity";
@@ -6,10 +6,20 @@ import type { StockLevel } from "@/modules/inventory/stock-level/stock-level.ent
 import type { MenuItemCategory } from "@/modules/menu/menu-item-category/menu-item-category.entity";
 import type { MenuItem } from "./menu-item.entity";
 import type { MenuItemVariation } from "@/modules/menu/menu-item-variation/menu-item-variation.entity";
-import { MenuItemVariationType } from "@/modules/menu/menu-item-variation/menu-item-variation.types";
 import type { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product/menu-item-base-product.entity";
 import type { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product/menu-item-variation-product.entity";
 import type { ICreateMenuItem, IUpdateMenuItem } from "./menu-item.types";
+
+const MENU_ITEM_RELATIONS = [
+  "category",
+  "baseProducts",
+  "baseProducts.product",
+  "baseProducts.product.productUnit",
+  "variations",
+  "variations.addonProducts",
+  "variations.addonProducts.product",
+  "variations.addonProducts.product.productUnit",
+];
 
 export class MenuItemRepository {
   constructor(
@@ -26,16 +36,7 @@ export class MenuItemRepository {
   async findAllByBusinessId(businessId: string): Promise<MenuItem[]> {
     return this.repository.find({
       where: { businessId, deletedAt: IsNull() },
-      relations: [
-        "category",
-        "baseProducts",
-        "baseProducts.product",
-        "baseProducts.product.productUnit",
-        "variations",
-        "variations.addonProducts",
-        "variations.addonProducts.product",
-        "variations.addonProducts.product.productUnit",
-      ],
+      relations: MENU_ITEM_RELATIONS,
       order: { baseName: "ASC" },
     });
   }
@@ -43,16 +44,7 @@ export class MenuItemRepository {
   async findById(id: string): Promise<MenuItem | null> {
     return this.repository.findOne({
       where: { id, deletedAt: IsNull() },
-      relations: [
-        "category",
-        "baseProducts",
-        "baseProducts.product",
-        "baseProducts.product.productUnit",
-        "variations",
-        "variations.addonProducts",
-        "variations.addonProducts.product",
-        "variations.addonProducts.product.productUnit",
-      ],
+      relations: MENU_ITEM_RELATIONS,
     });
   }
 
@@ -62,16 +54,7 @@ export class MenuItemRepository {
   ): Promise<MenuItem | null> {
     return this.repository.findOne({
       where: { id, businessId, deletedAt: IsNull() },
-      relations: [
-        "category",
-        "baseProducts",
-        "baseProducts.product",
-        "baseProducts.product.productUnit",
-        "variations",
-        "variations.addonProducts",
-        "variations.addonProducts.product",
-        "variations.addonProducts.product.productUnit",
-      ],
+      relations: MENU_ITEM_RELATIONS,
     });
   }
 
@@ -119,65 +102,89 @@ export class MenuItemRepository {
     }
   }
 
+  private collectAllProductIds(
+    baseProducts: { productId: string }[],
+    variations: { addonProducts?: { productId: string }[] }[],
+  ): string[] {
+    return [
+      ...baseProducts.map((bp) => bp.productId),
+      ...variations.flatMap((v) => v.addonProducts?.map((ap) => ap.productId) ?? []),
+    ];
+  }
+
+  private async createBaseProducts(
+    manager: EntityManager,
+    menuItemId: string,
+    baseProducts: { productId: string; quantity: number }[],
+  ): Promise<void> {
+    if (baseProducts.length === 0) return;
+
+    const entities = baseProducts.map((bp) =>
+      manager.create(this.baseProductRepository.target, {
+        menuItemId,
+        productId: bp.productId,
+        quantity: bp.quantity,
+      }),
+    );
+    await manager.save(entities);
+  }
+
+  private async createVariationWithAddons(
+    manager: EntityManager,
+    menuItemId: string,
+    variation: {
+      name: string;
+      type: string;
+      priceAdjustment?: number;
+      isDisabled?: boolean;
+      addonProducts?: { productId: string; quantity: number }[];
+    },
+  ): Promise<void> {
+    const variationEntity = manager.create(this.variationRepository.target, {
+      menuItemId,
+      name: variation.name,
+      type: variation.type,
+      priceAdjustment: variation.priceAdjustment ?? 0,
+      isDisabled: variation.isDisabled ?? false,
+    });
+    const savedVariation = await manager.save(variationEntity);
+
+    if (variation.addonProducts && variation.addonProducts.length > 0) {
+      const addonEntities = variation.addonProducts.map((ap) =>
+        manager.create(this.variationProductRepository.target, {
+          variationId: savedVariation.id,
+          productId: ap.productId,
+          quantity: ap.quantity,
+        }),
+      );
+      await manager.save(addonEntities);
+    }
+  }
+
   async create(data: ICreateMenuItem): Promise<MenuItem> {
     const { baseProducts, variations, ...menuItemData } = data;
 
+    // Validate before transaction
     await this.validateCategoryExists(menuItemData.categoryId, data.businessId);
-
-    const allProductIds = [
-      ...baseProducts.map((bp) => bp.productId),
-      ...variations.flatMap((v) => v.addonProducts.map((ap) => ap.productId)),
-    ];
+    const allProductIds = this.collectAllProductIds(baseProducts, variations);
     await this.validateProductsExist(allProductIds, data.businessId);
 
-    return await this.dataSource.transaction(async (manager) => {
+    // Execute transaction
+    const menuItemId = await this.dataSource.transaction(async (manager) => {
       try {
+        // Create menu item
         const menuItem = manager.create(this.repository.target, menuItemData);
         const savedMenuItem = await manager.save(menuItem);
 
-        if (baseProducts.length > 0) {
-          const baseProductEntities = baseProducts.map((bp) =>
-            manager.create(this.baseProductRepository.target, {
-              menuItemId: savedMenuItem.id,
-              productId: bp.productId,
-              quantity: bp.quantity,
-            }),
-          );
-          await manager.save(baseProductEntities);
-        }
+        // Create base products
+        await this.createBaseProducts(manager, savedMenuItem.id, baseProducts);
 
+        // Create variations with addon products
         for (const variation of variations) {
-          const { addonProducts, ...variationData } = variation;
-          const variationEntity = manager.create(
-            this.variationRepository.target,
-            {
-              ...variationData,
-              type: variationData.type as MenuItemVariationType,
-              menuItemId: savedMenuItem.id,
-            },
-          );
-          const savedVariation = await manager.save(variationEntity);
-
-          if (addonProducts.length > 0) {
-            const addonProductEntities = addonProducts.map((ap) =>
-              manager.create(this.variationProductRepository.target, {
-                variationId: savedVariation.id,
-                productId: ap.productId,
-                quantity: ap.quantity,
-              }),
-            );
-            await manager.save(addonProductEntities);
-          }
+          await this.createVariationWithAddons(manager, savedMenuItem.id, variation);
         }
 
-        const createdMenuItem = await this.findByIdAndBusinessId(
-          savedMenuItem.id,
-          data.businessId,
-        );
-        if (!createdMenuItem) {
-          throw new Error("Failed to retrieve created menu item");
-        }
-        return createdMenuItem;
+        return savedMenuItem.id;
       } catch (error) {
         if (isUniqueConstraintError(error)) {
           throw new ConflictError("Menu item with this name already exists");
@@ -185,6 +192,13 @@ export class MenuItemRepository {
         throw error;
       }
     });
+
+    // Fetch complete menu item AFTER transaction commits
+    const createdMenuItem = await this.findByIdAndBusinessId(menuItemId, data.businessId);
+    if (!createdMenuItem) {
+      throw new Error("Failed to retrieve created menu item");
+    }
+    return createdMenuItem;
   }
 
   async update(
@@ -197,41 +211,33 @@ export class MenuItemRepository {
       throw new NotFoundError("Menu item not found");
     }
 
-    const { baseProducts, variations, removeVariationIds, ...updateData } =
-      data;
+    const { baseProducts, variations, removeVariationIds, ...updateData } = data;
 
+    // Validate before transaction
     if (updateData.categoryId !== undefined) {
       await this.validateCategoryExists(updateData.categoryId, businessId);
     }
-
-    const allProductIds = [
-      ...(baseProducts?.map((bp) => bp.productId) ?? []),
-      ...(variations?.flatMap((v) => v.addonProducts?.map((ap) => ap.productId) ?? []) ?? []),
-    ];
+    const allProductIds = this.collectAllProductIds(
+      baseProducts ?? [],
+      variations ?? [],
+    );
     await this.validateProductsExist(allProductIds, businessId);
 
-    return await this.dataSource.transaction(async (manager) => {
+    // Execute transaction
+    await this.dataSource.transaction(async (manager) => {
       try {
+        // Update menu item fields
         if (Object.keys(updateData).length > 0) {
           await manager.update(this.repository.target, id, updateData);
         }
 
+        // Replace base products if provided
         if (baseProducts !== undefined) {
-          await manager.delete(this.baseProductRepository.target, {
-            menuItemId: id,
-          });
-          if (baseProducts.length > 0) {
-            const baseProductEntities = baseProducts.map((bp) =>
-              manager.create(this.baseProductRepository.target, {
-                menuItemId: id,
-                productId: bp.productId,
-                quantity: bp.quantity,
-              }),
-            );
-            await manager.save(baseProductEntities);
-          }
+          await manager.delete(this.baseProductRepository.target, { menuItemId: id });
+          await this.createBaseProducts(manager, id, baseProducts);
         }
 
+        // Soft delete removed variations
         if (removeVariationIds && removeVariationIds.length > 0) {
           await manager.update(
             this.variationRepository.target,
@@ -240,102 +246,34 @@ export class MenuItemRepository {
           );
         }
 
+        // Process variations
         if (variations !== undefined) {
           for (const variation of variations) {
-            const { addonProducts, id: variationId, ...variationData } = variation;
-
-            if (variationId) {
-              const existingVariation = await manager.findOne(
-                this.variationRepository.target,
-                {
-                  where: {
-                    id: variationId,
-                    menuItemId: id,
-                    deletedAt: IsNull(),
-                  },
-                },
-              );
-
-              if (!existingVariation) {
-                throw new NotFoundError(`Variation ${variationId} not found`);
-              }
-
-              if (Object.keys(variationData).length > 0) {
-                const updateData: Partial<MenuItemVariation> = {};
-                if (variationData.name !== undefined)
-                  updateData.name = variationData.name;
-                if (variationData.type !== undefined)
-                  updateData.type = variationData.type as MenuItemVariationType;
-                if (variationData.priceAdjustment !== undefined)
-                  updateData.priceAdjustment = variationData.priceAdjustment;
-                if (variationData.isDisabled !== undefined)
-                  updateData.isDisabled = variationData.isDisabled;
-
-                if (Object.keys(updateData).length > 0) {
-                  await manager.update(
-                    this.variationRepository.target,
-                    variationId,
-                    updateData,
-                  );
-                }
-              }
-
-              if (addonProducts !== undefined) {
-                await manager.delete(this.variationProductRepository.target, {
-                  variationId,
-                });
-                if (addonProducts.length > 0) {
-                  const addonProductEntities = addonProducts.map((ap) =>
-                    manager.create(this.variationProductRepository.target, {
-                      variationId,
-                      productId: ap.productId,
-                      quantity: ap.quantity,
-                    }),
-                  );
-                  await manager.save(addonProductEntities);
-                }
-              }
+            if (variation.id) {
+              // Update existing variation
+              await this.updateExistingVariation(manager, id, {
+                id: variation.id,
+                name: variation.name,
+                type: variation.type,
+                priceAdjustment: variation.priceAdjustment,
+                isDisabled: variation.isDisabled,
+                addonProducts: variation.addonProducts,
+              });
             } else {
+              // Create new variation
               if (!variation.name || !variation.type) {
-                throw new BadRequestError(
-                  "New variations require name and type",
-                );
+                throw new BadRequestError("New variations require name and type");
               }
-
-              const variationEntity = manager.create(
-                this.variationRepository.target,
-                {
-                  name: variation.name,
-                  type: variation.type as MenuItemVariationType,
-                  priceAdjustment: variation.priceAdjustment ?? 0,
-                  isDisabled: variation.isDisabled ?? false,
-                  menuItemId: id,
-                },
-              );
-              const savedVariation = await manager.save(variationEntity);
-
-              if (addonProducts && addonProducts.length > 0) {
-                const addonProductEntities = addonProducts.map((ap) =>
-                  manager.create(this.variationProductRepository.target, {
-                    variationId: savedVariation.id,
-                    productId: ap.productId,
-                    quantity: ap.quantity,
-                  }),
-                );
-                await manager.save(addonProductEntities);
-              }
+              await this.createVariationWithAddons(manager, id, variation as {
+                name: string;
+                type: string;
+                priceAdjustment?: number;
+                isDisabled?: boolean;
+                addonProducts?: { productId: string; quantity: number }[];
+              });
             }
           }
         }
-
-        const updatedMenuItem = await this.findByIdAndBusinessId(
-          id,
-          businessId,
-        );
-        if (!updatedMenuItem) {
-          throw new Error("Failed to retrieve updated menu item");
-        }
-        return updatedMenuItem;
       } catch (error) {
         if (isUniqueConstraintError(error)) {
           throw new ConflictError("Menu item with this name already exists");
@@ -343,6 +281,60 @@ export class MenuItemRepository {
         throw error;
       }
     });
+
+    // Fetch complete menu item AFTER transaction commits
+    const updatedMenuItem = await this.findByIdAndBusinessId(id, businessId);
+    if (!updatedMenuItem) {
+      throw new Error("Failed to retrieve updated menu item");
+    }
+    return updatedMenuItem;
+  }
+
+  private async updateExistingVariation(
+    manager: EntityManager,
+    menuItemId: string,
+    variation: {
+      id: string;
+      name?: string;
+      type?: string;
+      priceAdjustment?: number;
+      isDisabled?: boolean;
+      addonProducts?: { productId: string; quantity: number }[];
+    },
+  ): Promise<void> {
+    const existingVariation = await manager.findOne(this.variationRepository.target, {
+      where: { id: variation.id, menuItemId, deletedAt: IsNull() },
+    });
+
+    if (!existingVariation) {
+      throw new NotFoundError(`Variation ${variation.id} not found`);
+    }
+
+    // Build update object
+    const updateFields: Partial<MenuItemVariation> = {};
+    if (variation.name !== undefined) updateFields.name = variation.name;
+    if (variation.type !== undefined) updateFields.type = variation.type;
+    if (variation.priceAdjustment !== undefined) updateFields.priceAdjustment = variation.priceAdjustment;
+    if (variation.isDisabled !== undefined) updateFields.isDisabled = variation.isDisabled;
+
+    if (Object.keys(updateFields).length > 0) {
+      await manager.update(this.variationRepository.target, variation.id, updateFields);
+    }
+
+    // Replace addon products if provided
+    if (variation.addonProducts !== undefined) {
+      await manager.delete(this.variationProductRepository.target, { variationId: variation.id });
+      if (variation.addonProducts.length > 0) {
+        const addonEntities = variation.addonProducts.map((ap) =>
+          manager.create(this.variationProductRepository.target, {
+            variationId: variation.id,
+            productId: ap.productId,
+            quantity: ap.quantity,
+          }),
+        );
+        await manager.save(addonEntities);
+      }
+    }
   }
 
   async bulkDelete(ids: string[], businessId: string): Promise<void> {
@@ -375,13 +367,12 @@ export class MenuItemRepository {
       },
     });
 
-    const availabilityMap = new Map<string, boolean>();
     const stockMap = new Map<string, number>();
-
     for (const level of stockLevels) {
       stockMap.set(level.productId, level.quantity);
     }
 
+    const availabilityMap = new Map<string, boolean>();
     for (const productId of productIds) {
       const quantity = stockMap.get(productId) ?? 0;
       availabilityMap.set(productId, quantity > 0);
