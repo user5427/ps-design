@@ -116,7 +116,6 @@ export function RecordListView<T extends Record<string, unknown>>({
   const computedViewFields: ViewFieldDefinition[] = useMemo(() => {
     if (viewFields) return viewFields;
 
-    // Generate from editFormFields
     return editFormFields.map((field) => ({
       name: field.name,
       label: field.label,

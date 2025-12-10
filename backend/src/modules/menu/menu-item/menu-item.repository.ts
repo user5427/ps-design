@@ -164,22 +164,17 @@ export class MenuItemRepository {
   async create(data: ICreateMenuItem): Promise<MenuItem> {
     const { baseProducts, variations, ...menuItemData } = data;
 
-    // Validate before transaction
     await this.validateCategoryExists(menuItemData.categoryId, data.businessId);
     const allProductIds = this.collectAllProductIds(baseProducts, variations);
     await this.validateProductsExist(allProductIds, data.businessId);
 
-    // Execute transaction
     const menuItemId = await this.dataSource.transaction(async (manager) => {
       try {
-        // Create menu item
         const menuItem = manager.create(this.repository.target, menuItemData);
         const savedMenuItem = await manager.save(menuItem);
 
-        // Create base products
         await this.createBaseProducts(manager, savedMenuItem.id, baseProducts);
 
-        // Create variations with addon products
         for (const variation of variations) {
           await this.createVariationWithAddons(manager, savedMenuItem.id, variation);
         }
@@ -193,7 +188,6 @@ export class MenuItemRepository {
       }
     });
 
-    // Fetch complete menu item AFTER transaction commits
     const createdMenuItem = await this.findByIdAndBusinessId(menuItemId, data.businessId);
     if (!createdMenuItem) {
       throw new Error("Failed to retrieve created menu item");
@@ -213,7 +207,6 @@ export class MenuItemRepository {
 
     const { baseProducts, variations, removeVariationIds, ...updateData } = data;
 
-    // Validate before transaction
     if (updateData.categoryId !== undefined) {
       await this.validateCategoryExists(updateData.categoryId, businessId);
     }
@@ -223,21 +216,17 @@ export class MenuItemRepository {
     );
     await this.validateProductsExist(allProductIds, businessId);
 
-    // Execute transaction
     await this.dataSource.transaction(async (manager) => {
       try {
-        // Update menu item fields
         if (Object.keys(updateData).length > 0) {
           await manager.update(this.repository.target, id, updateData);
         }
 
-        // Replace base products if provided
         if (baseProducts !== undefined) {
           await manager.delete(this.baseProductRepository.target, { menuItemId: id });
           await this.createBaseProducts(manager, id, baseProducts);
         }
 
-        // Soft delete removed variations
         if (removeVariationIds && removeVariationIds.length > 0) {
           await manager.update(
             this.variationRepository.target,
@@ -246,11 +235,9 @@ export class MenuItemRepository {
           );
         }
 
-        // Process variations
         if (variations !== undefined) {
           for (const variation of variations) {
             if (variation.id) {
-              // Update existing variation
               await this.updateExistingVariation(manager, id, {
                 id: variation.id,
                 name: variation.name,
@@ -260,7 +247,6 @@ export class MenuItemRepository {
                 addonProducts: variation.addonProducts,
               });
             } else {
-              // Create new variation
               if (!variation.name || !variation.type) {
                 throw new BadRequestError("New variations require name and type");
               }
@@ -282,7 +268,6 @@ export class MenuItemRepository {
       }
     });
 
-    // Fetch complete menu item AFTER transaction commits
     const updatedMenuItem = await this.findByIdAndBusinessId(id, businessId);
     if (!updatedMenuItem) {
       throw new Error("Failed to retrieve updated menu item");
@@ -310,7 +295,6 @@ export class MenuItemRepository {
       throw new NotFoundError(`Variation ${variation.id} not found`);
     }
 
-    // Build update object
     const updateFields: Partial<MenuItemVariation> = {};
     if (variation.name !== undefined) updateFields.name = variation.name;
     if (variation.type !== undefined) updateFields.type = variation.type;
@@ -321,7 +305,6 @@ export class MenuItemRepository {
       await manager.update(this.variationRepository.target, variation.id, updateFields);
     }
 
-    // Replace addon products if provided
     if (variation.addonProducts !== undefined) {
       await manager.delete(this.variationProductRepository.target, { variationId: variation.id });
       if (variation.addonProducts.length > 0) {

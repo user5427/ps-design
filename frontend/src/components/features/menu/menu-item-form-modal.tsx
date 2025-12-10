@@ -27,11 +27,7 @@ import type {
   MenuItem,
   UpdateMenuItem,
 } from "@/schemas/menu";
-
-interface Product {
-  id: string;
-  name: string;
-}
+import type { Product } from "@/schemas/inventory";
 
 interface BaseProductRecipe {
   productId: string;
@@ -125,6 +121,15 @@ export const MenuItemFormModal: React.FC<MenuItemFormModalProps> = ({
         value: p.id,
         label: p.name,
       })),
+    [products]
+  );
+
+  const getProductUnit = useCallback(
+    (productId: string) => {
+      const product = products.find((p) => p.id === productId);
+      if (!product) return "";
+      return product.productUnit.symbol || product.productUnit.name;
+    },
     [products]
   );
 
@@ -512,6 +517,11 @@ export const MenuItemFormModal: React.FC<MenuItemFormModalProps> = ({
                         slotProps={{
                           input: {
                             inputProps: { min: 0.01, step: 0.01 },
+                            endAdornment: bp.productId ? (
+                              <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                                {getProductUnit(bp.productId)}
+                              </Typography>
+                            ) : null,
                           },
                         }}
                       />
@@ -627,7 +637,6 @@ export const MenuItemFormModal: React.FC<MenuItemFormModalProps> = ({
                                 inputProps: { step: 0.01 },
                               },
                             }}
-                            helperText="Can be negative or positive"
                           />
                           <FormControlLabel
                             control={
@@ -715,6 +724,11 @@ export const MenuItemFormModal: React.FC<MenuItemFormModalProps> = ({
                                     slotProps={{
                                       input: {
                                         inputProps: { min: 0.01, step: 0.01 },
+                                        endAdornment: addon.productId ? (
+                                          <Typography variant="body2" color="text.secondary" sx={{ ml: 0.5 }}>
+                                            {getProductUnit(addon.productId)}
+                                          </Typography>
+                                        ) : null,
                                       },
                                     }}
                                   />

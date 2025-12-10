@@ -36,7 +36,7 @@ export const MenuItemsListView = () => {
         accessorKey: "basePrice",
         header: "Base Price",
         size: 100,
-        Cell: ({ cell }) => `$${cell.getValue<number>().toFixed(2)}`,
+        Cell: ({ cell }) => `$${cell.getValue<number>().toFixed(2)}€`,
       },
       {
         accessorKey: "category.name",
@@ -94,11 +94,17 @@ export const MenuItemsListView = () => {
         label: "Base Products",
         render: (value) => {
           const prods = value as Array<{
-            product: { name: string };
+            product: { 
+              name: string;
+              productUnit: { name: string; symbol: string | null };
+            };
             quantity: number;
           }>;
           if (!prods?.length) return "-";
-          return prods.map((p) => `${p.product.name} (${p.quantity})`).join(", ");
+          return prods.map((p) => {
+            const unit = p.product.productUnit.symbol || p.product.productUnit.name;
+            return `${p.product.name} (${p.quantity} ${unit})`;
+          }).join(", ");
         },
       },
       {
