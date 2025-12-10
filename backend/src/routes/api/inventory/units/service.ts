@@ -5,6 +5,7 @@ import type {
   PaginatedProductUnitResponse,
   CreateProductUnitBody,
   UpdateProductUnitBody,
+  UnitQuery,
 } from "@ps-design/schemas/inventory/units";
 import { ProductUnitResponseSchema } from "@ps-design/schemas/inventory/units";
 
@@ -23,28 +24,16 @@ function toProductUnitResponse(unit: ProductUnit): ProductUnitResponse {
 export async function getAllUnitsPaginated(
   fastify: FastifyInstance,
   businessId: string,
-  page: number,
-  limit: number,
-  search?: string,
+  query: UnitQuery,
 ): Promise<PaginatedProductUnitResponse> {
-  const result = await fastify.db.productUnit.findAllPaginatedByBusinessId(
+  const result = await fastify.db.productUnit.findAllPaginated(
     businessId,
-    page,
-    limit,
-    search,
+    query,
   );
   return {
     items: result.items.map((item) => ProductUnitResponseSchema.parse(toProductUnitResponse(item))),
     metadata: result.metadata,
   };
-}
-
-export async function getAllUnits(
-  fastify: FastifyInstance,
-  businessId: string,
-): Promise<ProductUnitResponse[]> {
-  const units = await fastify.db.productUnit.findAllByBusinessId(businessId);
-  return units.map(toProductUnitResponse);
 }
 
 export async function createUnit(

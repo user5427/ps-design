@@ -1,11 +1,12 @@
 import { IsNull, type Repository } from "typeorm";
 import { BadRequestError, ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
-import { calculatePaginationMetadata } from "@/shared/pagination-utils";
+import { calculatePaginationMetadata, executePaginatedQuery, type FieldMapping } from "@/shared/pagination-utils";
 import type { ProductUnit } from "@/modules/inventory/product-unit/product-unit.entity";
 import type { Product } from "./product.entity";
 import type { ICreateProduct, IUpdateProduct } from "./product.types";
 import { PaginatedResult } from "@ps-design/schemas/pagination";
+import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export class ProductRepository {
   constructor(
@@ -13,45 +14,34 @@ export class ProductRepository {
     private productUnitRepository: Repository<ProductUnit>,
   ) {}
 
-  async findAllByBusinessId(businessId: string): Promise<Product[]> {
-    return this.repository.find({
-      where: { businessId, deletedAt: IsNull() },
-      relations: ["productUnit", "stockLevel"],
-      order: { name: "ASC" },
-    });
-  }
+  private readonly fieldMapping: FieldMapping = {
+    name: { column: "product.name", type: "string" },
+    description: { column: "product.description", type: "string" },
+    isDisabled: { column: "product.isDisabled", type: "boolean" },
+    createdAt: { column: "product.createdAt", type: "date" },
+    updatedAt: { column: "product.updatedAt", type: "date" },
+  };
 
-  async findAllPaginatedByBusinessId(
+  async findAllPaginated(
     businessId: string,
-    page: number,
-    limit: number,
-    search?: string,
+    query: UniversalPaginationQuery,
   ): Promise<PaginatedResult<Product>> {
-    const query = this.repository.createQueryBuilder("product");
+    const qb = this.repository.createQueryBuilder("product");
 
-    query.leftJoinAndSelect("product.productUnit", "productUnit");
-    query.leftJoinAndSelect("product.stockLevel", "stockLevel");
+    qb.leftJoinAndSelect("product.productUnit", "productUnit");
+    qb.leftJoinAndSelect("product.stockLevel", "stockLevel");
 
-    query.where("product.businessId = :businessId", { businessId });
-    query.andWhere("product.deletedAt IS NULL");
+    qb.where("product.businessId = :businessId", { businessId });
+    qb.andWhere("product.deletedAt IS NULL");
 
-    if (search) {
-      query.andWhere("product.name ILIKE :search", {
-        search: `%${search}%`,
+    // Handle simple search if provided
+    if (query.search) {
+      qb.andWhere("product.name ILIKE :search", {
+        search: `%${query.search}%`,
       });
     }
 
-    query.orderBy("product.name", "ASC");
-
-    const skip = (page - 1) * limit;
-    query.skip(skip).take(limit);
-
-    const [items, total] = await query.getManyAndCount();
-
-    return {
-      items,
-      metadata: calculatePaginationMetadata(total, page, limit),
-    };
+    return executePaginatedQuery(qb, query, this.fieldMapping, "product");
   }
 
   async findById(id: string): Promise<Product | null> {

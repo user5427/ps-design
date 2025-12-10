@@ -4,6 +4,7 @@ import type {
   UpdateProductBody,
   ProductResponse,
   PaginatedProductResponse,
+  ProductQuery,
 } from "@ps-design/schemas/inventory/products";
 import { ProductResponseSchema } from "@ps-design/schemas/inventory/products";
 import type { Product } from "../../../../modules/inventory/product/product.entity";
@@ -30,28 +31,16 @@ function toProductResponse(product: Product): ProductResponse {
 export async function getAllProductsPaginated(
   fastify: FastifyInstance,
   businessId: string,
-  page: number,
-  limit: number,
-  search?: string,
+  query: ProductQuery,
 ): Promise<PaginatedProductResponse> {
-  const result = await fastify.db.product.findAllPaginatedByBusinessId(
+  const result = await fastify.db.product.findAllPaginated(
     businessId,
-    page,
-    limit,
-    search,
+    query,
   );
   return {
     items: result.items.map((item: Product) => ProductResponseSchema.parse(toProductResponse(item))),
     metadata: result.metadata,
   };
-}
-
-export async function getAllProducts(
-  fastify: FastifyInstance,
-  businessId: string,
-): Promise<ProductResponse[]> {
-  const products = await fastify.db.product.findAllByBusinessId(businessId);
-  return products.map(toProductResponse);
 }
 
 export async function createProduct(

@@ -29,7 +29,7 @@ import {
 import {
   ErrorResponseSchema,
   SuccessResponseSchema,
-} from "@ps-design/schemas/shared/response-types";
+} from "@ps-design/schemas/shared";
 
 export default async function businessRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -54,12 +54,9 @@ export default async function businessRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
-        const { page = 1, limit = 20, search } = request.query;
         const result = await getBusinessesPaginated(
           fastify,
-          page,
-          limit,
-          search,
+          request.query,
         );
         return reply.send(result);
       } catch (error) {

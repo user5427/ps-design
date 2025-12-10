@@ -4,20 +4,15 @@ import type {
   CreateBusinessBody,
   UpdateBusinessBody,
   PaginatedBusinessResponse,
+  BusinessQuery,
 } from "@ps-design/schemas/business";
 import { BusinessResponseSchema } from "@ps-design/schemas/business";
 
 export async function getBusinessesPaginated(
   fastify: FastifyInstance,
-  page: number,
-  limit: number,
-  search?: string,
+  query: BusinessQuery,
 ): Promise<PaginatedBusinessResponse> {
-  const result = await fastify.db.business.findAllPaginated(
-    page,
-    limit,
-    search,
-  );
+  const result = await fastify.db.business.findAllPaginated(query);
   return {
     items: result.items.map((item) => BusinessResponseSchema.parse(item)),
     metadata: result.metadata,

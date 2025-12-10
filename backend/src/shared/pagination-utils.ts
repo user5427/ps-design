@@ -1,10 +1,5 @@
+import { FilterOperator, PaginationMetadata, SortDirection, UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 import type { ObjectLiteral, SelectQueryBuilder } from "typeorm";
-import {
-  FilterOperator,
-  SortDirection,
-  type UniversalPaginationQuery,
-  type PaginationMetadata,
-} from "@ps-design/schemas/shared";
 
 /**
  * Applies pagination to a TypeORM query builder

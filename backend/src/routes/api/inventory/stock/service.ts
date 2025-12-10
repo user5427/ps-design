@@ -8,11 +8,13 @@ import type {
   StockChangeResponse,
   PaginatedStockLevelResponse,
   PaginatedStockChangeResponse,
+  StockQuery,
 } from "@ps-design/schemas/inventory/stock";
 import {
   StockLevelResponseSchema,
   StockChangeResponseSchema,
 } from "@ps-design/schemas/inventory/stock";
+import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 function toStockChangeResponse(change: StockChange): StockChangeResponse {
   // expirationDate is a date-only field that may come as string "YYYY-MM-DD" or Date
@@ -63,28 +65,16 @@ function toStockLevelResponse(product: Product): StockLevelResponse {
 export async function getAllStockLevelsPaginated(
   fastify: FastifyInstance,
   businessId: string,
-  page: number,
-  limit: number,
-  search?: string,
+  query: StockQuery,
 ): Promise<PaginatedStockLevelResponse> {
-  const result = await fastify.db.product.findAllPaginatedByBusinessId(
+  const result = await fastify.db.product.findAllPaginated(
     businessId,
-    page,
-    limit,
-    search,
+    query,
   );
   return {
     items: result.items.map((item: Product) => StockLevelResponseSchema.parse(toStockLevelResponse(item))),
     metadata: result.metadata,
   };
-}
-
-export async function getAllStockLevels(
-  fastify: FastifyInstance,
-  businessId: string,
-): Promise<StockLevelResponse[]> {
-  const products = await fastify.db.product.findAllByBusinessId(businessId);
-  return products.map(toStockLevelResponse);
 }
 
 export async function getStockLevelByProductId(
@@ -138,15 +128,11 @@ export async function updateStockChange(
 export async function getStockChangesPaginated(
   fastify: FastifyInstance,
   businessId: string,
-  page: number,
-  limit: number,
-  search?: string,
+  query: UniversalPaginationQuery,
 ): Promise<PaginatedStockChangeResponse> {
-  const result = await fastify.db.stockChange.findAllPaginatedByBusinessId(
+  const result = await fastify.db.stockChange.findAllPaginated(
     businessId,
-    page,
-    limit,
-    search,
+    query,
   );
   return {
     items: result.items.map((item: StockChange) => StockChangeResponseSchema.parse(toStockChangeResponse(item))),
@@ -154,15 +140,3 @@ export async function getStockChangesPaginated(
   };
 }
 
-export async function getStockChanges(
-  fastify: FastifyInstance,
-  businessId: string,
-  productId?: string,
-): Promise<StockChangeResponse[]> {
-  const changes = await fastify.db.stockChange.findAllByBusinessId(
-    businessId,
-    productId,
-  );
-
-  return changes.map(toStockChangeResponse);
-}

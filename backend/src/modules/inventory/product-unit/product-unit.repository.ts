@@ -1,7 +1,7 @@
 import { IsNull, type Repository } from "typeorm";
 import { ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
-import { calculatePaginationMetadata } from "@/shared/pagination-utils";
+import { calculatePaginationMetadata, executePaginatedQuery, type FieldMapping } from "@/shared/pagination-utils";
 import type { Product } from "@/modules/inventory/product/product.entity";
 import type { ProductUnit } from "./product-unit.entity";
 import type {
@@ -9,6 +9,7 @@ import type {
   IUpdateProductUnit,
 } from "./product-unit.types";
 import { PaginatedResult } from "@ps-design/schemas/pagination";
+import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export class ProductUnitRepository {
   constructor(
@@ -16,42 +17,31 @@ export class ProductUnitRepository {
     private productRepository: Repository<Product>,
   ) {}
 
-  async findAllByBusinessId(businessId: string): Promise<ProductUnit[]> {
-    return this.repository.find({
-      where: { businessId, deletedAt: IsNull() },
-      order: { name: "ASC" },
-    });
-  }
+  private readonly fieldMapping: FieldMapping = {
+    name: { column: "unit.name", type: "string" },
+    symbol: { column: "unit.symbol", type: "string" },
+    createdAt: { column: "unit.createdAt", type: "date" },
+    updatedAt: { column: "unit.updatedAt", type: "date" },
+  };
 
-  async findAllPaginatedByBusinessId(
+  async findAllPaginated(
     businessId: string,
-    page: number,
-    limit: number,
-    search?: string,
+    query: UniversalPaginationQuery,
   ): Promise<PaginatedResult<ProductUnit>> {
-    const query = this.repository.createQueryBuilder("unit");
+    const qb = this.repository.createQueryBuilder("unit");
 
-    query.where("unit.businessId = :businessId", { businessId });
-    query.andWhere("unit.deletedAt IS NULL");
+    qb.where("unit.businessId = :businessId", { businessId });
+    qb.andWhere("unit.deletedAt IS NULL");
 
-    if (search) {
-      query.andWhere(
+    // Handle simple search if provided
+    if (query.search) {
+      qb.andWhere(
         "(unit.name ILIKE :search OR unit.symbol ILIKE :search)",
-        { search: `%${search}%` },
+        { search: `%${query.search}%` },
       );
     }
 
-    query.orderBy("unit.name", "ASC");
-
-    const skip = (page - 1) * limit;
-    query.skip(skip).take(limit);
-
-    const [items, total] = await query.getManyAndCount();
-
-    return {
-      items,
-      metadata: calculatePaginationMetadata(total, page, limit),
-    };
+    return executePaginatedQuery(qb, query, this.fieldMapping, "unit");
   }
 
   async findById(id: string): Promise<ProductUnit | null> {

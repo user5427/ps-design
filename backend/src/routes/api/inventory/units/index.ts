@@ -4,7 +4,6 @@ import httpStatus from "http-status";
 import {
   bulkDeleteUnits,
   createUnit,
-  getAllUnits,
   getAllUnitsPaginated,
   updateUnit,
 } from "./service";
@@ -56,13 +55,10 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        const { page = 1, limit = 20, search } = request.query;
         const units = await getAllUnitsPaginated(
           fastify,
           businessId,
-          page,
-          limit,
-          search,
+          request.query,
         );
         return reply.send(units);
       } catch (error) {

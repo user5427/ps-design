@@ -4,7 +4,6 @@ import httpStatus from "http-status";
 import {
   bulkDeleteProducts,
   createProduct,
-  getAllProducts,
   getAllProductsPaginated,
   getProductById,
   updateProduct,
@@ -60,13 +59,10 @@ export default async function productsRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        const { page = 1, limit = 20, search } = request.query;
         const products = await getAllProductsPaginated(
           fastify,
           businessId,
-          page,
-          limit,
-          search,
+          request.query,
         );
         return reply.send(products);
       } catch (error) {

@@ -5,12 +5,13 @@ import {
   type Repository,
 } from "typeorm";
 import { BadRequestError, NotFoundError } from "@/shared/errors";
-import { calculatePaginationMetadata } from "@/shared/pagination-utils";
+import { calculatePaginationMetadata, executePaginatedQuery, type FieldMapping } from "@/shared/pagination-utils";
 import type { Product } from "@/modules/inventory/product/product.entity";
 import { StockLevel } from "@/modules/inventory/stock-level/stock-level.entity";
 import { StockChange } from "./stock-change.entity";
 import type { ICreateStockChange, StockChangeType } from "./stock-change.types";
 import { PaginatedResult } from "@ps-design/schemas/pagination";
+import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export class StockChangeRepository {
   constructor(
@@ -19,55 +20,33 @@ export class StockChangeRepository {
     private dataSource: DataSource,
   ) {}
 
-  async findAllByBusinessId(
-    businessId: string,
-    productId?: string,
-  ): Promise<StockChange[]> {
-    const where: FindOptionsWhere<StockChange> = {
-      businessId,
-      deletedAt: IsNull(),
-    };
-    if (productId) {
-      where.productId = productId;
-    }
-    return this.repository.find({
-      where,
-      relations: ["product", "product.productUnit"],
-      order: { createdAt: "DESC" },
-    });
-  }
+  private readonly fieldMapping: FieldMapping = {
+    quantity: { column: "change.quantity", type: "number" },
+    type: { column: "change.type", type: "string" },
+    createdAt: { column: "change.createdAt", type: "date" },
+    updatedAt: { column: "change.updatedAt", type: "date" },
+  };
 
-  async findAllPaginatedByBusinessId(
+  async findAllPaginated(
     businessId: string,
-    page: number,
-    limit: number,
-    search?: string,
+    query: UniversalPaginationQuery,
   ): Promise<PaginatedResult<StockChange>> {
-    const query = this.repository.createQueryBuilder("change");
+    const qb = this.repository.createQueryBuilder("change");
 
-    query.leftJoinAndSelect("change.product", "product");
-    query.leftJoinAndSelect("product.productUnit", "productUnit");
+    qb.leftJoinAndSelect("change.product", "product");
+    qb.leftJoinAndSelect("product.productUnit", "productUnit");
 
-    query.where("change.businessId = :businessId", { businessId });
-    query.andWhere("change.deletedAt IS NULL");
+    qb.where("change.businessId = :businessId", { businessId });
+    qb.andWhere("change.deletedAt IS NULL");
 
-    if (search) {
-      query.andWhere("product.name ILIKE :search", {
-        search: `%${search}%`,
+    // Handle simple search if provided
+    if (query.search) {
+      qb.andWhere("product.name ILIKE :search", {
+        search: `%${query.search}%`,
       });
     }
 
-    query.orderBy("change.createdAt", "DESC");
-
-    const skip = (page - 1) * limit;
-    query.skip(skip).take(limit);
-
-    const [items, total] = await query.getManyAndCount();
-
-    return {
-      items,
-      metadata: calculatePaginationMetadata(total, page, limit),
-    };
+    return executePaginatedQuery(qb, query, this.fieldMapping, "change");
   }
 
   async findById(id: string): Promise<StockChange | null> {

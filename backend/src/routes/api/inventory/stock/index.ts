@@ -3,9 +3,7 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
 import {
   createStockChange,
-  getAllStockLevels,
   getAllStockLevelsPaginated,
-  getStockChanges,
   getStockChangesPaginated,
   getStockLevelByProductId,
   updateStockChange,
@@ -53,13 +51,10 @@ export default async function stockRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        const { page = 1, limit = 20, search } = request.query;
         const stockLevels = await getAllStockLevelsPaginated(
           fastify,
           businessId,
-          page,
-          limit,
-          search,
+          request.query,
         );
         return reply.send(stockLevels);
       } catch (error) {
@@ -148,6 +143,9 @@ export default async function stockRoutes(fastify: FastifyInstance) {
       ],
       schema: {
         querystring: StockQuerySchema,
+        response: {
+          200: PaginatedStockChangeResponseSchema,
+        },
       },
     },
     async (
@@ -159,10 +157,16 @@ export default async function stockRoutes(fastify: FastifyInstance) {
       const businessId = getBusinessId(request, reply);
       if (!businessId) return;
 
-      const { productId } = request.query;
-
-      const changes = await getStockChanges(fastify, businessId, productId);
-      return reply.send(changes);
+      try {
+        const changes = await getStockChangesPaginated(
+          fastify,
+          businessId,
+          request.query,
+        );
+        return reply.send(changes);
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
     },
   );
 }
