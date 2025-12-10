@@ -261,7 +261,9 @@ export class MenuItemRepository {
     });
 
     const stockMap = new Map<string, number>(productIds.map(id => [id, 0]));
-    results.forEach(r => stockMap.set(r.productId, Number(r.quantity)));
+    for (const r of results) {
+      stockMap.set(r.productId, Number(r.quantity));
+    }
     return stockMap;
   }
 }
