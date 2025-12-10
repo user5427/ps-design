@@ -10,7 +10,7 @@ import {
   useBusinessesPaginated,
   useDeleteBusiness,
   useCreateBusiness,
-} from "@/queries/business";
+} from "@/queries/business/business";
 import { apiClient } from "@/api/client";
 import type { BusinessResponse } from "@ps-design/schemas/business";
 import { useQueryClient } from "@tanstack/react-query";

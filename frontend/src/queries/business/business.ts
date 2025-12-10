@@ -1,12 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "@/api/client";
+import {
+  getBusinessesPaginated,
+  getBusinessById,
+  createBusiness,
+  updateBusiness,
+  deleteBusiness,
+} from "@/api/business";
 import type {
-  BusinessResponse,
   CreateBusinessBody,
-  PaginatedBusinessResponse,
   UpdateBusinessBody,
 } from "@ps-design/schemas/business";
-import type { SuccessResponse } from "@ps-design/schemas/shared";
 
 export const BUSINESSES_QUERY_KEY = ["business"];
 
@@ -18,13 +21,7 @@ export function useBusinessesPaginated(
   return useQuery({
     queryKey: [...BUSINESSES_QUERY_KEY, page, limit, search],
     queryFn: async () => {
-      const response = await apiClient.get<PaginatedBusinessResponse>(
-        "/business",
-        {
-          params: { page, limit, search },
-        },
-      );
-      return response.data;
+      return getBusinessesPaginated(page, limit, search);
     },
   });
 }
@@ -33,10 +30,7 @@ export function useBusinessById(businessId: string) {
   return useQuery({
     queryKey: [...BUSINESSES_QUERY_KEY, businessId],
     queryFn: async () => {
-      const response = await apiClient.get<BusinessResponse>(
-        `/business/${businessId}`,
-      );
-      return response.data;
+      return getBusinessById(businessId);
     },
   });
 }
@@ -46,11 +40,7 @@ export function useCreateBusiness() {
 
   return useMutation({
     mutationFn: async (data: CreateBusinessBody) => {
-      const response = await apiClient.post<BusinessResponse>(
-        "/business",
-        data,
-      );
-      return response.data;
+      return createBusiness(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -60,16 +50,12 @@ export function useCreateBusiness() {
   });
 }
 
-export function useUpdateBusiness(businessId: string) {
+export function useUpdateBusiness() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: UpdateBusinessBody) => {
-      const response = await apiClient.put<BusinessResponse>(
-        `/business/${businessId}`,
-        data,
-      );
-      return response.data;
+    mutationFn: async (data: UpdateBusinessBody & { id: string }) => {
+      return updateBusiness(data.id, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -83,8 +69,8 @@ export function useDeleteBusiness() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (businessId: string) => {
-      await apiClient.delete<SuccessResponse>(`/business/${businessId}`);
+    mutationFn: async (id: string) => {
+      return deleteBusiness(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

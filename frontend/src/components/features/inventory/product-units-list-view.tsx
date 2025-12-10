@@ -11,7 +11,7 @@ import {
   useBulkDeleteProductUnits,
   useProductUnits,
   useUpdateProductUnit,
-} from "@/hooks/inventory";
+} from "@/queries/inventory/units";
 import type { ProductUnit } from "@/schemas/inventory";
 
 export const ProductUnitsListView = () => {

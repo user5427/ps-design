@@ -8,8 +8,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import AddIcon from "@mui/icons-material/Add";
-import ViewListIcon from "@mui/icons-material/ViewList";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import type { Section } from "@/components/layouts/side-bar/side-bar-item";
 import { URLS } from "./urls";
 
@@ -20,18 +19,13 @@ export const sidebarSections: Section[] = [
     path: URLS.DASHBOARD,
   },
   {
-    label: "Manage Businesses",
-    icon: <BusinessIcon />,
+    label: "Administration",
+    icon: <ManageAccountsIcon />,
     children: [
       {
-        label: "View Businesses",
-        icon: <ViewListIcon />,
+        label: "Businesses",
+        icon: <BusinessIcon />,
         path: URLS.BUSINESS_LIST,
-      },
-      {
-        label: "Create Business",
-        icon: <AddIcon />,
-        path: URLS.BUSINESS_CREATE,
       },
     ],
   },

@@ -10,11 +10,11 @@ import {
 import {
   useCreateProduct,
   useBulkDeleteProducts,
-  useProductUnits,
   useProducts,
   useUpdateProduct,
-} from "@/hooks/inventory";
+} from "@/queries/inventory/products";
 import type { Product } from "@/schemas/inventory";
+import { useProductUnits } from "@/queries/inventory/units";
 
 export const ProductsListView = () => {
   const { data: products = [], isLoading, error, refetch } = useProducts();

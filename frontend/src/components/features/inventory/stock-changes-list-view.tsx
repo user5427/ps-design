@@ -9,10 +9,10 @@ import {
 } from "@/components/elements/record-list-view";
 import {
   useCreateStockChange,
-  useProducts,
   useStockChanges,
-} from "@/hooks/inventory";
+} from "@/queries/inventory/stock";
 import type { StockChange, StockChangeType } from "@/schemas/inventory";
+import { useProducts } from "@/queries/inventory/products";
 
 const stockChangeTypeColors: Record<
   StockChangeType,

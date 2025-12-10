@@ -5,7 +5,7 @@ import {
   RecordListView,
   type ViewFieldDefinition,
 } from "@/components/elements/record-list-view";
-import { useStockLevels } from "@/hooks/inventory";
+import { useStockLevels } from "@/queries/inventory/stock";
 import type { StockLevel } from "@/schemas/inventory";
 
 export const StockLevelsListView = () => {
