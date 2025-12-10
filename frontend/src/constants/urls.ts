@@ -1,6 +1,7 @@
 // Centralized web app navigation URLs
 export const URLS = {
   DASHBOARD: "/dashboard",
+  FLOOR_PLAN: "/floor-plan",
   LOGIN: "/auth/login",
   CHANGE_PASSWORD: "/auth/change-password",
   HOME: "/",
@@ -16,4 +17,6 @@ export const URLS = {
   // Menu
   MENU_CATEGORIES: "/menu/categories",
   MENU_ITEMS: "/menu/items",
+  // Orders
+  ORDER_VIEW: (orderId: string) => `/orders/${orderId}`,
 };
