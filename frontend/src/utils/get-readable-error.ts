@@ -1,23 +1,26 @@
+import axios from "axios";
+
 export function getReadableError(
   error: unknown,
-  badRequestMessage: string,
+  badRequestMessage: string = "Invalid request data.",
 ): string {
   if (!error) return "Something went wrong.";
 
+  if (axios.isAxiosError(error)) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message;
+
+    if (error.response?.status === 400) return badRequestMessage;
+    if (error.response?.status === 401) return badRequestMessage;
+    if (error.response?.status === 500) return "Server error. Try again later.";
+
+    return message || "Unable to process your request.";
+  }
+
   if (error instanceof Error) {
-    try {
-      const data = JSON.parse(error.message);
-      if (data?.message) return data.message;
-    } catch (_) {}
-
-    if (error.message.includes("401")) {
-      return badRequestMessage;
-    }
-    if (error.message.includes("500")) {
-      return "Server error. Try again later.";
-    }
-
-    return "Unable to process your request.";
+    return error.message || "Unable to process your request.";
   }
 
   return "Unexpected error occurred.";
