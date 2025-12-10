@@ -107,19 +107,15 @@ function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
   }, obj);
 }
 
-// Check if string is ISO date
 function isISODateString(str: string): boolean {
   // Match ISO date format (YYYY-MM-DD or full ISO datetime)
   return /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2})?/.test(str);
 }
 
-// Format date string
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
-  // If it's just a date (no time component), use toLocaleDateString
   if (dateStr.length === 10) {
     return date.toLocaleDateString();
   }
-  // Otherwise use full datetime format
   return date.toLocaleString();
 }

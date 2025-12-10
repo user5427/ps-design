@@ -3,6 +3,9 @@ export enum ScopeNames {
   INVENTORY_READ = "INVENTORY_READ",
   INVENTORY_WRITE = "INVENTORY_WRITE",
   INVENTORY_DELETE = "INVENTORY_DELETE",
+  MENU_READ = "MENU_READ",
+  MENU_WRITE = "MENU_WRITE",
+  MENU_DELETE = "MENU_DELETE",
   USER_READ = "USER_READ",
   USER_WRITE = "USER_WRITE",
   USER_DELETE = "USER_DELETE",
@@ -28,6 +31,18 @@ export const SCOPE_CONFIG: Record<
   [ScopeNames.INVENTORY_DELETE]: {
     name: ScopeNames.INVENTORY_DELETE,
     description: "Delete inventory data",
+  },
+  [ScopeNames.MENU_READ]: {
+    name: ScopeNames.MENU_READ,
+    description: "Read menu data",
+  },
+  [ScopeNames.MENU_WRITE]: {
+    name: ScopeNames.MENU_WRITE,
+    description: "Create and update menu data",
+  },
+  [ScopeNames.MENU_DELETE]: {
+    name: ScopeNames.MENU_DELETE,
+    description: "Delete menu data",
   },
   [ScopeNames.USER_READ]: {
     name: ScopeNames.USER_READ,

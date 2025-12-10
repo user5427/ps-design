@@ -6,7 +6,6 @@ import {
   getAllStockLevels,
   getStockChanges,
   getStockLevelByProductId,
-  updateStockChange,
 } from "./service";
 import { getBusinessId } from "@/shared/auth-utils";
 import { handleServiceError } from "@/shared/error-handler";

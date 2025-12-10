@@ -43,6 +43,18 @@ export interface ViewFieldDefinition {
   render?: (value: unknown, record: Record<string, unknown>) => React.ReactNode;
 }
 
+/**
+ * Props passed to custom form modal render functions
+ */
+export interface CustomFormModalProps<T> {
+  open: boolean;
+  onClose: () => void;
+  /** The record being edited (null for create mode) */
+  initialData: T | null;
+  /** Callback when form is successfully submitted */
+  onSuccess: () => void;
+}
+
 export interface RecordListViewProps<T extends Record<string, unknown>> {
   /** Page title displayed in the header */
   title: string;
@@ -75,4 +87,14 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
   /** Whether to show edit action (default: true) */
   /** Custom function to get row ID */
   getRowId?: (row: T) => string;
+  /**
+   * When provided, this replaces the default RecordFormModal for creating records.
+   * Use this for complex forms that need nested structures, dynamic fields, etc.
+   */
+  renderCustomCreateModal?: (props: CustomFormModalProps<T>) => React.ReactNode;
+  /**
+   * When provided, this replaces the default RecordFormModal for editing records.
+   * Use this for complex forms that need nested structures, dynamic fields, etc.
+   */
+  renderCustomEditModal?: (props: CustomFormModalProps<T>) => React.ReactNode;
 }
