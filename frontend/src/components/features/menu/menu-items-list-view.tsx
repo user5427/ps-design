@@ -243,6 +243,7 @@ export const MenuItemsListView = () => {
       // need to pass onCreate/onEdit to enable these actions
       onCreate={async () => {}}
       onEdit={async () => {}}
+      viewModalTitle="View Menu Item"
     />
   );
 };

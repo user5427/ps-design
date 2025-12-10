@@ -14,7 +14,12 @@ import type { MenuItem } from "./menu-item.entity";
 import type { MenuItemVariation } from "@/modules/menu/menu-item-variation/menu-item-variation.entity";
 import type { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product/menu-item-base-product.entity";
 import type { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product/menu-item-variation-product.entity";
-import type { ICreateMenuItem, ICreateMenuItemVariation, IMenuItemVariationInput, IUpdateMenuItem } from "./menu-item.types";
+import type {
+  ICreateMenuItem,
+  ICreateMenuItemVariation,
+  IMenuItemVariationInput,
+  IUpdateMenuItem,
+} from "./menu-item.types";
 
 const MENU_ITEM_RELATIONS = [
   "category",
@@ -125,11 +130,7 @@ export class MenuItemRepository {
     await this.dataSource.transaction(async (manager) => {
       try {
         if (Object.keys(updateData).length > 0) {
-          await manager.update(
-            this.repository.target,
-            { id },
-            updateData,
-          );
+          await manager.update(this.repository.target, { id }, updateData);
         }
 
         if (baseProducts !== undefined) {

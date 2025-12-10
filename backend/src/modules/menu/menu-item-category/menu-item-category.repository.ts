@@ -91,9 +91,11 @@ export class MenuItemCategoryRepository {
     });
 
     if (categories.length !== ids.length) {
-      const foundIds = new Set(categories.map(c => c.id));
-      const missingIds = ids.filter(id => !foundIds.has(id));
-      throw new NotFoundError(`Menu item categories not found: ${missingIds.join(', ')}`);
+      const foundIds = new Set(categories.map((c) => c.id));
+      const missingIds = ids.filter((id) => !foundIds.has(id));
+      throw new NotFoundError(
+        `Menu item categories not found: ${missingIds.join(", ")}`,
+      );
     }
 
     const totalMenuItems = await this.menuItemRepository.count({
