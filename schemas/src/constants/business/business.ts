@@ -1,14 +1,15 @@
 import { BusinessResponseSchema } from "@/schemas/business";
-import { createFieldMapping } from "../../utils/field-mapping-builder";
+import { createEntityMapping } from "../../utils/field-mapping-builder";
 
 /**
- * Field mapping for Business entity queries
- * TypeScript will warn if you don't map all fields or exclude them
+ * Complete mapping for Business entity including fields, display names, and API endpoint
  */
-export const BUSINESS_FIELD_MAPPING = createFieldMapping(
+export const BUSINESS_MAPPING = createEntityMapping(
   BusinessResponseSchema,
   {
-    name: { column: "business.name", type: "string" },
+    name: { column: "business.name", type: "string", displayName: "Business Name" },
   },
-  ["id"] // Explicitly excluded from filtering
+  ["id"],
+  "/api/business",
+  "Business"
 );

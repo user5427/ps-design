@@ -1,3 +1,3 @@
-export { PRODUCT_UNIT_FIELD_MAPPING, ProductUnitResponseSchema, type ProductUnitResponse } from "./product-unit";
-export { PRODUCT_FIELD_MAPPING, ProductResponseSchema, type ProductResponse } from "./product";
-export { STOCK_LEVEL_FIELD_MAPPING, STOCK_CHANGE_FIELD_MAPPING } from "./stock";
+export { PRODUCT_UNIT_MAPPING } from "./product-unit";
+export { PRODUCT_MAPPING } from "./product";
+export { STOCK_LEVEL_MAPPING, STOCK_CHANGE_MAPPING } from "./stock";

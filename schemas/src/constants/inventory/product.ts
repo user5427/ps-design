@@ -1,21 +1,19 @@
-import { createFieldMapping } from "../../utils/field-mapping-builder";
-import { ProductResponseSchema, type ProductResponse } from "../../schemas/inventory/products";
+import { createEntityMapping } from "../../utils/field-mapping-builder";
+import { ProductResponseSchema } from "../../schemas/inventory/products";
 
 /**
- * Field mapping for Product entity queries
- * TypeScript will warn if you don't map all fields or exclude them
+ * Complete mapping for Product entity including fields, display names, and API endpoint
  */
-export const PRODUCT_FIELD_MAPPING = createFieldMapping(
+export const PRODUCT_MAPPING = createEntityMapping(
   ProductResponseSchema,
   {
-    name: { column: "product.name", type: "string" },
-    description: { column: "product.description", type: "string" },
-    isDisabled: { column: "product.isDisabled", type: "boolean" },
-    createdAt: { column: "product.createdAt", type: "date" },
-    updatedAt: { column: "product.updatedAt", type: "date" },
+    name: { column: "product.name", type: "string", displayName: "Product Name" },
+    description: { column: "product.description", type: "string", displayName: "Description" },
+    isDisabled: { column: "product.isDisabled", type: "boolean", displayName: "Disabled" },
+    createdAt: { column: "product.createdAt", type: "date", displayName: "Created" },
+    updatedAt: { column: "product.updatedAt", type: "date", displayName: "Updated" },
   },
-  ["id", "productUnitId", "businessId", "deletedAt", "productUnit"]
+  ["id", "productUnitId", "businessId", "deletedAt", "productUnit"],
+  "/api/inventory/products",
+  "Product"
 );
-
-// Re-export for convenience
-export { ProductResponseSchema, type ProductResponse };

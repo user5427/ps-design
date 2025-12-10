@@ -1,1 +1,7 @@
-export { createFieldMapping, type FieldMapping } from "./field-mapping-builder";
+export {
+  createEntityMapping,
+  getFieldMappings,
+  type FieldConfig,
+  type FieldMapping,
+  type EntityMapping,
+} from "./field-mapping-builder";

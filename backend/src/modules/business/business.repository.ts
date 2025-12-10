@@ -2,7 +2,7 @@ import { IsNull, type Repository } from "typeorm";
 import { ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
 import { calculatePaginationMetadata, executePaginatedQuery } from "@/shared/pagination-utils";
-import { BUSINESS_FIELD_MAPPING } from "@ps-design/constants/business";
+import { BUSINESS_MAPPING } from "@ps-design/constants/business";
 import type { Business } from "./business.entity";
 import type { ICreateBusiness, IUpdateBusiness } from "./business.types";
 import { PaginatedResult } from "@ps-design/schemas/pagination";
@@ -24,7 +24,7 @@ export class BusinessRepository {
       });
     }
 
-    return executePaginatedQuery(qb, query, BUSINESS_FIELD_MAPPING, "business");
+    return executePaginatedQuery(qb, query, BUSINESS_MAPPING.fields, "business");
   }
 
   async findById(id: string): Promise<Business | null> {

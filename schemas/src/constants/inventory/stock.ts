@@ -1,34 +1,36 @@
-import { createFieldMapping } from "../../utils/field-mapping-builder";
+import { createEntityMapping } from "../../utils/field-mapping-builder";
 import {
   StockLevelResponseSchema,
   StockChangeResponseSchema,
 } from "../../schemas/inventory/stock";
 
 /**
- * Field mapping for Stock Level entity queries
- * TypeScript will warn if you don't map all fields or exclude them
+ * Complete mapping for Stock Level entity including fields, display names, and API endpoint
  */
-export const STOCK_LEVEL_FIELD_MAPPING = createFieldMapping(
+export const STOCK_LEVEL_MAPPING = createEntityMapping(
   StockLevelResponseSchema,
   {
-    productName: { column: "product.name", type: "string" },
-    totalQuantity: { column: "level.quantity", type: "number" },
-    isDisabled: { column: "product.isDisabled", type: "boolean" },
+    productName: { column: "product.name", type: "string", displayName: "Product" },
+    totalQuantity: { column: "level.quantity", type: "number", displayName: "Quantity" },
+    isDisabled: { column: "product.isDisabled", type: "boolean", displayName: "Disabled" },
   },
-  ["productId", "productUnit"]
+  ["productId", "productUnit"],
+  "/api/inventory/stock-levels",
+  "Stock Level"
 );
 
 /**
- * Field mapping for Stock Change entity queries
- * TypeScript will warn if you don't map all fields or exclude them
+ * Complete mapping for Stock Change entity including fields, display names, and API endpoint
  */
-export const STOCK_CHANGE_FIELD_MAPPING = createFieldMapping(
+export const STOCK_CHANGE_MAPPING = createEntityMapping(
   StockChangeResponseSchema,
   {
-    quantity: { column: "change.quantity", type: "number" },
-    type: { column: "change.type", type: "string" },
-    createdAt: { column: "change.createdAt", type: "date" },
-    updatedAt: { column: "change.updatedAt", type: "date" },
+    quantity: { column: "change.quantity", type: "number", displayName: "Quantity" },
+    type: { column: "change.type", type: "string", displayName: "Type" },
+    createdAt: { column: "change.createdAt", type: "date", displayName: "Created" },
+    updatedAt: { column: "change.updatedAt", type: "date", displayName: "Updated" },
   },
-  ["id", "productId", "businessId", "expirationDate", "createdByUserId", "deletedAt", "product"]
+  ["id", "productId", "businessId", "expirationDate", "createdByUserId", "deletedAt", "product"],
+  "/api/inventory/stock-changes",
+  "Stock Change"
 );
