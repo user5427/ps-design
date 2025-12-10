@@ -1,4 +1,10 @@
-import { IsNull, type Repository, type DataSource, In, type EntityManager } from "typeorm";
+import {
+  IsNull,
+  type Repository,
+  type DataSource,
+  In,
+  type EntityManager,
+} from "typeorm";
 import { BadRequestError, ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
 import type { Product } from "@/modules/inventory/product/product.entity";
@@ -108,7 +114,9 @@ export class MenuItemRepository {
   ): string[] {
     return [
       ...baseProducts.map((bp) => bp.productId),
-      ...variations.flatMap((v) => v.addonProducts?.map((ap) => ap.productId) ?? []),
+      ...variations.flatMap(
+        (v) => v.addonProducts?.map((ap) => ap.productId) ?? [],
+      ),
     ];
   }
 
@@ -176,7 +184,11 @@ export class MenuItemRepository {
         await this.createBaseProducts(manager, savedMenuItem.id, baseProducts);
 
         for (const variation of variations) {
-          await this.createVariationWithAddons(manager, savedMenuItem.id, variation);
+          await this.createVariationWithAddons(
+            manager,
+            savedMenuItem.id,
+            variation,
+          );
         }
 
         return savedMenuItem.id;
@@ -188,7 +200,10 @@ export class MenuItemRepository {
       }
     });
 
-    const createdMenuItem = await this.findByIdAndBusinessId(menuItemId, data.businessId);
+    const createdMenuItem = await this.findByIdAndBusinessId(
+      menuItemId,
+      data.businessId,
+    );
     if (!createdMenuItem) {
       throw new Error("Failed to retrieve created menu item");
     }
@@ -205,7 +220,8 @@ export class MenuItemRepository {
       throw new NotFoundError("Menu item not found");
     }
 
-    const { baseProducts, variations, removeVariationIds, ...updateData } = data;
+    const { baseProducts, variations, removeVariationIds, ...updateData } =
+      data;
 
     if (updateData.categoryId !== undefined) {
       await this.validateCategoryExists(updateData.categoryId, businessId);
@@ -223,7 +239,9 @@ export class MenuItemRepository {
         }
 
         if (baseProducts !== undefined) {
-          await manager.delete(this.baseProductRepository.target, { menuItemId: id });
+          await manager.delete(this.baseProductRepository.target, {
+            menuItemId: id,
+          });
           await this.createBaseProducts(manager, id, baseProducts);
         }
 
@@ -248,15 +266,21 @@ export class MenuItemRepository {
               });
             } else {
               if (!variation.name || !variation.type) {
-                throw new BadRequestError("New variations require name and type");
+                throw new BadRequestError(
+                  "New variations require name and type",
+                );
               }
-              await this.createVariationWithAddons(manager, id, variation as {
-                name: string;
-                type: string;
-                priceAdjustment?: number;
-                isDisabled?: boolean;
-                addonProducts?: { productId: string; quantity: number }[];
-              });
+              await this.createVariationWithAddons(
+                manager,
+                id,
+                variation as {
+                  name: string;
+                  type: string;
+                  priceAdjustment?: number;
+                  isDisabled?: boolean;
+                  addonProducts?: { productId: string; quantity: number }[];
+                },
+              );
             }
           }
         }
@@ -287,9 +311,12 @@ export class MenuItemRepository {
       addonProducts?: { productId: string; quantity: number }[];
     },
   ): Promise<void> {
-    const existingVariation = await manager.findOne(this.variationRepository.target, {
-      where: { id: variation.id, menuItemId, deletedAt: IsNull() },
-    });
+    const existingVariation = await manager.findOne(
+      this.variationRepository.target,
+      {
+        where: { id: variation.id, menuItemId, deletedAt: IsNull() },
+      },
+    );
 
     if (!existingVariation) {
       throw new NotFoundError(`Variation ${variation.id} not found`);
@@ -298,15 +325,23 @@ export class MenuItemRepository {
     const updateFields: Partial<MenuItemVariation> = {};
     if (variation.name !== undefined) updateFields.name = variation.name;
     if (variation.type !== undefined) updateFields.type = variation.type;
-    if (variation.priceAdjustment !== undefined) updateFields.priceAdjustment = variation.priceAdjustment;
-    if (variation.isDisabled !== undefined) updateFields.isDisabled = variation.isDisabled;
+    if (variation.priceAdjustment !== undefined)
+      updateFields.priceAdjustment = variation.priceAdjustment;
+    if (variation.isDisabled !== undefined)
+      updateFields.isDisabled = variation.isDisabled;
 
     if (Object.keys(updateFields).length > 0) {
-      await manager.update(this.variationRepository.target, variation.id, updateFields);
+      await manager.update(
+        this.variationRepository.target,
+        variation.id,
+        updateFields,
+      );
     }
 
     if (variation.addonProducts !== undefined) {
-      await manager.delete(this.variationProductRepository.target, { variationId: variation.id });
+      await manager.delete(this.variationProductRepository.target, {
+        variationId: variation.id,
+      });
       if (variation.addonProducts.length > 0) {
         const addonEntities = variation.addonProducts.map((ap) =>
           manager.create(this.variationProductRepository.target, {

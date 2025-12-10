@@ -8,7 +8,6 @@ const MAX_NAME_LENGTH = 50;
 const MIN_NAME_MESSAGE = `Name must be at least ${MIN_NAME_LENGTH} characters`;
 const MAX_NAME_MESSAGE = `Name must be at most ${MAX_NAME_LENGTH} characters`;
 
-
 const BaseProductRecipeSchema = z.object({
   productId: uuid("Invalid product ID"),
   quantity: z.number().positive("Quantity must be positive"),
@@ -26,7 +25,7 @@ const CreateVariationSchema = z.object({
 });
 
 const UpdateVariationSchema = z.object({
-  id: uuid().optional(), 
+  id: uuid().optional(),
   name: z
     .string()
     .min(MIN_NAME_LENGTH, MIN_NAME_MESSAGE)
@@ -37,7 +36,6 @@ const UpdateVariationSchema = z.object({
   isDisabled: z.boolean().optional(),
   addonProducts: z.array(BaseProductRecipeSchema).optional(),
 });
-
 
 export const MenuItemIdParam = z.object({ menuItemId: uuid() });
 
@@ -59,7 +57,10 @@ export const UpdateMenuItemSchema = z.object({
     .min(MIN_NAME_LENGTH, MIN_NAME_MESSAGE)
     .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE)
     .optional(),
-  basePrice: z.number().nonnegative("Base price must be non-negative").optional(),
+  basePrice: z
+    .number()
+    .nonnegative("Base price must be non-negative")
+    .optional(),
   categoryId: uuid().nullable().optional(),
   isDisabled: z.boolean().optional(),
   baseProducts: z.array(BaseProductRecipeSchema).optional(),

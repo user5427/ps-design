@@ -5,29 +5,37 @@ import type {
   UpdateMenuItemCategoryBody,
 } from "@ps-design/schemas/menu/category";
 
-export async function getMenuItemCategories(): Promise<MenuItemCategoryResponse[]> {
-  const response = await apiClient.get<MenuItemCategoryResponse[]>("/menu/categories/");
+export async function getMenuItemCategories(): Promise<
+  MenuItemCategoryResponse[]
+> {
+  const response =
+    await apiClient.get<MenuItemCategoryResponse[]>("/menu/categories/");
   return response.data;
 }
 
 export async function createMenuItemCategory(
-  data: CreateMenuItemCategoryBody
+  data: CreateMenuItemCategoryBody,
 ): Promise<MenuItemCategoryResponse> {
-  const response = await apiClient.post<MenuItemCategoryResponse>("/menu/categories/", data);
+  const response = await apiClient.post<MenuItemCategoryResponse>(
+    "/menu/categories/",
+    data,
+  );
   return response.data;
 }
 
 export async function updateMenuItemCategory(
   id: string,
-  data: UpdateMenuItemCategoryBody
+  data: UpdateMenuItemCategoryBody,
 ): Promise<MenuItemCategoryResponse> {
   const response = await apiClient.put<MenuItemCategoryResponse>(
     `/menu/categories/${id}`,
-    data
+    data,
   );
   return response.data;
 }
 
-export async function bulkDeleteMenuItemCategories(ids: string[]): Promise<void> {
+export async function bulkDeleteMenuItemCategories(
+  ids: string[],
+): Promise<void> {
   await apiClient.post("/menu/categories/bulk-delete", { ids });
 }

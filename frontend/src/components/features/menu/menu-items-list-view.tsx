@@ -69,7 +69,7 @@ export const MenuItemsListView = () => {
         ),
       },
     ],
-    []
+    [],
   );
 
   const viewFields: ViewFieldDefinition[] = useMemo(
@@ -94,17 +94,20 @@ export const MenuItemsListView = () => {
         label: "Base Products",
         render: (value) => {
           const prods = value as Array<{
-            product: { 
+            product: {
               name: string;
               productUnit: { name: string; symbol: string | null };
             };
             quantity: number;
           }>;
           if (!prods?.length) return "-";
-          return prods.map((p) => {
-            const unit = p.product.productUnit.symbol || p.product.productUnit.name;
-            return `${p.product.name} (${p.quantity} ${unit})`;
-          }).join(", ");
+          return prods
+            .map((p) => {
+              const unit =
+                p.product.productUnit.symbol || p.product.productUnit.name;
+              return `${p.product.name} (${p.quantity} ${unit})`;
+            })
+            .join(", ");
         },
       },
       {
@@ -133,12 +136,18 @@ export const MenuItemsListView = () => {
                   v.addonProducts?.length > 0
                     ? ` [${v.addonProducts
                         .map((ap) => {
-                          const unit = ap.product.productUnit.symbol || ap.product.productUnit.name;
+                          const unit =
+                            ap.product.productUnit.symbol ||
+                            ap.product.productUnit.name;
                           return `${ap.product.name} (${ap.quantity} ${unit})`;
                         })
                         .join(", ")}]`
                     : "";
-                const statusText = v.isDisabled ? " (Disabled)" : v.isAvailable ? " (Available)" : " (Unavailable)";
+                const statusText = v.isDisabled
+                  ? " (Disabled)"
+                  : v.isAvailable
+                    ? " (Available)"
+                    : " (Unavailable)";
                 return (
                   <div key={`${v.name}-${v.type}-${index}`}>
                     {`${v.name} (${v.type}) ${v.priceAdjustment >= 0 ? "+" : ""}$${v.priceAdjustment.toFixed(2)}${addonText}${statusText}`}
@@ -162,7 +171,7 @@ export const MenuItemsListView = () => {
       { name: "createdAt", label: "Created At" },
       { name: "updatedAt", label: "Updated At" },
     ],
-    []
+    [],
   );
 
   const handleFormSubmit = useCallback(
@@ -173,14 +182,14 @@ export const MenuItemsListView = () => {
         await createMutation.mutateAsync(data);
       }
     },
-    [createMutation, updateMutation]
+    [createMutation, updateMutation],
   );
 
   const handleDelete = useCallback(
     async (ids: string[]) => {
       await bulkDeleteMutation.mutateAsync(ids);
     },
-    [bulkDeleteMutation]
+    [bulkDeleteMutation],
   );
 
   const handleSuccess = useCallback(() => {
@@ -200,7 +209,7 @@ export const MenuItemsListView = () => {
         onSuccess={props.onSuccess}
       />
     ),
-    [categories, products, handleFormSubmit]
+    [categories, products, handleFormSubmit],
   );
 
   const renderCustomEditModal = useCallback(
@@ -216,7 +225,7 @@ export const MenuItemsListView = () => {
         onSuccess={props.onSuccess}
       />
     ),
-    [categories, products, handleFormSubmit]
+    [categories, products, handleFormSubmit],
   );
 
   return (

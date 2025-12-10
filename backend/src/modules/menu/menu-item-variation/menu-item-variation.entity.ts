@@ -14,7 +14,7 @@ import {
 import { decimalTransformer } from "@/shared/decimal-transformer";
 import type { MenuItem } from "@/modules/menu/menu-item/menu-item.entity";
 import type { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product/menu-item-variation-product.entity";
-import { MenuItemVariationType } from "./menu-item-variation.types";
+import type { MenuItemVariationType } from "./menu-item-variation.types";
 
 @Entity("MenuItemVariation")
 @Unique(["menuItemId", "name"])

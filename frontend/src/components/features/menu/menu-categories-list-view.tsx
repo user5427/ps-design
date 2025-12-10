@@ -42,7 +42,7 @@ export const MenuCategoriesListView = () => {
         },
       },
     ],
-    []
+    [],
   );
 
   const createFormFields: FormFieldDefinition[] = [

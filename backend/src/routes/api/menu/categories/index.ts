@@ -93,11 +93,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
       const { categoryId } = request.params;
 
       try {
-        const category = await getCategoryById(
-          fastify,
-          businessId,
-          categoryId,
-        );
+        const category = await getCategoryById(fastify, businessId, categoryId);
         return reply.send(category);
       } catch (error) {
         return handleServiceError(error, reply);

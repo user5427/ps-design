@@ -33,10 +33,7 @@ import {
   MenuItemCategory,
   MenuItemCategoryRepository,
 } from "@/modules/menu/menu-item-category";
-import {
-  MenuItem,
-  MenuItemRepository,
-} from "@/modules/menu/menu-item";
+import { MenuItem, MenuItemRepository } from "@/modules/menu/menu-item";
 import { MenuItemVariation } from "@/modules/menu/menu-item-variation";
 import { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product";
 import { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product";

@@ -25,8 +25,7 @@ export type CreateMenuItemCategory =
 export type UpdateMenuItemCategory =
   import("@ps-design/schemas/menu/category").UpdateMenuItemCategoryBody;
 
-export type MenuItem =
-  import("@ps-design/schemas/menu/items").MenuItemResponse;
+export type MenuItem = import("@ps-design/schemas/menu/items").MenuItemResponse;
 export type MenuItemVariation =
   import("@ps-design/schemas/menu/items").MenuItemVariationResponse;
 export type ProductRecipe =

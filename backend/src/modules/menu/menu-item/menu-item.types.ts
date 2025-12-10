@@ -37,7 +37,7 @@ export interface ICreateMenuItem {
 }
 
 export interface IUpdateMenuItemVariation {
-  id?: string; 
+  id?: string;
   name?: string;
   type?: MenuItemVariationTypeValue;
   priceAdjustment?: number;

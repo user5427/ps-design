@@ -2,18 +2,17 @@ import { z } from "zod";
 import { datetime, uuid } from "../../shared/zod-utils";
 import { MenuItemVariationTypeSchema } from "../shared";
 
-
 const ProductRecipeResponseSchema = z.object({
+  id: uuid(),
+  quantity: z.number(),
+  product: z.object({
     id: uuid(),
-    quantity: z.number(),
-    product: z.object({
-        id: uuid(),
-        name: z.string(),
-        productUnit: z.object({
-        id: uuid(),
-        name: z.string(),
-        symbol: z.string().nullable(),
-        }),
+    name: z.string(),
+    productUnit: z.object({
+      id: uuid(),
+      name: z.string(),
+      symbol: z.string().nullable(),
+    }),
   }),
 });
 
@@ -37,7 +36,6 @@ const MenuItemCategorySchema = z
   })
   .nullable();
 
-
 export const MenuItemResponseSchema = z.object({
   id: uuid(),
   baseName: z.string(),
@@ -45,7 +43,7 @@ export const MenuItemResponseSchema = z.object({
   categoryId: uuid().nullable(),
   businessId: uuid(),
   isDisabled: z.boolean(),
-  isAvailable: z.boolean(), 
+  isAvailable: z.boolean(),
   category: MenuItemCategorySchema,
   baseProducts: z.array(ProductRecipeResponseSchema),
   variations: z.array(MenuItemVariationResponseSchema),

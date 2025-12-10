@@ -16,7 +16,7 @@ export async function getMenuItemById(id: string): Promise<MenuItemResponse> {
 }
 
 export async function createMenuItem(
-  data: CreateMenuItemBody
+  data: CreateMenuItemBody,
 ): Promise<MenuItemResponse> {
   const response = await apiClient.post<MenuItemResponse>("/menu/items/", data);
   return response.data;
@@ -24,11 +24,11 @@ export async function createMenuItem(
 
 export async function updateMenuItem(
   id: string,
-  data: UpdateMenuItemBody
+  data: UpdateMenuItemBody,
 ): Promise<MenuItemResponse> {
   const response = await apiClient.put<MenuItemResponse>(
     `/menu/items/${id}`,
-    data
+    data,
   );
   return response.data;
 }

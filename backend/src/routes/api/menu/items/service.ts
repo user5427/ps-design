@@ -76,12 +76,16 @@ function toMenuItemResponse(
   stockMap: Map<string, number>,
 ): MenuItemResponse {
   // Get base product requirements
-  const baseRequirements = menuItem.baseProducts?.map((bp) => ({
-    productId: bp.productId,
-    quantity: bp.quantity,
-  })) ?? [];
+  const baseRequirements =
+    menuItem.baseProducts?.map((bp) => ({
+      productId: bp.productId,
+      quantity: bp.quantity,
+    })) ?? [];
 
-  const baseProductsAvailable = checkRecipeAvailability(baseRequirements, stockMap);
+  const baseProductsAvailable = checkRecipeAvailability(
+    baseRequirements,
+    stockMap,
+  );
 
   // Calculate variation availability
   // Each variation needs base products + its addon products
@@ -89,13 +93,17 @@ function toMenuItemResponse(
     menuItem.variations
       ?.filter((v) => !v.deletedAt)
       ?.map((variation) => {
-        const addonRequirements = variation.addonProducts?.map((ap) => ({
-          productId: ap.productId,
-          quantity: ap.quantity,
-        })) ?? [];
+        const addonRequirements =
+          variation.addonProducts?.map((ap) => ({
+            productId: ap.productId,
+            quantity: ap.quantity,
+          })) ?? [];
 
         const totalRequirements = [...baseRequirements, ...addonRequirements];
-        const variationAvailable = checkRecipeAvailability(totalRequirements, stockMap);
+        const variationAvailable = checkRecipeAvailability(
+          totalRequirements,
+          stockMap,
+        );
 
         return toVariationResponse(
           variation,
@@ -103,8 +111,7 @@ function toMenuItemResponse(
         );
       }) ?? [];
 
-  const isAvailable =
-    !menuItem.isDisabled && baseProductsAvailable;
+  const isAvailable = !menuItem.isDisabled && baseProductsAvailable;
 
   return {
     id: menuItem.id,
@@ -158,11 +165,7 @@ export async function getAllMenuItems(
   businessId: string,
 ): Promise<MenuItemResponse[]> {
   const menuItems = await fastify.db.menuItem.findAllByBusinessId(businessId);
-  const stockMap = await getStockMap(
-    fastify,
-    menuItems,
-    businessId,
-  );
+  const stockMap = await getStockMap(fastify, menuItems, businessId);
   return menuItems.map((item) => toMenuItemResponse(item, stockMap));
 }
 
@@ -188,11 +191,7 @@ export async function createMenuItem(
       })) ?? [],
   });
 
-  const stockMap = await getStockMap(
-    fastify,
-    [menuItem],
-    businessId,
-  );
+  const stockMap = await getStockMap(fastify, [menuItem], businessId);
   return toMenuItemResponse(menuItem, stockMap);
 }
 
@@ -202,11 +201,7 @@ export async function getMenuItemById(
   menuItemId: string,
 ): Promise<MenuItemResponse> {
   const menuItem = await fastify.db.menuItem.getById(menuItemId, businessId);
-  const stockMap = await getStockMap(
-    fastify,
-    [menuItem],
-    businessId,
-  );
+  const stockMap = await getStockMap(fastify, [menuItem], businessId);
   return toMenuItemResponse(menuItem, stockMap);
 }
 
@@ -226,11 +221,7 @@ export async function updateMenuItem(
     removeVariationIds: input.removeVariationIds,
   });
 
-  const stockMap = await getStockMap(
-    fastify,
-    [updated],
-    businessId,
-  );
+  const stockMap = await getStockMap(fastify, [updated], businessId);
   return toMenuItemResponse(updated, stockMap);
 }
 

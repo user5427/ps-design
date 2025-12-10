@@ -93,11 +93,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
       const { menuItemId } = request.params;
 
       try {
-        const menuItem = await getMenuItemById(
-          fastify,
-          businessId,
-          menuItemId,
-        );
+        const menuItem = await getMenuItemById(fastify, businessId, menuItemId);
         return reply.send(menuItem);
       } catch (error) {
         return handleServiceError(error, reply);

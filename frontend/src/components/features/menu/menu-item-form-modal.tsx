@@ -50,7 +50,9 @@ interface MenuItemFormModalProps {
   initialData?: MenuItem | null;
   categories: MenuItemCategory[];
   products: Product[];
-  onSubmit: (data: CreateMenuItem | { id: string; data: UpdateMenuItem }) => Promise<void>;
+  onSubmit: (
+    data: CreateMenuItem | { id: string; data: UpdateMenuItem },
+  ) => Promise<void>;
   onSuccess?: () => void;
 }
 
@@ -73,12 +75,17 @@ const useMenuItemForm = ({
   onSubmit,
   onSuccess,
   onClose,
-}: Pick<MenuItemFormModalProps, "mode" | "initialData" | "onSubmit" | "onSuccess" | "onClose">) => {
+}: Pick<
+  MenuItemFormModalProps,
+  "mode" | "initialData" | "onSubmit" | "onSuccess" | "onClose"
+>) => {
   const [baseName, setBaseName] = useState("");
   const [basePrice, setBasePrice] = useState<number | "">("");
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [isDisabled, setIsDisabled] = useState(false);
-  const [baseProducts, setBaseProducts] = useState<BaseProductRecipe[]>([emptyRecipe()]);
+  const [baseProducts, setBaseProducts] = useState<BaseProductRecipe[]>([
+    emptyRecipe(),
+  ]);
   const [variations, setVariations] = useState<VariationFormData[]>([]);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -97,7 +104,7 @@ const useMenuItemForm = ({
               productId: bp.product.id,
               quantity: bp.quantity,
             }))
-          : [emptyRecipe()]
+          : [emptyRecipe()],
       );
       setVariations(
         initialData.variations?.map((v) => ({
@@ -111,7 +118,7 @@ const useMenuItemForm = ({
               productId: ap.product.id,
               quantity: ap.quantity,
             })) || [],
-        })) || []
+        })) || [],
       );
     } else {
       setBaseName("");
@@ -133,18 +140,23 @@ const useMenuItemForm = ({
     const newErrors: Record<string, string> = {};
 
     if (!baseName.trim()) newErrors.baseName = "Name is required";
-    else if (baseName.length > 50) newErrors.baseName = "Name must be at most 50 characters";
+    else if (baseName.length > 50)
+      newErrors.baseName = "Name must be at most 50 characters";
 
     if (basePrice === "" || basePrice < 0)
       newErrors.basePrice = "Base price is required and must be non-negative";
 
-    const validBaseProducts = baseProducts.filter((bp) => bp.productId && bp.quantity > 0);
+    const validBaseProducts = baseProducts.filter(
+      (bp) => bp.productId && bp.quantity > 0,
+    );
     if (validBaseProducts.length === 0)
       newErrors.baseProducts = "At least one base product is required";
 
     variations.forEach((v, i) => {
-      if (!v.name.trim()) newErrors[`variation_${i}_name`] = "Variation name is required";
-      if (!v.type.trim()) newErrors[`variation_${i}_type`] = "Variation type is required";
+      if (!v.name.trim())
+        newErrors[`variation_${i}_name`] = "Variation name is required";
+      if (!v.type.trim())
+        newErrors[`variation_${i}_type`] = "Variation type is required";
     });
 
     setErrors(newErrors);
@@ -159,7 +171,9 @@ const useMenuItemForm = ({
     setSubmitError(null);
 
     try {
-      const validBaseProducts = baseProducts.filter((bp) => bp.productId && bp.quantity > 0);
+      const validBaseProducts = baseProducts.filter(
+        (bp) => bp.productId && bp.quantity > 0,
+      );
       const validVariations = variations
         .filter((v) => v.name.trim() && v.type.trim())
         .map((v) => ({
@@ -168,7 +182,9 @@ const useMenuItemForm = ({
           type: v.type.trim().toUpperCase(),
           priceAdjustment: v.priceAdjustment,
           isDisabled: v.isDisabled,
-          addonProducts: v.addonProducts.filter((ap) => ap.productId && ap.quantity > 0),
+          addonProducts: v.addonProducts.filter(
+            (ap) => ap.productId && ap.quantity > 0,
+          ),
         }));
 
       const commonData = {
@@ -183,7 +199,10 @@ const useMenuItemForm = ({
       if (mode === "create") {
         await onSubmit(commonData as CreateMenuItem);
       } else if (initialData) {
-        await onSubmit({ id: initialData.id, data: commonData as UpdateMenuItem });
+        await onSubmit({
+          id: initialData.id,
+          data: commonData as UpdateMenuItem,
+        });
       }
 
       onClose();
@@ -209,7 +228,7 @@ const useMenuItemForm = ({
   const handleBaseProductChange = (
     index: number,
     field: "productId" | "quantity",
-    value: string | number
+    value: string | number,
   ) => {
     const updated = [...baseProducts];
     updated[index] = { ...updated[index], [field]: value };
@@ -220,7 +239,7 @@ const useMenuItemForm = ({
   const handleVariationChange = (
     index: number,
     field: keyof VariationFormData,
-    value: unknown
+    value: unknown,
   ) => {
     const updated = [...variations];
     updated[index] = { ...updated[index], [field]: value };
@@ -232,7 +251,7 @@ const useMenuItemForm = ({
     vIndex: number,
     aIndex: number,
     field: "productId" | "quantity",
-    value: string | number
+    value: string | number,
   ) => {
     const updated = [...variations];
     const addonProducts = [...updated[vIndex].addonProducts];
@@ -242,15 +261,26 @@ const useMenuItemForm = ({
   };
 
   return {
-    formState: { baseName, basePrice, categoryId, isDisabled, baseProducts, variations },
+    formState: {
+      baseName,
+      basePrice,
+      categoryId,
+      isDisabled,
+      baseProducts,
+      variations,
+    },
     setters: { setBaseName, setBasePrice, setCategoryId, setIsDisabled },
     handlers: {
-      handleAddBaseProduct: () => setBaseProducts([...baseProducts, emptyRecipe()]),
+      handleAddBaseProduct: () =>
+        setBaseProducts([...baseProducts, emptyRecipe()]),
       handleRemoveBaseProduct: (i: number) =>
-        baseProducts.length > 1 && setBaseProducts(baseProducts.filter((_, idx) => idx !== i)),
+        baseProducts.length > 1 &&
+        setBaseProducts(baseProducts.filter((_, idx) => idx !== i)),
       handleBaseProductChange,
-      handleAddVariation: () => setVariations([...variations, emptyVariation()]),
-      handleRemoveVariation: (i: number) => setVariations(variations.filter((_, idx) => idx !== i)),
+      handleAddVariation: () =>
+        setVariations([...variations, emptyVariation()]),
+      handleRemoveVariation: (i: number) =>
+        setVariations(variations.filter((_, idx) => idx !== i)),
       handleVariationChange,
       handleAddAddonProduct: (i: number) => {
         const updated = [...variations];
@@ -260,7 +290,7 @@ const useMenuItemForm = ({
       handleRemoveAddonProduct: (vIndex: number, aIndex: number) => {
         const updated = [...variations];
         updated[vIndex].addonProducts = updated[vIndex].addonProducts.filter(
-          (_, i) => i !== aIndex
+          (_, i) => i !== aIndex,
         );
         setVariations(updated);
       },
@@ -300,7 +330,7 @@ const BasicInfoSection: React.FC<{
 }) => {
   const categoryOptions = useMemo(
     () => categories.map((cat) => ({ value: cat.id, label: cat.name })),
-    [categories]
+    [categories],
   );
 
   return (
@@ -323,7 +353,9 @@ const BasicInfoSection: React.FC<{
         label="Base Price"
         type="number"
         value={basePrice}
-        onChange={(e) => onPriceChange(e.target.value === "" ? "" : Number(e.target.value))}
+        onChange={(e) =>
+          onPriceChange(e.target.value === "" ? "" : Number(e.target.value))
+        }
         error={!!errors.basePrice}
         helperText={errors.basePrice}
         disabled={isSubmitting}
@@ -337,7 +369,11 @@ const BasicInfoSection: React.FC<{
         onChange={(_, newValue) => onCategoryChange(newValue?.value || null)}
         disabled={isSubmitting}
         renderInput={(params) => (
-          <TextField {...params} label="Category" placeholder="Select category..." />
+          <TextField
+            {...params}
+            label="Category"
+            placeholder="Select category..."
+          />
         )}
         isOptionEqualToValue={(option, val) => option.value === val.value}
       />
@@ -362,7 +398,11 @@ const BaseProductsSection: React.FC<{
   isSubmitting: boolean;
   onAdd: () => void;
   onRemove: (index: number) => void;
-  onChange: (index: number, field: "productId" | "quantity", value: string | number) => void;
+  onChange: (
+    index: number,
+    field: "productId" | "quantity",
+    value: string | number,
+  ) => void;
   getProductUnit: (id: string) => string;
 }> = ({
   baseProducts,
@@ -376,12 +416,17 @@ const BaseProductsSection: React.FC<{
 }) => {
   const productOptions = useMemo(
     () => products.map((p) => ({ value: p.id, label: p.name })),
-    [products]
+    [products],
   );
 
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
+      >
         <Typography variant="subtitle1" fontWeight="bold">
           Base Products (Recipe) *
         </Typography>
@@ -401,14 +446,22 @@ const BaseProductsSection: React.FC<{
       )}
       <Stack spacing={2}>
         {baseProducts.map((bp, index) => (
-          <Paper key={bp.productId || `new-${index}`} variant="outlined" sx={{ p: 2 }}>
+          <Paper
+            key={bp.productId || `new-${index}`}
+            variant="outlined"
+            sx={{ p: 2 }}
+          >
             <Stack direction="row" spacing={2} alignItems="flex-start">
               <Autocomplete
                 sx={{ flex: 2 }}
                 options={productOptions}
                 getOptionLabel={(option) => option.label}
-                value={productOptions.find((o) => o.value === bp.productId) || null}
-                onChange={(_, newValue) => onChange(index, "productId", newValue?.value || "")}
+                value={
+                  productOptions.find((o) => o.value === bp.productId) || null
+                }
+                onChange={(_, newValue) =>
+                  onChange(index, "productId", newValue?.value || "")
+                }
                 disabled={isSubmitting}
                 renderInput={(params) => (
                   <TextField
@@ -418,21 +471,29 @@ const BaseProductsSection: React.FC<{
                     required
                   />
                 )}
-                isOptionEqualToValue={(option, val) => option.value === val.value}
+                isOptionEqualToValue={(option, val) =>
+                  option.value === val.value
+                }
               />
               <TextField
                 sx={{ flex: 1 }}
                 label="Quantity"
                 type="number"
                 value={bp.quantity}
-                onChange={(e) => onChange(index, "quantity", Number(e.target.value))}
+                onChange={(e) =>
+                  onChange(index, "quantity", Number(e.target.value))
+                }
                 disabled={isSubmitting}
                 required
                 slotProps={{
                   input: {
                     inputProps: { min: 0.01, step: 0.01 },
                     endAdornment: bp.productId ? (
-                      <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ ml: 1 }}
+                      >
                         {getProductUnit(bp.productId)}
                       </Typography>
                     ) : null,
@@ -462,14 +523,18 @@ const VariationsSection: React.FC<{
   isSubmitting: boolean;
   onAdd: () => void;
   onRemove: (index: number) => void;
-  onChange: (index: number, field: keyof VariationFormData, value: unknown) => void;
+  onChange: (
+    index: number,
+    field: keyof VariationFormData,
+    value: unknown,
+  ) => void;
   onAddAddon: (index: number) => void;
   onRemoveAddon: (vIndex: number, aIndex: number) => void;
   onChangeAddon: (
     vIndex: number,
     aIndex: number,
     field: "productId" | "quantity",
-    value: string | number
+    value: string | number,
   ) => void;
   getProductUnit: (id: string) => string;
 }> = ({
@@ -487,7 +552,7 @@ const VariationsSection: React.FC<{
 }) => {
   const productOptions = useMemo(
     () => products.map((p) => ({ value: p.id, label: p.name })),
-    [products]
+    [products],
   );
 
   const variationTypeOptions = useMemo(() => {
@@ -500,7 +565,12 @@ const VariationsSection: React.FC<{
 
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
+      >
         <Typography variant="subtitle1" fontWeight="bold">
           Variations (Optional)
         </Typography>
@@ -521,10 +591,20 @@ const VariationsSection: React.FC<{
       ) : (
         <Stack spacing={3}>
           {variations.map((variation, vIndex) => (
-            <Paper key={variation.id || `new-variation-${vIndex}`} variant="outlined" sx={{ p: 2 }}>
+            <Paper
+              key={variation.id || `new-variation-${vIndex}`}
+              variant="outlined"
+              sx={{ p: 2 }}
+            >
               <Stack spacing={2}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                  <Typography variant="subtitle2">Variation {vIndex + 1}</Typography>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Typography variant="subtitle2">
+                    Variation {vIndex + 1}
+                  </Typography>
                   <IconButton
                     onClick={() => onRemove(vIndex)}
                     disabled={isSubmitting}
@@ -551,7 +631,9 @@ const VariationsSection: React.FC<{
                     freeSolo
                     options={variationTypeOptions}
                     value={variation.type}
-                    onInputChange={(_, newValue) => onChange(vIndex, "type", newValue)}
+                    onInputChange={(_, newValue) =>
+                      onChange(vIndex, "type", newValue)
+                    }
                     disabled={isSubmitting}
                     renderInput={(params) => (
                       <TextField
@@ -575,7 +657,13 @@ const VariationsSection: React.FC<{
                     label="Price Adjustment"
                     type="number"
                     value={variation.priceAdjustment}
-                    onChange={(e) => onChange(vIndex, "priceAdjustment", Number(e.target.value))}
+                    onChange={(e) =>
+                      onChange(
+                        vIndex,
+                        "priceAdjustment",
+                        Number(e.target.value),
+                      )
+                    }
                     disabled={isSubmitting}
                     slotProps={{ input: { inputProps: { step: 0.01 } } }}
                   />
@@ -583,7 +671,9 @@ const VariationsSection: React.FC<{
                     control={
                       <Checkbox
                         checked={variation.isDisabled}
-                        onChange={(e) => onChange(vIndex, "isDisabled", e.target.checked)}
+                        onChange={(e) =>
+                          onChange(vIndex, "isDisabled", e.target.checked)
+                        }
                         disabled={isSubmitting}
                       />
                     }
@@ -618,23 +708,41 @@ const VariationsSection: React.FC<{
                   ) : (
                     <Stack spacing={1}>
                       {variation.addonProducts.map((addon, aIndex) => (
-                        <Stack key={addon.productId || `addon-${vIndex}-${aIndex}`} direction="row" spacing={1} alignItems="center">
+                        <Stack
+                          key={addon.productId || `addon-${vIndex}-${aIndex}`}
+                          direction="row"
+                          spacing={1}
+                          alignItems="center"
+                        >
                           <Autocomplete
                             sx={{ flex: 2 }}
                             size="small"
                             options={productOptions}
                             getOptionLabel={(option) => option.label}
                             value={
-                              productOptions.find((o) => o.value === addon.productId) || null
+                              productOptions.find(
+                                (o) => o.value === addon.productId,
+                              ) || null
                             }
                             onChange={(_, newValue) =>
-                              onChangeAddon(vIndex, aIndex, "productId", newValue?.value || "")
+                              onChangeAddon(
+                                vIndex,
+                                aIndex,
+                                "productId",
+                                newValue?.value || "",
+                              )
                             }
                             disabled={isSubmitting}
                             renderInput={(params) => (
-                              <TextField {...params} label="Product" size="small" />
+                              <TextField
+                                {...params}
+                                label="Product"
+                                size="small"
+                              />
                             )}
-                            isOptionEqualToValue={(option, val) => option.value === val.value}
+                            isOptionEqualToValue={(option, val) =>
+                              option.value === val.value
+                            }
                           />
                           <TextField
                             sx={{ flex: 1 }}
@@ -643,14 +751,23 @@ const VariationsSection: React.FC<{
                             type="number"
                             value={addon.quantity}
                             onChange={(e) =>
-                              onChangeAddon(vIndex, aIndex, "quantity", Number(e.target.value))
+                              onChangeAddon(
+                                vIndex,
+                                aIndex,
+                                "quantity",
+                                Number(e.target.value),
+                              )
                             }
                             disabled={isSubmitting}
                             slotProps={{
                               input: {
                                 inputProps: { min: 0.01, step: 0.01 },
                                 endAdornment: addon.productId ? (
-                                  <Typography variant="body2" color="text.secondary" sx={{ ml: 0.5 }}>
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ ml: 0.5 }}
+                                  >
                                     {getProductUnit(addon.productId)}
                                   </Typography>
                                 ) : null,
@@ -680,13 +797,8 @@ const VariationsSection: React.FC<{
 };
 
 export const MenuItemFormModal: React.FC<MenuItemFormModalProps> = (props) => {
-  const {
-    formState,
-    setters,
-    handlers,
-    status,
-    handleSubmit,
-  } = useMenuItemForm(props);
+  const { formState, setters, handlers, status, handleSubmit } =
+    useMenuItemForm(props);
 
   const { open, onClose, mode, categories, products } = props;
 
@@ -696,7 +808,7 @@ export const MenuItemFormModal: React.FC<MenuItemFormModalProps> = (props) => {
       if (!product) return "";
       return product.productUnit.symbol || product.productUnit.name;
     },
-    [products]
+    [products],
   );
 
   return (
@@ -707,7 +819,9 @@ export const MenuItemFormModal: React.FC<MenuItemFormModalProps> = (props) => {
         </DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 1 }}>
-            {status.submitError && <FormAlert message={status.submitError} severity="error" />}
+            {status.submitError && (
+              <FormAlert message={status.submitError} severity="error" />
+            )}
 
             <BasicInfoSection
               baseName={formState.baseName}
@@ -767,7 +881,9 @@ export const MenuItemFormModal: React.FC<MenuItemFormModalProps> = (props) => {
             type="submit"
             variant="contained"
             disabled={status.isSubmitting}
-            startIcon={status.isSubmitting ? <CircularProgress size={16} /> : null}
+            startIcon={
+              status.isSubmitting ? <CircularProgress size={16} /> : null
+            }
           >
             {mode === "create" ? "Create" : "Save"}
           </Button>
