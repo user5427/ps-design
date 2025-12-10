@@ -128,7 +128,7 @@ export const MenuItemsListView = () => {
           if (!variations?.length) return "-";
           return (
             <Stack spacing={0.5}>
-              {variations.map((v, i) => {
+              {variations.map((v, index) => {
                 const addonText =
                   v.addonProducts?.length > 0
                     ? ` [${v.addonProducts
@@ -140,7 +140,7 @@ export const MenuItemsListView = () => {
                     : "";
                 const statusText = v.isDisabled ? " (Disabled)" : v.isAvailable ? " (Available)" : " (Unavailable)";
                 return (
-                  <div key={i}>
+                  <div key={`${v.name}-${v.type}-${index}`}>
                     {`${v.name} (${v.type}) ${v.priceAdjustment >= 0 ? "+" : ""}$${v.priceAdjustment.toFixed(2)}${addonText}${statusText}`}
                   </div>
                 );

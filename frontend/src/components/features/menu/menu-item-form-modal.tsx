@@ -401,7 +401,7 @@ const BaseProductsSection: React.FC<{
       )}
       <Stack spacing={2}>
         {baseProducts.map((bp, index) => (
-          <Paper key={index} variant="outlined" sx={{ p: 2 }}>
+          <Paper key={bp.productId || `new-${index}`} variant="outlined" sx={{ p: 2 }}>
             <Stack direction="row" spacing={2} alignItems="flex-start">
               <Autocomplete
                 sx={{ flex: 2 }}
@@ -521,7 +521,7 @@ const VariationsSection: React.FC<{
       ) : (
         <Stack spacing={3}>
           {variations.map((variation, vIndex) => (
-            <Paper key={vIndex} variant="outlined" sx={{ p: 2 }}>
+            <Paper key={variation.id || `new-variation-${vIndex}`} variant="outlined" sx={{ p: 2 }}>
               <Stack spacing={2}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
                   <Typography variant="subtitle2">Variation {vIndex + 1}</Typography>
@@ -618,7 +618,7 @@ const VariationsSection: React.FC<{
                   ) : (
                     <Stack spacing={1}>
                       {variation.addonProducts.map((addon, aIndex) => (
-                        <Stack key={aIndex} direction="row" spacing={1} alignItems="center">
+                        <Stack key={addon.productId || `addon-${vIndex}-${aIndex}`} direction="row" spacing={1} alignItems="center">
                           <Autocomplete
                             sx={{ flex: 2 }}
                             size="small"
