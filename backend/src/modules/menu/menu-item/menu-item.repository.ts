@@ -54,10 +54,7 @@ export class MenuItemRepository {
     });
   }
 
-  async findByIdAndBusinessId(
-    id: string,
-    businessId: string,
-  ): Promise<MenuItem | null> {
+  async findByIdAndBusinessId(id: string, businessId: string): Promise<MenuItem | null> {
     return this.repository.findOne({
       where: { id, businessId, deletedAt: IsNull() },
       relations: MENU_ITEM_RELATIONS,
@@ -65,140 +62,29 @@ export class MenuItemRepository {
   }
 
   async getById(id: string, businessId: string): Promise<MenuItem> {
-    const menuItem = await this.findByIdAndBusinessId(id, businessId);
-    if (!menuItem) {
-      throw new NotFoundError("Menu item not found");
-    }
-    return menuItem;
-  }
-
-  private async validateCategoryExists(
-    categoryId: string | null | undefined,
-    businessId: string,
-  ): Promise<void> {
-    if (!categoryId) return;
-
-    const category = await this.categoryRepository.findOne({
-      where: { id: categoryId, businessId, deletedAt: IsNull() },
-    });
-
-    if (!category) {
-      throw new BadRequestError("Invalid category");
-    }
-  }
-
-  private async validateProductsExist(
-    productIds: string[],
-    businessId: string,
-  ): Promise<void> {
-    if (productIds.length === 0) return;
-
-    const uniqueProductIds = [...new Set(productIds)];
-
-    const count = await this.productRepository
-      .createQueryBuilder("product")
-      .where("product.id IN (:...ids)", { ids: uniqueProductIds })
-      .andWhere("product.businessId = :businessId", { businessId })
-      .andWhere("product.deletedAt IS NULL")
-      .getCount();
-
-    if (count !== uniqueProductIds.length) {
-      throw new BadRequestError("One or more products not found");
-    }
-  }
-
-  private collectAllProductIds(
-    baseProducts: { productId: string }[],
-    variations: { addonProducts?: { productId: string }[] }[],
-  ): string[] {
-    return [
-      ...baseProducts.map((bp) => bp.productId),
-      ...variations.flatMap(
-        (v) => v.addonProducts?.map((ap) => ap.productId) ?? [],
-      ),
-    ];
-  }
-
-  private async createBaseProducts(
-    manager: EntityManager,
-    menuItemId: string,
-    baseProducts: { productId: string; quantity: number }[],
-  ): Promise<void> {
-    if (baseProducts.length === 0) return;
-
-    await manager
-      .createQueryBuilder()
-      .insert()
-      .into(this.baseProductRepository.target)
-      .values(
-        baseProducts.map((bp) => ({
-          menuItemId,
-          productId: bp.productId,
-          quantity: bp.quantity,
-        })),
-      )
-      .execute();
-  }
-
-  private async createVariationWithAddons(
-    manager: EntityManager,
-    menuItemId: string,
-    variation: {
-      name: string;
-      type: string;
-      priceAdjustment?: number;
-      isDisabled?: boolean;
-      addonProducts?: { productId: string; quantity: number }[];
-    },
-  ): Promise<void> {
-    const variationEntity = manager.create(this.variationRepository.target, {
-      menuItemId,
-      name: variation.name,
-      type: variation.type,
-      priceAdjustment: variation.priceAdjustment ?? 0,
-      isDisabled: variation.isDisabled ?? false,
-    });
-    const savedVariation = await manager.save(variationEntity);
-
-    if (variation.addonProducts && variation.addonProducts.length > 0) {
-      await manager
-        .createQueryBuilder()
-        .insert()
-        .into(this.variationProductRepository.target)
-        .values(
-          variation.addonProducts.map((ap) => ({
-            variationId: savedVariation.id,
-            productId: ap.productId,
-            quantity: ap.quantity,
-          })),
-        )
-        .execute();
-    }
+    const item = await this.findByIdAndBusinessId(id, businessId);
+    if (!item) throw new NotFoundError("Menu item not found");
+    return item;
   }
 
   async create(data: ICreateMenuItem): Promise<MenuItem> {
     const { baseProducts, variations, ...menuItemData } = data;
 
-    await this.validateCategoryExists(menuItemData.categoryId, data.businessId);
     const allProductIds = this.collectAllProductIds(baseProducts, variations);
-    await this.validateProductsExist(allProductIds, data.businessId);
+    await this.validateRelations(data.businessId, menuItemData.categoryId, allProductIds);
 
-    const menuItemId = await this.dataSource.transaction(async (manager) => {
+    const savedId = await this.dataSource.transaction(async (manager) => {
       try {
         const menuItem = manager.create(this.repository.target, menuItemData);
-        const savedMenuItem = await manager.save(menuItem);
+        const saved = await manager.save(menuItem);
 
-        await this.createBaseProducts(manager, savedMenuItem.id, baseProducts);
+        await this.createBaseProducts(manager, saved.id, baseProducts);
 
         for (const variation of variations) {
-          await this.createVariationWithAddons(
-            manager,
-            savedMenuItem.id,
-            variation,
-          );
+          await this.createVariationWithAddons(manager, saved.id, variation);
         }
 
-        return savedMenuItem.id;
+        return saved.id;
       } catch (error) {
         if (isUniqueConstraintError(error)) {
           throw new ConflictError("Menu item with this name already exists");
@@ -207,212 +93,175 @@ export class MenuItemRepository {
       }
     });
 
-    const createdMenuItem = await this.findByIdAndBusinessId(
-      menuItemId,
-      data.businessId,
-    );
-    if (!createdMenuItem) {
-      throw new Error("Failed to retrieve created menu item");
-    }
-    return createdMenuItem;
+    return (await this.findByIdAndBusinessId(savedId, data.businessId))!;
   }
 
-  async update(
-    id: string,
-    businessId: string,
-    data: IUpdateMenuItem,
-  ): Promise<MenuItem> {
-    const menuItem = await this.findByIdAndBusinessId(id, businessId);
-    if (!menuItem) {
-      throw new NotFoundError("Menu item not found");
-    }
+  async update(id: string, businessId: string, data: IUpdateMenuItem): Promise<MenuItem> {
+    const menuItem = await this.getById(id, businessId);
+    const { baseProducts, variations, removeVariationIds, ...updateData } = data;
 
-    const { baseProducts, variations, removeVariationIds, ...updateData } =
-      data;
-
-    if (updateData.categoryId !== undefined) {
-      await this.validateCategoryExists(updateData.categoryId, businessId);
-    }
-    const allProductIds = this.collectAllProductIds(
-      baseProducts ?? [],
-      variations ?? [],
-    );
-    await this.validateProductsExist(allProductIds, businessId);
+    const allProductIds = this.collectAllProductIds(baseProducts ?? [], variations ?? []);
+    await this.validateRelations(businessId, updateData.categoryId, allProductIds);
 
     await this.dataSource.transaction(async (manager) => {
       try {
+        // Update Core Record
         if (Object.keys(updateData).length > 0) {
-          await manager.update(this.repository.target, id, updateData);
+          manager.merge(this.repository.target as any, menuItem, updateData);
+          await manager.save(menuItem);
         }
 
+        // Sync Base Products
         if (baseProducts !== undefined) {
-          await manager.delete(this.baseProductRepository.target, {
-            menuItemId: id,
-          });
+          await manager.delete(this.baseProductRepository.target, { menuItemId: id });
           await this.createBaseProducts(manager, id, baseProducts);
         }
 
-        if (removeVariationIds && removeVariationIds.length > 0) {
+        // Sync Variations (Soft-delete removed variations)
+        if (removeVariationIds?.length) {
           await manager.update(
             this.variationRepository.target,
             { id: In(removeVariationIds), menuItemId: id },
-            { deletedAt: new Date() },
+            { deletedAt: new Date() }
           );
         }
 
-        if (variations !== undefined) {
-          for (const variation of variations) {
-            if (variation.id) {
-              await this.updateExistingVariation(manager, id, {
-                id: variation.id,
-                name: variation.name,
-                type: variation.type,
-                priceAdjustment: variation.priceAdjustment,
-                isDisabled: variation.isDisabled,
-                addonProducts: variation.addonProducts,
-              });
-            } else {
-              if (!variation.name || !variation.type) {
-                throw new BadRequestError(
-                  "New variations require name and type",
-                );
-              }
-              await this.createVariationWithAddons(
-                manager,
-                id,
-                variation as {
-                  name: string;
-                  type: string;
-                  priceAdjustment?: number;
-                  isDisabled?: boolean;
-                  addonProducts?: { productId: string; quantity: number }[];
-                },
-              );
-            }
+        if (variations?.length) {
+          for (const v of variations) {
+            v.id 
+              ? await this.updateExistingVariation(manager, id, v as any) 
+              : await this.createVariationWithAddons(manager, id, v as any);
           }
         }
       } catch (error) {
-        if (isUniqueConstraintError(error)) {
-          throw new ConflictError("Menu item with this name already exists");
-        }
+        if (isUniqueConstraintError(error)) throw new ConflictError("Duplicate name exists");
         throw error;
       }
     });
 
-    const updatedMenuItem = await this.findByIdAndBusinessId(id, businessId);
-    if (!updatedMenuItem) {
-      throw new Error("Failed to retrieve updated menu item");
+    return (await this.findByIdAndBusinessId(id, businessId))!;
+  }
+
+  private async validateRelations(
+    businessId: string, 
+    categoryId?: string | null, 
+    productIds: string[] = []
+  ): Promise<void> {
+    const tasks: Promise<void>[] = [];
+
+    if (categoryId) {
+      tasks.push(this.validateCategoryExists(categoryId, businessId));
     }
-    return updatedMenuItem;
+    if (productIds.length > 0) {
+      tasks.push(this.validateProductsExist(productIds, businessId));
+    }
+
+    await Promise.all(tasks);
+  }
+
+  private async validateCategoryExists(categoryId: string, businessId: string): Promise<void> {
+    const exists = await this.categoryRepository.findOne({
+      where: { id: categoryId, businessId, deletedAt: IsNull() },
+      select: ["id"] 
+    });
+    if (!exists) throw new BadRequestError("Invalid category");
+  }
+
+  private async validateProductsExist(productIds: string[], businessId: string): Promise<void> {
+    const uniqueIds = [...new Set(productIds)];
+    const count = await this.productRepository.count({
+      where: { id: In(uniqueIds), businessId, deletedAt: IsNull() }
+    });
+    if (count !== uniqueIds.length) throw new BadRequestError("One or more products not found");
+  }
+
+  private async createBaseProducts(
+    manager: EntityManager,
+    menuItemId: string,
+    baseProducts: { productId: string; quantity: number }[]
+  ): Promise<void> {
+    if (!baseProducts.length) return;
+    await manager.insert(this.baseProductRepository.target, 
+      baseProducts.map(bp => ({ ...bp, menuItemId }))
+    );
+  }
+
+  private async createVariationWithAddons(
+    manager: EntityManager,
+    menuItemId: string,
+    variation: any
+  ): Promise<void> {
+    const variationEntity = manager.create(this.variationRepository.target, {
+      ...variation,
+      menuItemId,
+      priceAdjustment: variation.priceAdjustment ?? 0,
+      isDisabled: variation.isDisabled ?? false,
+    });
+    const saved = await manager.save(variationEntity);
+
+    if (variation.addonProducts?.length) {
+      await manager.insert(this.variationProductRepository.target, 
+        variation.addonProducts.map((ap: any) => ({ ...ap, variationId: saved.id }))
+      );
+    }
   }
 
   private async updateExistingVariation(
     manager: EntityManager,
     menuItemId: string,
-    variation: {
-      id: string;
-      name?: string;
-      type?: string;
-      priceAdjustment?: number;
-      isDisabled?: boolean;
-      addonProducts?: { productId: string; quantity: number }[];
-    },
+    variation: any
   ): Promise<void> {
-    const existingVariation = await manager.findOne(
-      this.variationRepository.target,
-      {
-        where: { id: variation.id, menuItemId, deletedAt: IsNull() },
-      },
-    );
+    const existing = await manager.findOne(this.variationRepository.target, {
+      where: { id: variation.id, menuItemId, deletedAt: IsNull() }
+    });
+    if (!existing) throw new NotFoundError(`Variation ${variation.id} not found`);
 
-    if (!existingVariation) {
-      throw new NotFoundError(`Variation ${variation.id} not found`);
-    }
-
-    const updateFields: Partial<MenuItemVariation> = {};
-    if (variation.name !== undefined) updateFields.name = variation.name;
-    if (variation.type !== undefined) updateFields.type = variation.type;
-    if (variation.priceAdjustment !== undefined)
-      updateFields.priceAdjustment = variation.priceAdjustment;
-    if (variation.isDisabled !== undefined)
-      updateFields.isDisabled = variation.isDisabled;
-
+    const { id, addonProducts, ...updateFields } = variation;
+    
     if (Object.keys(updateFields).length > 0) {
-      await manager.update(
-        this.variationRepository.target,
-        variation.id,
-        updateFields,
-      );
+      await manager.update(this.variationRepository.target, id, updateFields);
     }
 
-    if (variation.addonProducts !== undefined) {
-      await manager.delete(this.variationProductRepository.target, {
-        variationId: variation.id,
-      });
-      if (variation.addonProducts.length > 0) {
-        await manager
-          .createQueryBuilder()
-          .insert()
-          .into(this.variationProductRepository.target)
-          .values(
-            variation.addonProducts.map((ap) => ({
-              variationId: variation.id,
-              productId: ap.productId,
-              quantity: ap.quantity,
-            })),
-          )
-          .execute();
+    if (addonProducts !== undefined) {
+      await manager.delete(this.variationProductRepository.target, { variationId: id });
+      if (addonProducts.length > 0) {
+        await manager.insert(this.variationProductRepository.target, 
+          addonProducts.map((ap: any) => ({ ...ap, variationId: id }))
+        );
       }
     }
+  }
+
+  private collectAllProductIds(
+    base: { productId: string }[], 
+    vars: { addonProducts?: { productId: string }[] }[]
+  ): string[] {
+    const baseIds = base.map(p => p.productId);
+    const addonIds = vars.flatMap(v => v.addonProducts?.map(p => p.productId) ?? []);
+    return [...baseIds, ...addonIds];
   }
 
   async bulkDelete(ids: string[], businessId: string): Promise<void> {
-    const count = await this.repository
-      .createQueryBuilder("menuItem")
-      .where("menuItem.id IN (:...ids)", { ids })
-      .andWhere("menuItem.businessId = :businessId", { businessId })
-      .andWhere("menuItem.deletedAt IS NULL")
-      .getCount();
-
-    if (count !== ids.length) {
-      throw new NotFoundError("One or more menu items not found");
-    }
-
+    const count = await this.repository.count({
+      where: { id: In(ids), businessId, deletedAt: IsNull() }
+    });
+    if (count !== ids.length) throw new NotFoundError("One or more items not found");
     await this.repository.update(ids, { deletedAt: new Date() });
   }
 
-  /**
-   * Get stock levels for products
-   * Returns a map of productId -> quantity in stock
-   */
   async getProductStockLevels(
     productIds: string[],
-    businessId: string,
+    businessId: string
   ): Promise<Map<string, number>> {
-    if (productIds.length === 0) {
-      return new Map();
-    }
+    if (!productIds.length) return new Map();
 
-    const results = await this.stockLevelRepository
-      .createQueryBuilder("stockLevel")
-      .select("stockLevel.productId", "productId")
-      .addSelect("COALESCE(stockLevel.quantity, 0)", "quantity")
-      .where("stockLevel.businessId = :businessId", { businessId })
-      .andWhere("stockLevel.productId IN (:...productIds)", { productIds })
-      .getRawMany<{ productId: string; quantity: number }>();
+    const results = await this.stockLevelRepository.find({
+      where: { businessId, productId: In(productIds) },
+      select: ["productId", "quantity"]
+    });
 
-    const stockMap = new Map<string, number>();
-    for (const result of results) {
-      stockMap.set(result.productId, Number(result.quantity));
-    }
-
-    // Set 0 for products not in stock levels table
-    for (const productId of productIds) {
-      if (!stockMap.has(productId)) {
-        stockMap.set(productId, 0);
-      }
-    }
-
+    const stockMap = new Map<string, number>(productIds.map(id => [id, 0]));
+    results.forEach(r => stockMap.set(r.productId, Number(r.quantity)));
     return stockMap;
   }
 }
