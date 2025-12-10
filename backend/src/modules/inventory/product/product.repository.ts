@@ -1,9 +1,11 @@
 import { IsNull, type Repository } from "typeorm";
 import { BadRequestError, ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
+import { calculatePaginationMetadata } from "@/shared/pagination-utils";
 import type { ProductUnit } from "@/modules/inventory/product-unit/product-unit.entity";
 import type { Product } from "./product.entity";
 import type { ICreateProduct, IUpdateProduct } from "./product.types";
+import { PaginatedResult } from "@ps-design/schemas/pagination";
 
 export class ProductRepository {
   constructor(
@@ -17,6 +19,39 @@ export class ProductRepository {
       relations: ["productUnit", "stockLevel"],
       order: { name: "ASC" },
     });
+  }
+
+  async findAllPaginatedByBusinessId(
+    businessId: string,
+    page: number,
+    limit: number,
+    search?: string,
+  ): Promise<PaginatedResult<Product>> {
+    const query = this.repository.createQueryBuilder("product");
+
+    query.leftJoinAndSelect("product.productUnit", "productUnit");
+    query.leftJoinAndSelect("product.stockLevel", "stockLevel");
+
+    query.where("product.businessId = :businessId", { businessId });
+    query.andWhere("product.deletedAt IS NULL");
+
+    if (search) {
+      query.andWhere("product.name ILIKE :search", {
+        search: `%${search}%`,
+      });
+    }
+
+    query.orderBy("product.name", "ASC");
+
+    const skip = (page - 1) * limit;
+    query.skip(skip).take(limit);
+
+    const [items, total] = await query.getManyAndCount();
+
+    return {
+      items,
+      metadata: calculatePaginationMetadata(total, page, limit),
+    };
   }
 
   async findById(id: string): Promise<Product | null> {

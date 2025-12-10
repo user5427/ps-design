@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { uuid } from "../../shared/zod-utils";
+import { UniversalPaginationQuerySchema } from "../../pagination";
 
 const MIN_LENGTH = 1;
 const MAX_NAME_LENGTH = 100;
@@ -37,6 +38,9 @@ export const UpdateProductUnitSchema = z.object({
     .optional(),
 });
 
+export const UnitQuerySchema = UniversalPaginationQuerySchema;
+
 export type CreateProductUnitBody = z.infer<typeof CreateProductUnitSchema>;
 export type UpdateProductUnitBody = z.infer<typeof UpdateProductUnitSchema>;
 export type UnitIdParams = z.infer<typeof UnitIdParam>;
+export type UnitQuery = z.infer<typeof UnitQuerySchema>;

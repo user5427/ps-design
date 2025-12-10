@@ -4,7 +4,9 @@ import httpStatus from "http-status";
 import {
   createStockChange,
   getAllStockLevels,
+  getAllStockLevelsPaginated,
   getStockChanges,
+  getStockChangesPaginated,
   getStockLevelByProductId,
   updateStockChange,
 } from "./service";
@@ -19,26 +21,50 @@ import {
   type ProductIdParams,
   type StockQuery,
   StockQuerySchema,
+  PaginatedStockLevelResponseSchema,
+  PaginatedStockChangeResponseSchema,
 } from "@ps-design/schemas/inventory/stock";
 
 export default async function stockRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope } = createScopeMiddleware(fastify);
 
-  server.get(
+  server.get<{ Querystring: StockQuery }>(
     "/",
     {
       onRequest: [
         fastify.authenticate,
         requireScope(ScopeNames.INVENTORY_READ),
       ],
+      schema: {
+        querystring: StockQuerySchema,
+        response: {
+          200: PaginatedStockLevelResponseSchema,
+        },
+      },
     },
-    async (request: FastifyRequest, reply: FastifyReply) => {
+    async (
+      request: FastifyRequest<{
+        Querystring: StockQuery;
+      }>,
+      reply: FastifyReply,
+    ) => {
       const businessId = getBusinessId(request, reply);
       if (!businessId) return;
 
-      const stockLevels = await getAllStockLevels(fastify, businessId);
-      return reply.send(stockLevels);
+      try {
+        const { page = 1, limit = 20, search } = request.query;
+        const stockLevels = await getAllStockLevelsPaginated(
+          fastify,
+          businessId,
+          page,
+          limit,
+          search,
+        );
+        return reply.send(stockLevels);
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
     },
   );
 

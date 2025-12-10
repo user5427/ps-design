@@ -5,6 +5,7 @@ import {
   bulkDeleteUnits,
   createUnit,
   getAllUnits,
+  getAllUnitsPaginated,
   updateUnit,
 } from "./service";
 import { getBusinessId } from "@/shared/auth-utils";
@@ -15,9 +16,12 @@ import {
   CreateProductUnitSchema,
   UnitIdParam,
   UpdateProductUnitSchema,
+  UnitQuerySchema,
   type UnitIdParams,
   type UpdateProductUnitBody,
   type CreateProductUnitBody,
+  type UnitQuery,
+  PaginatedProductUnitResponseSchema,
 } from "@ps-design/schemas/inventory/units";
 import {
   BulkDeleteSchema,
@@ -28,20 +32,42 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope, requireAllScopes } = createScopeMiddleware(fastify);
 
-  server.get(
+  server.get<{ Querystring: UnitQuery }>(
     "/",
     {
       onRequest: [
         fastify.authenticate,
         requireScope(ScopeNames.INVENTORY_READ),
       ],
+      schema: {
+        querystring: UnitQuerySchema,
+        response: {
+          200: PaginatedProductUnitResponseSchema,
+        },
+      },
     },
-    async (request: FastifyRequest, reply: FastifyReply) => {
+    async (
+      request: FastifyRequest<{
+        Querystring: UnitQuery;
+      }>,
+      reply: FastifyReply,
+    ) => {
       const businessId = getBusinessId(request, reply);
       if (!businessId) return;
 
-      const units = await getAllUnits(fastify, businessId);
-      return reply.send(units);
+      try {
+        const { page = 1, limit = 20, search } = request.query;
+        const units = await getAllUnitsPaginated(
+          fastify,
+          businessId,
+          page,
+          limit,
+          search,
+        );
+        return reply.send(units);
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
     },
   );
 

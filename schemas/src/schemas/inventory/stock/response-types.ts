@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { date, datetime, uuid } from "../../shared/zod-utils";
+import { createPaginatedSchema, type PaginatedType } from "../../pagination";
 import { StockChangeTypeEnum } from "./shared";
 
 export const StockLevelResponseSchema = z.object({
@@ -37,5 +38,27 @@ export const StockChangeResponseSchema = z.object({
   }),
 });
 
+/**
+ * Paginated stock level list response
+ */
+export const PaginatedStockLevelResponseSchema = createPaginatedSchema(
+  StockLevelResponseSchema,
+  "PaginatedStockLevelResponse",
+);
+
+/**
+ * Paginated stock change list response
+ */
+export const PaginatedStockChangeResponseSchema = createPaginatedSchema(
+  StockChangeResponseSchema,
+  "PaginatedStockChangeResponse",
+);
+
 export type StockLevelResponse = z.infer<typeof StockLevelResponseSchema>;
 export type StockChangeResponse = z.infer<typeof StockChangeResponseSchema>;
+export type PaginatedStockLevelResponse = PaginatedType<
+  typeof StockLevelResponseSchema
+>;
+export type PaginatedStockChangeResponse = PaginatedType<
+  typeof StockChangeResponseSchema
+>;

@@ -6,6 +6,12 @@ import type {
   UpdateStockChangeBody,
   StockLevelResponse,
   StockChangeResponse,
+  PaginatedStockLevelResponse,
+  PaginatedStockChangeResponse,
+} from "@ps-design/schemas/inventory/stock";
+import {
+  StockLevelResponseSchema,
+  StockChangeResponseSchema,
 } from "@ps-design/schemas/inventory/stock";
 
 function toStockChangeResponse(change: StockChange): StockChangeResponse {
@@ -51,6 +57,25 @@ function toStockLevelResponse(product: Product): StockLevelResponse {
     },
     isDisabled: product.isDisabled,
     totalQuantity: product.stockLevel?.quantity ?? 0,
+  };
+}
+
+export async function getAllStockLevelsPaginated(
+  fastify: FastifyInstance,
+  businessId: string,
+  page: number,
+  limit: number,
+  search?: string,
+): Promise<PaginatedStockLevelResponse> {
+  const result = await fastify.db.product.findAllPaginatedByBusinessId(
+    businessId,
+    page,
+    limit,
+    search,
+  );
+  return {
+    items: result.items.map((item: Product) => StockLevelResponseSchema.parse(toStockLevelResponse(item))),
+    metadata: result.metadata,
   };
 }
 
@@ -108,6 +133,25 @@ export async function updateStockChange(
   );
 
   return toStockChangeResponse(stockChange);
+}
+
+export async function getStockChangesPaginated(
+  fastify: FastifyInstance,
+  businessId: string,
+  page: number,
+  limit: number,
+  search?: string,
+): Promise<PaginatedStockChangeResponse> {
+  const result = await fastify.db.stockChange.findAllPaginatedByBusinessId(
+    businessId,
+    page,
+    limit,
+    search,
+  );
+  return {
+    items: result.items.map((item: StockChange) => StockChangeResponseSchema.parse(toStockChangeResponse(item))),
+    metadata: result.metadata,
+  };
 }
 
 export async function getStockChanges(

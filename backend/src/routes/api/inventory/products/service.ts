@@ -3,7 +3,9 @@ import type {
   CreateProductBody,
   UpdateProductBody,
   ProductResponse,
+  PaginatedProductResponse,
 } from "@ps-design/schemas/inventory/products";
+import { ProductResponseSchema } from "@ps-design/schemas/inventory/products";
 import type { Product } from "../../../../modules/inventory/product/product.entity";
 
 function toProductResponse(product: Product): ProductResponse {
@@ -22,6 +24,25 @@ function toProductResponse(product: Product): ProductResponse {
       name: product.productUnit.name,
       symbol: product.productUnit.symbol,
     },
+  };
+}
+
+export async function getAllProductsPaginated(
+  fastify: FastifyInstance,
+  businessId: string,
+  page: number,
+  limit: number,
+  search?: string,
+): Promise<PaginatedProductResponse> {
+  const result = await fastify.db.product.findAllPaginatedByBusinessId(
+    businessId,
+    page,
+    limit,
+    search,
+  );
+  return {
+    items: result.items.map((item: Product) => ProductResponseSchema.parse(toProductResponse(item))),
+    metadata: result.metadata,
   };
 }
 

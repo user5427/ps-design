@@ -5,10 +5,12 @@ import {
   type Repository,
 } from "typeorm";
 import { BadRequestError, NotFoundError } from "@/shared/errors";
+import { calculatePaginationMetadata } from "@/shared/pagination-utils";
 import type { Product } from "@/modules/inventory/product/product.entity";
 import { StockLevel } from "@/modules/inventory/stock-level/stock-level.entity";
 import { StockChange } from "./stock-change.entity";
 import type { ICreateStockChange, StockChangeType } from "./stock-change.types";
+import { PaginatedResult } from "@ps-design/schemas/pagination";
 
 export class StockChangeRepository {
   constructor(
@@ -33,6 +35,39 @@ export class StockChangeRepository {
       relations: ["product", "product.productUnit"],
       order: { createdAt: "DESC" },
     });
+  }
+
+  async findAllPaginatedByBusinessId(
+    businessId: string,
+    page: number,
+    limit: number,
+    search?: string,
+  ): Promise<PaginatedResult<StockChange>> {
+    const query = this.repository.createQueryBuilder("change");
+
+    query.leftJoinAndSelect("change.product", "product");
+    query.leftJoinAndSelect("product.productUnit", "productUnit");
+
+    query.where("change.businessId = :businessId", { businessId });
+    query.andWhere("change.deletedAt IS NULL");
+
+    if (search) {
+      query.andWhere("product.name ILIKE :search", {
+        search: `%${search}%`,
+      });
+    }
+
+    query.orderBy("change.createdAt", "DESC");
+
+    const skip = (page - 1) * limit;
+    query.skip(skip).take(limit);
+
+    const [items, total] = await query.getManyAndCount();
+
+    return {
+      items,
+      metadata: calculatePaginationMetadata(total, page, limit),
+    };
   }
 
   async findById(id: string): Promise<StockChange | null> {

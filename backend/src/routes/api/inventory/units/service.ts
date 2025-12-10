@@ -2,9 +2,11 @@ import type { FastifyInstance } from "fastify";
 import type { ProductUnit } from "../../../../modules/inventory/product-unit/product-unit.entity";
 import type {
   ProductUnitResponse,
+  PaginatedProductUnitResponse,
   CreateProductUnitBody,
   UpdateProductUnitBody,
 } from "@ps-design/schemas/inventory/units";
+import { ProductUnitResponseSchema } from "@ps-design/schemas/inventory/units";
 
 function toProductUnitResponse(unit: ProductUnit): ProductUnitResponse {
   return {
@@ -15,6 +17,25 @@ function toProductUnitResponse(unit: ProductUnit): ProductUnitResponse {
     createdAt: unit.createdAt.toISOString(),
     updatedAt: unit.updatedAt.toISOString(),
     deletedAt: unit.deletedAt?.toISOString() ?? null,
+  };
+}
+
+export async function getAllUnitsPaginated(
+  fastify: FastifyInstance,
+  businessId: string,
+  page: number,
+  limit: number,
+  search?: string,
+): Promise<PaginatedProductUnitResponse> {
+  const result = await fastify.db.productUnit.findAllPaginatedByBusinessId(
+    businessId,
+    page,
+    limit,
+    search,
+  );
+  return {
+    items: result.items.map((item) => ProductUnitResponseSchema.parse(toProductUnitResponse(item))),
+    metadata: result.metadata,
   };
 }
 

@@ -5,6 +5,7 @@ import {
   bulkDeleteProducts,
   createProduct,
   getAllProducts,
+  getAllProductsPaginated,
   getProductById,
   updateProduct,
 } from "./service";
@@ -18,6 +19,9 @@ import {
   ProductResponseSchema,
   type UpdateProductBody,
   UpdateProductSchema,
+  ProductQuerySchema,
+  type ProductQuery,
+  PaginatedProductResponseSchema,
 } from "@ps-design/schemas/inventory/products";
 import {
   BulkDeleteSchema,
@@ -32,7 +36,7 @@ export default async function productsRoutes(fastify: FastifyInstance) {
   const { requireScope, requireAllScopes, requireAnyScope } =
     createScopeMiddleware(fastify);
 
-  server.get(
+  server.get<{ Querystring: ProductQuery }>(
     "/",
     {
       onRequest: [
@@ -40,17 +44,34 @@ export default async function productsRoutes(fastify: FastifyInstance) {
         requireScope(ScopeNames.INVENTORY_READ),
       ],
       schema: {
+        querystring: ProductQuerySchema,
         response: {
-          200: ProductResponseSchema.array(),
+          200: PaginatedProductResponseSchema,
         },
       },
     },
-    async (request: FastifyRequest, reply: FastifyReply) => {
+    async (
+      request: FastifyRequest<{
+        Querystring: ProductQuery;
+      }>,
+      reply: FastifyReply,
+    ) => {
       const businessId = getBusinessId(request, reply);
       if (!businessId) return;
 
-      const products = await getAllProducts(fastify, businessId);
-      return reply.send(products);
+      try {
+        const { page = 1, limit = 20, search } = request.query;
+        const products = await getAllProductsPaginated(
+          fastify,
+          businessId,
+          page,
+          limit,
+          search,
+        );
+        return reply.send(products);
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
     },
   );
 
