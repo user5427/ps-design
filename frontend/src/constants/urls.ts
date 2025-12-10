@@ -4,6 +4,10 @@ export const URLS = {
   LOGIN: "/auth/login",
   CHANGE_PASSWORD: "/auth/change-password",
   HOME: "/",
+  // Business Management
+  BUSINESS_LIST: "/businesses",
+  BUSINESS_CREATE: "/businesses/create",
+  BUSINESS_EDIT: (businessId: string) => `/businesses/${businessId}/edit`,
   // Inventory
   INVENTORY_UNITS: "/inventory/units",
   INVENTORY_PRODUCTS: "/inventory/products",
