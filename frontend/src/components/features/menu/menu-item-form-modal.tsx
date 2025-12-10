@@ -181,7 +181,7 @@ const useMenuItemForm = ({
         .map((v) => ({
           ...(v.id ? { id: v.id } : {}),
           name: v.name.trim(),
-          type: v.type.trim().toUpperCase(),
+          type: v.type.trim(),
           priceAdjustment: v.priceAdjustment,
           isDisabled: v.isDisabled,
           addonProducts: v.addonProducts.filter(
@@ -657,6 +657,10 @@ const VariationsSection: React.FC<{
                           "Type a new type or select from existing"
                         }
                         required
+                        onBlur={(e) => {
+                          const value = e.target.value;
+                          onChange(vIndex, "type", value ? value.toUpperCase() : value);
+                        }}
                       />
                     )}
                   />
