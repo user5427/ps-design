@@ -104,15 +104,17 @@ export class MenuItemRepository {
   ): Promise<void> {
     if (productIds.length === 0) return;
 
+    const uniqueProductIds = [...new Set(productIds)];
+
     const products = await this.productRepository.find({
       where: {
-        id: In(productIds),
+        id: In(uniqueProductIds),
         businessId,
         deletedAt: IsNull(),
       },
     });
 
-    if (products.length !== productIds.length) {
+    if (products.length !== uniqueProductIds.length) {
       throw new BadRequestError("One or more products not found");
     }
   }
@@ -168,7 +170,14 @@ export class MenuItemRepository {
           }
         }
 
-        return (await this.findById(savedMenuItem.id))!;
+        const createdMenuItem = await this.findByIdAndBusinessId(
+          savedMenuItem.id,
+          data.businessId,
+        );
+        if (!createdMenuItem) {
+          throw new Error("Failed to retrieve created menu item");
+        }
+        return createdMenuItem;
       } catch (error) {
         if (isUniqueConstraintError(error)) {
           throw new ConflictError("Menu item with this name already exists");
@@ -319,7 +328,14 @@ export class MenuItemRepository {
           }
         }
 
-        return (await this.findById(id))!;
+        const updatedMenuItem = await this.findByIdAndBusinessId(
+          id,
+          businessId,
+        );
+        if (!updatedMenuItem) {
+          throw new Error("Failed to retrieve updated menu item");
+        }
+        return updatedMenuItem;
       } catch (error) {
         if (isUniqueConstraintError(error)) {
           throw new ConflictError("Menu item with this name already exists");

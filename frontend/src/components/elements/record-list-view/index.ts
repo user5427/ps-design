@@ -9,5 +9,6 @@ export type {
   FieldType,
   SelectOption,
   ValidationRule,
+  CustomFormModalProps,
 } from "./types";
 export * from "./validation-rules";

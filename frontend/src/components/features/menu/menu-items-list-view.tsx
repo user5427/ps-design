@@ -3,9 +3,8 @@ import type { MRT_ColumnDef } from "material-react-table";
 import { useMemo, useCallback } from "react";
 import {
   RecordListView,
-  type FormFieldDefinition,
   type ViewFieldDefinition,
-  ValidationRules,
+  type CustomFormModalProps,
 } from "@/components/elements/record-list-view";
 import {
   useCreateMenuItem,
@@ -14,11 +13,14 @@ import {
   useUpdateMenuItem,
 } from "@/hooks/menu";
 import { useMenuCategories } from "@/hooks/menu";
-import type { MenuItem } from "@/schemas/menu";
+import { useProducts } from "@/hooks/inventory";
+import type { MenuItem, CreateMenuItem, UpdateMenuItem } from "@/schemas/menu";
+import { MenuItemFormModal } from "./menu-item-form-modal";
 
 export const MenuItemsListView = () => {
   const { data: menuItems = [], isLoading, error, refetch } = useMenuItems();
   const { data: categories = [] } = useMenuCategories();
+  const { data: products = [] } = useProducts();
   const createMutation = useCreateMenuItem();
   const updateMutation = useUpdateMenuItem();
   const bulkDeleteMutation = useBulkDeleteMenuItems();
@@ -70,59 +72,6 @@ export const MenuItemsListView = () => {
     []
   );
 
-  const categoryOptions = useMemo(
-    () => [
-      { value: "", label: "No Category" },
-      ...categories.map((cat) => ({
-        value: cat.id,
-        label: cat.name,
-      })),
-    ],
-    [categories]
-  );
-
-  const createFormFields: FormFieldDefinition[] = useMemo(
-    () => [
-      {
-        name: "baseName",
-        label: "Name",
-        type: "text",
-        required: true,
-        validationRules: [
-          ValidationRules.minLength(1),
-          ValidationRules.maxLength(100),
-        ],
-      },
-      {
-        name: "basePrice",
-        label: "Base Price",
-        type: "number",
-        required: true,
-        validationRules: [ValidationRules.min(0)],
-      },
-      {
-        name: "categoryId",
-        label: "Category",
-        type: "autocomplete",
-        options: categoryOptions,
-        placeholder: "Select category...",
-      },
-    ],
-    [categoryOptions]
-  );
-
-  const editFormFields: FormFieldDefinition[] = useMemo(
-    () => [
-      ...createFormFields,
-      {
-        name: "isDisabled",
-        label: "Disabled",
-        type: "checkbox",
-      },
-    ],
-    [createFormFields]
-  );
-
   const viewFields: ViewFieldDefinition[] = useMemo(
     () => [
       { name: "id", label: "ID" },
@@ -144,14 +93,12 @@ export const MenuItemsListView = () => {
         name: "baseProducts",
         label: "Base Products",
         render: (value) => {
-          const products = value as Array<{
+          const prods = value as Array<{
             product: { name: string };
             quantity: number;
           }>;
-          if (!products?.length) return "-";
-          return products
-            .map((p) => `${p.product.name} (${p.quantity})`)
-            .join(", ");
+          if (!prods?.length) return "-";
+          return prods.map((p) => `${p.product.name} (${p.quantity})`).join(", ");
         },
       },
       {
@@ -194,36 +141,15 @@ export const MenuItemsListView = () => {
     []
   );
 
-  const handleCreate = useCallback(
-    async (values: Partial<MenuItem>) => {
-      await createMutation.mutateAsync({
-        baseName: String(values.baseName),
-        basePrice: Number(values.basePrice),
-        categoryId: values.categoryId || null,
-        isDisabled: false,
-        baseProducts: [],
-        variations: [],
-      });
+  const handleFormSubmit = useCallback(
+    async (data: CreateMenuItem | { id: string; data: UpdateMenuItem }) => {
+      if ("id" in data) {
+        await updateMutation.mutateAsync(data);
+      } else {
+        await createMutation.mutateAsync(data);
+      }
     },
-    [createMutation]
-  );
-
-  const handleEdit = useCallback(
-    async (id: string, values: Partial<MenuItem>) => {
-      await updateMutation.mutateAsync({
-        id,
-        data: {
-          baseName: values.baseName,
-          basePrice:
-            values.basePrice !== undefined
-              ? Number(values.basePrice)
-              : undefined,
-          categoryId: values.categoryId,
-          isDisabled: values.isDisabled,
-        },
-      });
-    },
-    [updateMutation]
+    [createMutation, updateMutation]
   );
 
   const handleDelete = useCallback(
@@ -237,6 +163,38 @@ export const MenuItemsListView = () => {
     refetch();
   }, [refetch]);
 
+  const renderCustomCreateModal = useCallback(
+    (props: CustomFormModalProps<MenuItem>) => (
+      <MenuItemFormModal
+        open={props.open}
+        onClose={props.onClose}
+        mode="create"
+        initialData={null}
+        categories={categories}
+        products={products}
+        onSubmit={handleFormSubmit}
+        onSuccess={props.onSuccess}
+      />
+    ),
+    [categories, products, handleFormSubmit]
+  );
+
+  const renderCustomEditModal = useCallback(
+    (props: CustomFormModalProps<MenuItem>) => (
+      <MenuItemFormModal
+        open={props.open}
+        onClose={props.onClose}
+        mode="edit"
+        initialData={props.initialData}
+        categories={categories}
+        products={products}
+        onSubmit={handleFormSubmit}
+        onSuccess={props.onSuccess}
+      />
+    ),
+    [categories, products, handleFormSubmit]
+  );
+
   return (
     <RecordListView<MenuItem>
       title="Menu Items"
@@ -244,13 +202,14 @@ export const MenuItemsListView = () => {
       data={menuItems}
       isLoading={isLoading}
       error={error}
-      createFormFields={createFormFields}
-      editFormFields={editFormFields}
       viewFields={viewFields}
-      onCreate={handleCreate}
-      onEdit={handleEdit}
       onDelete={handleDelete}
       onSuccess={handleSuccess}
+      renderCustomCreateModal={renderCustomCreateModal}
+      renderCustomEditModal={renderCustomEditModal}
+      // need to pass onCreate/onEdit to enable these actions
+      onCreate={async () => {}}
+      onEdit={async () => {}}
     />
   );
 };
