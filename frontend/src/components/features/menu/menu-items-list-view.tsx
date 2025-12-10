@@ -36,7 +36,7 @@ export const MenuItemsListView = () => {
         accessorKey: "basePrice",
         header: "Base Price",
         size: 100,
-        Cell: ({ cell }) => `$${cell.getValue<number>().toFixed(2)}€`,
+        Cell: ({ cell }) => `${cell.getValue<number>().toFixed(2)}€`,
       },
       {
         accessorKey: "category.name",
@@ -79,7 +79,7 @@ export const MenuItemsListView = () => {
       {
         name: "basePrice",
         label: "Base Price",
-        render: (value) => `$${(value as number).toFixed(2)}`,
+        render: (value) => `${(value as number).toFixed(2)}€`,
       },
       {
         name: "category",
@@ -150,7 +150,7 @@ export const MenuItemsListView = () => {
                     : " (Unavailable)";
                 return (
                   <div key={`${v.name}-${v.type}-${index}`}>
-                    {`${v.name} (${v.type}) ${v.priceAdjustment >= 0 ? "+" : ""}$${v.priceAdjustment.toFixed(2)}${addonText}${statusText}`}
+                    {`${v.name} (${v.type}) ${v.priceAdjustment >= 0 ? "+" : ""} ${v.priceAdjustment.toFixed(2)}${addonText}${statusText}€`}
                   </div>
                 );
               })}
