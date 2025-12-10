@@ -95,15 +95,14 @@ export class MenuItemRepository {
 
     const uniqueProductIds = [...new Set(productIds)];
 
-    const products = await this.productRepository.find({
-      where: {
-        id: In(uniqueProductIds),
-        businessId,
-        deletedAt: IsNull(),
-      },
-    });
+    const count = await this.productRepository
+      .createQueryBuilder("product")
+      .where("product.id IN (:...ids)", { ids: uniqueProductIds })
+      .andWhere("product.businessId = :businessId", { businessId })
+      .andWhere("product.deletedAt IS NULL")
+      .getCount();
 
-    if (products.length !== uniqueProductIds.length) {
+    if (count !== uniqueProductIds.length) {
       throw new BadRequestError("One or more products not found");
     }
   }
@@ -127,14 +126,18 @@ export class MenuItemRepository {
   ): Promise<void> {
     if (baseProducts.length === 0) return;
 
-    const entities = baseProducts.map((bp) =>
-      manager.create(this.baseProductRepository.target, {
-        menuItemId,
-        productId: bp.productId,
-        quantity: bp.quantity,
-      }),
-    );
-    await manager.save(entities);
+    await manager
+      .createQueryBuilder()
+      .insert()
+      .into(this.baseProductRepository.target)
+      .values(
+        baseProducts.map((bp) => ({
+          menuItemId,
+          productId: bp.productId,
+          quantity: bp.quantity,
+        })),
+      )
+      .execute();
   }
 
   private async createVariationWithAddons(
@@ -158,14 +161,18 @@ export class MenuItemRepository {
     const savedVariation = await manager.save(variationEntity);
 
     if (variation.addonProducts && variation.addonProducts.length > 0) {
-      const addonEntities = variation.addonProducts.map((ap) =>
-        manager.create(this.variationProductRepository.target, {
-          variationId: savedVariation.id,
-          productId: ap.productId,
-          quantity: ap.quantity,
-        }),
-      );
-      await manager.save(addonEntities);
+      await manager
+        .createQueryBuilder()
+        .insert()
+        .into(this.variationProductRepository.target)
+        .values(
+          variation.addonProducts.map((ap) => ({
+            variationId: savedVariation.id,
+            productId: ap.productId,
+            quantity: ap.quantity,
+          })),
+        )
+        .execute();
     }
   }
 
@@ -343,24 +350,32 @@ export class MenuItemRepository {
         variationId: variation.id,
       });
       if (variation.addonProducts.length > 0) {
-        const addonEntities = variation.addonProducts.map((ap) =>
-          manager.create(this.variationProductRepository.target, {
-            variationId: variation.id,
-            productId: ap.productId,
-            quantity: ap.quantity,
-          }),
-        );
-        await manager.save(addonEntities);
+        await manager
+          .createQueryBuilder()
+          .insert()
+          .into(this.variationProductRepository.target)
+          .values(
+            variation.addonProducts.map((ap) => ({
+              variationId: variation.id,
+              productId: ap.productId,
+              quantity: ap.quantity,
+            })),
+          )
+          .execute();
       }
     }
   }
 
   async bulkDelete(ids: string[], businessId: string): Promise<void> {
-    for (const id of ids) {
-      const menuItem = await this.findByIdAndBusinessId(id, businessId);
-      if (!menuItem) {
-        throw new NotFoundError(`Menu item ${id} not found`);
-      }
+    const count = await this.repository
+      .createQueryBuilder("menuItem")
+      .where("menuItem.id IN (:...ids)", { ids })
+      .andWhere("menuItem.businessId = :businessId", { businessId })
+      .andWhere("menuItem.deletedAt IS NULL")
+      .getCount();
+
+    if (count !== ids.length) {
+      throw new NotFoundError("One or more menu items not found");
     }
 
     await this.repository.update(ids, { deletedAt: new Date() });
@@ -378,19 +393,20 @@ export class MenuItemRepository {
       return new Map();
     }
 
-    const stockLevels = await this.stockLevelRepository.find({
-      where: {
-        businessId,
-        productId: In(productIds),
-      },
-    });
+    const results = await this.stockLevelRepository
+      .createQueryBuilder("stockLevel")
+      .select("stockLevel.productId", "productId")
+      .addSelect("COALESCE(stockLevel.quantity, 0)", "quantity")
+      .where("stockLevel.businessId = :businessId", { businessId })
+      .andWhere("stockLevel.productId IN (:...productIds)", { productIds })
+      .getRawMany<{ productId: string; quantity: number }>();
 
     const stockMap = new Map<string, number>();
-    for (const level of stockLevels) {
-      stockMap.set(level.productId, level.quantity);
+    for (const result of results) {
+      stockMap.set(result.productId, Number(result.quantity));
     }
 
-    // 0 for products not found in stock
+    // Set 0 for products not in stock levels table
     for (const productId of productIds) {
       if (!stockMap.has(productId)) {
         stockMap.set(productId, 0);
