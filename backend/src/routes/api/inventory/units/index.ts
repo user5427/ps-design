@@ -12,12 +12,12 @@ import { handleServiceError } from "@/shared/error-handler";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
 import {
-  type CreateProductUnitBody,
   CreateProductUnitSchema,
   UnitIdParam,
+  UpdateProductUnitSchema,
   type UnitIdParams,
   type UpdateProductUnitBody,
-  UpdateProductUnitSchema,
+  type CreateProductUnitBody,
 } from "@ps-design/schemas/inventory/units";
 import {
   BulkDeleteSchema,

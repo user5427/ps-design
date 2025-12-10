@@ -15,6 +15,7 @@ import {
   CreateProductSchema,
   ProductIdParam,
   type ProductIdParams,
+  ProductResponseSchema,
   type UpdateProductBody,
   UpdateProductSchema,
 } from "@ps-design/schemas/inventory/products";
@@ -38,6 +39,11 @@ export default async function productsRoutes(fastify: FastifyInstance) {
         fastify.authenticate,
         requireScope(ScopeNames.INVENTORY_READ),
       ],
+      schema: {
+        response: {
+          200: ProductResponseSchema.array(),
+        },
+      },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);

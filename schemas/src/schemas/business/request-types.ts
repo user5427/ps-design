@@ -25,11 +25,6 @@ export const UpdateBusinessSchema = z.object({
     .optional(),
 });
 
-export const BusinessQuerySchema = PaginationSchema.extend({
-  search: z.string().optional(),
-});
-
 export type CreateBusinessBody = z.infer<typeof CreateBusinessSchema>;
 export type UpdateBusinessBody = z.infer<typeof UpdateBusinessSchema>;
 export type BusinessIdParams = z.infer<typeof BusinessIdParam>;
-export type BusinessQuery = z.infer<typeof BusinessQuerySchema>;
