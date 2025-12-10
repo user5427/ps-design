@@ -116,6 +116,7 @@ export const MenuItemsListView = () => {
             type: string;
             priceAdjustment: number;
             isDisabled: boolean;
+            isAvailable: boolean;
             addonProducts: Array<{
               product: {
                 name: string;
@@ -137,9 +138,10 @@ export const MenuItemsListView = () => {
                         })
                         .join(", ")}]`
                     : "";
+                const statusText = v.isDisabled ? " (Disabled)" : v.isAvailable ? " (Available)" : " (Unavailable)";
                 return (
                   <div key={i}>
-                    {`${v.name} (${v.type}) ${v.priceAdjustment >= 0 ? "+" : ""}$${v.priceAdjustment.toFixed(2)}${addonText}`}
+                    {`${v.name} (${v.type}) ${v.priceAdjustment >= 0 ? "+" : ""}$${v.priceAdjustment.toFixed(2)}${addonText}${statusText}`}
                   </div>
                 );
               })}

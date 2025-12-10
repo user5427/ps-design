@@ -332,13 +332,13 @@ export class MenuItemRepository {
   }
 
   /**
-   * Check if products are available based on stock levels
-   * Returns a map of productId -> isAvailable
+   * Get stock levels for products
+   * Returns a map of productId -> quantity in stock
    */
-  async checkProductsAvailability(
+  async getProductStockLevels(
     productIds: string[],
     businessId: string,
-  ): Promise<Map<string, boolean>> {
+  ): Promise<Map<string, number>> {
     if (productIds.length === 0) {
       return new Map();
     }
@@ -355,12 +355,13 @@ export class MenuItemRepository {
       stockMap.set(level.productId, level.quantity);
     }
 
-    const availabilityMap = new Map<string, boolean>();
+    // 0 for products not found in stock
     for (const productId of productIds) {
-      const quantity = stockMap.get(productId) ?? 0;
-      availabilityMap.set(productId, quantity > 0);
+      if (!stockMap.has(productId)) {
+        stockMap.set(productId, 0);
+      }
     }
 
-    return availabilityMap;
+    return stockMap;
   }
 }

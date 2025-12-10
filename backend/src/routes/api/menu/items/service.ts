@@ -47,40 +47,64 @@ function toVariationResponse(
   };
 }
 
+/**
+ * Check if there's enough stock for a list of product requirements.
+ * Takes into account cumulative requirements (base + addon products).
+ */
+function checkRecipeAvailability(
+  requirements: Array<{ productId: string; quantity: number }>,
+  stockMap: Map<string, number>,
+): boolean {
+  const requiredQuantities = new Map<string, number>();
+  for (const req of requirements) {
+    const current = requiredQuantities.get(req.productId) ?? 0;
+    requiredQuantities.set(req.productId, current + req.quantity);
+  }
+
+  for (const [productId, requiredQty] of requiredQuantities) {
+    const stockQty = stockMap.get(productId) ?? 0;
+    if (stockQty < requiredQty) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 function toMenuItemResponse(
   menuItem: MenuItem,
-  availabilityMap: Map<string, boolean>,
+  stockMap: Map<string, number>,
 ): MenuItemResponse {
-  const baseProductsAvailable =
-    menuItem.baseProducts?.length === 0 ||
-    menuItem.baseProducts?.every((bp) => availabilityMap.get(bp.productId)) ===
-      true;
+  // Get base product requirements
+  const baseRequirements = menuItem.baseProducts?.map((bp) => ({
+    productId: bp.productId,
+    quantity: bp.quantity,
+  })) ?? [];
 
-  // Calculate variation availability (variation addon products must be available)
+  const baseProductsAvailable = checkRecipeAvailability(baseRequirements, stockMap);
+
+  // Calculate variation availability
+  // Each variation needs base products + its addon products
   const variationsWithAvailability =
     menuItem.variations
       ?.filter((v) => !v.deletedAt)
       ?.map((variation) => {
-        const addonProductsAvailable =
-          variation.addonProducts?.length === 0 ||
-          variation.addonProducts?.every((ap) =>
-            availabilityMap.get(ap.productId),
-          ) === true;
+        const addonRequirements = variation.addonProducts?.map((ap) => ({
+          productId: ap.productId,
+          quantity: ap.quantity,
+        })) ?? [];
+
+        const totalRequirements = [...baseRequirements, ...addonRequirements];
+        const variationAvailable = checkRecipeAvailability(totalRequirements, stockMap);
 
         return toVariationResponse(
           variation,
-          baseProductsAvailable && addonProductsAvailable && !variation.isDisabled,
+          variationAvailable && !variation.isDisabled,
         );
       }) ?? [];
 
-  // Menu item is available if not disabled, base products are available,
-  // and at least one variation is available (or no variations exist)
-  const hasAvailableVariation =
-    variationsWithAvailability.length === 0 ||
-    variationsWithAvailability.some((v) => v.isAvailable);
-
   const isAvailable =
-    !menuItem.isDisabled && baseProductsAvailable && hasAvailableVariation;
+    !menuItem.isDisabled && baseProductsAvailable;
 
   return {
     id: menuItem.id,
@@ -104,11 +128,11 @@ function toMenuItemResponse(
   };
 }
 
-async function getAvailabilityMap(
+async function getStockMap(
   fastify: FastifyInstance,
   menuItems: MenuItem[],
   businessId: string,
-): Promise<Map<string, boolean>> {
+): Promise<Map<string, number>> {
   const allProductIds = new Set<string>();
 
   for (const menuItem of menuItems) {
@@ -123,7 +147,7 @@ async function getAvailabilityMap(
     }
   }
 
-  return fastify.db.menuItem.checkProductsAvailability(
+  return fastify.db.menuItem.getProductStockLevels(
     Array.from(allProductIds),
     businessId,
   );
@@ -134,12 +158,12 @@ export async function getAllMenuItems(
   businessId: string,
 ): Promise<MenuItemResponse[]> {
   const menuItems = await fastify.db.menuItem.findAllByBusinessId(businessId);
-  const availabilityMap = await getAvailabilityMap(
+  const stockMap = await getStockMap(
     fastify,
     menuItems,
     businessId,
   );
-  return menuItems.map((item) => toMenuItemResponse(item, availabilityMap));
+  return menuItems.map((item) => toMenuItemResponse(item, stockMap));
 }
 
 export async function createMenuItem(
@@ -164,12 +188,12 @@ export async function createMenuItem(
       })) ?? [],
   });
 
-  const availabilityMap = await getAvailabilityMap(
+  const stockMap = await getStockMap(
     fastify,
     [menuItem],
     businessId,
   );
-  return toMenuItemResponse(menuItem, availabilityMap);
+  return toMenuItemResponse(menuItem, stockMap);
 }
 
 export async function getMenuItemById(
@@ -178,12 +202,12 @@ export async function getMenuItemById(
   menuItemId: string,
 ): Promise<MenuItemResponse> {
   const menuItem = await fastify.db.menuItem.getById(menuItemId, businessId);
-  const availabilityMap = await getAvailabilityMap(
+  const stockMap = await getStockMap(
     fastify,
     [menuItem],
     businessId,
   );
-  return toMenuItemResponse(menuItem, availabilityMap);
+  return toMenuItemResponse(menuItem, stockMap);
 }
 
 export async function updateMenuItem(
@@ -202,12 +226,12 @@ export async function updateMenuItem(
     removeVariationIds: input.removeVariationIds,
   });
 
-  const availabilityMap = await getAvailabilityMap(
+  const stockMap = await getStockMap(
     fastify,
     [updated],
     businessId,
   );
-  return toMenuItemResponse(updated, availabilityMap);
+  return toMenuItemResponse(updated, stockMap);
 }
 
 export async function bulkDeleteMenuItems(
