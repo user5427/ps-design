@@ -1,4 +1,4 @@
-import { IsNull, type Repository } from "typeorm";
+import { In, IsNull, type Repository } from "typeorm";
 import { ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
 import type { MenuItem } from "@/modules/menu/menu-item/menu-item.entity";
@@ -86,21 +86,24 @@ export class MenuItemCategoryRepository {
   }
 
   async bulkDelete(ids: string[], businessId: string): Promise<void> {
-    for (const id of ids) {
-      const category = await this.findByIdAndBusinessId(id, businessId);
-      if (!category) {
-        throw new NotFoundError(`Menu item category ${id} not found`);
-      }
+    const categories = await this.repository.find({
+      where: { id: In(ids), businessId, deletedAt: IsNull() },
+    });
 
-      const menuItemsCount = await this.menuItemRepository.count({
-        where: { categoryId: id, deletedAt: IsNull() },
-      });
+    if (categories.length !== ids.length) {
+      const foundIds = new Set(categories.map(c => c.id));
+      const missingIds = ids.filter(id => !foundIds.has(id));
+      throw new NotFoundError(`Menu item categories not found: ${missingIds.join(', ')}`);
+    }
 
-      if (menuItemsCount > 0) {
-        throw new ConflictError(
-          `Cannot delete category "${category.name}" that is in use by menu items`,
-        );
-      }
+    const totalMenuItems = await this.menuItemRepository.count({
+      where: { categoryId: In(ids), deletedAt: IsNull() },
+    });
+
+    if (totalMenuItems > 0) {
+      throw new ConflictError(
+        "Cannot delete categories that are in use by menu items",
+      );
     }
 
     await this.repository.update(ids, { deletedAt: new Date() });
