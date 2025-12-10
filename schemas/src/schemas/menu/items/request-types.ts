@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { uuid } from "../../shared/zod-utils";
-import { MenuItemVariationTypeEnum } from "../shared";
+import { MenuItemVariationTypeSchema } from "../shared";
 
 const MIN_NAME_LENGTH = 1;
 const MAX_NAME_LENGTH = 50;
@@ -19,7 +19,7 @@ const CreateVariationSchema = z.object({
     .string()
     .min(MIN_NAME_LENGTH, MIN_NAME_MESSAGE)
     .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE),
-  type: MenuItemVariationTypeEnum,
+  type: MenuItemVariationTypeSchema,
   priceAdjustment: z.number().default(0),
   isDisabled: z.boolean().default(false),
   addonProducts: z.array(BaseProductRecipeSchema).default([]),
@@ -32,7 +32,7 @@ const UpdateVariationSchema = z.object({
     .min(MIN_NAME_LENGTH, MIN_NAME_MESSAGE)
     .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE)
     .optional(),
-  type: MenuItemVariationTypeEnum.optional(),
+  type: MenuItemVariationTypeSchema.optional(),
   priceAdjustment: z.number().optional(),
   isDisabled: z.boolean().optional(),
   addonProducts: z.array(BaseProductRecipeSchema).optional(),

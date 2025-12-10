@@ -1,5 +1,5 @@
 import { z } from "zod";
 
-export const MenuItemVariationTypeEnum = z.enum(["SIZE", "FLAVOR", "ADDON"]);
+export const MenuItemVariationTypeSchema = z.string().min(1).max(50);
 
-export type MenuItemVariationType = z.infer<typeof MenuItemVariationTypeEnum>;
+export type MenuItemVariationType = z.infer<typeof MenuItemVariationTypeSchema>;

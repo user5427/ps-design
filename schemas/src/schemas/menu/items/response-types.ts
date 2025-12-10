@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { datetime, uuid } from "../../shared/zod-utils";
-import { MenuItemVariationTypeEnum } from "../shared";
+import { MenuItemVariationTypeSchema } from "../shared";
 
 
 const ProductRecipeResponseSchema = z.object({
@@ -20,7 +20,7 @@ const ProductRecipeResponseSchema = z.object({
 const MenuItemVariationResponseSchema = z.object({
   id: uuid(),
   name: z.string(),
-  type: MenuItemVariationTypeEnum,
+  type: MenuItemVariationTypeSchema,
   priceAdjustment: z.number(),
   isDisabled: z.boolean(),
   isAvailable: z.boolean(),

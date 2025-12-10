@@ -1,5 +1,5 @@
-// Using string literal type to match Zod schema output
-export type MenuItemVariationTypeValue = "SIZE" | "FLAVOR" | "ADDON";
+// Allow any string for custom variation types
+export type MenuItemVariationTypeValue = string;
 
 export interface IMenuItem {
   id: string;

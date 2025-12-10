@@ -25,7 +25,7 @@ export class MenuItemVariation {
   @Column({ type: "varchar" })
   name: string;
 
-  @Column({ type: "enum", enum: MenuItemVariationType })
+  @Column({ type: "varchar", length: 50 })
   type: MenuItemVariationType;
 
   @Column({

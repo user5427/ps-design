@@ -18,8 +18,6 @@ export type {
 
 export type { MenuItemVariationType } from "@ps-design/schemas/menu";
 
-export { MenuItemVariationTypeEnum } from "@ps-design/schemas/menu";
-
 export type MenuItemCategory =
   import("@ps-design/schemas/menu/category").MenuItemCategoryResponse;
 export type CreateMenuItemCategory =

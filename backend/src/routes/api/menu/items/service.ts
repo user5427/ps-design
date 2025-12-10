@@ -15,7 +15,7 @@ function toProductRecipeResponse(
   recipe: MenuItemBaseProduct | MenuItemVariationProduct,
 ): ProductRecipeResponse {
   return {
-    productId: recipe.productId,
+    id: recipe.id,
     quantity: recipe.quantity,
     product: {
       id: recipe.product.id,
@@ -64,7 +64,7 @@ async function toMenuItemResponse(
   }
 
   // Check availability for all products
-  
+
   const availabilityMap = await fastify.db.menuItem.checkProductsAvailability(
     Array.from(allProductIds),
     menuItem.businessId,

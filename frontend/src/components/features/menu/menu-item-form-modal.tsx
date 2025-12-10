@@ -235,7 +235,7 @@ export const MenuItemFormModal: React.FC<MenuItemFormModalProps> = ({
         .map((v) => ({
           ...(v.id ? { id: v.id } : {}),
           name: v.name.trim(),
-          type: v.type.trim().toUpperCase() as "SIZE" | "FLAVOR" | "ADDON",
+          type: v.type.trim().toUpperCase(),
           priceAdjustment: v.priceAdjustment,
           isDisabled: v.isDisabled,
           addonProducts: v.addonProducts.filter(
