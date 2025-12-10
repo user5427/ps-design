@@ -1,36 +1,15 @@
-import type {
-  UniversalPaginationQuery,
-  FrontendPaginationState,
-} from "@ps-design/schemas/pagination";
+import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 /**
- * Convert FrontendPaginationState to UniversalPaginationQuery for API calls
- */
-export function paginationStateToPaginationQuery(
-  state: FrontendPaginationState,
-): UniversalPaginationQuery {
-  return {
-    page: state.page,
-    limit: state.limit,
-    search: state.search,
-    filters: state.filters && state.filters.length > 0 ? state.filters : undefined,
-    sort: state.sort,
-    columns: state.selectedColumns && state.selectedColumns.length > 0
-      ? state.selectedColumns
-      : undefined,
-  };
-}
-
-/**
- * Add or update a filter in FrontendPaginationState
+ * Add or update a filter in UniversalPaginationQuery
  */
 export function updateFilter(
-  state: FrontendPaginationState,
+  state: UniversalPaginationQuery,
   fieldName: string,
   operator: string,
   value: unknown,
-): FrontendPaginationState {
-  const filters = [...state.filters];
+): UniversalPaginationQuery {
+  const filters = [...(state.filters || [])];
   const index = filters.findIndex((f) => f.fieldName === fieldName);
 
   if (index >= 0) {
@@ -43,21 +22,21 @@ export function updateFilter(
 }
 
 /**
- * Remove a filter from FrontendPaginationState
+ * Remove a filter from UniversalPaginationQuery
  */
 export function removeFilter(
-  state: FrontendPaginationState,
+  state: UniversalPaginationQuery,
   fieldName: string,
-): FrontendPaginationState {
+): UniversalPaginationQuery {
   return {
     ...state,
-    filters: state.filters.filter((f) => f.fieldName !== fieldName),
+    filters: state.filters?.filter((f) => f.fieldName !== fieldName),
   };
 }
 
 /**
- * Clear all filters from FrontendPaginationState
+ * Clear all filters from UniversalPaginationQuery
  */
-export function clearFilters(state: FrontendPaginationState): FrontendPaginationState {
+export function clearFilters(state: UniversalPaginationQuery): UniversalPaginationQuery {
   return { ...state, filters: [] };
 }

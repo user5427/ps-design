@@ -75,21 +75,3 @@ export const UniversalPaginationQuerySchema = z.object({
 export type UniversalPaginationQuery = z.infer<
   typeof UniversalPaginationQuerySchema
 >;
-
-/**
- * Frontend pagination state - UI representation of pagination
- * More user-friendly representation than UniversalPaginationQuery
- * Used by frontend components to manage pagination state
- */
-export const FrontendPaginationStateSchema = z.object({
-  page: z.number().int().min(1).default(1),
-  limit: z.number().int().min(1).max(100).default(20),
-  search: z.string().optional(),
-  filters: z.array(FilterConditionSchema).default([]),
-  sort: SortSpecSchema.optional(),
-  selectedColumns: z.array(z.string()).optional(),
-});
-
-export type FrontendPaginationState = z.infer<
-  typeof FrontendPaginationStateSchema
->;
