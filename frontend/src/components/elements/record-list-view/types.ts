@@ -66,15 +66,15 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
   isLoading?: boolean;
   /** Error state for the data */
   error?: Error | null;
-  /** Form field definitions for create modal (optional for read-only mode) */
+  /** Form field definitions for create modal */
   createFormFields?: FormFieldDefinition[];
-  /** Form field definitions for edit modal (optional for read-only mode) */
+  /** Form field definitions for edit modal  */
   editFormFields?: FormFieldDefinition[];
-  /** Callback for creating a new record (optional for read-only mode) */
+  /** Callback for creating a new record  */
   onCreate?: (values: Partial<T>) => Promise<void>;
-  /** Callback for editing a record (optional for read-only mode) */
+  /** Callback for editing a record  */
   onEdit?: (id: string, values: Partial<T>) => Promise<void>;
-  /** Callback for deleting record(s) (optional for read-only mode) */
+  /** Callback for deleting record(s)  */
   onDelete?: (ids: string[]) => Promise<void>;
   /** Unique identifier key for records (default: 'id') */
   idKey?: keyof T;
@@ -84,9 +84,14 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
   viewFields?: ViewFieldDefinition[];
   /** Whether to show view action (default: true) */
   hasViewAction?: boolean;
-  /** Whether to show edit action (default: true) */
   /** Custom function to get row ID */
   getRowId?: (row: T) => string;
+  /** Optional title for create modal (defaults to 'Create') */
+  createModalTitle?: string;
+  /** Optional title for edit modal (defaults to 'Edit') */
+  editModalTitle?: string;
+  /** Optional title for view modal (defaults to 'View') */
+  viewModalTitle?: string;
   /**
    * When provided, this replaces the default RecordFormModal for creating records.
    * Use this for complex forms that need nested structures, dynamic fields, etc.

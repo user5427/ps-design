@@ -100,6 +100,9 @@ export const MenuCategoriesListView = () => {
       onEdit={handleEdit}
       onDelete={handleDelete}
       onSuccess={() => refetch()}
+      createModalTitle="Create Menu Category"
+      editModalTitle="Edit Menu Category"
+      viewModalTitle="View Menu Category"
     />
   );
 };

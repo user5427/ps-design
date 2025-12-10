@@ -111,6 +111,9 @@ export const ProductUnitsListView = () => {
       onEdit={handleEdit}
       onDelete={handleDelete}
       onSuccess={() => refetch()}
+      createModalTitle="Creaete Product Unit"
+      editModalTitle="Edit Product Unit"
+      viewModalTitle="View Product Unit"
     />
   );
 };

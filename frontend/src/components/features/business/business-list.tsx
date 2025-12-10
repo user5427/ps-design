@@ -112,6 +112,9 @@ export const BusinessList: React.FC = () => {
       onEdit={handleEdit}
       onDelete={handleDelete}
       onSuccess={() => refetch()}
+      createModalTitle="Create business"
+      editModalTitle="Edit business"
+      viewModalTitle="View business"
     />
   );
 };
