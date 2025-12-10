@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PaginationSchema } from "../../shared/request-types";
+import { UniversalPaginationQuerySchema } from "../../pagination";
 import { date, uuid } from "../../shared/zod-utils";
 import { StockChangeTypeEnum } from "./shared";
 
@@ -45,12 +45,19 @@ export const CreateStockChangeSchema = z.discriminatedUnion("type", [
   }),
 ]);
 
-export const StockQuerySchema = PaginationSchema.extend({
+export const UpdateStockChangeSchema = z.object({
+  type: CreateChangeTypeEnum.optional(),
+  quantity: z.number().optional(),
+  expirationDate: date().optional(),
+});
+
+export const StockQuerySchema = UniversalPaginationQuerySchema.extend({
   productId: uuid().optional(),
   type: StockChangeTypeEnum.optional(),
 });
 
 export type CreateStockChangeBody = z.infer<typeof CreateStockChangeSchema>;
+export type UpdateStockChangeBody = z.infer<typeof UpdateStockChangeSchema>;
 export type StockQuery = z.infer<typeof StockQuerySchema>;
 export type ChangeIdParams = z.infer<typeof ChangeIdParam>;
 export type ProductIdParams = z.infer<typeof ProductIdParam>;

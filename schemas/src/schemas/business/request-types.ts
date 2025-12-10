@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { PaginationSchema } from "../shared/request-types";
 import { uuid } from "../shared/zod-utils";
 
 const MIN_NAME_LENGTH = 1;
@@ -24,6 +23,7 @@ export const UpdateBusinessSchema = z.object({
     .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE)
     .optional(),
 });
+
 
 export type CreateBusinessBody = z.infer<typeof CreateBusinessSchema>;
 export type UpdateBusinessBody = z.infer<typeof UpdateBusinessSchema>;

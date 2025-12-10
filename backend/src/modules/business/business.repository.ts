@@ -1,9 +1,10 @@
 import { IsNull, type Repository } from "typeorm";
 import { ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
-import type { IPaginatedResult } from "@/shared/pagination";
+import { calculatePaginationMetadata } from "@/shared/pagination-utils";
 import type { Business } from "./business.entity";
 import type { ICreateBusiness, IUpdateBusiness } from "./business.types";
+import type { PaginatedResult } from "@ps-design/schemas/shared";
 
 export class BusinessRepository {
   constructor(private repository: Repository<Business>) {}
@@ -19,7 +20,7 @@ export class BusinessRepository {
     page: number,
     limit: number,
     search?: string,
-  ): Promise<IPaginatedResult<Business>> {
+  ): Promise<PaginatedResult<Business>> {
     const query = this.repository.createQueryBuilder("business");
 
     query.where("business.deletedAt IS NULL");
@@ -37,14 +38,10 @@ export class BusinessRepository {
     query.skip(skip).take(limit);
 
     const [items, total] = await query.getManyAndCount();
-    const pages = Math.ceil(total / limit);
 
     return {
       items,
-      total,
-      page,
-      limit,
-      pages,
+      metadata: calculatePaginationMetadata(total, page, limit),
     };
   }
 

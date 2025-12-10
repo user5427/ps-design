@@ -1,5 +1,9 @@
 import type { MRT_ColumnDef } from "material-react-table";
 import type React from "react";
+import type {
+  FilterOperator,
+  SortDirection,
+} from "@ps-design/schemas/pagination";
 
 export type FieldType =
   | "text"
@@ -23,6 +27,27 @@ export interface ValidationRule {
   message: string;
 }
 
+/**
+ * Filter configuration for a field
+ * Defines which operators are available for filtering
+ */
+export interface FilterConfig {
+  /** Whether this field is filterable */
+  filterable?: boolean;
+  /** List of allowed operators for this field */
+  operators?: FilterOperator[];
+}
+
+/**
+ * Sort configuration for a field
+ */
+export interface SortConfig {
+  /** Whether this field is sortable */
+  sortable?: boolean;
+  /** Default sort direction */
+  defaultDirection?: SortDirection;
+}
+
 export interface FormFieldDefinition {
   name: string;
   label: string;
@@ -34,6 +59,10 @@ export interface FormFieldDefinition {
   defaultValue?: unknown;
   /** Whether field is read-only in view mode */
   viewOnly?: boolean;
+  /** Filter configuration for this field */
+  filterConfig?: FilterConfig;
+  /** Sort configuration for this field */
+  sortConfig?: SortConfig;
 }
 
 export interface ViewFieldDefinition {

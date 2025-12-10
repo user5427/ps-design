@@ -20,10 +20,7 @@ export async function getBusinessesPaginated(
   );
   return {
     items: result.items.map((item) => BusinessResponseSchema.parse(item)),
-    total: result.total,
-    page: result.page,
-    limit: result.limit,
-    pages: result.pages,
+    metadata: result.metadata,
   };
 }
 
