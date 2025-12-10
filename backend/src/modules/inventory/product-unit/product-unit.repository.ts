@@ -1,7 +1,8 @@
 import { IsNull, type Repository } from "typeorm";
 import { ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
-import { calculatePaginationMetadata, executePaginatedQuery, type FieldMapping } from "@/shared/pagination-utils";
+import { calculatePaginationMetadata, executePaginatedQuery } from "@/shared/pagination-utils";
+import { PRODUCT_UNIT_FIELD_MAPPING } from "@/constants/inventory";
 import type { Product } from "@/modules/inventory/product/product.entity";
 import type { ProductUnit } from "./product-unit.entity";
 import type {
@@ -17,12 +18,7 @@ export class ProductUnitRepository {
     private productRepository: Repository<Product>,
   ) {}
 
-  private readonly fieldMapping: FieldMapping = {
-    name: { column: "unit.name", type: "string" },
-    symbol: { column: "unit.symbol", type: "string" },
-    createdAt: { column: "unit.createdAt", type: "date" },
-    updatedAt: { column: "unit.updatedAt", type: "date" },
-  };
+
 
   async findAllPaginated(
     businessId: string,
@@ -41,7 +37,7 @@ export class ProductUnitRepository {
       );
     }
 
-    return executePaginatedQuery(qb, query, this.fieldMapping, "unit");
+    return executePaginatedQuery(qb, query, PRODUCT_UNIT_FIELD_MAPPING, "unit");
   }
 
   async findById(id: string): Promise<ProductUnit | null> {

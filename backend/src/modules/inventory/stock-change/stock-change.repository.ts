@@ -5,7 +5,8 @@ import {
   type Repository,
 } from "typeorm";
 import { BadRequestError, NotFoundError } from "@/shared/errors";
-import { calculatePaginationMetadata, executePaginatedQuery, type FieldMapping } from "@/shared/pagination-utils";
+import { calculatePaginationMetadata, executePaginatedQuery } from "@/shared/pagination-utils";
+import { STOCK_CHANGE_FIELD_MAPPING } from "@/constants/inventory";
 import type { Product } from "@/modules/inventory/product/product.entity";
 import { StockLevel } from "@/modules/inventory/stock-level/stock-level.entity";
 import { StockChange } from "./stock-change.entity";
@@ -20,12 +21,7 @@ export class StockChangeRepository {
     private dataSource: DataSource,
   ) {}
 
-  private readonly fieldMapping: FieldMapping = {
-    quantity: { column: "change.quantity", type: "number" },
-    type: { column: "change.type", type: "string" },
-    createdAt: { column: "change.createdAt", type: "date" },
-    updatedAt: { column: "change.updatedAt", type: "date" },
-  };
+
 
   async findAllPaginated(
     businessId: string,
@@ -46,7 +42,7 @@ export class StockChangeRepository {
       });
     }
 
-    return executePaginatedQuery(qb, query, this.fieldMapping, "change");
+    return executePaginatedQuery(qb, query, STOCK_CHANGE_FIELD_MAPPING, "change");
   }
 
   async findById(id: string): Promise<StockChange | null> {

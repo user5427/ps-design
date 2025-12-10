@@ -1,5 +1,6 @@
 import type { Repository } from "typeorm";
-import { calculatePaginationMetadata, executePaginatedQuery, type FieldMapping } from "@/shared/pagination-utils";
+import { calculatePaginationMetadata, executePaginatedQuery } from "@/shared/pagination-utils";
+import { STOCK_LEVEL_FIELD_MAPPING } from "@/constants/inventory";
 import { StockLevel } from "./stock-level.entity";
 import type { ICreateStockLevel } from "./stock-level.types";
 import { PaginatedResult } from "@ps-design/schemas/pagination";
@@ -8,10 +9,7 @@ import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 export class StockLevelRepository {
   constructor(private repository: Repository<StockLevel>) {}
 
-  private readonly fieldMapping: FieldMapping = {
-    quantity: { column: "level.quantity", type: "number" },
-    updatedAt: { column: "level.updatedAt", type: "date" },
-  };
+
 
   async findByProductId(productId: string): Promise<StockLevel | null> {
     return this.repository.findOne({
@@ -33,7 +31,7 @@ export class StockLevelRepository {
 
     qb.where("level.businessId = :businessId", { businessId });
 
-    return executePaginatedQuery(qb, query, this.fieldMapping, "level");
+    return executePaginatedQuery(qb, query, STOCK_LEVEL_FIELD_MAPPING, "level");
   }
 
   async findAllPaginatedByBusinessId(

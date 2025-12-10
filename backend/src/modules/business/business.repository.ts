@@ -1,7 +1,8 @@
 import { IsNull, type Repository } from "typeorm";
 import { ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
-import { calculatePaginationMetadata, executePaginatedQuery, type FieldMapping } from "@/shared/pagination-utils";
+import { calculatePaginationMetadata, executePaginatedQuery } from "@/shared/pagination-utils";
+import { BUSINESS_FIELD_MAPPING } from "@/constants/business";
 import type { Business } from "./business.entity";
 import type { ICreateBusiness, IUpdateBusiness } from "./business.types";
 import { PaginatedResult } from "@ps-design/schemas/pagination";
@@ -9,12 +10,6 @@ import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export class BusinessRepository {
   constructor(private repository: Repository<Business>) {}
-
-  private readonly fieldMapping: FieldMapping = {
-    name: { column: "business.name", type: "string" },
-    createdAt: { column: "business.createdAt", type: "date" },
-    updatedAt: { column: "business.updatedAt", type: "date" },
-  };
 
   async findAllPaginated(
     query: UniversalPaginationQuery,
@@ -29,7 +24,7 @@ export class BusinessRepository {
       });
     }
 
-    return executePaginatedQuery(qb, query, this.fieldMapping, "business");
+    return executePaginatedQuery(qb, query, BUSINESS_FIELD_MAPPING, "business");
   }
 
   async findById(id: string): Promise<Business | null> {
