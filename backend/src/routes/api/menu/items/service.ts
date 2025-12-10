@@ -105,10 +105,7 @@ function toMenuItemResponse(
           stockMap,
         );
 
-        return toVariationResponse(
-          variation,
-          variationAvailable,
-        );
+        return toVariationResponse(variation, variationAvailable);
       }) ?? [];
 
   const isAvailable = !menuItem.isDisabled && baseProductsAvailable;

@@ -54,7 +54,10 @@ export class MenuItemRepository {
     });
   }
 
-  async findByIdAndBusinessId(id: string, businessId: string): Promise<MenuItem | null> {
+  async findByIdAndBusinessId(
+    id: string,
+    businessId: string,
+  ): Promise<MenuItem | null> {
     return this.repository.findOne({
       where: { id, businessId, deletedAt: IsNull() },
       relations: MENU_ITEM_RELATIONS,
@@ -71,7 +74,11 @@ export class MenuItemRepository {
     const { baseProducts, variations, ...menuItemData } = data;
 
     const allProductIds = this.collectAllProductIds(baseProducts, variations);
-    await this.validateRelations(data.businessId, menuItemData.categoryId, allProductIds);
+    await this.validateRelations(
+      data.businessId,
+      menuItemData.categoryId,
+      allProductIds,
+    );
 
     const savedId = await this.dataSource.transaction(async (manager) => {
       try {
@@ -96,12 +103,24 @@ export class MenuItemRepository {
     return (await this.findByIdAndBusinessId(savedId, data.businessId))!;
   }
 
-  async update(id: string, businessId: string, data: IUpdateMenuItem): Promise<MenuItem> {
+  async update(
+    id: string,
+    businessId: string,
+    data: IUpdateMenuItem,
+  ): Promise<MenuItem> {
     const menuItem = await this.getById(id, businessId);
-    const { baseProducts, variations, removeVariationIds, ...updateData } = data;
+    const { baseProducts, variations, removeVariationIds, ...updateData } =
+      data;
 
-    const allProductIds = this.collectAllProductIds(baseProducts ?? [], variations ?? []);
-    await this.validateRelations(businessId, updateData.categoryId, allProductIds);
+    const allProductIds = this.collectAllProductIds(
+      baseProducts ?? [],
+      variations ?? [],
+    );
+    await this.validateRelations(
+      businessId,
+      updateData.categoryId,
+      allProductIds,
+    );
 
     await this.dataSource.transaction(async (manager) => {
       try {
@@ -113,7 +132,9 @@ export class MenuItemRepository {
 
         // Sync Base Products
         if (baseProducts !== undefined) {
-          await manager.delete(this.baseProductRepository.target, { menuItemId: id });
+          await manager.delete(this.baseProductRepository.target, {
+            menuItemId: id,
+          });
           await this.createBaseProducts(manager, id, baseProducts);
         }
 
@@ -122,19 +143,20 @@ export class MenuItemRepository {
           await manager.update(
             this.variationRepository.target,
             { id: In(removeVariationIds), menuItemId: id },
-            { deletedAt: new Date() }
+            { deletedAt: new Date() },
           );
         }
 
         if (variations?.length) {
           for (const v of variations) {
-            v.id 
-              ? await this.updateExistingVariation(manager, id, v as any) 
+            v.id
+              ? await this.updateExistingVariation(manager, id, v as any)
               : await this.createVariationWithAddons(manager, id, v as any);
           }
         }
       } catch (error) {
-        if (isUniqueConstraintError(error)) throw new ConflictError("Duplicate name exists");
+        if (isUniqueConstraintError(error))
+          throw new ConflictError("Duplicate name exists");
         throw error;
       }
     });
@@ -143,9 +165,9 @@ export class MenuItemRepository {
   }
 
   private async validateRelations(
-    businessId: string, 
-    categoryId?: string | null, 
-    productIds: string[] = []
+    businessId: string,
+    categoryId?: string | null,
+    productIds: string[] = [],
   ): Promise<void> {
     const tasks: Promise<void>[] = [];
 
@@ -159,37 +181,45 @@ export class MenuItemRepository {
     await Promise.all(tasks);
   }
 
-  private async validateCategoryExists(categoryId: string, businessId: string): Promise<void> {
+  private async validateCategoryExists(
+    categoryId: string,
+    businessId: string,
+  ): Promise<void> {
     const exists = await this.categoryRepository.findOne({
       where: { id: categoryId, businessId, deletedAt: IsNull() },
-      select: ["id"] 
+      select: ["id"],
     });
     if (!exists) throw new BadRequestError("Invalid category");
   }
 
-  private async validateProductsExist(productIds: string[], businessId: string): Promise<void> {
+  private async validateProductsExist(
+    productIds: string[],
+    businessId: string,
+  ): Promise<void> {
     const uniqueIds = [...new Set(productIds)];
     const count = await this.productRepository.count({
-      where: { id: In(uniqueIds), businessId, deletedAt: IsNull() }
+      where: { id: In(uniqueIds), businessId, deletedAt: IsNull() },
     });
-    if (count !== uniqueIds.length) throw new BadRequestError("One or more products not found");
+    if (count !== uniqueIds.length)
+      throw new BadRequestError("One or more products not found");
   }
 
   private async createBaseProducts(
     manager: EntityManager,
     menuItemId: string,
-    baseProducts: { productId: string; quantity: number }[]
+    baseProducts: { productId: string; quantity: number }[],
   ): Promise<void> {
     if (!baseProducts.length) return;
-    await manager.insert(this.baseProductRepository.target, 
-      baseProducts.map(bp => ({ ...bp, menuItemId }))
+    await manager.insert(
+      this.baseProductRepository.target,
+      baseProducts.map((bp) => ({ ...bp, menuItemId })),
     );
   }
 
   private async createVariationWithAddons(
     manager: EntityManager,
     menuItemId: string,
-    variation: any
+    variation: any,
   ): Promise<void> {
     const variationEntity = manager.create(this.variationRepository.target, {
       ...variation,
@@ -200,8 +230,12 @@ export class MenuItemRepository {
     const saved = await manager.save(variationEntity);
 
     if (variation.addonProducts?.length) {
-      await manager.insert(this.variationProductRepository.target, 
-        variation.addonProducts.map((ap: any) => ({ ...ap, variationId: saved.id }))
+      await manager.insert(
+        this.variationProductRepository.target,
+        variation.addonProducts.map((ap: any) => ({
+          ...ap,
+          variationId: saved.id,
+        })),
       );
     }
   }
@@ -209,58 +243,65 @@ export class MenuItemRepository {
   private async updateExistingVariation(
     manager: EntityManager,
     menuItemId: string,
-    variation: any
+    variation: any,
   ): Promise<void> {
     const existing = await manager.findOne(this.variationRepository.target, {
-      where: { id: variation.id, menuItemId, deletedAt: IsNull() }
+      where: { id: variation.id, menuItemId, deletedAt: IsNull() },
     });
-    if (!existing) throw new NotFoundError(`Variation ${variation.id} not found`);
+    if (!existing)
+      throw new NotFoundError(`Variation ${variation.id} not found`);
 
     const { id, addonProducts, ...updateFields } = variation;
-    
+
     if (Object.keys(updateFields).length > 0) {
       await manager.update(this.variationRepository.target, id, updateFields);
     }
 
     if (addonProducts !== undefined) {
-      await manager.delete(this.variationProductRepository.target, { variationId: id });
+      await manager.delete(this.variationProductRepository.target, {
+        variationId: id,
+      });
       if (addonProducts.length > 0) {
-        await manager.insert(this.variationProductRepository.target, 
-          addonProducts.map((ap: any) => ({ ...ap, variationId: id }))
+        await manager.insert(
+          this.variationProductRepository.target,
+          addonProducts.map((ap: any) => ({ ...ap, variationId: id })),
         );
       }
     }
   }
 
   private collectAllProductIds(
-    base: { productId: string }[], 
-    vars: { addonProducts?: { productId: string }[] }[]
+    base: { productId: string }[],
+    vars: { addonProducts?: { productId: string }[] }[],
   ): string[] {
-    const baseIds = base.map(p => p.productId);
-    const addonIds = vars.flatMap(v => v.addonProducts?.map(p => p.productId) ?? []);
+    const baseIds = base.map((p) => p.productId);
+    const addonIds = vars.flatMap(
+      (v) => v.addonProducts?.map((p) => p.productId) ?? [],
+    );
     return [...baseIds, ...addonIds];
   }
 
   async bulkDelete(ids: string[], businessId: string): Promise<void> {
     const count = await this.repository.count({
-      where: { id: In(ids), businessId, deletedAt: IsNull() }
+      where: { id: In(ids), businessId, deletedAt: IsNull() },
     });
-    if (count !== ids.length) throw new NotFoundError("One or more items not found");
+    if (count !== ids.length)
+      throw new NotFoundError("One or more items not found");
     await this.repository.update(ids, { deletedAt: new Date() });
   }
 
   async getProductStockLevels(
     productIds: string[],
-    businessId: string
+    businessId: string,
   ): Promise<Map<string, number>> {
     if (!productIds.length) return new Map();
 
     const results = await this.stockLevelRepository.find({
       where: { businessId, productId: In(productIds) },
-      select: ["productId", "quantity"]
+      select: ["productId", "quantity"],
     });
 
-    const stockMap = new Map<string, number>(productIds.map(id => [id, 0]));
+    const stockMap = new Map<string, number>(productIds.map((id) => [id, 0]));
     for (const r of results) {
       stockMap.set(r.productId, Number(r.quantity));
     }
