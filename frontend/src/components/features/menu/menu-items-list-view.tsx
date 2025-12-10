@@ -115,18 +115,34 @@ export const MenuItemsListView = () => {
             name: string;
             type: string;
             priceAdjustment: number;
+            isDisabled: boolean;
+            addonProducts: Array<{
+              product: {
+                name: string;
+                productUnit: { name: string; symbol: string | null };
+              };
+              quantity: number;
+            }>;
           }>;
           if (!variations?.length) return "-";
           return (
             <Stack spacing={0.5}>
-              {variations.map((v, i) => (
-                <Chip
-                  key={i}
-                  label={`${v.name} (${v.type}) ${v.priceAdjustment >= 0 ? "+" : ""}$${v.priceAdjustment.toFixed(2)}`}
-                  size="small"
-                  variant="outlined"
-                />
-              ))}
+              {variations.map((v, i) => {
+                const addonText =
+                  v.addonProducts?.length > 0
+                    ? ` [${v.addonProducts
+                        .map((ap) => {
+                          const unit = ap.product.productUnit.symbol || ap.product.productUnit.name;
+                          return `${ap.product.name} (${ap.quantity} ${unit})`;
+                        })
+                        .join(", ")}]`
+                    : "";
+                return (
+                  <div key={i}>
+                    {`${v.name} (${v.type}) ${v.priceAdjustment >= 0 ? "+" : ""}$${v.priceAdjustment.toFixed(2)}${addonText}`}
+                  </div>
+                );
+              })}
             </Stack>
           );
         },
