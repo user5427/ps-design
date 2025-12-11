@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useImperativeHandle, forwardRef } from "react";
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -27,6 +27,13 @@ import { usePaginatedQuery } from "@/queries/pagination";
 import { SmartPaginationTableRow } from "./smart-pagination-table-row";
 
 /**
+ * Ref methods exposed by SmartPaginationList for parent control
+ */
+export interface SmartPaginationListRef {
+  refetch: () => Promise<void>;
+}
+
+/**
  * Props for the Smart Pagination List Component
  *
  * This component is PURELY for LISTING and PAGINATION.
@@ -46,24 +53,40 @@ export interface SmartPaginationListProps {
   query?: UniversalPaginationQuery;
 }
 
-export function SmartPaginationList({
-  mapping,
-  onEdit,
-  onDelete,
-  onView,
-  onSelect,
-  query: externalQuery,
-  onQueryChange,
-}: SmartPaginationListProps) {
-  // Fetch paginated data using the smart hook
-  const {
-    items,
-    metadata,
-    isLoading,
-    error,
-    query: internalQuery,
-    setQuery,
-  } = usePaginatedQuery(mapping);
+export const SmartPaginationList = forwardRef<SmartPaginationListRef, SmartPaginationListProps>(
+  function SmartPaginationListComponent(
+    {
+      mapping,
+      onEdit,
+      onDelete,
+      onView,
+      onSelect,
+      query: externalQuery,
+      onQueryChange,
+    }: SmartPaginationListProps,
+    ref,
+  ) {
+    // Fetch paginated data using the smart hook
+    const {
+      items,
+      metadata,
+      isLoading,
+      error,
+      query: internalQuery,
+      setQuery,
+      refetch,
+    } = usePaginatedQuery(mapping);
+
+    // Expose refetch to parent via ref
+    useImperativeHandle(
+      ref,
+      () => ({
+        refetch: async () => {
+          await refetch();
+        },
+      }),
+      [refetch],
+    );
 
   // Use external query if provided, otherwise use internal query state
   const query = externalQuery ?? internalQuery;
@@ -282,4 +305,5 @@ export function SmartPaginationList({
       )}
     </Box>
   );
-}
+  },
+);

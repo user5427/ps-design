@@ -1,4 +1,4 @@
-import { Box, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import { SmartPaginationList } from "@/components/elements/pagination";
 import { STOCK_LEVEL_MAPPING } from "@ps-design/constants/inventory/stock-level";
 

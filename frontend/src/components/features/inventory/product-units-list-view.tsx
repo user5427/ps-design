@@ -1,28 +1,29 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Box,
   Button,
   Stack,
   TextField,
 } from "@mui/material";
-import { FormModal } from "@/components/elements/form";
+import { FormModal, DeleteConfirmationModal } from "@/components/elements/form";
 import {
   useCreateProductUnit,
   useBulkDeleteProductUnits,
   useUpdateProductUnit,
 } from "@/queries/inventory/product-unit";
-import { SmartPaginationList } from "@/components/elements/pagination";
-import { PRODUCT_UNIT_MAPPING } from "@ps-design/constants/inventory/product-unit";
+import { SmartPaginationList, type SmartPaginationListRef } from "@/components/elements/pagination";
+import { PRODUCT_UNIT_MAPPING, PRODUCT_UNIT_CONSTRAINTS } from "@ps-design/constants/inventory/product-unit";
 import type { ProductUnitResponse } from "@ps-design/schemas/inventory/product-unit";
 
 export const ProductUnitsListView = () => {
+  const listRef = useRef<SmartPaginationListRef>(null);
   const createMutation = useCreateProductUnit();
   const updateMutation = useUpdateProductUnit();
   const bulkDeleteMutation = useBulkDeleteProductUnits();
 
   const [formState, setFormState] = useState<{
     isOpen: boolean;
-    mode: "create" | "edit";
+    mode: "create" | "edit" | "delete";
     data?: ProductUnitResponse;
   }>({
     isOpen: false,
@@ -35,6 +36,8 @@ export const ProductUnitsListView = () => {
       symbol: values.symbol ? String(values.symbol) : undefined,
     });
     setFormState({ isOpen: false, mode: "create" });
+    // Refetch the list after creating
+    await listRef.current?.refetch();
   };
 
   const handleEditSubmit = async (values: Record<string, unknown>) => {
@@ -44,6 +47,8 @@ export const ProductUnitsListView = () => {
       symbol: values.symbol ? String(values.symbol) : undefined,
     });
     setFormState({ isOpen: false, mode: "create" });
+    // Refetch the list after updating
+    await listRef.current?.refetch();
   };
 
   const handleEdit = (rowData: Record<string, unknown>) => {
@@ -54,8 +59,21 @@ export const ProductUnitsListView = () => {
     });
   };
 
-  const handleDelete = async (rowData: Record<string, unknown>) => {
-    await bulkDeleteMutation.mutateAsync([(rowData as ProductUnitResponse).id]);
+  const handleDelete = (rowData: Record<string, unknown>) => {
+    setFormState({
+      isOpen: true,
+      mode: "delete",
+      data: rowData as ProductUnitResponse,
+    });
+  };
+
+  const handleDeleteSubmit = async () => {
+    if (formState.data) {
+      await bulkDeleteMutation.mutateAsync([formState.data.id]);
+      // Refetch the list after deleting
+      await listRef.current?.refetch();
+    }
+    setFormState({ isOpen: false, mode: "create" });
   };
 
   const handleCloseForm = () => {
@@ -75,6 +93,7 @@ export const ProductUnitsListView = () => {
       </Box>
 
       <SmartPaginationList
+        ref={listRef}
         mapping={PRODUCT_UNIT_MAPPING}
         onEdit={handleEdit}
         onDelete={handleDelete}
@@ -91,6 +110,17 @@ export const ProductUnitsListView = () => {
           <>
             <form.Field
               name="name"
+              validators={{
+                onChange: ({ value }: { value: unknown }) => {
+                  if (!value || String(value).trim().length === 0) {
+                    return "Name is required";
+                  }
+                  if (String(value).length > PRODUCT_UNIT_CONSTRAINTS.NAME.MAX_LENGTH) {
+                    return PRODUCT_UNIT_CONSTRAINTS.NAME.MAX_LENGTH_MESSAGE;
+                  }
+                  return undefined;
+                },
+              }}
               children={(field: any) => (
                 <TextField
                   fullWidth
@@ -106,6 +136,16 @@ export const ProductUnitsListView = () => {
             />
             <form.Field
               name="symbol"
+              validators={{
+                onChange: ({ value }: { value: unknown }) => {
+                  if (value && String(value).trim().length > 0) {
+                    if (String(value).length > PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MAX_LENGTH) {
+                      return PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MAX_LENGTH_MESSAGE;
+                    }
+                  }
+                  return undefined;
+                },
+              }}
               children={(field: any) => (
                 <TextField
                   fullWidth
@@ -134,6 +174,17 @@ export const ProductUnitsListView = () => {
           <>
             <form.Field
               name="name"
+              validators={{
+                onChange: ({ value }: { value: unknown }) => {
+                  if (!value || String(value).trim().length === 0) {
+                    return "Name is required";
+                  }
+                  if (String(value).length > PRODUCT_UNIT_CONSTRAINTS.NAME.MAX_LENGTH) {
+                    return PRODUCT_UNIT_CONSTRAINTS.NAME.MAX_LENGTH_MESSAGE;
+                  }
+                  return undefined;
+                },
+              }}
               children={(field: any) => (
                 <TextField
                   fullWidth
@@ -149,6 +200,16 @@ export const ProductUnitsListView = () => {
             />
             <form.Field
               name="symbol"
+              validators={{
+                onChange: ({ value }: { value: unknown }) => {
+                  if (value && String(value).trim().length > 0) {
+                    if (String(value).length > PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MAX_LENGTH) {
+                      return PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MAX_LENGTH_MESSAGE;
+                    }
+                  }
+                  return undefined;
+                },
+              }}
               children={(field: any) => (
                 <TextField
                   fullWidth
@@ -165,6 +226,13 @@ export const ProductUnitsListView = () => {
           </>
         )}
       </FormModal>
+
+      <DeleteConfirmationModal
+        open={formState.isOpen && formState.mode === "delete"}
+        onClose={() => setFormState({ isOpen: false, mode: "create" })}
+        itemName={PRODUCT_UNIT_MAPPING.displayName}
+        onConfirm={handleDeleteSubmit}
+      />
     </Stack>
   );
 };

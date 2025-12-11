@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Box,
   Button,
@@ -8,25 +8,26 @@ import {
   DialogContent,
   TextField,
 } from "@mui/material";
-import { FormModal } from "@/components/elements/form";
+import { FormModal, DeleteConfirmationModal } from "@/components/elements/form";
 import {
   useCreateProduct,
   useBulkDeleteProducts,
   useUpdateProduct,
 } from "@/queries/inventory/products";
-import { SmartPaginationList } from "@/components/elements/pagination";
-import { PRODUCT_MAPPING } from "@ps-design/constants/inventory/product";
+import { SmartPaginationList, type SmartPaginationListRef } from "@/components/elements/pagination";
+import { PRODUCT_MAPPING, PRODUCT_CONSTRAINTS } from "@ps-design/constants/inventory/product";
 import { PRODUCT_UNIT_MAPPING } from "@ps-design/constants/inventory/product-unit";
 import type { ProductResponse } from "@ps-design/schemas/inventory/product";
 
 export const ProductsListView = () => {
+  const listRef = useRef<SmartPaginationListRef>(null);
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
   const bulkDeleteMutation = useBulkDeleteProducts();
 
   const [formState, setFormState] = useState<{
     isOpen: boolean;
-    mode: "create" | "edit";
+    mode: "create" | "edit" | "delete";
     data?: ProductResponse;
   }>({
     isOpen: false,
@@ -50,6 +51,8 @@ export const ProductsListView = () => {
     setFormState({ isOpen: false, mode: "create" });
     setSelectedUnitId(null);
     setSelectedUnitLabel("");
+    // Refetch the list after creating
+    await listRef.current?.refetch();
   };
 
   const handleEditSubmit = async (values: Record<string, unknown>) => {
@@ -63,6 +66,8 @@ export const ProductsListView = () => {
     setFormState({ isOpen: false, mode: "create" });
     setSelectedUnitId(null);
     setSelectedUnitLabel("");
+    // Refetch the list after updating
+    await listRef.current?.refetch();
   };
 
   const handleEdit = (rowData: Record<string, unknown>) => {
@@ -73,8 +78,21 @@ export const ProductsListView = () => {
     });
   };
 
-  const handleDelete = async (rowData: Record<string, unknown>) => {
-    await bulkDeleteMutation.mutateAsync([(rowData as ProductResponse).id]);
+  const handleDelete = (rowData: Record<string, unknown>) => {
+    setFormState({
+      isOpen: true,
+      mode: "delete",
+      data: rowData as ProductResponse,
+    });
+  };
+
+  const handleDeleteSubmit = async () => {
+    if (formState.data) {
+      await bulkDeleteMutation.mutateAsync([formState.data.id]);
+      // Refetch the list after deleting
+      await listRef.current?.refetch();
+    }
+    setFormState({ isOpen: false, mode: "create" });
   };
 
   const handleCloseForm = () => {
@@ -87,8 +105,9 @@ export const ProductsListView = () => {
 
   const handleSelectUnit = (rowData: Record<string, unknown>) => {
     const unitData = rowData as any;
+    const newUnitLabel = unitData.name + (unitData.symbol ? ` (${unitData.symbol})` : "");
     setSelectedUnitId(unitData.id);
-    setSelectedUnitLabel(unitData.name + (unitData.symbol ? ` (${unitData.symbol})` : ""));
+    setSelectedUnitLabel(newUnitLabel);
     setUnitSelectOpen(false);
   };
 
@@ -101,6 +120,7 @@ export const ProductsListView = () => {
       </Box>
 
       <SmartPaginationList
+        ref={listRef}
         mapping={PRODUCT_MAPPING}
         onEdit={handleEdit}
         onDelete={handleDelete}
@@ -121,6 +141,17 @@ export const ProductsListView = () => {
           <>
             <form.Field
               name="name"
+              validators={{
+                onChange: ({ value }: { value: unknown }) => {
+                  if (!value || String(value).trim().length === 0) {
+                    return "Name is required";
+                  }
+                  if (String(value).length > PRODUCT_CONSTRAINTS.NAME.MAX_LENGTH) {
+                    return PRODUCT_CONSTRAINTS.NAME.MAX_LENGTH_MESSAGE;
+                  }
+                  return undefined;
+                },
+              }}
               children={(field: any) => (
                 <TextField
                   fullWidth
@@ -136,6 +167,14 @@ export const ProductsListView = () => {
             />
             <form.Field
               name="description"
+              validators={{
+                onChange: ({ value }: { value: unknown }) => {
+                  if (value && String(value).length > PRODUCT_CONSTRAINTS.DESCRIPTION.MAX_LENGTH) {
+                    return PRODUCT_CONSTRAINTS.DESCRIPTION.MAX_LENGTH_MESSAGE;
+                  }
+                  return undefined;
+                },
+              }}
               children={(field: any) => (
                 <TextField
                   fullWidth
@@ -152,6 +191,14 @@ export const ProductsListView = () => {
             />
             <form.Field
               name="productUnitId"
+              validators={{
+                onChange: ({ value }: { value: unknown }) => {
+                  if (!value || String(value).trim().length === 0) {
+                    return "Unit is required";
+                  }
+                  return undefined;
+                },
+              }}
               children={(field: any) => (
                 <TextField
                   fullWidth
@@ -198,6 +245,17 @@ export const ProductsListView = () => {
           <>
             <form.Field
               name="name"
+              validators={{
+                onChange: ({ value }: { value: unknown }) => {
+                  if (!value || String(value).trim().length === 0) {
+                    return "Name is required";
+                  }
+                  if (String(value).length > PRODUCT_CONSTRAINTS.NAME.MAX_LENGTH) {
+                    return PRODUCT_CONSTRAINTS.NAME.MAX_LENGTH_MESSAGE;
+                  }
+                  return undefined;
+                },
+              }}
               children={(field: any) => (
                 <TextField
                   fullWidth
@@ -213,6 +271,14 @@ export const ProductsListView = () => {
             />
             <form.Field
               name="description"
+              validators={{
+                onChange: ({ value }: { value: unknown }) => {
+                  if (value && String(value).length > PRODUCT_CONSTRAINTS.DESCRIPTION.MAX_LENGTH) {
+                    return PRODUCT_CONSTRAINTS.DESCRIPTION.MAX_LENGTH_MESSAGE;
+                  }
+                  return undefined;
+                },
+              }}
               children={(field: any) => (
                 <TextField
                   fullWidth
@@ -229,6 +295,14 @@ export const ProductsListView = () => {
             />
             <form.Field
               name="productUnitId"
+              validators={{
+                onChange: ({ value }: { value: unknown }) => {
+                  if (!value || String(value).trim().length === 0) {
+                    return "Unit is required";
+                  }
+                  return undefined;
+                },
+              }}
               children={(field: any) => (
                 <TextField
                   fullWidth
@@ -275,6 +349,13 @@ export const ProductsListView = () => {
           </Box>
         </DialogContent>
       </Dialog>
+
+      <DeleteConfirmationModal
+        open={formState.isOpen && formState.mode === "delete"}
+        onClose={() => setFormState({ isOpen: false, mode: "create" })}
+        itemName={PRODUCT_MAPPING.displayName}
+        onConfirm={handleDeleteSubmit}
+      />
     </Stack>
   );
 };

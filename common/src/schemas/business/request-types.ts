@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { uuid } from "../shared/zod-utils";
-import { BUSINESS_CONSTRAINTS } from "@/constants/business";
+import { BUSINESS_CONSTRAINTS } from "../../constants/business";
 
 export const BusinessIdParam = z.object({ businessId: uuid() });
 

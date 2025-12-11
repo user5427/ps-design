@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@mui/material";
 import type React from "react";
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "@tanstack/react-form";
 import { FormAlert } from "./form-alert";
 
@@ -76,25 +76,46 @@ export const FormModal: React.FC<FormModalProps> = ({
   submitLabel = "Save",
   initialValues = {},
 }) => {
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const wasOpenRef = useRef(false);
+
   const form = useForm({
     defaultValues: initialValues as Record<string, unknown>,
     onSubmit: async ({ value }) => {
       try {
+        setSubmissionError(null);
         await onSubmit(value);
         onClose();
       } catch (error) {
-        // Error is handled by the form's error state
-        throw error;
+        // Capture error message for display
+        const errorMessage = error instanceof Error ? error.message : "An error occurred while submitting the form";
+        setSubmissionError(errorMessage);
       }
     },
   });
 
-  // Reset form when modal opens/closes
+  // Reset form only when modal transitions from closed to open
   useEffect(() => {
-    if (open) {
+    if (open && !wasOpenRef.current) {
       form.reset();
+      setSubmissionError(null);
+      wasOpenRef.current = true;
+    } else if (!open) {
+      wasOpenRef.current = false;
     }
   }, [open, form]);
+
+  // Update specific field values when initialValues change (for syncing unit selection)
+  useEffect(() => {
+    if (open && initialValues) {
+      Object.entries(initialValues).forEach(([key, value]) => {
+        const currentValue = form.getFieldValue(key);
+        if (currentValue !== value) {
+          form.setFieldValue(key as any, value);
+        }
+      });
+    }
+  }, [initialValues, form, open]);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth disableRestoreFocus>
@@ -108,6 +129,9 @@ export const FormModal: React.FC<FormModalProps> = ({
         <DialogTitle>{title}</DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {submissionError && (
+              <FormAlert message={submissionError} severity="error" />
+            )}
             {form.state.submissionAttempts > 0 &&
               form.state.isSubmitting === false &&
               Object.keys(form.state.fieldMeta).some(

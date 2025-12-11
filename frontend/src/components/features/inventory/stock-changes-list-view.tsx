@@ -1,18 +1,23 @@
-import { useMemo, useState } from "react";
+import { useState, useRef } from "react";
 import {
   Box,
   Button,
   Stack,
   TextField,
   MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
 import { FormModal } from "@/components/elements/form";
 import type { StockChangeResponse } from "@ps-design/schemas/inventory/stock-change";
 import { useCreateStockChange } from "@/queries/inventory/stock-change";
-import { SmartPaginationList } from "@/components/elements/pagination";
-import { STOCK_CHANGE_MAPPING } from "@ps-design/constants/inventory/stock-change";
+import { SmartPaginationList, type SmartPaginationListRef } from "@/components/elements/pagination";
+import { STOCK_CHANGE_MAPPING, STOCK_CHANGE_CONSTRAINTS } from "@ps-design/constants/inventory/stock-change";
+import { PRODUCT_MAPPING } from "@ps-design/constants/inventory/product";
 
 export const StockChangesListView = () => {
+  const listRef = useRef<SmartPaginationListRef>(null);
   const createMutation = useCreateStockChange();
 
   const [formState, setFormState] = useState<{
@@ -24,9 +29,9 @@ export const StockChangesListView = () => {
     mode: "create",
   });
 
-  // Note: Product options would need to be populated from a separate query
-  // For now, using empty array - this should be populated from products endpoint
-  const productOptions = useMemo(() => [], []);
+  const [productSelectOpen, setProductSelectOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedProductLabel, setSelectedProductLabel] = useState<string>("");
 
   const typeOptions = [
     { value: "SUPPLY", label: "Supply" },
@@ -34,33 +39,29 @@ export const StockChangesListView = () => {
     { value: "WASTE", label: "Waste" },
   ];
 
-  const validateQuantity = (value: unknown, type: unknown) => {
-    const qty = Number(value);
-    if (Number.isNaN(qty)) return "Quantity must be a number";
-
-    if (type === "SUPPLY" && qty <= 0) return "Quantity must be positive for Supply";
-    if (type === "WASTE" && qty >= 0) return "Quantity must be negative for Waste";
-    if (type === "ADJUSTMENT" && qty === 0) return "Quantity cannot be zero for Adjustment";
-
-    return null;
-  };
-
-  const validateExpirationDate = (value: unknown) => {
-    if (!value) return null;
-    const selectedDate = new Date(String(value));
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return selectedDate <= today ? "Expiration date must be in the future" : null;
-  };
-
   const handleCreateSubmit = async (values: Record<string, unknown>) => {
+    if (!selectedProductId) {
+      alert("Please select a product");
+      return;
+    }
     await createMutation.mutateAsync({
-      productId: String(values.productId),
+      productId: selectedProductId,
       type: values.type as "SUPPLY" | "ADJUSTMENT" | "WASTE",
       quantity: Number(values.quantity),
       expirationDate: values.expirationDate ? String(values.expirationDate) : undefined,
     });
     setFormState({ isOpen: false, mode: "create" });
+    setSelectedProductId(null);
+    setSelectedProductLabel("");
+    // Refetch the list after creating
+    await listRef.current?.refetch();
+  };
+
+  const handleSelectProduct = (rowData: Record<string, unknown>) => {
+    const productData = rowData as any;
+    setSelectedProductId(productData.id);
+    setSelectedProductLabel(productData.name);
+    setProductSelectOpen(false);
   };
 
   const handleCloseForm = () => {
@@ -80,6 +81,7 @@ export const StockChangesListView = () => {
       </Box>
 
       <SmartPaginationList
+        ref={listRef}
         mapping={STOCK_CHANGE_MAPPING}
       />
 
@@ -88,8 +90,8 @@ export const StockChangesListView = () => {
         onClose={handleCloseForm}
         title={`Create ${STOCK_CHANGE_MAPPING.displayName}`}
         initialValues={{ 
-          productId: "",
-          type: "SUPPLY",
+          productId: selectedProductLabel,
+          type: STOCK_CHANGE_CONSTRAINTS.TYPE.SUPPLY,
           quantity: "",
           expirationDate: ""
         }}
@@ -99,33 +101,51 @@ export const StockChangesListView = () => {
           <Stack spacing={2}>
             <form.Field
               name="productId"
+              validators={{
+                onChange: ({ value }: { value: unknown }) => {
+                  if (!value || String(value).trim().length === 0) {
+                    return "Product is required";
+                  }
+                  return undefined;
+                },
+              }}
               children={(field: any) => (
                 <TextField
                   fullWidth
-                  select
                   label="Product"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
+                  placeholder="Click 'Select Product' button"
                   error={!!field.state.meta.errors.length}
-                  helperText={field.state.meta.errors[0]}
+                  helperText={field.state.meta.errors[0] || "Select a product"}
+                  slotProps={{
+                    input: {
+                      readOnly: true,
+                    },
+                  }}
                   required
-                >
-                  {productOptions.length === 0 ? (
-                    <MenuItem disabled>No products available</MenuItem>
-                  ) : (
-                    productOptions.map((opt: any) => (
-                      <MenuItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </MenuItem>
-                    ))
-                  )}
-                </TextField>
+                />
               )}
             />
+            <Button
+              variant="outlined"
+              onClick={() => setProductSelectOpen(true)}
+              fullWidth
+            >
+              Select Product
+            </Button>
 
             <form.Field
               name="type"
+              validators={{
+                onChange: ({ value }: { value: unknown }) => {
+                  if (!value || String(value).trim().length === 0) {
+                    return "Type is required";
+                  }
+                  return undefined;
+                },
+              }}
               children={(field: any) => (
                 <TextField
                   fullWidth
@@ -149,50 +169,94 @@ export const StockChangesListView = () => {
 
             <form.Field
               name="quantity"
-              children={(field: any) => {
-                const error = field.state.meta.errors.length 
-                  ? field.state.meta.errors[0]
-                  : validateQuantity(field.state.value, form.getFieldValue("type"));
-                return (
-                  <TextField
-                    fullWidth
-                    type="number"
-                    label="Quantity"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    error={!!error}
-                    helperText={error}
-                    required
-                  />
-                );
+              validators={{
+                onChange: ({ value }: { value: unknown }) => {
+                  if (!value && value !== 0) {
+                    return "Quantity is required";
+                  }
+                  const qty = Number(value);
+                  if (Number.isNaN(qty)) {
+                    return "Quantity must be a number";
+                  }
+                  
+                  const type = form.getFieldValue("type");
+                  if (type === STOCK_CHANGE_CONSTRAINTS.TYPE.SUPPLY && qty <= 0) {
+                    return STOCK_CHANGE_CONSTRAINTS.QUANTITY.SUPPLY_MESSAGE;
+                  }
+                  if (type === STOCK_CHANGE_CONSTRAINTS.TYPE.WASTE && qty >= 0) {
+                    return STOCK_CHANGE_CONSTRAINTS.QUANTITY.WASTE_MESSAGE;
+                  }
+                  if (type === STOCK_CHANGE_CONSTRAINTS.TYPE.ADJUSTMENT && qty === 0) {
+                    return STOCK_CHANGE_CONSTRAINTS.QUANTITY.ADJUSTMENT_MESSAGE;
+                  }
+                  return undefined;
+                },
               }}
+              children={(field: any) => (
+                <TextField
+                  fullWidth
+                  type="number"
+                  label="Quantity"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  error={!!field.state.meta.errors.length}
+                  helperText={field.state.meta.errors[0]}
+                  required
+                />
+              )}
             />
 
             <form.Field
               name="expirationDate"
-              children={(field: any) => {
-                const error = field.state.meta.errors.length 
-                  ? field.state.meta.errors[0]
-                  : validateExpirationDate(field.state.value);
-                return (
-                  <TextField
-                    fullWidth
-                    type="date"
-                    label="Expiration Date"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    error={!!error}
-                    helperText={error}
-                    InputLabelProps={{ shrink: true }}
-                  />
-                );
+              validators={{
+                onChange: ({ value }: { value: unknown }) => {
+                  if (!value) return undefined;
+                  
+                  const selectedDate = new Date(String(value));
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  
+                  if (selectedDate <= today) {
+                    return "Expiration date must be in the future";
+                  }
+                  return undefined;
+                },
               }}
+              children={(field: any) => (
+                <TextField
+                  fullWidth
+                  type="date"
+                  label="Expiration Date"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  error={!!field.state.meta.errors.length}
+                  helperText={field.state.meta.errors[0]}
+                  InputLabelProps={{ shrink: true }}
+                />
+              )}
             />
           </Stack>
         )}
       </FormModal>
+
+      <Dialog
+        open={productSelectOpen}
+        onClose={() => setProductSelectOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Select Product</DialogTitle>
+        <DialogContent sx={{ minHeight: 400 }}>
+          <Box sx={{ mt: 2 }}>
+            <SmartPaginationList
+              mapping={PRODUCT_MAPPING}
+              onSelect={handleSelectProduct}
+            />
+          </Box>
+        </DialogContent>
+      </Dialog>
     </Stack>
   );
 };

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { date, uuid } from "../../shared/zod-utils";
-import { STOCK_CHANGE_CONSTRAINTS } from "@/constants/inventory/stock-change";
+import { STOCK_CHANGE_CONSTRAINTS } from "../../../constants/inventory/stock-change";
 
 export const ChangeIdParam = z.object({ changeId: uuid() });
 export type ChangeIdParams = z.infer<typeof ChangeIdParam>;

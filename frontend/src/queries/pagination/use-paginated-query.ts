@@ -53,7 +53,9 @@ export function usePaginatedQuery<T extends Record<string, unknown> = Record<str
       return result;
     },
     retry: 1,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0, // Data is always stale to ensure fresh data on page changes
+    gcTime: 5 * 60 * 1000, // Keep cache for 5 minutes before garbage collection
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 
   /**

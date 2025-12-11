@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { uuid } from "../../shared/zod-utils";
-import { PRODUCT_CONSTRAINTS } from "@/constants/inventory/product";
+import { PRODUCT_CONSTRAINTS } from "../../../constants/inventory/product";
 
 export const ProductIdParam = z.object({ productId: uuid() });
 
