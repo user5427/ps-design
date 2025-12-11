@@ -1,16 +1,29 @@
 import { z } from "zod";
-
-const MIN_PASSWORD_LENGTH = 8;
-const MIN_PASSWORD_MESSAGE = `Password must be at least ${MIN_PASSWORD_LENGTH} characters`;
+import { AUTH_CONSTRAINTS } from "@/constants/auth";
 
 export const LoginSchema = z.object({
-  email: z.email("Invalid email format"),
-  password: z.string().min(MIN_PASSWORD_LENGTH, MIN_PASSWORD_MESSAGE),
+  email: z.email(AUTH_CONSTRAINTS.EMAIL.INVALID_FORMAT_MESSAGE),
+  password: z
+    .string()
+    .min(
+      AUTH_CONSTRAINTS.PASSWORD.MIN_LENGTH,
+      AUTH_CONSTRAINTS.PASSWORD.MIN_LENGTH_MESSAGE
+    ),
 });
 
 export const ChangePasswordSchema = z.object({
-  currentPassword: z.string().min(MIN_PASSWORD_LENGTH, MIN_PASSWORD_MESSAGE),
-  newPassword: z.string().min(MIN_PASSWORD_LENGTH, MIN_PASSWORD_MESSAGE),
+  currentPassword: z
+    .string()
+    .min(
+      AUTH_CONSTRAINTS.PASSWORD.MIN_LENGTH,
+      AUTH_CONSTRAINTS.PASSWORD.MIN_LENGTH_MESSAGE
+    ),
+  newPassword: z
+    .string()
+    .min(
+      AUTH_CONSTRAINTS.PASSWORD.MIN_LENGTH,
+      AUTH_CONSTRAINTS.PASSWORD.MIN_LENGTH_MESSAGE
+    ),
 });
 
 export type LoginBody = z.infer<typeof LoginSchema>;

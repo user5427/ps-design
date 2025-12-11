@@ -67,7 +67,6 @@ export const BusinessList: React.FC = () => {
   return (
     <Stack spacing={2}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2>{BUSINESS_MAPPING.displayName}</h2>
         <Button variant="contained" onClick={openCreateForm}>
           Create {BUSINESS_MAPPING.displayName}
         </Button>

@@ -1,19 +1,20 @@
 import { z } from "zod";
 import { uuid } from "../../shared/zod-utils";
-
-const MIN_NAME_LENGTH = 1;
-const MAX_NAME_LENGTH = 100;
-
-const MIN_NAME_MESSAGE = `Name must be at least ${MIN_NAME_LENGTH} characters`;
-const MAX_NAME_MESSAGE = `Name must be at most ${MAX_NAME_LENGTH} characters`;
+import { PRODUCT_CONSTRAINTS } from "@/constants/inventory/product";
 
 export const ProductIdParam = z.object({ productId: uuid() });
 
 export const CreateProductSchema = z.object({
   name: z
     .string()
-    .min(MIN_NAME_LENGTH, MIN_NAME_MESSAGE)
-    .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE),
+    .min(
+      PRODUCT_CONSTRAINTS.NAME.MIN_LENGTH,
+      PRODUCT_CONSTRAINTS.NAME.MIN_LENGTH_MESSAGE
+    )
+    .max(
+      PRODUCT_CONSTRAINTS.NAME.MAX_LENGTH,
+      PRODUCT_CONSTRAINTS.NAME.MAX_LENGTH_MESSAGE
+    ),
   description: z.string().optional(),
   productUnitId: uuid("Invalid product unit ID"),
 });
@@ -21,8 +22,14 @@ export const CreateProductSchema = z.object({
 export const UpdateProductSchema = z.object({
   name: z
     .string()
-    .min(MIN_NAME_LENGTH, `Name must be at least ${MIN_NAME_LENGTH} characters`)
-    .max(MAX_NAME_LENGTH, `Name must be at most ${MAX_NAME_LENGTH} characters`)
+    .min(
+      PRODUCT_CONSTRAINTS.NAME.MIN_LENGTH,
+      PRODUCT_CONSTRAINTS.NAME.MIN_LENGTH_MESSAGE
+    )
+    .max(
+      PRODUCT_CONSTRAINTS.NAME.MAX_LENGTH,
+      PRODUCT_CONSTRAINTS.NAME.MAX_LENGTH_MESSAGE
+    )
     .optional(),
   description: z.string().optional(),
   productUnitId: uuid().optional(),

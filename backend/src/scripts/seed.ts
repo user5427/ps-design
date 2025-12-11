@@ -4,6 +4,7 @@ import { createDataSource } from "@/database/data-source";
 import { Business } from "@/modules/business";
 import { User, Role, ScopeEntity, UserRole, RoleScope } from "@/modules/user";
 import { ScopeNames, SCOPE_CONFIG } from "@/modules/user/scope.types";
+import { AUTH_CONSTANTS } from "@/constants/auth.constants";
 
 async function main() {
   const connectionString = process.env.DATABASE_URL;
@@ -43,7 +44,7 @@ async function main() {
 
     // Default password for initial users
     const defaultPassword = "Geras@123";
-    const passwordHash = await bcrypt.hash(defaultPassword, 10);
+    const passwordHash = await bcrypt.hash(defaultPassword, AUTH_CONSTANTS.BCRYPT_SALT_LENGTH);
 
     // Seed Roles
     const roleNames = ["SUPER_ADMIN", "ADMIN", "USER"];

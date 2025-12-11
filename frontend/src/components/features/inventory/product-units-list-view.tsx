@@ -69,7 +69,6 @@ export const ProductUnitsListView = () => {
   return (
     <Stack spacing={2}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2>{PRODUCT_UNIT_MAPPING.displayName}</h2>
         <Button variant="contained" onClick={openCreateForm}>
           Create {PRODUCT_UNIT_MAPPING.displayName}
         </Button>

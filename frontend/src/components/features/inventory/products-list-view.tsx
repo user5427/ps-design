@@ -95,7 +95,6 @@ export const ProductsListView = () => {
   return (
     <Stack spacing={2}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2>{PRODUCT_MAPPING.displayName}</h2>
         <Button variant="contained" onClick={openCreateForm}>
           Create {PRODUCT_MAPPING.displayName}
         </Button>
@@ -256,22 +255,6 @@ export const ProductsListView = () => {
             >
               Select Unit
             </Button>
-            <form.Field
-              name="isDisabled"
-              children={(field: any) => (
-                <Box sx={{ mt: 2 }}>
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={!!field.state.value}
-                      onChange={(e) => field.handleChange(e.target.checked)}
-                      onBlur={field.handleBlur}
-                    />
-                    Disabled
-                  </label>
-                </Box>
-              )}
-            />
           </>
         )}
       </FormModal>
@@ -287,7 +270,7 @@ export const ProductsListView = () => {
           <Box sx={{ mt: 2 }}>
             <SmartPaginationList
               mapping={PRODUCT_UNIT_MAPPING}
-              onEdit={handleSelectUnit}
+              onSelect={handleSelectUnit}
             />
           </Box>
         </DialogContent>

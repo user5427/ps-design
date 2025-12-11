@@ -1,39 +1,55 @@
 import { z } from "zod";
 import { uuid } from "../../shared/zod-utils";
-
-const MIN_LENGTH = 1;
-const MAX_NAME_LENGTH = 100;
-const MAX_SYMBOL_LENGTH = 10;
-
-const MIN_NAME_MESSAGE = `Name must be at least ${MIN_LENGTH} characters`;
-const MAX_NAME_MESSAGE = `Name must be at most ${MAX_NAME_LENGTH} characters`;
-const MIN_SYMBOL_MESSAGE = `Symbol must be at least ${MIN_LENGTH} characters`;
-const MAX_SYMBOL_MESSAGE = `Symbol must be at most ${MAX_SYMBOL_LENGTH} characters`;
+import { PRODUCT_UNIT_CONSTRAINTS } from "@/constants/inventory/product-unit";
 
 export const UnitIdParam = z.object({ unitId: uuid() });
 
 export const CreateProductUnitSchema = z.object({
   name: z
     .string()
-    .min(MIN_LENGTH, MIN_NAME_MESSAGE)
-    .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE),
+    .min(
+      PRODUCT_UNIT_CONSTRAINTS.NAME.MIN_LENGTH,
+      PRODUCT_UNIT_CONSTRAINTS.NAME.MIN_LENGTH_MESSAGE
+    )
+    .max(
+      PRODUCT_UNIT_CONSTRAINTS.NAME.MAX_LENGTH,
+      PRODUCT_UNIT_CONSTRAINTS.NAME.MAX_LENGTH_MESSAGE
+    ),
   symbol: z
     .string()
-    .min(MIN_LENGTH, MIN_SYMBOL_MESSAGE)
-    .max(MAX_SYMBOL_LENGTH, MAX_SYMBOL_MESSAGE)
+    .min(
+      PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MIN_LENGTH,
+      PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MIN_LENGTH_MESSAGE
+    )
+    .max(
+      PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MAX_LENGTH,
+      PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MAX_LENGTH_MESSAGE
+    )
     .optional(),
 });
 
 export const UpdateProductUnitSchema = z.object({
   name: z
     .string()
-    .min(MIN_LENGTH, MIN_NAME_MESSAGE)
-    .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE)
+    .min(
+      PRODUCT_UNIT_CONSTRAINTS.NAME.MIN_LENGTH,
+      PRODUCT_UNIT_CONSTRAINTS.NAME.MIN_LENGTH_MESSAGE
+    )
+    .max(
+      PRODUCT_UNIT_CONSTRAINTS.NAME.MAX_LENGTH,
+      PRODUCT_UNIT_CONSTRAINTS.NAME.MAX_LENGTH_MESSAGE
+    )
     .optional(),
   symbol: z
     .string()
-    .min(MIN_LENGTH, MIN_SYMBOL_MESSAGE)
-    .max(MAX_SYMBOL_LENGTH, MAX_SYMBOL_MESSAGE)
+    .min(
+      PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MIN_LENGTH,
+      PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MIN_LENGTH_MESSAGE
+    )
+    .max(
+      PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MAX_LENGTH,
+      PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MAX_LENGTH_MESSAGE
+    )
     .optional(),
 });
 

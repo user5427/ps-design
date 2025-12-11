@@ -1,10 +1,15 @@
 import { z } from "zod";
 import { date, uuid } from "../../shared/zod-utils";
+import { STOCK_CHANGE_CONSTRAINTS } from "@/constants/inventory/stock-change";
 
 export const ChangeIdParam = z.object({ changeId: uuid() });
 export type ChangeIdParams = z.infer<typeof ChangeIdParam>;
 
-export const CreateChangeTypeEnum = z.enum(["SUPPLY", "ADJUSTMENT", "WASTE"]);
+export const CreateChangeTypeEnum = z.enum([
+  STOCK_CHANGE_CONSTRAINTS.TYPE.SUPPLY,
+  STOCK_CHANGE_CONSTRAINTS.TYPE.ADJUSTMENT,
+  STOCK_CHANGE_CONSTRAINTS.TYPE.WASTE,
+]);
 
 const BaseCreateStockChangeSchema = z
   .object({
@@ -23,7 +28,7 @@ const BaseCreateStockChangeSchema = z
     if (exp <= today) {
       ctx.addIssue({
         code: "custom",
-        message: "Expiration date must be in the future",
+        message: STOCK_CHANGE_CONSTRAINTS.EXPIRATION_DATE.MUST_BE_FUTURE_MESSAGE,
         path: ["expirationDate"],
       });
     }
@@ -31,16 +36,16 @@ const BaseCreateStockChangeSchema = z
 
 export const CreateStockChangeSchema = z.discriminatedUnion("type", [
   BaseCreateStockChangeSchema.safeExtend({
-    type: z.literal("SUPPLY"),
-    quantity: z.number().positive("Quantity must be positive for Supply"),
+    type: z.literal(STOCK_CHANGE_CONSTRAINTS.TYPE.SUPPLY),
+    quantity: z.number().positive(STOCK_CHANGE_CONSTRAINTS.QUANTITY.SUPPLY_MESSAGE),
   }),
   BaseCreateStockChangeSchema.safeExtend({
-    type: z.literal("WASTE"),
-    quantity: z.number().negative("Quantity must be negative for Waste"),
+    type: z.literal(STOCK_CHANGE_CONSTRAINTS.TYPE.WASTE),
+    quantity: z.number().negative(STOCK_CHANGE_CONSTRAINTS.QUANTITY.WASTE_MESSAGE),
   }),
   BaseCreateStockChangeSchema.safeExtend({
-    type: z.literal("ADJUSTMENT"),
-    quantity: z.number().refine((val) => val !== 0, "Quantity cannot be zero"),
+    type: z.literal(STOCK_CHANGE_CONSTRAINTS.TYPE.ADJUSTMENT),
+    quantity: z.number().refine((val) => val !== 0, STOCK_CHANGE_CONSTRAINTS.QUANTITY.ADJUSTMENT_MESSAGE),
   }),
 ]);
 

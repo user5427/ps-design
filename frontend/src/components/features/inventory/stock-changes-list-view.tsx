@@ -74,7 +74,6 @@ export const StockChangesListView = () => {
   return (
     <Stack spacing={2}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2>{STOCK_CHANGE_MAPPING.displayName}</h2>
         <Button variant="contained" onClick={openCreateForm}>
           Create {STOCK_CHANGE_MAPPING.displayName}
         </Button>
