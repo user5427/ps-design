@@ -72,8 +72,6 @@ export default async function businessRoutes(fastify: FastifyInstance) {
 
   };
 
-
-
   server.get<{ Querystring: BusinessQuery }>(
     "/",
     {
@@ -194,7 +192,11 @@ export default async function businessRoutes(fastify: FastifyInstance) {
         const { businessId } = request.params;
         const updateBusinessWrapped = await createAuditWrapper(updateBusiness, AuditActionType.UPDATE, request, reply);
 
-        const updated = await updateBusinessWrapped(fastify, businessId, request.body);
+        const updated = await updateBusinessWrapped(
+          fastify,
+          businessId,
+          request.body,
+        );
         return reply.send(updated);
       } catch (error) {
         return handleServiceError(error, reply);

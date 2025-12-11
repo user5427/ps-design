@@ -37,7 +37,12 @@ import { MenuItem, MenuItemRepository } from "@/modules/menu/menu-item";
 import { MenuItemVariation } from "@/modules/menu/menu-item-variation";
 import { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product";
 import { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product";
-import { AuditLogService, AuditLogRepository, AuditBusinessLog, AuditSecurityLog } from "@/modules/audit";
+import {
+  AuditLogService,
+  AuditLogRepository,
+  AuditBusinessLog,
+  AuditSecurityLog,
+} from "@/modules/audit";
 
 export interface Services {
   dataSource: DataSource;
@@ -115,7 +120,10 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
       dataSource.getRepository(StockLevel),
     ),
     auditLogService: new AuditLogService(
-      new AuditLogRepository(dataSource.getRepository(AuditBusinessLog), dataSource.getRepository(AuditSecurityLog))
+      new AuditLogRepository(
+        dataSource.getRepository(AuditBusinessLog),
+        dataSource.getRepository(AuditSecurityLog),
+      ),
     ),
   };
 
