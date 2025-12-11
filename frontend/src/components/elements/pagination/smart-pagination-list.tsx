@@ -21,6 +21,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 import type { EntityMapping } from "@ps-design/utils";
 import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
+import { SortDirection, FilterOperator } from "@ps-design/schemas/pagination";
 
 import { usePaginatedQuery } from "@/queries/pagination";
 import { SmartPaginationTableRow } from "./smart-pagination-table-row";
@@ -61,7 +62,7 @@ export function SmartPaginationList({
     isLoading,
     error,
     query: internalQuery,
-    setSearch,
+    setQuery,
   } = usePaginatedQuery(mapping);
 
   // Use external query if provided, otherwise use internal query state
@@ -70,6 +71,8 @@ export function SmartPaginationList({
   const [searchInput, setSearchInput] = useState(query.search || "");
   const [columnMenuAnchor, setColumnMenuAnchor] = useState<null | HTMLElement>(null);
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({})
+  const [sorting, setSorting] = useState<Array<{ id: string; desc: boolean }>>([]);
+  const [columnFilters, setColumnFilters] = useState<Array<{ id: string; value: unknown }>>([]);
 
   // Build table columns from mapping
   const columns = useMemo(() => {
@@ -120,8 +123,48 @@ export function SmartPaginationList({
   // Handle search
   const handleSearch = (value: string) => {
     setSearchInput(value);
-    setSearch(value);
-    onQueryChange?.(query);
+    const newQuery: UniversalPaginationQuery = {
+      ...query,
+      search: value || undefined,
+      page: 1,
+    };
+    setQuery(newQuery);
+    onQueryChange?.(newQuery);
+  };
+
+  // Handle sorting change from table
+  const handleSortingChange = (updaterOrValue: any) => {
+    const newSorting = typeof updaterOrValue === "function" ? updaterOrValue(sorting) : updaterOrValue;
+    setSorting(newSorting);
+    const newQuery: UniversalPaginationQuery = {
+      ...query,
+      sort: newSorting.length > 0 
+        ? { 
+            fieldName: newSorting[0].id, 
+            direction: newSorting[0].desc ? SortDirection.DESC : SortDirection.ASC 
+          }
+        : undefined,
+      page: 1,
+    };
+    setQuery(newQuery);
+    onQueryChange?.(newQuery);
+  };
+
+  // Handle column filters change from table
+  const handleColumnFiltersChange = (updaterOrValue: any) => {
+    const newFilters = typeof updaterOrValue === "function" ? updaterOrValue(columnFilters) : updaterOrValue;
+    setColumnFilters(newFilters);
+    const newQuery: UniversalPaginationQuery = {
+      ...query,
+      filters: newFilters.map((filter: any) => ({
+        fieldName: filter.id,
+        operator: FilterOperator.LIKE,
+        value: filter.value,
+      })),
+      page: 1,
+    };
+    setQuery(newQuery);
+    onQueryChange?.(newQuery);
   };
 
   // Handle column visibility
@@ -141,9 +184,15 @@ export function SmartPaginationList({
     enableGlobalFilter: false,
     enableStickyHeader: true,
     layoutMode: "grid",
+    enableSorting: true,
+    enableColumnFilters: true,
     state: {
       isLoading,
+      sorting,
+      columnFilters,
     },
+    onSortingChange: handleSortingChange,
+    onColumnFiltersChange: handleColumnFiltersChange,
     muiTableContainerProps: {
       sx: { maxHeight: "calc(100vh - 300px)" },
     },

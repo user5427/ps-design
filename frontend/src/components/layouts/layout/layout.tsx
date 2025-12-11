@@ -1,11 +1,11 @@
 import { Container } from "@mui/material";
 import type React from "react";
 
-interface PublicLayoutProps {
+interface LayoutProps {
   children?: React.ReactNode;
 }
 
-export const PublicLayout = ({ children }: PublicLayoutProps) => {
+export const Layout = ({ children }: LayoutProps) => {
   return (
     <Container maxWidth="lg" sx={{ pt: 4, pb: 4 }}>
       {children}
