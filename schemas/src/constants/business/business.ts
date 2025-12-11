@@ -1,4 +1,4 @@
-import { BusinessResponseSchema } from "@/schemas/business";
+import { BusinessResponseSchema } from "../../schemas/business";
 import { createEntityMapping } from "../../utils/field-mapping-builder";
 
 /**

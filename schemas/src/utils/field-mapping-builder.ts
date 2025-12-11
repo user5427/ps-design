@@ -23,6 +23,7 @@ export interface EntityMapping<T extends z.ZodObject<any>> {
   fields: FieldMapping;
   endpoint: string; // API endpoint URL for this entity (e.g., "/api/business")
   displayName: string; // Display name for the entity (e.g., "Business")
+  schema: T; // Zod schema for validation
 }
 
 /**
@@ -92,6 +93,7 @@ export function createEntityMapping<T extends z.ZodObject<any>>(
     fields: finalFields,
     endpoint,
     displayName,
+    schema,
   };
 }
 

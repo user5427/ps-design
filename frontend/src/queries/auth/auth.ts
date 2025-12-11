@@ -13,7 +13,7 @@ import type {
   AuthResponse,
   RefreshResponse,
 } from "@ps-design/schemas/auth";
-import type { SuccessResponse } from "@ps-design/schemas/shared/response-types";
+import type { SuccessResponse } from "@ps-design/schemas/shared";
 
 export function useLogin() {
   return useMutation<AuthResponse, Error, LoginBody>({

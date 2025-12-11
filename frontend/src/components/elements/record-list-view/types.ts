@@ -4,6 +4,9 @@ import type {
   FilterOperator,
   SortDirection,
 } from "@ps-design/schemas/pagination";
+import type { EntityMapping } from "@ps-design/utils";
+import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
+import { z } from "zod";
 
 export type FieldType =
   | "text"
@@ -104,4 +107,29 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
   /** Whether to show edit action (default: true) */
   /** Custom function to get row ID */
   getRowId?: (row: T) => string;
+}
+
+/**
+ * Ultra-simple list view component that requires only a mapping constant
+ * All columns, fields, and validation are auto-generated from the mapping
+ */
+export interface AutoRecordListViewProps<T extends z.ZodObject<any>> {
+  /** Entity mapping constant that defines fields, endpoint, display name, and schema */
+  mapping: EntityMapping<T>;
+  /** Callback for creating a new record */
+  onCreate?: (data: Partial<z.infer<T>>) => Promise<void>;
+  /** Callback for editing a record */
+  onEdit?: (id: string, data: Partial<z.infer<T>>) => Promise<void>;
+  /** Callback for deleting record(s) */
+  onDelete?: (ids: string[]) => Promise<void>;
+  /** Unique identifier key for records (default: 'id') */
+  idKey?: string;
+  /** Callback after successful CRUD operation */
+  onSuccess?: () => void;
+  /** Whether to show view action (default: true) */
+  hasViewAction?: boolean;
+  /** External query state for pagination (optional) */
+  query?: UniversalPaginationQuery;
+  /** Callback when query changes (optional) */
+  onQueryChange?: (query: UniversalPaginationQuery) => void;
 }
