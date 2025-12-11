@@ -20,7 +20,7 @@ export enum ActionResult {
 
 export interface IAuditBusinessLog {
   id: string;
-  businessId: string;
+  businessId?: string | null;
   userId: string | null;
   ip: string | null;
   entityType: string;
@@ -33,7 +33,7 @@ export interface IAuditBusinessLog {
 }
 
 export interface ICreateAuditBusinessLog {
-  businessId: string;
+  businessId?: string | null;
   userId?: string | null;
   ip?: string | null;
   entityType: string;

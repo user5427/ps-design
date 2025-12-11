@@ -31,7 +31,6 @@ import {
   SuccessResponseSchema,
 } from "@ps-design/schemas/shared/response-types";
 import { AuditActionType, auditLogWrapper } from "@/modules/audit";
-import { getBusinessId } from "@/shared/auth-utils";
 
 export default async function businessRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -41,27 +40,43 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   const createAuditWrapper = async (
     fn: (...args: any[]) => any,
     auditType: AuditActionType,
-    request: FastifyRequest,
-    reply: FastifyReply,
+    request: FastifyRequest | FastifyRequest<{ Params: BusinessIdParams }>
   ) => {
     const userContext = request.user as {
       userId: string;
-      businessId: string | null;
+      businessId: string | undefined;
     };
 
-    return auditLogWrapper(fn, fastify.db.auditLogService, auditType, {
+    const baseParams = {
       userId: userContext.userId,
       ip: request.ip,
-      businessId: userContext.businessId ?? undefined,
       entityType: "Business",
-      entityId: userContext.businessId ?? undefined,
+    };
+
+    if (auditType === AuditActionType.CREATE) {
+      return auditLogWrapper(fn, fastify.db.auditLogService, auditType, {
+        ...baseParams,
+        businessId: undefined,
+        entityId: undefined,
+      });
+    }
+
+    const params = request.params as Partial<BusinessIdParams>;
+    if ("businessId" in params) {
+      userContext.businessId = params.businessId;
+    }
+    return auditLogWrapper(fn, fastify.db.auditLogService, auditType, {
+      ...baseParams,
+      businessId: userContext.businessId!,
+      entityId: userContext.businessId!,
     });
   };
+
 
   server.get<{ Querystring: BusinessQuery }>(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ)],
+      onRequest: [ fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ) ],
       schema: {
         querystring: BusinessQuerySchema,
         response: {
@@ -116,11 +131,10 @@ export default async function businessRoutes(fastify: FastifyInstance) {
         const createBusinessWrapped = await createAuditWrapper(
           createBusiness,
           AuditActionType.CREATE,
-          request,
-          reply,
+          request
         );
 
-        const business = await createBusinessWrapped(fastify, request.body);
+        const business = await createBusinessWrapped(fastify, request.body as CreateBusinessBody);
         return reply.code(httpStatus.CREATED).send(business);
       } catch (error) {
         return handleServiceError(error, reply);
@@ -131,7 +145,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.get<{ Params: BusinessIdParams }>(
     "/:businessId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ)],
+      onRequest: [ fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ) ],
       schema: {
         params: BusinessIdParam,
         response: {
@@ -185,7 +199,6 @@ export default async function businessRoutes(fastify: FastifyInstance) {
           updateBusiness,
           AuditActionType.UPDATE,
           request,
-          reply,
         );
 
         const updated = await updateBusinessWrapped(
@@ -227,7 +240,6 @@ export default async function businessRoutes(fastify: FastifyInstance) {
           deleteBusiness,
           AuditActionType.DELETE,
           request,
-          reply,
         );
 
         await deleteBusinessWrapped(fastify, businessId);

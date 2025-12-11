@@ -17,17 +17,17 @@ import {
 } from "./audit-log.types";
 
 @Entity("AuditBusinessLog")
-@Index(["entityType", "entityId"])
-@Index(["businessId"])
-@Index(["userId"])
+@Index([ "entityType", "entityId" ])
+@Index([ "businessId" ])
+@Index([ "userId" ])
 export class AuditBusinessLog {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ type: "uuid" })
-  businessId: string;
+  @Column({ type: "uuid", nullable: true })
+  businessId: string | null;
 
-  @ManyToOne("Business", "auditLogs", { onDelete: "CASCADE" })
+  @ManyToOne("Business", "auditLogs", { nullable: true, onDelete: "CASCADE" })
   @JoinColumn({ name: "businessId" })
   business: Relation<Business>;
 

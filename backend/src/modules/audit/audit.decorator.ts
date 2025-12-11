@@ -11,38 +11,56 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
   auditLogService: AuditLogService,
   action: AuditActionType,
   entityType: string,
-  businessId: string,
+  businessId: string | null,
   userId: string,
-  entityId: string,
+  entityId: string | null, // allow null for CREATE
   ip: string | null,
 ): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
   return async (...args: Parameters<T>): Promise<Awaited<ReturnType<T>>> => {
-    const oldValues =
-      action === AuditActionType.CREATE
-        ? null
-        : await auditLogService.getEntitySnapshot(entityType, entityId);
+    let oldValues = null;
+
+    // Only fetch oldValues for UPDATE/DELETE
+    if (action !== AuditActionType.CREATE && entityId) {
+      oldValues = await auditLogService.getEntitySnapshot(entityType, entityId);
+    }
+
     let result: ActionResult = ActionResult.FAILURE;
+    let res: Awaited<ReturnType<T>>;
+    let finalEntityId = entityId;
+
     try {
-      const res = await fn(...args);
+      // Call the real function
+      res = await fn(...args);
+
+      // If CREATE: extract ID from response
+      if (action === AuditActionType.CREATE) {
+        finalEntityId = res.id; // adjust to your return shape
+      }
+
       result = ActionResult.SUCCESS;
-      return res;
     } finally {
-      const newValues = await auditLogService.getEntitySnapshot(
-        entityType,
-        entityId,
-      );
+      const newValues = finalEntityId
+        ? await auditLogService.getEntitySnapshot(entityType, finalEntityId)
+        : null;
+
+      if (!newValues) {
+        throw new Error("Failed to retrieve new values for audit log with entityId: " + finalEntityId + " and entityType: " + entityType);
+      }
+
       await auditLogService.logBusiness({
         businessId,
         userId,
-        ip: ip ?? null,
+        ip,
         entityType,
-        entityId,
+        entityId: finalEntityId!,
         action,
-        oldValues: oldValues ?? null,
-        newValues: newValues ?? null,
+        oldValues,
+        newValues,
         result,
       });
     }
+
+    return res;
   };
 }
 
@@ -78,35 +96,59 @@ export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
   auditType: AuditType,
   params: {
     entityType?: string;
-    businessId?: string;
-    entityId?: string;
+    businessId?: string | null;
+    entityId?: string | null;
     userId: string;
     ip: string | null;
   },
 ): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
-  if (Object.values(AuditActionType).includes(auditType as AuditActionType)) {
-    if (!params.entityType || !params.businessId || !params.entityId) {
-      throw new Error(
-        "Business action requires entityType, businessId, and entityId",
+
+  const isBusinessAction =
+    Object.values(AuditActionType).includes(auditType as AuditActionType);
+
+  if (isBusinessAction) {
+    const action = auditType as AuditActionType;
+
+    // ✅ CREATE should NOT require businessId or entityId
+    if (action === AuditActionType.CREATE) {
+      if (!params.entityType) {
+        throw new Error("CREATE requires entityType");
+      }
+
+      return auditActionWrapper(
+        fn,
+        auditLogService,
+        action,
+        params.entityType,
+        params.businessId ?? null, // not used for CREATE
+        params.userId,
+        null,                    // entityId is null for CREATE
+        params.ip,
       );
     }
+
+    // ❗ For UPDATE or DELETE: these 3 must be present
+    if (!params.entityType || !params.businessId || !params.entityId) {
+      throw new Error(
+        "UPDATE/DELETE action requires entityType, businessId, and entityId",
+      );
+    }
+
     return auditActionWrapper(
       fn,
       auditLogService,
-      auditType as AuditActionType,
+      action,
       params.entityType,
       params.businessId,
       params.userId,
       params.entityId,
       params.ip,
     );
-  } else {
-    return auditSecurityWrapper(
-      fn,
-      auditLogService,
-      auditType as AuditSecurityType,
-      params.userId,
-      params.ip,
-    );
   }
+
+  // Security logs
+  return auditSecurityWrapper(
+    fn, auditLogService, auditType as AuditSecurityType, params.userId, params.ip
+  );
 }
+

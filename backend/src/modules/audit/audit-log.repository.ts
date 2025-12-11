@@ -5,12 +5,16 @@ import type {
   ICreateAuditBusinessLog,
   ICreateAuditSecurityLog,
 } from "./audit-log.types";
+import type { Business } from "@/modules/business/business.entity";
+import type { User } from "@/modules/user/user.entity";
 
 export class AuditLogRepository {
   constructor(
     private businessLogRepo: Repository<AuditBusinessLog>,
     private securityLogRepo: Repository<AuditSecurityLog>,
-  ) {}
+    private userRepo: Repository<User>,
+    private businessRepo: Repository<Business>,
+  ) { }
 
   async findBusinessById(id: string): Promise<AuditBusinessLog | null> {
     return this.businessLogRepo.findOne({ where: { id } });
@@ -39,16 +43,16 @@ export class AuditLogRepository {
   async create(
     data: ICreateAuditBusinessLog | ICreateAuditSecurityLog,
   ): Promise<AuditBusinessLog | AuditSecurityLog> {
-    if ("businessId" in data) {
+    if ("entityId" in data) {
       const entry = this.businessLogRepo.create({
         businessId: data.businessId,
-        userId: data.userId ?? null,
-        ip: data.ip ?? null,
         entityType: data.entityType,
         entityId: data.entityId,
         action: data.action,
         oldValues: data.oldValues ?? null,
         newValues: data.newValues ?? null,
+        userId: data.userId ?? null,
+        ip: data.ip ?? null,
         result: data.result,
       });
       return this.businessLogRepo.save(entry);
@@ -63,15 +67,24 @@ export class AuditLogRepository {
     }
   }
 
-  async getEntitySnapshot(
-    entityType: string,
-    entityId: string,
-  ): Promise<Record<string, any> | null> {
-    const latestLog = await this.businessLogRepo.findOne({
-      where: { entityType, entityId },
-      order: { createdAt: "DESC" },
-    });
+  async getEntitySnapshot(entityType: string, entityId: string) {
+    switch (entityType) {
+      case "Business":
+        const business = await this.businessRepo.findOne({
+          where: { id: entityId },
+          relations: [], // add any relations you want to include in snapshot
+        });
+        return business ? { ...business } : null;
 
-    return latestLog ? latestLog.newValues : null;
+      case "User":
+        const user = await this.userRepo.findOne({
+          where: { id: entityId },
+        });
+        return user ? { ...user } : null;
+
+      default:
+        return null;
+    }
   }
+
 }

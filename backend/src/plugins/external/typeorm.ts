@@ -123,6 +123,8 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
       new AuditLogRepository(
         dataSource.getRepository(AuditBusinessLog),
         dataSource.getRepository(AuditSecurityLog),
+        dataSource.getRepository(User),
+        dataSource.getRepository(Business)
       ),
     ),
   };
