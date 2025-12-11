@@ -1,4 +1,4 @@
-import { DataSource, Repository } from "typeorm";
+import type { DataSource, Repository } from "typeorm";
 import { AuditBusinessLog } from "./audit-business-log.entity";
 import { AuditSecurityLog } from "./audit-security-log.entity";
 import { User } from "@/modules/user/user.entity";
@@ -15,50 +15,55 @@ import { MenuItemVariation } from "@/modules/menu/menu-item-variation/menu-item-
 import { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product/menu-item-base-product.entity";
 import { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product/menu-item-variation-product.entity";
 
-
 type EntityMap = {
-  "User": typeof User;
-  "Business": typeof Business;
-  "Product": typeof Product;
-  "ProductUnit": typeof ProductUnit;
-  "StockChange": typeof StockChange;
-  "StockLevel": typeof StockLevel;
-  "Country": typeof Country;
-  "Tax": typeof Tax;
-  "MenuItem": typeof MenuItem;
-  "MenuItemCategory": typeof MenuItemCategory;
-  "MenuItemVariation": typeof MenuItemVariation;
-  "MenuItemBaseProduct": typeof MenuItemBaseProduct;
-  "MenuItemVariationProduct": typeof MenuItemVariationProduct;
-  "AuditBusinessLog": typeof AuditBusinessLog;
-  "AuditSecurityLog": typeof AuditSecurityLog;
+  User: typeof User;
+  Business: typeof Business;
+  Product: typeof Product;
+  ProductUnit: typeof ProductUnit;
+  StockChange: typeof StockChange;
+  StockLevel: typeof StockLevel;
+  Country: typeof Country;
+  Tax: typeof Tax;
+  MenuItem: typeof MenuItem;
+  MenuItemCategory: typeof MenuItemCategory;
+  MenuItemVariation: typeof MenuItemVariation;
+  MenuItemBaseProduct: typeof MenuItemBaseProduct;
+  MenuItemVariationProduct: typeof MenuItemVariationProduct;
+  AuditBusinessLog: typeof AuditBusinessLog;
+  AuditSecurityLog: typeof AuditSecurityLog;
 };
 
 const entityClassMap: EntityMap = {
-  "User": User,
-  "Business": Business,
-  "Product": Product,
-  "ProductUnit": ProductUnit,
-  "StockChange": StockChange,
-  "StockLevel": StockLevel,
-  "Country": Country,
-  "Tax": Tax,
-  "MenuItem": MenuItem,
-  "MenuItemCategory": MenuItemCategory,
-  "MenuItemVariation": MenuItemVariation,
-  "MenuItemBaseProduct": MenuItemBaseProduct,
-  "MenuItemVariationProduct": MenuItemVariationProduct,
-  "AuditBusinessLog": AuditBusinessLog,
-  "AuditSecurityLog": AuditSecurityLog,
+  User: User,
+  Business: Business,
+  Product: Product,
+  ProductUnit: ProductUnit,
+  StockChange: StockChange,
+  StockLevel: StockLevel,
+  Country: Country,
+  Tax: Tax,
+  MenuItem: MenuItem,
+  MenuItemCategory: MenuItemCategory,
+  MenuItemVariation: MenuItemVariation,
+  MenuItemBaseProduct: MenuItemBaseProduct,
+  MenuItemVariationProduct: MenuItemVariationProduct,
+  AuditBusinessLog: AuditBusinessLog,
+  AuditSecurityLog: AuditSecurityLog,
 };
 
 export class AuditLogRepository {
   private dataSource: DataSource;
-  constructor(dataSource: DataSource) { this.dataSource = dataSource; }
+  constructor(dataSource: DataSource) {
+    this.dataSource = dataSource;
+  }
 
-  getRepository<T extends keyof EntityMap>(entityName: T): Repository<InstanceType<EntityMap[ T ]>> {
-    const entityClass = entityClassMap[ entityName ];
-    return this.dataSource.getRepository(entityClass) as Repository<InstanceType<EntityMap[ T ]>>;
+  getRepository<T extends keyof EntityMap>(
+    entityName: T,
+  ): Repository<InstanceType<EntityMap[T]>> {
+    const entityClass = entityClassMap[entityName];
+    return this.dataSource.getRepository(entityClass) as Repository<
+      InstanceType<EntityMap[T]>
+    >;
   }
 
   async getEntitySnapshot(entityType: keyof EntityMap, entityId: string) {

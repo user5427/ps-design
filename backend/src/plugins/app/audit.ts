@@ -10,7 +10,9 @@ export default fp(async (fastify: FastifyInstance) => {
     business: async (
       fn: (...args: any[]) => any,
       auditType: any,
-      request: FastifyRequest | FastifyRequest<{ Params: { businessId: string } }>,
+      request:
+        | FastifyRequest
+        | FastifyRequest<{ Params: { businessId: string } }>,
     ) => {
       const userContext = request.user as {
         userId: string;
@@ -72,7 +74,7 @@ export default fp(async (fastify: FastifyInstance) => {
       request: FastifyRequest,
       reply: FastifyReply,
       entityType: string,
-      entityId?: string
+      entityId?: string,
     ) => {
       const businessId = getBusinessId(request, reply);
       if (!businessId) throw new Error("Business ID not found");

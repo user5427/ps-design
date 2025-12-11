@@ -33,7 +33,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   server.get(
     "/",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_READ) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);
@@ -47,7 +47,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateMenuItemCategoryBody }>(
     "/",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_WRITE) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_WRITE)],
       schema: {
         body: CreateMenuItemCategorySchema,
       },
@@ -67,7 +67,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
           AuditActionType.CREATE,
           request,
           reply,
-          "MenuItemCategory"
+          "MenuItemCategory",
         );
 
         const category = await wrapCreateCategory(
@@ -85,7 +85,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   server.get<{ Params: CategoryIdParams }>(
     "/:categoryId",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_READ) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
       schema: {
         params: CategoryIdParam,
       },
@@ -113,7 +113,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   server.put<{ Params: CategoryIdParams; Body: UpdateMenuItemCategoryBody }>(
     "/:categoryId",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_WRITE) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_WRITE)],
       schema: {
         params: CategoryIdParam,
         body: UpdateMenuItemCategorySchema,
@@ -138,7 +138,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
           request,
           reply,
           "MenuItemCategory",
-          categoryId
+          categoryId,
         );
 
         const updated = await wrapUpdateCategory(
@@ -157,7 +157,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   server.post<{ Body: BulkDeleteBody }>(
     "/bulk-delete",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_DELETE) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_DELETE)],
       schema: {
         body: BulkDeleteSchema,
       },
@@ -177,7 +177,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
           AuditActionType.DELETE,
           request,
           reply,
-          "MenuItemCategory"
+          "MenuItemCategory",
         );
         await wrapBulkDeleteCategories(fastify, businessId, request.body.ids);
         return reply.code(httpStatus.NO_CONTENT).send();

@@ -39,7 +39,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.get<{ Querystring: BusinessQuery }>(
     "/",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ)],
       schema: {
         querystring: BusinessQuerySchema,
         response: {
@@ -94,10 +94,13 @@ export default async function businessRoutes(fastify: FastifyInstance) {
         const createBusinessWrapped = await fastify.audit.business(
           createBusiness,
           AuditActionType.CREATE,
-          request
+          request,
         );
 
-        const business = await createBusinessWrapped(fastify, request.body as CreateBusinessBody);
+        const business = await createBusinessWrapped(
+          fastify,
+          request.body as CreateBusinessBody,
+        );
         return reply.code(httpStatus.CREATED).send(business);
       } catch (error) {
         return handleServiceError(error, reply);
@@ -108,7 +111,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.get<{ Params: BusinessIdParams }>(
     "/:businessId",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ)],
       schema: {
         params: BusinessIdParam,
         response: {

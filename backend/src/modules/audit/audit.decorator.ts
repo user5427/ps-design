@@ -20,7 +20,10 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
     let oldValues = null;
 
     if (action !== AuditActionType.CREATE && entityId) {
-      oldValues = await auditLogService.getEntitySnapshot(entityType as any, entityId);
+      oldValues = await auditLogService.getEntitySnapshot(
+        entityType as any,
+        entityId,
+      );
     }
 
     let result: ActionResult = ActionResult.FAILURE;
@@ -37,7 +40,10 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
       result = ActionResult.SUCCESS;
     } finally {
       const newValues = finalEntityId
-        ? await auditLogService.getEntitySnapshot(entityType as any, finalEntityId)
+        ? await auditLogService.getEntitySnapshot(
+            entityType as any,
+            finalEntityId,
+          )
         : null;
 
       await auditLogService.logBusiness({
@@ -95,9 +101,9 @@ export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
     ip: string | null;
   },
 ): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
-
-  const isBusinessAction =
-    Object.values(AuditActionType).includes(auditType as AuditActionType);
+  const isBusinessAction = Object.values(AuditActionType).includes(
+    auditType as AuditActionType,
+  );
 
   if (isBusinessAction) {
     const action = auditType as AuditActionType;
@@ -138,7 +144,10 @@ export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
   }
 
   return auditSecurityWrapper(
-    fn, auditLogService, auditType as AuditSecurityType, params.userId, params.ip
+    fn,
+    auditLogService,
+    auditType as AuditSecurityType,
+    params.userId,
+    params.ip,
   );
 }
-
