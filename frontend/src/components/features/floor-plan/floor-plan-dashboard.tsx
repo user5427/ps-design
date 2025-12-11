@@ -102,7 +102,9 @@ export function FloorPlanDashboard() {
 
     // Optimistic update
     setTables((prev) =>
-      prev.map((t) => (t.id === tableId ? { ...t, reserved: nextReserved } : t)),
+      prev.map((t) =>
+        t.id === tableId ? { ...t, reserved: nextReserved } : t,
+      ),
     );
 
     updateFloorTable.mutate({ tableId, reserved: nextReserved });
@@ -342,9 +344,7 @@ export function FloorPlanDashboard() {
           <Button
             onClick={handleCreateTable}
             variant="contained"
-            disabled={
-              !newTableLabel.trim() || newTableCapacity <= 0
-            }
+            disabled={!newTableLabel.trim() || newTableCapacity <= 0}
           >
             Add
           </Button>
@@ -363,7 +363,11 @@ export function FloorPlanDashboard() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button color="error" variant="contained" onClick={handleConfirmDelete}>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={handleConfirmDelete}
+          >
             Delete
           </Button>
         </DialogActions>

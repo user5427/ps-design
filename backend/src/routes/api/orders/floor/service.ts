@@ -5,7 +5,12 @@ import type {
   FloorTable,
   UpdateFloorTableBody,
 } from "@ps-design/schemas/order/floor";
-import { DiningTable, DiningTableStatus, Order, OrderStatus } from "@/modules/order";
+import {
+  DiningTable,
+  DiningTableStatus,
+  Order,
+  OrderStatus,
+} from "@/modules/order";
 import { ConflictError, NotFoundError } from "@/shared/errors";
 import type { CreateFloorTableBody } from "@ps-design/schemas/order/floor";
 

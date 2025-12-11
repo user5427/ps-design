@@ -46,52 +46,52 @@ export function useUpdateFloorTable() {
   });
 }
 
-  interface CreateFloorTableArgs {
-    label: string;
-    capacity: number;
-  }
+interface CreateFloorTableArgs {
+  label: string;
+  capacity: number;
+}
 
-  export function useCreateFloorTable() {
-    const queryClient = useQueryClient();
+export function useCreateFloorTable() {
+  const queryClient = useQueryClient();
 
-    return useMutation({
-      mutationFn: (data: CreateFloorTableArgs) => createFloorTable(data),
-      onSuccess: (newTable) => {
-        queryClient.setQueryData<FloorPlanResponse | undefined>(
-          floorKeys.floorPlan(),
-          (old) => {
-            if (!old) {
-              return { tables: [newTable] };
-            }
-            return {
-              tables: [...old.tables, newTable],
-            };
-          },
-        );
-      },
-    });
-  }
+  return useMutation({
+    mutationFn: (data: CreateFloorTableArgs) => createFloorTable(data),
+    onSuccess: (newTable) => {
+      queryClient.setQueryData<FloorPlanResponse | undefined>(
+        floorKeys.floorPlan(),
+        (old) => {
+          if (!old) {
+            return { tables: [newTable] };
+          }
+          return {
+            tables: [...old.tables, newTable],
+          };
+        },
+      );
+    },
+  });
+}
 
-  interface DeleteFloorTableArgs {
-    tableId: string;
-  }
+interface DeleteFloorTableArgs {
+  tableId: string;
+}
 
-  export function useDeleteFloorTable() {
-    const queryClient = useQueryClient();
+export function useDeleteFloorTable() {
+  const queryClient = useQueryClient();
 
-    return useMutation({
-      mutationFn: ({ tableId }: DeleteFloorTableArgs) =>
-        deleteFloorTable(tableId),
-      onSuccess: (_, { tableId }) => {
-        queryClient.setQueryData<FloorPlanResponse | undefined>(
-          floorKeys.floorPlan(),
-          (old) => {
-            if (!old) return old;
-            return {
-              tables: old.tables.filter((t) => t.id !== tableId),
-            };
-          },
-        );
-      },
-    });
-  }
+  return useMutation({
+    mutationFn: ({ tableId }: DeleteFloorTableArgs) =>
+      deleteFloorTable(tableId),
+    onSuccess: (_, { tableId }) => {
+      queryClient.setQueryData<FloorPlanResponse | undefined>(
+        floorKeys.floorPlan(),
+        (old) => {
+          if (!old) return old;
+          return {
+            tables: old.tables.filter((t) => t.id !== tableId),
+          };
+        },
+      );
+    },
+  });
+}
