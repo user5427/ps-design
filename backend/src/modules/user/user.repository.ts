@@ -3,7 +3,7 @@ import type { User } from "./user.entity";
 import type { IAuthUser, ICreateUser, IUpdateUser } from "./user.types";
 
 export class UserRepository {
-  constructor(private repository: Repository<User>) { }
+  constructor(private repository: Repository<User>) {}
 
   async findAll(): Promise<User[]> {
     return this.repository.find({
@@ -21,8 +21,8 @@ export class UserRepository {
   async findByIdForAuth(id: string): Promise<IAuthUser | null> {
     const user = await this.repository.findOne({
       where: { id, deletedAt: IsNull() },
-      select: [ "id", "email", "businessId", "isPasswordResetRequired" ],
-      relations: [ "roles" ],
+      select: ["id", "email", "businessId", "isPasswordResetRequired"],
+      relations: ["roles"],
     });
     if (!user) {
       return null;

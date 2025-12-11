@@ -119,7 +119,12 @@ export default async function businessRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
-        const createBusinessWrapped = await createAuditWrapper(createBusiness, AuditActionType.CREATE, request, reply);
+        const createBusinessWrapped = await createAuditWrapper(
+          createBusiness,
+          AuditActionType.CREATE,
+          request,
+          reply,
+        );
 
         const business = await createBusinessWrapped(fastify, request.body);
         return reply.code(httpStatus.CREATED).send(business);
@@ -182,7 +187,12 @@ export default async function businessRoutes(fastify: FastifyInstance) {
     ) => {
       try {
         const { businessId } = request.params;
-        const updateBusinessWrapped = await createAuditWrapper(updateBusiness, AuditActionType.UPDATE, request, reply);
+        const updateBusinessWrapped = await createAuditWrapper(
+          updateBusiness,
+          AuditActionType.UPDATE,
+          request,
+          reply,
+        );
 
         const updated = await updateBusinessWrapped(
           fastify,
@@ -219,7 +229,12 @@ export default async function businessRoutes(fastify: FastifyInstance) {
     ) => {
       try {
         const { businessId } = request.params;
-        const deleteBusinessWrapped = await createAuditWrapper(deleteBusiness, AuditActionType.DELETE, request, reply);
+        const deleteBusinessWrapped = await createAuditWrapper(
+          deleteBusiness,
+          AuditActionType.DELETE,
+          request,
+          reply,
+        );
 
         await deleteBusinessWrapped(fastify, businessId);
         return reply.send({ success: true });

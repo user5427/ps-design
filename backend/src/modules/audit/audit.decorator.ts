@@ -58,9 +58,7 @@ export function auditSecurityWrapper<
   userId: string,
   ip: string | null,
 ): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
-  return async (
-    ...args: Parameters<T>
-  ): Promise<Awaited<ReturnType<T>>> => {
+  return async (...args: Parameters<T>): Promise<Awaited<ReturnType<T>>> => {
     let result: ActionResult = ActionResult.FAILURE;
     try {
       const res = await fn(...args);
