@@ -3,9 +3,9 @@ import {
   Box,
   Button,
   Stack,
+  TextField,
 } from "@mui/material";
-import type { FormFieldDefinition } from "@/components/elements/form";
-import { FormModal, ValidationRules } from "@/components/elements/form";
+import { FormModal } from "@/components/elements/form";
 import {
   useCreateProductUnit,
   useBulkDeleteProductUnits,
@@ -28,26 +28,6 @@ export const ProductUnitsListView = () => {
     isOpen: false,
     mode: "create",
   });
-
-  const formFields: FormFieldDefinition[] = [
-    {
-      name: "name",
-      label: "Name",
-      type: "text",
-      required: true,
-      validationRules: [
-        ValidationRules.minLength(1),
-        ValidationRules.maxLength(100),
-      ],
-    },
-    {
-      name: "symbol",
-      label: "Symbol",
-      type: "text",
-      placeholder: "e.g., kg, pcs, L",
-      validationRules: [ValidationRules.maxLength(10)],
-    },
-  ];
 
   const handleCreateSubmit = async (values: Record<string, unknown>) => {
     await createMutation.mutateAsync({
@@ -105,18 +85,87 @@ export const ProductUnitsListView = () => {
         open={formState.isOpen && formState.mode === "create"}
         onClose={handleCloseForm}
         title={`Create ${PRODUCT_UNIT_MAPPING.displayName}`}
-        fields={formFields}
+        initialValues={{ name: "", symbol: "" }}
         onSubmit={handleCreateSubmit}
-      />
+      >
+        {(form) => (
+          <>
+            <form.Field
+              name="name"
+              children={(field: any) => (
+                <TextField
+                  fullWidth
+                  label="Name"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  error={!!field.state.meta.errors.length}
+                  helperText={field.state.meta.errors[0]}
+                  required
+                />
+              )}
+            />
+            <form.Field
+              name="symbol"
+              children={(field: any) => (
+                <TextField
+                  fullWidth
+                  label="Symbol"
+                  placeholder="e.g., kg, pcs, L"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  error={!!field.state.meta.errors.length}
+                  helperText={field.state.meta.errors[0]}
+                />
+              )}
+            />
+          </>
+        )}
+      </FormModal>
 
       <FormModal
         open={formState.isOpen && formState.mode === "edit"}
         onClose={handleCloseForm}
         title={`Edit ${PRODUCT_UNIT_MAPPING.displayName}`}
-        fields={formFields}
-        initialValues={formState.data}
+        initialValues={formState.data || { name: "", symbol: "" }}
         onSubmit={handleEditSubmit}
-      />
+      >
+        {(form) => (
+          <>
+            <form.Field
+              name="name"
+              children={(field: any) => (
+                <TextField
+                  fullWidth
+                  label="Name"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  error={!!field.state.meta.errors.length}
+                  helperText={field.state.meta.errors[0]}
+                  required
+                />
+              )}
+            />
+            <form.Field
+              name="symbol"
+              children={(field: any) => (
+                <TextField
+                  fullWidth
+                  label="Symbol"
+                  placeholder="e.g., kg, pcs, L"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  error={!!field.state.meta.errors.length}
+                  helperText={field.state.meta.errors[0]}
+                />
+              )}
+            />
+          </>
+        )}
+      </FormModal>
     </Stack>
   );
 };

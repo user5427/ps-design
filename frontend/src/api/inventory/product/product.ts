@@ -7,7 +7,7 @@ import type {
 
 export async function getProduct(id: string): Promise<ProductResponse> {
   const response = await apiClient.get<ProductResponse>(
-    `/inventory/products/${id}`,
+    `/inventory/product/${id}`,
   );
   return response.data;
 }
@@ -16,7 +16,7 @@ export async function createProduct(
   data: CreateProductBody,
 ): Promise<ProductResponse> {
   const response = await apiClient.post<ProductResponse>(
-    "/inventory/products/",
+    "/inventory/product/",
     data,
   );
   return response.data;
@@ -27,12 +27,12 @@ export async function updateProduct(
   data: UpdateProductBody,
 ): Promise<ProductResponse> {
   const response = await apiClient.put<ProductResponse>(
-    `/inventory/products/${id}`,
+    `/inventory/product/${id}`,
     data,
   );
   return response.data;
 }
 
 export async function bulkDeleteProducts(ids: string[]): Promise<void> {
-  await apiClient.post("/inventory/products/bulk-delete", { ids });
+  await apiClient.post("/inventory/product/bulk-delete", { ids });
 }

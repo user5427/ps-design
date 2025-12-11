@@ -3,9 +3,9 @@ import {
   Box,
   Button,
   Stack,
+  TextField,
 } from "@mui/material";
-import type { FormFieldDefinition } from "@/components/elements/form";
-import { FormModal, ValidationRules } from "@/components/elements/form";
+import { FormModal } from "@/components/elements/form";
 import {
   useDeleteBusiness,
   useCreateBusiness,
@@ -28,19 +28,6 @@ export const BusinessList: React.FC = () => {
     isOpen: false,
     mode: "create",
   });
-
-  const formFields: FormFieldDefinition[] = [
-    {
-      name: "name",
-      label: "Name",
-      type: "text",
-      required: true,
-      validationRules: [
-        ValidationRules.minLength(1),
-        ValidationRules.maxLength(100),
-      ],
-    },
-  ];
 
   const handleCreateSubmit = async (values: Record<string, unknown>) => {
     await createMutation.mutateAsync({
@@ -96,18 +83,53 @@ export const BusinessList: React.FC = () => {
         open={formState.isOpen && formState.mode === "create"}
         onClose={handleCloseForm}
         title="Create Business"
-        fields={formFields}
+        initialValues={{ name: "" }}
         onSubmit={handleCreateSubmit}
-      />
+      >
+        {(form: any) => (
+          <form.Field
+            name="name"
+            children={(field: any) => (
+              <TextField
+                fullWidth
+                label="Name"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                onBlur={field.handleBlur}
+                error={!!field.state.meta.errors.length}
+                helperText={field.state.meta.errors[0]}
+                required
+              />
+            )}
+          />
+        )}
+      </FormModal>
 
       <FormModal
         open={formState.isOpen && formState.mode === "edit"}
         onClose={handleCloseForm}
         title="Edit Business"
-        fields={formFields}
-        initialValues={formState.data}
+        initialValues={{ name: formState.data?.name || "" }}
         onSubmit={handleEditSubmit}
-      />
+      >
+        {(form: any) => (
+          <form.Field
+            name="name"
+            children={(field: any) => (
+              <TextField
+                fullWidth
+                label="Name"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                onBlur={field.handleBlur}
+                error={!!field.state.meta.errors.length}
+                helperText={field.state.meta.errors[0]}
+                required
+              />
+            )}
+          />
+        )}
+      </FormModal>
     </Stack>
   );
 };

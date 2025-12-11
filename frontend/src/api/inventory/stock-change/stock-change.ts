@@ -8,7 +8,7 @@ export async function createStockChange(
   data: CreateStockChangeBody,
 ): Promise<StockChangeResponse> {
   const response = await apiClient.post<StockChangeResponse>(
-    "/inventory/stock/changes",
+    "/inventory/stock-change/",
     data,
   );
   return response.data;

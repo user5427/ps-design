@@ -6,9 +6,9 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  TextField,
 } from "@mui/material";
-import type { FormFieldDefinition } from "@/components/elements/form";
-import { FormModal, ValidationRules } from "@/components/elements/form";
+import { FormModal } from "@/components/elements/form";
 import {
   useCreateProduct,
   useBulkDeleteProducts,
@@ -36,40 +36,6 @@ export const ProductsListView = () => {
   const [unitSelectOpen, setUnitSelectOpen] = useState(false);
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [selectedUnitLabel, setSelectedUnitLabel] = useState<string>("");
-
-  const formFields: FormFieldDefinition[] = [
-    {
-      name: "name",
-      label: "Name",
-      type: "text",
-      required: true,
-      validationRules: [
-        ValidationRules.minLength(1),
-        ValidationRules.maxLength(100),
-      ],
-    },
-    {
-      name: "description",
-      label: "Description",
-      type: "textarea",
-    },
-    {
-      name: "productUnitId",
-      label: "Unit",
-      type: "text",
-      required: true,
-      placeholder: "Click button to select...",
-    },
-  ];
-
-  const editFormFields: FormFieldDefinition[] = [
-    ...formFields,
-    {
-      name: "isDisabled",
-      label: "Disabled",
-      type: "checkbox",
-    },
-  ];
 
   const handleCreateSubmit = async (values: Record<string, unknown>) => {
     if (!selectedUnitId) {
@@ -145,26 +111,171 @@ export const ProductsListView = () => {
         open={formState.isOpen && formState.mode === "create"}
         onClose={handleCloseForm}
         title={`Create ${PRODUCT_MAPPING.displayName}`}
-        fields={formFields}
         initialValues={{
+          name: "",
+          description: "",
           productUnitId: selectedUnitLabel,
         }}
         onSubmit={handleCreateSubmit}
-      />
+      >
+        {(form: any) => (
+          <>
+            <form.Field
+              name="name"
+              children={(field: any) => (
+                <TextField
+                  fullWidth
+                  label="Name"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  error={!!field.state.meta.errors.length}
+                  helperText={field.state.meta.errors[0]}
+                  required
+                />
+              )}
+            />
+            <form.Field
+              name="description"
+              children={(field: any) => (
+                <TextField
+                  fullWidth
+                  label="Description"
+                  multiline
+                  rows={3}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  error={!!field.state.meta.errors.length}
+                  helperText={field.state.meta.errors[0]}
+                />
+              )}
+            />
+            <form.Field
+              name="productUnitId"
+              children={(field: any) => (
+                <TextField
+                  fullWidth
+                  label="Unit"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder="Click 'Select Unit' button"
+                  error={!!field.state.meta.errors.length}
+                  helperText={field.state.meta.errors[0] || "Select a unit"}
+                  slotProps={{
+                    input: {
+                      readOnly: true,
+                    },
+                  }}
+                  required
+                />
+              )}
+            />
+            <Button
+              variant="outlined"
+              onClick={() => setUnitSelectOpen(true)}
+              fullWidth
+            >
+              Select Unit
+            </Button>
+          </>
+        )}
+      </FormModal>
 
       <FormModal
         open={formState.isOpen && formState.mode === "edit"}
         onClose={handleCloseForm}
         title={`Edit ${PRODUCT_MAPPING.displayName}`}
-        fields={editFormFields}
         initialValues={{
-          ...formState.data,
-          productUnitId: selectedUnitLabel || (formState.data as any)?.productUnit?.name,
+          name: formState.data?.name || "",
+          description: formState.data?.description || "",
+          productUnitId: selectedUnitLabel || (formState.data as any)?.productUnit?.name || "",
+          isDisabled: formState.data?.isDisabled || false,
         }}
         onSubmit={handleEditSubmit}
-      />
+      >
+        {(form: any) => (
+          <>
+            <form.Field
+              name="name"
+              children={(field: any) => (
+                <TextField
+                  fullWidth
+                  label="Name"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  error={!!field.state.meta.errors.length}
+                  helperText={field.state.meta.errors[0]}
+                  required
+                />
+              )}
+            />
+            <form.Field
+              name="description"
+              children={(field: any) => (
+                <TextField
+                  fullWidth
+                  label="Description"
+                  multiline
+                  rows={3}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  error={!!field.state.meta.errors.length}
+                  helperText={field.state.meta.errors[0]}
+                />
+              )}
+            />
+            <form.Field
+              name="productUnitId"
+              children={(field: any) => (
+                <TextField
+                  fullWidth
+                  label="Unit"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder="Click 'Select Unit' button"
+                  error={!!field.state.meta.errors.length}
+                  helperText={field.state.meta.errors[0] || "Select a unit"}
+                  slotProps={{
+                    input: {
+                      readOnly: true,
+                    },
+                  }}
+                  required
+                />
+              )}
+            />
+            <Button
+              variant="outlined"
+              onClick={() => setUnitSelectOpen(true)}
+              fullWidth
+            >
+              Select Unit
+            </Button>
+            <form.Field
+              name="isDisabled"
+              children={(field: any) => (
+                <Box sx={{ mt: 2 }}>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={!!field.state.value}
+                      onChange={(e) => field.handleChange(e.target.checked)}
+                      onBlur={field.handleBlur}
+                    />
+                    Disabled
+                  </label>
+                </Box>
+              )}
+            />
+          </>
+        )}
+      </FormModal>
 
-      {/* Unit Selection Dialog */}
       <Dialog
         open={unitSelectOpen}
         onClose={() => setUnitSelectOpen(false)}
@@ -181,17 +292,6 @@ export const ProductsListView = () => {
           </Box>
         </DialogContent>
       </Dialog>
-
-      {/* Button to open unit selector - shown in form context */}
-      {formState.isOpen && (
-        <Button
-          variant="outlined"
-          onClick={() => setUnitSelectOpen(true)}
-          sx={{ mt: 2 }}
-        >
-          Select Unit
-        </Button>
-      )}
     </Stack>
   );
 };

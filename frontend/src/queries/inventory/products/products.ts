@@ -4,7 +4,7 @@ import {
   createProduct,
   updateProduct,
   bulkDeleteProducts,
-} from "@/api/inventory/products";
+} from "@/api/inventory/product";
 import type {
   CreateProductBody,
   UpdateProductBody,

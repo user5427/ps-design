@@ -7,7 +7,7 @@ export async function getStockLevel(
   productId: string,
 ): Promise<StockLevelResponse> {
   const response = await apiClient.get<StockLevelResponse>(
-    `/inventory/stock/${productId}`,
+    `/inventory/stock-level/${productId}`,
   );
   return response.data;
 }
