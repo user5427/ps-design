@@ -1,6 +1,4 @@
 export {
-  createEntityMapping,
-  getFieldMappings,
   type FieldConfig,
   type FieldMapping,
   type EntityMapping,

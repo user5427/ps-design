@@ -1,5 +1,5 @@
 {
-  "name": "@ps-design/schemas",
+  "name": "@ps-design/common",
   "version": "1.0.0",
   "description": "Shared Zod schemas for PS Design application",
   "private": true,

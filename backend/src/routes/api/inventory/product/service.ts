@@ -7,7 +7,7 @@ import type {
 } from "@ps-design/schemas/inventory/product";
 import { ProductResponseSchema } from "@ps-design/schemas/inventory/product";
 import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
-import type { Product } from "../../../../modules/inventory/product/product.entity";
+import type { Product } from "@/modules/inventory/product/product.entity";
 
 function toProductResponse(product: Product): ProductResponse {
   return {

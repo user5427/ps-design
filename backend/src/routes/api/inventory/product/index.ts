@@ -190,7 +190,7 @@ export default async function productsRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        await bulkDeleteUnits(fastify, businessId, request.body.ids);
+        await bulkDeleteUnits(fastify, businessId, (request.body as BulkDeleteBody).ids);
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);

@@ -16,7 +16,7 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["./src/*"],
-      "@ps-design/*": ["../schemas/dist/*"]
+      "@ps-design/*": ["../common/dist/*"]
     }
   },
   "include": ["src/**/*"],

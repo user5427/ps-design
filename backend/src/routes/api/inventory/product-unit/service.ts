@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import type { ProductUnit } from "../../../../modules/inventory/product-unit/product-unit.entity";
+import type { ProductUnit } from "@/modules/inventory/product-unit/product-unit.entity";
 import type {
   ProductUnitResponse,
   PaginatedProductUnitResponse,

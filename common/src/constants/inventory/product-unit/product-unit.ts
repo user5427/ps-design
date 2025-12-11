@@ -1,15 +1,15 @@
-import { createEntityMapping } from "../../../utils/field-mapping-builder";
+import { EntityMapping } from "../../../utils/field-mapping-builder";
 
 /**
  * Complete mapping for Product Unit entity including fields, display names, and API endpoint
  */
-export const PRODUCT_UNIT_MAPPING = createEntityMapping(
-  {
+export const PRODUCT_UNIT_MAPPING: EntityMapping = {
+  fields: {
     name: { column: "unit.name", type: "string", displayName: "Unit Name" },
     symbol: { column: "unit.symbol", type: "string", displayName: "Symbol" },
     createdAt: { column: "unit.createdAt", type: "date", displayName: "Created" },
     updatedAt: { column: "unit.updatedAt", type: "date", displayName: "Updated" },
   },
-  "/inventory/product-unit",
-  "Product Unit"
-);
+  endpoint: "/inventory/product-unit",
+  displayName: "Product Unit"
+};

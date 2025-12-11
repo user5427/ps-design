@@ -6,7 +6,7 @@ import {
 } from "typeorm";
 import { BadRequestError, NotFoundError } from "@/shared/errors";
 import { executePaginatedQuery } from "@/shared/pagination-utils";
-import { STOCK_CHANGE_MAPPING } from "@ps-design/constants/inventory";
+import { STOCK_CHANGE_MAPPING } from "@ps-design/constants/inventory/stock-change";
 import type { Product } from "@/modules/inventory/product/product.entity";
 import { StockLevel } from "@/modules/inventory/stock-level/stock-level.entity";
 import { StockChange } from "./stock-change.entity";

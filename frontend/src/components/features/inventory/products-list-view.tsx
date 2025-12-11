@@ -15,7 +15,8 @@ import {
   useUpdateProduct,
 } from "@/queries/inventory/products";
 import { SmartPaginationList } from "@/components/elements/pagination";
-import { PRODUCT_MAPPING, PRODUCT_UNIT_MAPPING } from "@ps-design/constants/inventory";
+import { PRODUCT_MAPPING } from "@ps-design/constants/inventory/product";
+import { PRODUCT_UNIT_MAPPING } from "@ps-design/constants/inventory/product-unit";
 import type { ProductResponse } from "@ps-design/schemas/inventory/product";
 
 export const ProductsListView = () => {
