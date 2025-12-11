@@ -11,6 +11,6 @@ export const PRODUCT_MAPPING = createEntityMapping(
     createdAt: { column: "product.createdAt", type: "date", displayName: "Created" },
     updatedAt: { column: "product.updatedAt", type: "date", displayName: "Updated" },
   },
-  "/inventory/products",
+  "/inventory/product",
   "Product"
 );

@@ -9,6 +9,6 @@ export const STOCK_LEVEL_MAPPING = createEntityMapping(
     totalQuantity: { column: "level.quantity", type: "number", displayName: "Quantity" },
     isDisabled: { column: "product.isDisabled", type: "boolean", displayName: "Disabled" },
   },
-  "/inventory/stock-levels",
+  "/inventory/stock-level",
   "Stock Level"
 );

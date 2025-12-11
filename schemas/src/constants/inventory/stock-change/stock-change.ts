@@ -10,6 +10,6 @@ export const STOCK_CHANGE_MAPPING = createEntityMapping(
     createdAt: { column: "change.createdAt", type: "date", displayName: "Created" },
     updatedAt: { column: "change.updatedAt", type: "date", displayName: "Updated" },
   },
-  "/inventory/stock-changes",
+  "/inventory/stock-change",
   "Stock Change"
 );

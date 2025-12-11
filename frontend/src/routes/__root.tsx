@@ -5,7 +5,8 @@ import {
   Outlet,
   useLocation,
 } from "@tanstack/react-router";
-import { refreshToken } from "@/api/auth";
+import { useEffect } from "react";
+import { useRefreshToken } from "@/queries/auth";
 import { MainLayout, PublicLayout } from "@/components/layouts";
 import { AppBar } from "@/components/layouts/app-bar/app-bar";
 import { AppBarData } from "@/constants/app-bar";
@@ -16,27 +17,31 @@ interface RouterContext {
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-  beforeLoad: async () => {
-    const store = useAuthStore.getState();
-
-    // Only attempt refresh token on first load
-    if (!store.isAuthInitialized()) {
-      try {
-        const { accessToken } = await refreshToken();
-        store.setAccessToken(accessToken);
-      } catch (error) {
-        console.error("Failed to refresh token:", error);
-        store.setAccessToken(null);
-      } finally {
-        store.setInitialized(true);
-      }
-    }
-  },
   component: RootComponent,
 });
 
 function RootComponent() {
   const location = useLocation();
+  const store = useAuthStore();
+  const refreshTokenMutation = useRefreshToken();
+
+  useEffect(() => {
+    // Only attempt refresh token on first load
+    if (!store.isAuthInitialized()) {
+      refreshTokenMutation.mutate(undefined, {
+        onSuccess: (data) => {
+          store.setAccessToken(data.accessToken);
+          store.setInitialized(true);
+        },
+        onError: (error) => {
+          console.error("Failed to refresh token:", error);
+          store.setAccessToken(null);
+          store.setInitialized(true);
+        },
+      });
+    }
+  }, []);
+
   const isPublicRoute = ["/", "/auth/login", "/auth/change-password"].includes(
     location.pathname,
   );

@@ -1,5 +1,5 @@
 import { AutoRecordListView } from "@/components/elements/record-list-view";
-import { PRODUCT_MAPPING } from "@ps-design/constants/inventory";
+import { PRODUCT_MAPPING } from "@ps-design/constants/inventory/product";
 import {
   useCreateProduct,
   useBulkDeleteProducts,

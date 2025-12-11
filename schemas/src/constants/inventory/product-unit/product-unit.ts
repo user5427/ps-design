@@ -10,6 +10,6 @@ export const PRODUCT_UNIT_MAPPING = createEntityMapping(
     createdAt: { column: "unit.createdAt", type: "date", displayName: "Created" },
     updatedAt: { column: "unit.updatedAt", type: "date", displayName: "Updated" },
   },
-  "/inventory/units",
+  "/inventory/product-unit",
   "Product Unit"
 );
