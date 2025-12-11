@@ -50,16 +50,16 @@ export const ServiceDefinitionsListView = () => {
         size: 300,
         Cell: ({ cell }) => {
           const value = cell.getValue<string | null>();
-          return value || "-";
+          return value?.slice(0, 100) || "";
         },
       },
       {
-        accessorKey: "category.name",
+        accessorKey: "category",
         header: "Category",
         size: 150,
         Cell: ({ row }) => {
           const category = row.original.category;
-          return category ? category.name : "-";
+          return category ? category.name : "";
         },
       },
       {

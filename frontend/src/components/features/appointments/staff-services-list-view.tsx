@@ -26,8 +26,12 @@ export const StaffServicesListView = () => {
     error,
     refetch,
   } = useStaffServices();
-  const { data: serviceDefinitions = [] } = useServiceDefinitions({ active: true });
-  const { data: businessUsers = [] } = useBusinessUsers(user?.businessId ?? undefined);
+  const { data: serviceDefinitions = [] } = useServiceDefinitions({
+    active: true,
+  });
+  const { data: businessUsers = [] } = useBusinessUsers(
+    user?.businessId ?? undefined,
+  );
   const createMutation = useCreateStaffService();
   const updateMutation = useUpdateStaffService();
   const bulkDeleteMutation = useBulkDeleteStaffServices();
@@ -56,19 +60,19 @@ export const StaffServicesListView = () => {
         accessorKey: "employee.name",
         header: "Employee",
         size: 150,
-        Cell: ({ row }) => row.original.employee?.name || "-",
+        Cell: ({ row }) => row.original.employee?.name || "",
       },
       {
         accessorKey: "serviceDefinition.name",
         header: "Service",
         size: 200,
-        Cell: ({ row }) => row.original.serviceDefinition?.name || "-",
+        Cell: ({ row }) => row.original.serviceDefinition?.name || "",
       },
       {
-        accessorKey: "serviceDefinition.category.name",
+        accessorKey: "serviceDefinition.category",
         header: "Category",
         size: 150,
-        Cell: ({ row }) => row.original.serviceDefinition?.category?.name || "-",
+        Cell: ({ row }) => row.original.serviceDefinition?.category?.name || "",
       },
       {
         accessorKey: "price",
