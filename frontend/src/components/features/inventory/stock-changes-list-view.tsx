@@ -8,11 +8,10 @@ import {
 import type { FormFieldDefinition, ValidationRule } from "@/components/elements/form";
 import { FormModal } from "@/components/elements/form";
 import {
-  useCreateStockChange,
   useProducts,
-  useStockChanges,
-} from "@/hooks/inventory";
-import type { StockChange, StockChangeType } from "@/schemas/inventory";
+} from "@/queries/inventory/products";
+import type { StockChange, StockChangeType } from "@/schemas/inventory/stock-change";
+import { useCreateStockChange, useStockChanges } from "@/queries/inventory/stock-change";
 
 const stockChangeTypeColors: Record<
   StockChangeType,

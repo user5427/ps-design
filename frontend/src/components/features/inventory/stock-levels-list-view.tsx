@@ -3,8 +3,8 @@ import {
   Box,
   Stack,
 } from "@mui/material";
-import { useStockLevels } from "@/hooks/inventory";
-import type { StockLevel } from "@/schemas/inventory/";
+import type { StockLevel } from "@/schemas/inventory/stock-level";
+import { useStockLevels } from "@/queries/inventory/stock-level";
 
 export const StockLevelsListView = () => {
   const { data: stockLevels = [] } = useStockLevels();

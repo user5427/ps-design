@@ -11,8 +11,8 @@ import {
   useBulkDeleteProductUnits,
   useProductUnits,
   useUpdateProductUnit,
-} from "@/queries/inventory/products";
-import type { ProductUnit } from "@/schemas/inventory";
+} from "@/queries/inventory/product-unit";
+import type { ProductUnit } from "@/schemas/inventory/product-unit";
 
 export const ProductUnitsListView = () => {
   const { data: units = [], refetch } = useProductUnits();

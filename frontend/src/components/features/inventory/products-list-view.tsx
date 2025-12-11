@@ -10,11 +10,11 @@ import { FormModal, ValidationRules } from "@/components/elements/form";
 import {
   useCreateProduct,
   useBulkDeleteProducts,
-  useProductUnits,
   useProducts,
   useUpdateProduct,
-} from "@/hooks/inventory";
+} from "@/queries/inventory/products";
 import type { Product } from "@/schemas/inventory";
+import { useProductUnits } from "@/queries/inventory/product-unit";
 
 export const ProductsListView = () => {
   const { data: products = [], refetch } = useProducts();

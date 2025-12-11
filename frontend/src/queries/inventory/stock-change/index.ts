@@ -1,6 +1,4 @@
 export {
-    useStockLevels,
-    useStockLevel,
     useStockChanges,
     useCreateStockChange,
-} from "./stock";
+} from "./stock-change";
