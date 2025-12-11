@@ -98,9 +98,9 @@ export const sidebarSections: Section[] = [
         path: URLS.APPOINTMENTS_SERVICE_DEFINITIONS,
       },
       {
-        label: "Employees",
+        label: "Staff Services",
         icon: <PersonIcon />,
-        path: URLS.APPOINTMENTS_EMPLOYEES,
+        path: URLS.APPOINTMENTS_STAFF_SERVICES,
       },
     ],
   },

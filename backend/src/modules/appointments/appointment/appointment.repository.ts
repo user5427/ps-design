@@ -1,0 +1,273 @@
+import {
+  In,
+  IsNull,
+  type Repository,
+  type DataSource,
+  Between,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  And,
+  Not,
+  Raw,
+} from "typeorm";
+import { BadRequestError, ConflictError, NotFoundError } from "@/shared/errors";
+import type { StaffService } from "@/modules/appointments/staff-service/staff-service.entity";
+import type { Availability } from "@/modules/appointments/availability/availability.entity";
+import type { Appointment, AppointmentStatus } from "./appointment.entity";
+import type {
+  ICreateAppointment,
+  IUpdateAppointment,
+  IAppointmentFilter,
+} from "./appointment.types";
+
+const APPOINTMENT_RELATIONS = [
+  "service",
+  "service.employee",
+  "service.serviceDefinition",
+  "service.serviceDefinition.category",
+];
+
+export class AppointmentRepository {
+  constructor(
+    private dataSource: DataSource,
+    private repository: Repository<Appointment>,
+    private staffServiceRepository: Repository<StaffService>,
+    private availabilityRepository: Repository<Availability>,
+  ) {}
+
+  async findAllByBusinessId(
+    businessId: string,
+    filter?: IAppointmentFilter,
+  ): Promise<Appointment[]> {
+    const queryBuilder = this.repository
+      .createQueryBuilder("appointment")
+      .leftJoinAndSelect("appointment.service", "service")
+      .leftJoinAndSelect("service.employee", "employee")
+      .leftJoinAndSelect("service.serviceDefinition", "serviceDefinition")
+      .leftJoinAndSelect("serviceDefinition.category", "category")
+      .where("appointment.businessId = :businessId", { businessId })
+      .andWhere("appointment.deletedAt IS NULL");
+
+    if (filter?.serviceId) {
+      queryBuilder.andWhere("appointment.serviceId = :serviceId", {
+        serviceId: filter.serviceId,
+      });
+    }
+
+    if (filter?.employeeId) {
+      queryBuilder.andWhere("service.employeeId = :employeeId", {
+        employeeId: filter.employeeId,
+      });
+    }
+
+    if (filter?.status && filter.status.length > 0) {
+      queryBuilder.andWhere("appointment.status IN (:...status)", {
+        status: filter.status,
+      });
+    }
+
+    if (filter?.startTimeFrom) {
+      queryBuilder.andWhere("appointment.startTime >= :startTimeFrom", {
+        startTimeFrom: filter.startTimeFrom,
+      });
+    }
+
+    if (filter?.startTimeTo) {
+      queryBuilder.andWhere("appointment.startTime <= :startTimeTo", {
+        startTimeTo: filter.startTimeTo,
+      });
+    }
+
+    queryBuilder.orderBy("appointment.startTime", "DESC");
+
+    return queryBuilder.getMany();
+  }
+
+  async findById(id: string): Promise<Appointment | null> {
+    return this.repository.findOne({
+      where: { id, deletedAt: IsNull() },
+      relations: APPOINTMENT_RELATIONS,
+    });
+  }
+
+  async findByIdAndBusinessId(
+    id: string,
+    businessId: string,
+  ): Promise<Appointment | null> {
+    return this.repository.findOne({
+      where: { id, businessId, deletedAt: IsNull() },
+      relations: APPOINTMENT_RELATIONS,
+    });
+  }
+
+  async getById(id: string, businessId: string): Promise<Appointment> {
+    const appointment = await this.findByIdAndBusinessId(id, businessId);
+    if (!appointment) {
+      throw new NotFoundError("Appointment not found");
+    }
+    return appointment;
+  }
+
+  async create(data: ICreateAppointment): Promise<Appointment> {
+    // Validate staff service exists
+    const staffService = await this.staffServiceRepository.findOne({
+      where: { id: data.serviceId, businessId: data.businessId, deletedAt: IsNull() },
+    });
+
+    if (!staffService) {
+      throw new BadRequestError("Invalid service");
+    }
+
+    // Validate block duration is at least base duration
+    if (data.blockDuration < staffService.baseDuration) {
+      throw new BadRequestError(
+        `Block duration must be at least ${staffService.baseDuration} minutes`,
+      );
+    }
+
+    // Check for overlapping appointments
+    await this.checkForOverlap(
+      data.serviceId,
+      data.startTime,
+      data.blockDuration,
+    );
+
+    return await this.dataSource.transaction(async (manager) => {
+      const appointment = manager.create(this.repository.target, {
+        customerName: data.customerName,
+        customerPhone: data.customerPhone ?? null,
+        customerEmail: data.customerEmail ?? null,
+        startTime: data.startTime,
+        blockDuration: data.blockDuration,
+        notes: data.notes ?? null,
+        status: "RESERVED" as AppointmentStatus,
+        businessId: data.businessId,
+        serviceId: data.serviceId,
+        createdById: data.createdById,
+      });
+
+      const saved = await manager.save(appointment);
+      return (await this.findById(saved.id))!;
+    });
+  }
+
+  async update(
+    id: string,
+    businessId: string,
+    data: IUpdateAppointment,
+  ): Promise<Appointment> {
+    const appointment = await this.findByIdAndBusinessId(id, businessId);
+    if (!appointment) {
+      throw new NotFoundError("Appointment not found");
+    }
+
+    if (appointment.status === "CANCELLED") {
+      throw new BadRequestError("Cannot update a cancelled appointment");
+    }
+
+    // If updating time or duration, check for overlaps
+    if (data.startTime !== undefined || data.blockDuration !== undefined) {
+      const newStartTime = data.startTime ?? appointment.startTime;
+      const newDuration = data.blockDuration ?? appointment.blockDuration;
+
+      await this.checkForOverlap(
+        appointment.serviceId,
+        newStartTime,
+        newDuration,
+        id,
+      );
+    }
+
+    await this.repository.update(id, data);
+    return (await this.findById(id))!;
+  }
+
+  async updateStatus(
+    id: string,
+    businessId: string,
+    status: AppointmentStatus,
+  ): Promise<Appointment> {
+    const appointment = await this.findByIdAndBusinessId(id, businessId);
+    if (!appointment) {
+      throw new NotFoundError("Appointment not found");
+    }
+
+    // Validate status transitions
+    this.validateStatusTransition(appointment.status, status);
+
+    await this.repository.update(id, { status });
+    return (await this.findById(id))!;
+  }
+
+  async bulkDelete(ids: string[], businessId: string): Promise<void> {
+    const appointments = await this.repository.find({
+      where: { id: In(ids), businessId, deletedAt: IsNull() },
+    });
+
+    if (appointments.length !== ids.length) {
+      const foundIds = new Set(appointments.map((a) => a.id));
+      const missingIds = ids.filter((id) => !foundIds.has(id));
+      throw new NotFoundError(
+        `Appointments not found: ${missingIds.join(", ")}`,
+      );
+    }
+
+    await this.repository.update(ids, { deletedAt: new Date() });
+  }
+
+  private async checkForOverlap(
+    serviceId: string,
+    startTime: Date,
+    blockDuration: number,
+    excludeAppointmentId?: string,
+  ): Promise<void> {
+    const endTime = new Date(startTime.getTime() + blockDuration * 60 * 1000);
+
+    const queryBuilder = this.repository
+      .createQueryBuilder("appointment")
+      .where("appointment.serviceId = :serviceId", { serviceId })
+      .andWhere("appointment.deletedAt IS NULL")
+      .andWhere("appointment.status != :cancelledStatus", {
+        cancelledStatus: "CANCELLED",
+      })
+      .andWhere(
+        `(
+          (appointment.startTime < :endTime AND 
+           appointment.startTime + (appointment.blockDuration * interval '1 minute') > :startTime)
+        )`,
+        { startTime, endTime },
+      );
+
+    if (excludeAppointmentId) {
+      queryBuilder.andWhere("appointment.id != :excludeId", {
+        excludeId: excludeAppointmentId,
+      });
+    }
+
+    const overlapping = await queryBuilder.getCount();
+
+    if (overlapping > 0) {
+      throw new ConflictError(
+        "This time slot overlaps with an existing appointment",
+      );
+    }
+  }
+
+  private validateStatusTransition(
+    currentStatus: AppointmentStatus,
+    newStatus: AppointmentStatus,
+  ): void {
+    const validTransitions: Record<AppointmentStatus, AppointmentStatus[]> = {
+      RESERVED: ["COMPLETED", "CANCELLED", "PAID"],
+      COMPLETED: ["PAID"],
+      CANCELLED: [],
+      PAID: [],
+    };
+
+    if (!validTransitions[currentStatus].includes(newStatus)) {
+      throw new BadRequestError(
+        `Cannot transition from ${currentStatus} to ${newStatus}`,
+      );
+    }
+  }
+}

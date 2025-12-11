@@ -37,6 +37,26 @@ import { MenuItem, MenuItemRepository } from "@/modules/menu/menu-item";
 import { MenuItemVariation } from "@/modules/menu/menu-item-variation";
 import { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product";
 import { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product";
+import {
+  ServiceCategory,
+  ServiceCategoryRepository,
+} from "@/modules/appointments/service-category";
+import {
+  ServiceDefinition,
+  ServiceDefinitionRepository,
+} from "@/modules/appointments/service-definition";
+import {
+  StaffService,
+  StaffServiceRepository,
+} from "@/modules/appointments/staff-service";
+import {
+  Availability,
+  AvailabilityRepository,
+} from "@/modules/appointments/availability";
+import {
+  Appointment,
+  AppointmentRepository,
+} from "@/modules/appointments/appointment";
 
 export interface Services {
   dataSource: DataSource;
@@ -53,6 +73,11 @@ export interface Services {
   stockChange: StockChangeRepository;
   menuItemCategory: MenuItemCategoryRepository;
   menuItem: MenuItemRepository;
+  serviceCategory: ServiceCategoryRepository;
+  serviceDefinition: ServiceDefinitionRepository;
+  staffService: StaffServiceRepository;
+  availability: AvailabilityRepository;
+  appointment: AppointmentRepository;
 }
 
 declare module "fastify" {
@@ -111,6 +136,31 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
       dataSource.getRepository(MenuItemVariationProduct),
       dataSource.getRepository(Product),
       dataSource.getRepository(StockLevel),
+    ),
+    serviceCategory: new ServiceCategoryRepository(
+      dataSource.getRepository(ServiceCategory),
+      dataSource.getRepository(ServiceDefinition),
+    ),
+    serviceDefinition: new ServiceDefinitionRepository(
+      dataSource.getRepository(ServiceDefinition),
+      dataSource.getRepository(ServiceCategory),
+      dataSource.getRepository(StaffService),
+    ),
+    staffService: new StaffServiceRepository(
+      dataSource.getRepository(StaffService),
+      dataSource.getRepository(User),
+      dataSource.getRepository(ServiceDefinition),
+    ),
+    availability: new AvailabilityRepository(
+      dataSource,
+      dataSource.getRepository(Availability),
+      dataSource.getRepository(StaffService),
+    ),
+    appointment: new AppointmentRepository(
+      dataSource,
+      dataSource.getRepository(Appointment),
+      dataSource.getRepository(StaffService),
+      dataSource.getRepository(Availability),
     ),
   };
 
