@@ -28,7 +28,6 @@ export const StaffServiceResponseSchema = z.object({
   serviceDefinition: ServiceDefinitionSchema,
   createdAt: datetime(),
   updatedAt: datetime(),
-  deletedAt: datetime().nullable(),
 });
 
 export type StaffServiceResponse = z.infer<typeof StaffServiceResponseSchema>;

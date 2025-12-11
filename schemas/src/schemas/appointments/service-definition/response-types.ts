@@ -14,7 +14,6 @@ export const ServiceDefinitionResponseSchema = z.object({
   category: ServiceCategorySchema.nullable().optional(),
   createdAt: datetime(),
   updatedAt: datetime(),
-  deletedAt: datetime().nullable(),
 });
 
 export type ServiceDefinitionResponse = z.infer<

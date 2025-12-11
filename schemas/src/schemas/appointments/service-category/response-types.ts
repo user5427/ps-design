@@ -6,7 +6,6 @@ export const ServiceCategoryResponseSchema = z.object({
   name: z.string(),
   createdAt: datetime(),
   updatedAt: datetime(),
-  deletedAt: datetime().nullable(),
 });
 
 export type ServiceCategoryResponse = z.infer<
