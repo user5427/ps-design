@@ -1,4 +1,4 @@
-import { In, IsNull, type Repository, type DataSource } from "typeorm";
+import { IsNull, type Repository, type DataSource } from "typeorm";
 import { BadRequestError, ConflictError, NotFoundError } from "@/shared/errors";
 import type { StaffService } from "@/modules/appointments/staff-service/staff-service.entity";
 import type { Availability } from "@/modules/appointments/availability/availability.entity";
@@ -34,8 +34,7 @@ export class AppointmentRepository {
       .leftJoinAndSelect("service.employee", "employee")
       .leftJoinAndSelect("service.serviceDefinition", "serviceDefinition")
       .leftJoinAndSelect("serviceDefinition.category", "category")
-      .where("appointment.businessId = :businessId", { businessId })
-      .andWhere("appointment.deletedAt IS NULL");
+      .where("appointment.businessId = :businessId", { businessId });
 
     if (filter?.serviceId) {
       queryBuilder.andWhere("appointment.serviceId = :serviceId", {
@@ -154,7 +153,6 @@ export class AppointmentRepository {
       throw new BadRequestError("Cannot update a cancelled appointment");
     }
 
-    // If updating time or duration, check for overlaps
     if (data.startTime !== undefined || data.blockDuration !== undefined) {
       const newStartTime = data.startTime ?? appointment.startTime;
       const newDuration = data.blockDuration ?? appointment.blockDuration;
@@ -184,7 +182,8 @@ export class AppointmentRepository {
     this.validateStatusTransition(appointment.status, status);
 
     await this.repository.update(id, { status });
-    return (await this.findById(id))!;
+    
+    return this.getById(id, businessId);
   }
 
   private async checkForOverlap(
