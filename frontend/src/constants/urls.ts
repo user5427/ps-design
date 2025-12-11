@@ -16,4 +16,9 @@ export const URLS = {
   // Menu
   MENU_CATEGORIES: "/menu/categories",
   MENU_ITEMS: "/menu/items",
+  // Appointments
+  APPOINTMENTS_SERVICE_CATEGORIES: "/appointments/service-categories",
+  APPOINTMENTS_SERVICE_DEFINITIONS: "/appointments/service-definitions",
+  APPOINTMENTS_SERVICES: "/appointments/services",
+  APPOINTMENTS_LIST: "/appointments/appointments",
 };
