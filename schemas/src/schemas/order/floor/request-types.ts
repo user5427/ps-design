@@ -9,5 +9,11 @@ export const UpdateFloorTableSchema = z.object({
   status: DiningTableStatusSchema.optional(),
 });
 
+export const CreateFloorTableSchema = z.object({
+  label: z.string().min(1).max(50),
+  capacity: z.number().int().positive().max(20),
+});
+
 export type TableIdParams = z.infer<typeof TableIdParam>;
 export type UpdateFloorTableBody = z.infer<typeof UpdateFloorTableSchema>;
+export type CreateFloorTableBody = z.infer<typeof CreateFloorTableSchema>;

@@ -1,17 +1,13 @@
 import type { FastifyInstance } from "fastify";
-import { In } from "typeorm";
+import { In, IsNull } from "typeorm";
 import type {
   FloorPlanResponse,
   FloorTable,
   UpdateFloorTableBody,
 } from "@ps-design/schemas/order/floor";
-import {
-  DiningTable,
-  type DiningTableStatus,
-  Order,
-  OrderStatus,
-} from "@/modules/order";
-import { NotFoundError } from "@/shared/errors";
+import { DiningTable, DiningTableStatus, Order, OrderStatus } from "@/modules/order";
+import { ConflictError, NotFoundError } from "@/shared/errors";
+import type { CreateFloorTableBody } from "@ps-design/schemas/order/floor";
 
 export async function getFloorPlan(
   fastify: FastifyInstance,
@@ -21,7 +17,7 @@ export async function getFloorPlan(
   const orderRepo = fastify.db.dataSource.getRepository(Order);
 
   const tables = await tableRepo.find({
-    where: { businessId },
+    where: { businessId, deletedAt: IsNull() },
   });
 
   if (tables.length === 0) {
@@ -67,7 +63,9 @@ export async function updateFloorTable(
   const tableRepo = fastify.db.dataSource.getRepository(DiningTable);
   const orderRepo = fastify.db.dataSource.getRepository(Order);
 
-  const table = await tableRepo.findOne({ where: { id: tableId, businessId } });
+  const table = await tableRepo.findOne({
+    where: { id: tableId, businessId, deletedAt: IsNull() },
+  });
 
   if (!table) {
     throw new NotFoundError("Table not found");
@@ -99,4 +97,71 @@ export async function updateFloorTable(
     reserved: saved.reserved ?? false,
     orderId: openOrder?.id ?? null,
   };
+}
+
+export async function createFloorTable(
+  fastify: FastifyInstance,
+  businessId: string,
+  input: CreateFloorTableBody,
+): Promise<FloorTable> {
+  const tableRepo = fastify.db.dataSource.getRepository(DiningTable);
+
+  const existing = await tableRepo.findOne({
+    where: { businessId, label: input.label, deletedAt: IsNull() },
+  });
+
+  if (existing) {
+    throw new ConflictError("Table with this label already exists");
+  }
+
+  const saved = await tableRepo.save(
+    tableRepo.create({
+      businessId,
+      label: input.label,
+      capacity: input.capacity,
+      status: DiningTableStatus.AVAILABLE,
+      reserved: false,
+    }),
+  );
+
+  return {
+    id: saved.id,
+    label: saved.label,
+    capacity: saved.capacity,
+    status: saved.status,
+    reserved: saved.reserved ?? false,
+    orderId: null,
+  };
+}
+
+export async function deleteFloorTable(
+  fastify: FastifyInstance,
+  businessId: string,
+  tableId: string,
+): Promise<void> {
+  const tableRepo = fastify.db.dataSource.getRepository(DiningTable);
+  const orderRepo = fastify.db.dataSource.getRepository(Order);
+
+  const table = await tableRepo.findOne({
+    where: { id: tableId, businessId, deletedAt: IsNull() },
+  });
+
+  if (!table) {
+    throw new NotFoundError("Table not found");
+  }
+
+  const openOrder = await orderRepo.findOne({
+    where: {
+      businessId,
+      tableId: table.id,
+      status: OrderStatus.OPEN,
+    },
+  });
+
+  if (openOrder) {
+    throw new ConflictError("Cannot delete table with an open order");
+  }
+
+  table.deletedAt = new Date();
+  await tableRepo.save(table);
 }

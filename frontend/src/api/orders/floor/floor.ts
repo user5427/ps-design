@@ -20,3 +20,14 @@ export async function updateFloorTable(
   );
   return response.data;
 }
+
+export async function createFloorTable(
+  data: Pick<FloorTable, "label" | "capacity">,
+): Promise<FloorTable> {
+  const response = await apiClient.post<FloorTable>("/orders/floor", data);
+  return response.data;
+}
+
+export async function deleteFloorTable(tableId: string): Promise<void> {
+  await apiClient.delete(`/orders/floor/${tableId}`);
+}

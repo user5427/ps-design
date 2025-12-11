@@ -81,9 +81,20 @@ export function TableCard({ table, onClick, onContextMenu }: TableCardProps) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          px: 0.5,
         }}
       >
-        <Typography variant="h5" fontWeight="bold">
+        <Typography
+          variant="h5"
+          fontWeight="bold"
+          textAlign="center"
+          sx={{
+            whiteSpace: "normal",
+            wordBreak: "break-word",
+            hyphens: "auto",
+            display: "block",
+          }}
+        >
           {table.label}
         </Typography>
       </Box>

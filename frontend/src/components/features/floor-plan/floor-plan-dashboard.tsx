@@ -10,11 +10,17 @@ import {
   Button,
   Stack,
   CircularProgress,
+  TextField,
 } from "@mui/material";
-import { useEffect, useState, type MouseEvent } from "react";
+import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { TableCard, type FloorPlanTable } from "./table-card";
-import { useFloorPlan, useUpdateFloorTable } from "@/hooks/orders/floor-hooks";
+import {
+  useCreateFloorTable,
+  useDeleteFloorTable,
+  useFloorPlan,
+  useUpdateFloorTable,
+} from "@/hooks/orders/floor-hooks";
 import { URLS } from "@/constants/urls";
 
 interface ContextMenuState {
@@ -26,6 +32,8 @@ export function FloorPlanDashboard() {
   const navigate = useNavigate();
   const { data, isLoading } = useFloorPlan();
   const updateFloorTable = useUpdateFloorTable();
+  const createFloorTable = useCreateFloorTable();
+  const deleteFloorTable = useDeleteFloorTable();
   const [tables, setTables] = useState<FloorPlanTable[]>([]);
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
     anchorEl: null,
@@ -33,6 +41,11 @@ export function FloorPlanDashboard() {
   });
   const [moveDialogOpen, setMoveDialogOpen] = useState(false);
   const [sourceTableId, setSourceTableId] = useState<string | null>(null);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [newTableLabel, setNewTableLabel] = useState("");
+  const [newTableCapacity, setNewTableCapacity] = useState<number>(2);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [tableToDeleteId, setTableToDeleteId] = useState<string | null>(null);
 
   const handleTableClick = (table: FloorPlanTable) => {
     if (table.status === "AVAILABLE") {
@@ -72,31 +85,38 @@ export function FloorPlanDashboard() {
   };
 
   const closeContextMenu = () => {
-    setContextMenu({ anchorEl: null, tableId: null });
+    // Only clear the anchor element so the menu closes immediately,
+    // but keep the selected table id around so derived labels don't
+    // momentarily fall back to defaults while the menu closes.
+    setContextMenu((prev) => ({ anchorEl: null, tableId: prev.tableId }));
   };
 
-  const toggleReserved = () => {
-    if (!contextMenu.tableId) return;
-    const table = tables.find((t) => t.id === contextMenu.tableId);
+  const handleToggleReserved = () => {
+    const tableId = contextMenu.tableId;
+    if (!tableId) return;
+
+    const table = tables.find((t) => t.id === tableId);
     if (!table) return;
 
     const nextReserved = !table.reserved;
 
-    // Optimistic UI update
+    // Optimistic update
     setTables((prev) =>
-      prev.map((t) =>
-        t.id === contextMenu.tableId ? { ...t, reserved: nextReserved } : t,
-      ),
+      prev.map((t) => (t.id === tableId ? { ...t, reserved: nextReserved } : t)),
     );
 
-    updateFloorTable.mutate({
-      tableId: contextMenu.tableId,
-      reserved: nextReserved,
-    });
+    updateFloorTable.mutate({ tableId, reserved: nextReserved });
     closeContextMenu();
   };
 
-  const openMoveDialog = () => {
+  const handleOpenDeleteDialog = () => {
+    if (!contextMenu.tableId) return;
+    setTableToDeleteId(contextMenu.tableId);
+    setDeleteDialogOpen(true);
+    closeContextMenu();
+  };
+
+  const handleOpenMoveDialog = () => {
     if (!contextMenu.tableId) return;
     setSourceTableId(contextMenu.tableId);
     setMoveDialogOpen(true);
@@ -129,13 +149,29 @@ export function FloorPlanDashboard() {
     setMoveDialogOpen(false);
   };
 
-  const sourceTable = tables.find((t) => t.id === sourceTableId) ?? null;
-
-  const availableTargets = tables.filter(
-    (t) =>
-      t.id !== sourceTableId &&
-      (t.status === "AVAILABLE" || (!t.orderId && t.status === "ACTIVE")),
+  const sourceTable = useMemo(
+    () => tables.find((t) => t.id === sourceTableId) ?? null,
+    [tables, sourceTableId],
   );
+
+  const availableTargets = useMemo(
+    () =>
+      tables.filter(
+        (t) =>
+          t.id !== sourceTableId &&
+          (t.status === "AVAILABLE" || (!t.orderId && t.status === "ACTIVE")),
+      ),
+    [tables, sourceTableId],
+  );
+
+  const selectedTable = useMemo(
+    () => tables.find((t) => t.id === contextMenu.tableId) ?? null,
+    [tables, contextMenu.tableId],
+  );
+
+  const reservedMenuLabel = selectedTable?.reserved
+    ? "Unmark as reserved"
+    : "Mark as reserved";
 
   // Sync local editable state from server data when it loads or changes
   useEffect(() => {
@@ -143,6 +179,49 @@ export function FloorPlanDashboard() {
       setTables(data.tables as FloorPlanTable[]);
     }
   }, [data]);
+
+  const handleCreateTable = () => {
+    if (!newTableLabel.trim() || newTableCapacity <= 0) return;
+
+    createFloorTable.mutate(
+      {
+        label: newTableLabel.trim(),
+        capacity: newTableCapacity,
+      },
+      {
+        onSuccess: () => {
+          setNewTableLabel("");
+          setNewTableCapacity(2);
+          setAddDialogOpen(false);
+        },
+        onError: () => {
+          window.alert(
+            "Could not create table. A table with this label may already exist.",
+          );
+        },
+      },
+    );
+  };
+
+  const handleConfirmDelete = () => {
+    if (!tableToDeleteId) {
+      setDeleteDialogOpen(false);
+      return;
+    }
+
+    deleteFloorTable.mutate(
+      { tableId: tableToDeleteId },
+      {
+        onSuccess: () => {
+          setDeleteDialogOpen(false);
+          setTableToDeleteId(null);
+        },
+        onError: () => {
+          window.alert("Cannot delete a table that has an open order.");
+        },
+      },
+    );
+  };
 
   return (
     <Box sx={{ p: 3 }}>
@@ -156,6 +235,13 @@ export function FloorPlanDashboard() {
             for more options.
           </Typography>
         </Box>
+        <Button
+          variant="contained"
+          onClick={() => setAddDialogOpen(true)}
+          sx={{ alignSelf: "center" }}
+        >
+          Add Table
+        </Button>
       </Stack>
 
       {isLoading ? (
@@ -193,8 +279,9 @@ export function FloorPlanDashboard() {
         open={Boolean(contextMenu.anchorEl)}
         onClose={closeContextMenu}
       >
-        <MenuItem onClick={openMoveDialog}>Move Table</MenuItem>
-        <MenuItem onClick={toggleReserved}>Mark as Reserved</MenuItem>
+        <MenuItem onClick={handleOpenMoveDialog}>Move Table</MenuItem>
+        <MenuItem onClick={handleToggleReserved}>{reservedMenuLabel}</MenuItem>
+        <MenuItem onClick={handleOpenDeleteDialog}>Delete Table</MenuItem>
       </Menu>
 
       <Dialog open={moveDialogOpen} onClose={() => setMoveDialogOpen(false)}>
@@ -224,6 +311,61 @@ export function FloorPlanDashboard() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setMoveDialogOpen(false)}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={addDialogOpen} onClose={() => setAddDialogOpen(false)}>
+        <DialogTitle>Add Table</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              label="Label"
+              value={newTableLabel}
+              onChange={(event) => setNewTableLabel(event.target.value)}
+              fullWidth
+              autoFocus
+            />
+            <TextField
+              label="Capacity"
+              type="number"
+              value={newTableCapacity}
+              onChange={(event) =>
+                setNewTableCapacity(Number(event.target.value) || 0)
+              }
+              inputProps={{ min: 1, max: 20 }}
+              fullWidth
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddDialogOpen(false)}>Cancel</Button>
+          <Button
+            onClick={handleCreateTable}
+            variant="contained"
+            disabled={
+              !newTableLabel.trim() || newTableCapacity <= 0
+            }
+          >
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle>Delete Table</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" sx={{ mt: 1 }}>
+            Are you sure you want to delete this table?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button color="error" variant="contained" onClick={handleConfirmDelete}>
+            Delete
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
