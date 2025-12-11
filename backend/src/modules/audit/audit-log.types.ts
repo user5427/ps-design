@@ -25,10 +25,11 @@ export interface IAuditBusinessLog {
   ip: string | null;
   entityType: string;
   entityId: string;
-  action: AuditActionType | AuditSecurityType;
+  action: AuditActionType;
   oldValues: Record<string, any> | null;
   newValues: Record<string, any> | null;
   createdAt: Date;
+  result: ActionResult | null;
 }
 
 export interface ICreateAuditBusinessLog {
@@ -37,7 +38,7 @@ export interface ICreateAuditBusinessLog {
   ip?: string | null;
   entityType: string;
   entityId: string;
-  action: AuditActionType | AuditSecurityType;
+  action: AuditActionType;
   oldValues?: Record<string, any> | null;
   newValues?: Record<string, any> | null;
   result?: ActionResult;
@@ -49,6 +50,7 @@ export interface IAuditSecurityLog {
   ip: string | null;
   action: AuditSecurityType;
   createdAt: Date;
+  result: ActionResult | null;
 }
 
 export interface ICreateAuditSecurityLog {

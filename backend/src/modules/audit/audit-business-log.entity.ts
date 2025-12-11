@@ -17,9 +17,9 @@ import {
 } from "./audit-log.types";
 
 @Entity("AuditBusinessLog")
-@Index(["entityType", "entityId"])
-@Index(["businessId"])
-@Index(["userId"])
+@Index([ "entityType", "entityId" ])
+@Index([ "businessId" ])
+@Index([ "userId" ])
 export class AuditBusinessLog {
   @PrimaryGeneratedColumn("uuid")
   id: string;
@@ -49,9 +49,9 @@ export class AuditBusinessLog {
 
   @Column({
     type: "enum",
-    enum: { ...AuditActionType, ...AuditSecurityType },
+    enum: AuditActionType,
   })
-  action: AuditActionType | AuditSecurityType;
+  action: AuditActionType;
 
   @Column({ type: "jsonb", nullable: true })
   oldValues: Record<string, any> | null;

@@ -19,10 +19,11 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
   return async (
     ...args: Parameters<T>
   ): Promise<Awaited<ReturnType<T>>> => {
-    const oldValues = await auditLogService.getEntitySnapshot(
-      entityType,
-      entityId,
-    );
+
+    const oldValues =
+      action === AuditActionType.CREATE
+        ? null
+        : await auditLogService.getEntitySnapshot(entityType, entityId);
     let result: ActionResult = ActionResult.FAILURE;
     try {
       const res = await fn(...args);
@@ -36,7 +37,7 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
       await auditLogService.logBusiness({
         businessId,
         userId,
-        ip,
+        ip: ip ?? null,
         entityType,
         entityId,
         action,

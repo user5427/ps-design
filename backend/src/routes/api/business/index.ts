@@ -44,29 +44,21 @@ export default async function businessRoutes(fastify: FastifyInstance) {
     request: FastifyRequest,
     reply: FastifyReply,
   ) => {
-    let userContext = request.user as { userId: string; businessId: string | null } | null;
-
-    if (!userContext) {
-      const email = (request.body as any).email;
-      const user = email ? await fastify.db.user.findByEmail(email) : null;
-      userContext = user
-        ? { userId: user.id, businessId: getBusinessId(request, reply) }
-        : null;
-    }
-
-    const userId = userContext?.userId ?? "unknown";
-    const businessId = userContext?.businessId ?? getBusinessId(request, reply);
+    const userContext = request.user as {
+      userId: string;
+      businessId: string | null;
+    };
 
     return auditLogWrapper(
       fn,
       fastify.db.auditLogService,
       auditType,
       {
-        userId,
+        userId: userContext.userId,
         ip: request.ip,
-        businessId: businessId ?? undefined,
+        businessId: userContext.businessId ?? undefined,
         entityType: "Business",
-        entityId: businessId ?? undefined,
+        entityId: userContext.businessId ?? undefined,
       }
     );
 
