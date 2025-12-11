@@ -149,8 +149,8 @@ export class AppointmentRepository {
       throw new NotFoundError("Appointment not found");
     }
 
-    if (appointment.status === "CANCELLED") {
-      throw new BadRequestError("Cannot update a cancelled appointment");
+    if (appointment.status !== "RESERVED") {
+      throw new BadRequestError("Cannot update closed appointment");
     }
 
     if (data.startTime !== undefined || data.blockDuration !== undefined) {
@@ -182,7 +182,7 @@ export class AppointmentRepository {
     this.validateStatusTransition(appointment.status, status);
 
     await this.repository.update(id, { status });
-    
+
     return this.getById(id, businessId);
   }
 
