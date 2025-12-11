@@ -1,6 +1,7 @@
 // Centralized web app navigation URLs
 export const URLS = {
   DASHBOARD: "/dashboard",
+  AVAILABILITY: "/availability",
   LOGIN: "/auth/login",
   CHANGE_PASSWORD: "/auth/change-password",
   HOME: "/",

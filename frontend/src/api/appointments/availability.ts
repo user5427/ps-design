@@ -4,22 +4,18 @@ import type {
   AvailabilityResponse,
 } from "@ps-design/schemas/appointments/availability";
 
-export async function getAvailabilityByServiceId(
-  serviceId: string,
+export async function getAvailabilityByUserId(
+  userId: string,
 ): Promise<AvailabilityResponse[]> {
   const response = await apiClient.get<AvailabilityResponse[]>(
-    `/appointments/availability/staff-service/${serviceId}`,
+    `/appointments/availability/user/${userId}`,
   );
   return response.data;
 }
 
 export async function bulkSetAvailability(
-  serviceId: string,
+  userId: string,
   data: BulkSetAvailabilityBody,
-): Promise<AvailabilityResponse[]> {
-  const response = await apiClient.put<AvailabilityResponse[]>(
-    `/appointments/availability/staff-service/${serviceId}`,
-    data,
-  );
-  return response.data;
+): Promise<void> {
+  await apiClient.put(`/appointments/availability/user/${userId}`, data);
 }

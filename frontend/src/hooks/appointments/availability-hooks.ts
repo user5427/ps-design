@@ -1,37 +1,37 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  getAvailabilityByServiceId,
+  getAvailabilityByUserId,
   bulkSetAvailability,
 } from "@/api/appointments";
 import type { BulkSetAvailabilityBody } from "@ps-design/schemas/appointments/availability";
 
 export const availabilityKeys = {
-  all: ["appointments", "availability"] as const,
-  byService: (serviceId: string) =>
-    [...availabilityKeys.all, serviceId] as const,
+  all: ["availability"] as const,
+  user: (userId: string) => [...availabilityKeys.all, "user", userId] as const,
 };
 
-export function useAvailabilityByService(serviceId: string | undefined) {
+export function useUserAvailability(userId: string | undefined) {
   return useQuery({
-    queryKey: availabilityKeys.byService(serviceId ?? ""),
-    queryFn: () => getAvailabilityByServiceId(serviceId!),
-    enabled: !!serviceId,
+    queryKey: availabilityKeys.user(userId!),
+    queryFn: () => getAvailabilityByUserId(userId!),
+    enabled: !!userId,
   });
 }
 
-export function useBulkSetAvailability() {
+export function useUpdateAvailability() {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: ({
-      serviceId,
+      userId,
       data,
     }: {
-      serviceId: string;
+      userId: string;
       data: BulkSetAvailabilityBody;
-    }) => bulkSetAvailability(serviceId, data),
-    onSuccess: (_, variables) => {
+    }) => bulkSetAvailability(userId, data),
+    onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({
-        queryKey: availabilityKeys.byService(variables.serviceId),
+        queryKey: availabilityKeys.user(userId),
       });
     },
   });
