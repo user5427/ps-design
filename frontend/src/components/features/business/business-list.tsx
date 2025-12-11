@@ -1,11 +1,11 @@
-import type { MRT_ColumnDef } from "material-react-table";
-import { useMemo, useCallback } from "react";
+import { useState } from "react";
 import {
-  RecordListView,
-  type FormFieldDefinition,
-  type ViewFieldDefinition,
-  ValidationRules,
-} from "@/components/elements/pagination";
+  Box,
+  Button,
+  Stack,
+} from "@mui/material";
+import type { FormFieldDefinition } from "@/components/elements/form";
+import { FormModal, ValidationRules } from "@/components/elements/form";
 import {
   useBusinessesPaginated,
   useDeleteBusiness,
@@ -16,7 +16,7 @@ import type { BusinessResponse } from "@ps-design/schemas/business";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const BusinessList: React.FC = () => {
-  const { data, isLoading, error, refetch } = useBusinessesPaginated(
+  const { data, refetch } = useBusinessesPaginated(
     1,
     100,
     undefined,
@@ -25,21 +25,14 @@ export const BusinessList: React.FC = () => {
   const createMutation = useCreateBusiness();
   const deleteMutation = useDeleteBusiness();
 
-  const columns = useMemo<MRT_ColumnDef<BusinessResponse>[]>(
-    () => [
-      {
-        accessorKey: "name",
-        header: "Name",
-        size: 200,
-      },
-      {
-        accessorKey: "id",
-        header: "ID",
-        size: 200,
-      },
-    ],
-    [],
-  );
+  const [formState, setFormState] = useState<{
+    isOpen: boolean;
+    mode: "create" | "edit";
+    data?: BusinessResponse;
+  }>({
+    isOpen: false,
+    mode: "create",
+  });
 
   const createFormFields: FormFieldDefinition[] = [
     {
@@ -67,54 +60,80 @@ export const BusinessList: React.FC = () => {
     },
   ];
 
-  const viewFields: ViewFieldDefinition[] = [
-    { name: "id", label: "ID" },
-    { name: "name", label: "Name" },
-    { name: "createdAt", label: "Created At" },
-    { name: "updatedAt", label: "Updated At" },
-  ];
-
-  const handleCreate = async (values: Partial<BusinessResponse>) => {
+  const handleCreateSubmit = async (values: Record<string, unknown>) => {
     await createMutation.mutateAsync({
       name: String(values.name),
     });
+    setFormState({ isOpen: false, mode: "create" });
+    refetch();
   };
 
-  const handleEdit = useCallback(
-    async (id: string, values: Partial<BusinessResponse>) => {
-      await apiClient.put(`/business/${id}`, {
-        name: String(values.name),
-      });
-      queryClient.invalidateQueries({ queryKey: ["business"] });
-    },
-    [queryClient],
-  );
+  const handleEditSubmit = async (values: Record<string, unknown>) => {
+    await apiClient.put(`/business/${formState.data?.id}`, {
+      name: String(values.name),
+    });
+    queryClient.invalidateQueries({ queryKey: ["business"] });
+    setFormState({ isOpen: false, mode: "create" });
+    refetch();
+  };
 
-  const handleDelete = async (ids: string[]) => {
-    for (const id of ids) {
-      await deleteMutation.mutateAsync(id);
-    }
+  const handleEdit = (rowData: BusinessResponse) => {
+    setFormState({
+      isOpen: true,
+      mode: "edit",
+      data: rowData,
+    });
+  };
+
+  const handleDelete = async (rowData: BusinessResponse) => {
+    await deleteMutation.mutateAsync(rowData.id);
+    refetch();
+  };
+
+  const handleCloseForm = () => {
+    setFormState({ isOpen: false, mode: "create" });
   };
 
   const businessData = data?.items || [];
 
   return (
-    <RecordListView<BusinessResponse>
-      title="Businesses"
-      columns={columns}
-      data={businessData}
-      isLoading={isLoading}
-      error={error}
-      createFormFields={createFormFields}
-      editFormFields={editFormFields}
-      viewFields={viewFields}
-      onCreate={handleCreate}
-      onEdit={handleEdit}
-      onDelete={handleDelete}
-      onSuccess={() => refetch()}
-      createModalTitle="Create Business"
-      editModalTitle="Edit Business"
-      viewModalTitle="View Business"
-    />
+    <Stack spacing={2}>
+      <Box sx={{ display: "flex", gap: 1 }}>
+        {businessData.map((item) => (
+          <Box key={item.id} sx={{ p: 2, border: "1px solid #ddd" }}>
+            <div>{item.name}</div>
+            <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+              <Button size="small" onClick={() => handleEdit(item)}>
+                Edit
+              </Button>
+              <Button
+                size="small"
+                color="error"
+                onClick={() => handleDelete(item)}
+              >
+                Delete
+              </Button>
+            </Box>
+          </Box>
+        ))}
+      </Box>
+
+      <FormModal
+        open={formState.isOpen && formState.mode === "create"}
+        onClose={handleCloseForm}
+        title="Create Business"
+        fields={createFormFields}
+        onSubmit={handleCreateSubmit}
+      />
+
+      <FormModal
+        open={formState.isOpen && formState.mode === "edit"}
+        onClose={handleCloseForm}
+        title="Edit Business"
+        fields={editFormFields}
+        initialValues={formState.data}
+        onSubmit={handleEditSubmit}
+      />
+    </Stack>
   );
 };

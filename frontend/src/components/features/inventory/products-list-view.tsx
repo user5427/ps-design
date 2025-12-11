@@ -1,12 +1,12 @@
 import { Chip } from "@mui/material";
-import type { MRT_ColumnDef } from "material-react-table";
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
-  RecordListView,
-  type FormFieldDefinition,
-  type ViewFieldDefinition,
-  ValidationRules,
-} from "@/components/elements/pagination";
+  Box,
+  Button,
+  Stack,
+} from "@mui/material";
+import type { FormFieldDefinition } from "@/components/elements/form";
+import { FormModal, ValidationRules } from "@/components/elements/form";
 import {
   useCreateProduct,
   useBulkDeleteProducts,
@@ -17,59 +17,24 @@ import {
 import type { Product } from "@/schemas/inventory";
 
 export const ProductsListView = () => {
-  const { data: products = [], isLoading, error, refetch } = useProducts();
+  const { data: products = [], refetch } = useProducts();
   const { data: units = [] } = useProductUnits();
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
   const bulkDeleteMutation = useBulkDeleteProducts();
 
-  const columns = useMemo<MRT_ColumnDef<Product>[]>(
-    () => [
-      {
-        accessorKey: "name",
-        header: "Name",
-        size: 150,
-      },
-      {
-        accessorKey: "description",
-        header: "Description",
-        size: 250,
-        Cell: ({ cell }) => cell.getValue<string>() || "-",
-      },
-      {
-        accessorKey: "productUnit.name",
-        header: "Unit",
-        size: 120,
-        Cell: ({ row }) => row.original.productUnit.name,
-      },
-      {
-        accessorKey: "isDisabled",
-        header: "Status",
-        size: 150,
-        Cell: ({ cell }) => (
-          <Chip
-            label={cell.getValue<boolean>() ? "Disabled" : "Active"}
-            color={cell.getValue<boolean>() ? "default" : "success"}
-            size="small"
-          />
-        ),
-      },
-      {
-        accessorKey: "createdAt",
-        header: "Created",
-        size: 150,
-        Cell: ({ cell }) => {
-          const value = cell.getValue<string>();
-          return value ? new Date(value).toLocaleDateString() : "-";
-        },
-      },
-    ],
-    [],
-  );
+  const [formState, setFormState] = useState<{
+    isOpen: boolean;
+    mode: "create" | "edit";
+    data?: Product;
+  }>({
+    isOpen: false,
+    mode: "create",
+  });
 
   const unitOptions = useMemo(
     () =>
-      units.map((unit) => ({
+      units.map((unit: any) => ({
         value: unit.id,
         label: unit.name + (unit.symbol ? ` (${unit.symbol})` : ""),
       })),
@@ -111,36 +76,19 @@ export const ProductsListView = () => {
     },
   ];
 
-  const viewFields: ViewFieldDefinition[] = [
-    { name: "id", label: "ID" },
-    { name: "name", label: "Name" },
-    { name: "description", label: "Description" },
-    {
-      name: "productUnit",
-      label: "Unit",
-      render: (value) => {
-        const unit = value as { name: string; symbol?: string | null };
-        return unit
-          ? `${unit.name}${unit.symbol ? ` (${unit.symbol})` : ""}`
-          : "-";
-      },
-    },
-    { name: "isDisabled", label: "Disabled" },
-    { name: "createdAt", label: "Created At" },
-    { name: "updatedAt", label: "Updated At" },
-  ];
-
-  const handleCreate = async (values: Partial<Product>) => {
+  const handleCreateSubmit = async (values: Record<string, unknown>) => {
     await createMutation.mutateAsync({
       name: String(values.name),
       description: values.description || undefined,
       productUnitId: String(values.productUnitId),
     });
+    setFormState({ isOpen: false, mode: "create" });
+    refetch();
   };
 
-  const handleEdit = async (id: string, values: Partial<Product>) => {
+  const handleEditSubmit = async (values: Record<string, unknown>) => {
     await updateMutation.mutateAsync({
-      id,
+      id: formState.data?.id || "",
       data: {
         name: values.name,
         description: values.description || undefined,
@@ -148,29 +96,84 @@ export const ProductsListView = () => {
         isDisabled: values.isDisabled,
       },
     });
+    setFormState({ isOpen: false, mode: "create" });
+    refetch();
   };
 
-  const handleDelete = async (ids: string[]) => {
-    await bulkDeleteMutation.mutateAsync(ids);
+  const handleEdit = (item: Product) => {
+    setFormState({
+      isOpen: true,
+      mode: "edit",
+      data: item,
+    });
+  };
+
+  const handleDelete = async (item: Product) => {
+    await bulkDeleteMutation.mutateAsync([item.id]);
+    refetch();
+  };
+
+  const handleCloseForm = () => {
+    setFormState({ isOpen: false, mode: "create" });
   };
 
   return (
-    <RecordListView<Product>
-      title="Products"
-      columns={columns}
-      data={products}
-      isLoading={isLoading}
-      error={error}
-      createFormFields={createFormFields}
-      editFormFields={editFormFields}
-      viewFields={viewFields}
-      onCreate={handleCreate}
-      onEdit={handleEdit}
-      onDelete={handleDelete}
-      onSuccess={() => refetch()}
-      createModalTitle="Create Product"
-      editModalTitle="Edit Product"
-      viewModalTitle="View Product"
-    />
+    <Stack spacing={2}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h2>Products</h2>
+        <Button
+          variant="contained"
+          onClick={() =>
+            setFormState({ isOpen: true, mode: "create", data: undefined })
+          }
+        >
+          Create Product
+        </Button>
+      </Box>
+
+      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+        {products.map((item: Product) => (
+          <Box key={item.id} sx={{ p: 2, border: "1px solid #ddd" }}>
+            <div>{item.name}</div>
+            {item.description && <div>{item.description}</div>}
+            <div>{item.productUnit.name}</div>
+            <Chip
+              label={item.isDisabled ? "Disabled" : "Active"}
+              color={item.isDisabled ? "default" : "success"}
+              size="small"
+            />
+            <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+              <Button size="small" onClick={() => handleEdit(item)}>
+                Edit
+              </Button>
+              <Button
+                size="small"
+                color="error"
+                onClick={() => handleDelete(item)}
+              >
+                Delete
+              </Button>
+            </Box>
+          </Box>
+        ))}
+      </Box>
+
+      <FormModal
+        open={formState.isOpen && formState.mode === "create"}
+        onClose={handleCloseForm}
+        title="Create Product"
+        fields={createFormFields}
+        onSubmit={handleCreateSubmit}
+      />
+
+      <FormModal
+        open={formState.isOpen && formState.mode === "edit"}
+        onClose={handleCloseForm}
+        title="Edit Product"
+        fields={editFormFields}
+        initialValues={formState.data}
+        onSubmit={handleEditSubmit}
+      />
+    </Stack>
   );
 };

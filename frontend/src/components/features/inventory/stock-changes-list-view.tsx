@@ -1,12 +1,12 @@
 import { Chip } from "@mui/material";
-import type { MRT_ColumnDef } from "material-react-table";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
-  RecordListView,
-  type FormFieldDefinition,
-  type ViewFieldDefinition,
-  type ValidationRule,
-} from "@/components/elements/pagination";
+  Box,
+  Button,
+  Stack,
+} from "@mui/material";
+import type { FormFieldDefinition, ValidationRule } from "@/components/elements/form";
+import { FormModal } from "@/components/elements/form";
 import {
   useCreateStockChange,
   useProducts,
@@ -66,77 +66,23 @@ const futureExpirationDateValidation: ValidationRule = {
 export const StockChangesListView = () => {
   const {
     data: stockChanges = [],
-    isLoading,
-    error,
     refetch,
   } = useStockChanges();
   const { data: products = [] } = useProducts();
   const createMutation = useCreateStockChange();
 
-  const columns = useMemo<MRT_ColumnDef<StockChange>[]>(
-    () => [
-      {
-        accessorKey: "product.name",
-        header: "Product",
-        size: 200,
-        Cell: ({ row }) => row.original.product.name,
-      },
-      {
-        accessorKey: "type",
-        header: "Type",
-        size: 120,
-        Cell: ({ cell }) => {
-          const type = cell.getValue<StockChangeType>();
-          return (
-            <Chip
-              label={type}
-              color={stockChangeTypeColors[type]}
-              size="small"
-            />
-          );
-        },
-      },
-      {
-        accessorKey: "quantity",
-        header: "Quantity",
-        size: 150,
-        Cell: ({ cell, row }) => {
-          const qty = cell.getValue<number>();
-          const type = row.original.type;
-          const isNegative = ["USAGE", "WASTE"].includes(type);
-          return (
-            <span style={{ color: isNegative ? "red" : "green" }}>
-              {isNegative ? "-" : "+"}
-              {Math.abs(qty)}
-            </span>
-          );
-        },
-      },
-      {
-        accessorKey: "expirationDate",
-        header: "Expiration",
-        size: 150,
-        Cell: ({ cell }) => {
-          const value = cell.getValue<string>();
-          return value ? new Date(value).toLocaleDateString() : "";
-        },
-      },
-      {
-        accessorKey: "createdAt",
-        header: "Created",
-        size: 150,
-        Cell: ({ cell }) => {
-          const value = cell.getValue<string>();
-          return value ? new Date(value).toLocaleString() : "-";
-        },
-      },
-    ],
-    [],
-  );
+  const [formState, setFormState] = useState<{
+    isOpen: boolean;
+    mode: "create";
+    data?: StockChange;
+  }>({
+    isOpen: false,
+    mode: "create",
+  });
 
   const productOptions = useMemo(
     () =>
-      products.map((p) => ({
+      products.map((p: any) => ({
         value: p.id,
         label: `${p.name} (${p.productUnit.symbol || p.productUnit.name})`,
       })),
@@ -185,77 +131,64 @@ export const StockChangesListView = () => {
     },
   ];
 
-  const viewFields: ViewFieldDefinition[] = [
-    { name: "id", label: "ID" },
-    {
-      name: "product",
-      label: "Product",
-      render: (value) => {
-        const product = value as {
-          name: string;
-          productUnit?: { name: string; symbol?: string | null };
-        };
-        if (!product) return "-";
-        const unitLabel =
-          product.productUnit?.symbol || product.productUnit?.name || "";
-        return `${product.name}${unitLabel ? ` (${unitLabel})` : ""}`;
-      },
-    },
-    {
-      name: "type",
-      label: "Type",
-      render: (value) => {
-        const type = value as StockChangeType;
-        return (
-          <Chip label={type} color={stockChangeTypeColors[type]} size="small" />
-        );
-      },
-    },
-    {
-      name: "quantity",
-      label: "Quantity",
-      render: (value, record) => {
-        const qty = value as number;
-        const type = record.type as StockChangeType;
-        const isNegative = ["USAGE", "WASTE"].includes(type);
-        return (
-          <span style={{ color: isNegative ? "red" : "green" }}>
-            {isNegative ? "-" : "+"}
-            {Math.abs(qty)}
-          </span>
-        );
-      },
-    },
-    { name: "expirationDate", label: "Expiration Date" },
-    { name: "createdAt", label: "Created At" },
-    { name: "updatedAt", label: "Updated At" },
-  ];
-
-  const handleCreate = async (values: Partial<StockChange>) => {
-    // Form only contains create fields (productId, type, quantity, expirationDate)
-    // Type is restricted by CreateChangeTypeEnum in the form
+  const handleCreateSubmit = async (values: Record<string, unknown>) => {
     await createMutation.mutateAsync({
       productId: String(values.productId),
       type: values.type as "SUPPLY" | "ADJUSTMENT" | "WASTE",
       quantity: Number(values.quantity),
       expirationDate: values.expirationDate || undefined,
     });
+    setFormState({ isOpen: false, mode: "create" });
+    refetch();
+  };
+
+  const handleCloseForm = () => {
+    setFormState({ isOpen: false, mode: "create" });
   };
 
   return (
-    <RecordListView<StockChange>
-      title="Stock Changes"
-      columns={columns}
-      data={stockChanges}
-      isLoading={isLoading}
-      error={error}
-      createFormFields={createFormFields}
-      editFormFields={[]}
-      viewFields={viewFields}
-      onCreate={handleCreate}
-      onSuccess={() => refetch()}
-      createModalTitle="Create Stock Change"
-      viewModalTitle="View Stock Change"
-    />
+    <Stack spacing={2}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h2>Stock Changes</h2>
+        <Button
+          variant="contained"
+          onClick={() =>
+            setFormState({ isOpen: true, mode: "create", data: undefined })
+          }
+        >
+          Create Stock Change
+        </Button>
+      </Box>
+
+      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+        {stockChanges.map((item: StockChange) => (
+          <Box key={item.id} sx={{ p: 2, border: "1px solid #ddd" }}>
+            <div>{item.product.name}</div>
+            <Chip
+              label={item.type}
+              color={stockChangeTypeColors[item.type]}
+              size="small"
+            />
+            <div>
+              <span style={{ color: ["USAGE", "WASTE"].includes(item.type) ? "red" : "green" }}>
+                {["USAGE", "WASTE"].includes(item.type) ? "-" : "+"}
+                {Math.abs(item.quantity)}
+              </span>
+            </div>
+            {item.expirationDate && (
+              <div>{new Date(item.expirationDate).toLocaleDateString()}</div>
+            )}
+          </Box>
+        ))}
+      </Box>
+
+      <FormModal
+        open={formState.isOpen && formState.mode === "create"}
+        onClose={handleCloseForm}
+        title="Create Stock Change"
+        fields={createFormFields}
+        onSubmit={handleCreateSubmit}
+      />
+    </Stack>
   );
 };
