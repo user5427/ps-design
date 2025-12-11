@@ -24,7 +24,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       try {
         const { accessToken } = await refreshToken();
         store.setAccessToken(accessToken);
-      } catch {
+      } catch (error) {
+        console.error("Failed to refresh token:", error);
         store.setAccessToken(null);
       } finally {
         store.setInitialized(true);
