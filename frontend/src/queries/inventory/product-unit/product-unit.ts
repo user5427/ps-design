@@ -1,6 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  getProductUnits,
   createProductUnit,
   updateProductUnit,
   bulkDeleteProductUnits,
@@ -11,15 +10,6 @@ import type {
 } from "@ps-design/schemas/inventory/product-unit";
 
 export const PRODUCT_UNITS_QUERY_KEY = ["productUnits"];
-
-export function useProductUnits() {
-  return useQuery({
-    queryKey: PRODUCT_UNITS_QUERY_KEY,
-    queryFn: async () => {
-      return getProductUnits();
-    },
-  });
-}
 
 export function useCreateProductUnit() {
   const queryClient = useQueryClient();

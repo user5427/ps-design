@@ -2,6 +2,7 @@ import { Box, IconButton, Tooltip } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 /**
  * Props for the Smart Pagination Table Row Actions Component
@@ -20,6 +21,9 @@ export interface SmartPaginationTableRowProps {
 
   /** Called when user clicks the delete button */
   onDelete?: (rowData: Record<string, unknown>) => void;
+
+  /** Called when user clicks the select button */
+  onSelect?: (rowData: Record<string, unknown>) => void;
 }
 
 /**
@@ -43,9 +47,17 @@ export function SmartPaginationTableRow({
   onView,
   onEdit,
   onDelete,
+  onSelect,
 }: SmartPaginationTableRowProps) {
   return (
     <Box sx={{ display: "flex", gap: 0.5 }}>
+      {onSelect && (
+        <Tooltip title="Select">
+          <IconButton size="small" onClick={() => onSelect(rowData)}>
+            <CheckCircleIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      )}
       {onView && (
         <Tooltip title="View">
           <IconButton size="small" onClick={() => onView(rowData)}>

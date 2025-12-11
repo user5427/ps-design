@@ -1,5 +1,4 @@
 export {
-  useProductUnits,
   useCreateProductUnit,
   useUpdateProductUnit,
   useBulkDeleteProductUnits,

@@ -5,12 +5,6 @@ import type {
   UpdateProductUnitBody,
 } from "@ps-design/schemas/inventory/product-unit";
 
-export async function getProductUnits(): Promise<ProductUnitResponse[]> {
-  const response =
-    await apiClient.get<ProductUnitResponse[]>("/inventory/units/");
-  return response.data;
-}
-
 export async function createProductUnit(
   data: CreateProductUnitBody,
 ): Promise<ProductUnitResponse> {

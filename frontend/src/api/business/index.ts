@@ -1,5 +1,4 @@
 export {
-  getBusinessesPaginated,
   getBusinessById,
   createBusiness,
   updateBusiness,

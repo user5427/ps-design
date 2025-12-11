@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  getBusinessesPaginated,
   getBusinessById,
   createBusiness,
   updateBusiness,
@@ -12,19 +11,6 @@ import type {
 } from "@ps-design/schemas/business";
 
 export const BUSINESSES_QUERY_KEY = ["business"];
-
-export function useBusinessesPaginated(
-  page: number,
-  limit: number,
-  search?: string,
-) {
-  return useQuery({
-    queryKey: [...BUSINESSES_QUERY_KEY, page, limit, search],
-    queryFn: async () => {
-      return getBusinessesPaginated(page, limit, search);
-    },
-  });
-}
 
 export function useBusinessById(businessId: string) {
   return useQuery({

@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  getProducts,
   getProduct,
   createProduct,
   updateProduct,
@@ -12,15 +11,6 @@ import type {
 } from "@ps-design/schemas/inventory/product";
 
 export const PRODUCTS_QUERY_KEY = ["products"];
-
-export function useProducts() {
-  return useQuery({
-    queryKey: PRODUCTS_QUERY_KEY,
-    queryFn: async () => {
-      return getProducts();
-    },
-  });
-}
 
 export function useProduct(productId: string) {
   return useQuery({

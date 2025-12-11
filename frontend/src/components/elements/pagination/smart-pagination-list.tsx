@@ -38,6 +38,7 @@ export interface SmartPaginationListProps {
   onEdit?: (rowData: Record<string, unknown>) => void;
   onDelete?: (rowData: Record<string, unknown>) => void;
   onView?: (rowData: Record<string, unknown>) => void;
+  onSelect?: (rowData: Record<string, unknown>) => void;
   onQueryChange?: (query: UniversalPaginationQuery) => void;
 
   /** External query state for pagination (optional) */
@@ -49,6 +50,7 @@ export function SmartPaginationList({
   onEdit,
   onDelete,
   onView,
+  onSelect,
   query: externalQuery,
   onQueryChange,
 }: SmartPaginationListProps) {
@@ -67,7 +69,7 @@ export function SmartPaginationList({
 
   const [searchInput, setSearchInput] = useState(query.search || "");
   const [columnMenuAnchor, setColumnMenuAnchor] = useState<null | HTMLElement>(null);
-  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({});
+  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({})
 
   // Build table columns from mapping
   const columns = useMemo(() => {
@@ -108,6 +110,7 @@ export function SmartPaginationList({
             onView={onView}
             onEdit={onEdit}
             onDelete={onDelete}
+            onSelect={onSelect}
           />
         ),
       },

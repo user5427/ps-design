@@ -5,13 +5,6 @@ import type {
   UpdateProductBody,
 } from "@ps-design/schemas/inventory/product";
 
-export async function getProducts(): Promise<ProductResponse[]> {
-  const response = await apiClient.get<ProductResponse[]>(
-    "/inventory/products/",
-  );
-  return response.data;
-}
-
 export async function getProduct(id: string): Promise<ProductResponse> {
   const response = await apiClient.get<ProductResponse>(
     `/inventory/products/${id}`,

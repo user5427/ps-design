@@ -3,12 +3,6 @@ import type {
   StockLevelResponse,
 } from "@ps-design/schemas/inventory/stock-level";
 
-export async function getStockLevels(): Promise<StockLevelResponse[]> {
-  const response =
-    await apiClient.get<StockLevelResponse[]>("/inventory/stock/");
-  return response.data;
-}
-
 export async function getStockLevel(
   productId: string,
 ): Promise<StockLevelResponse> {

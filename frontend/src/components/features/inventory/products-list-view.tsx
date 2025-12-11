@@ -1,24 +1,24 @@
-import { Chip } from "@mui/material";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import {
   Box,
   Button,
   Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
 import type { FormFieldDefinition } from "@/components/elements/form";
 import { FormModal, ValidationRules } from "@/components/elements/form";
 import {
   useCreateProduct,
   useBulkDeleteProducts,
-  useProducts,
   useUpdateProduct,
 } from "@/queries/inventory/products";
+import { SmartPaginationList } from "@/components/elements/pagination";
+import { PRODUCT_MAPPING, PRODUCT_UNIT_MAPPING } from "@ps-design/constants/inventory";
 import type { ProductResponse } from "@ps-design/schemas/inventory/product";
-import { useProductUnits } from "@/queries/inventory/product-unit";
 
 export const ProductsListView = () => {
-  const { data: products = [], refetch } = useProducts();
-  const { data: units = [] } = useProductUnits();
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
   const bulkDeleteMutation = useBulkDeleteProducts();
@@ -32,16 +32,11 @@ export const ProductsListView = () => {
     mode: "create",
   });
 
-  const unitOptions = useMemo(
-    () =>
-      units.map((unit: any) => ({
-        value: unit.id,
-        label: unit.name + (unit.symbol ? ` (${unit.symbol})` : ""),
-      })),
-    [units],
-  );
+  const [unitSelectOpen, setUnitSelectOpen] = useState(false);
+  const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
+  const [selectedUnitLabel, setSelectedUnitLabel] = useState<string>("");
 
-  const createFormFields: FormFieldDefinition[] = [
+  const formFields: FormFieldDefinition[] = [
     {
       name: "name",
       label: "Name",
@@ -60,15 +55,14 @@ export const ProductsListView = () => {
     {
       name: "productUnitId",
       label: "Unit",
-      type: "autocomplete",
+      type: "text",
       required: true,
-      options: unitOptions,
-      placeholder: "Search units...",
+      placeholder: "Click button to select...",
     },
   ];
 
   const editFormFields: FormFieldDefinition[] = [
-    ...createFormFields,
+    ...formFields,
     {
       name: "isDisabled",
       label: "Disabled",
@@ -77,13 +71,18 @@ export const ProductsListView = () => {
   ];
 
   const handleCreateSubmit = async (values: Record<string, unknown>) => {
+    if (!selectedUnitId) {
+      alert("Please select a unit");
+      return;
+    }
     await createMutation.mutateAsync({
       name: String(values.name),
       description: values.description ? String(values.description) : undefined,
-      productUnitId: String(values.productUnitId),
+      productUnitId: selectedUnitId,
     });
     setFormState({ isOpen: false, mode: "create" });
-    refetch();
+    setSelectedUnitId(null);
+    setSelectedUnitLabel("");
   };
 
   const handleEditSubmit = async (values: Record<string, unknown>) => {
@@ -91,87 +90,107 @@ export const ProductsListView = () => {
       id: formState.data?.id || "",
       name: values.name ? String(values.name) : undefined,
       description: values.description ? String(values.description) : undefined,
-      productUnitId: values.productUnitId ? String(values.productUnitId) : undefined,
+      productUnitId: selectedUnitId || undefined,
       isDisabled: values.isDisabled as boolean | undefined,
     });
     setFormState({ isOpen: false, mode: "create" });
-    refetch();
+    setSelectedUnitId(null);
+    setSelectedUnitLabel("");
   };
 
-  const handleEdit = (item: ProductResponse) => {
+  const handleEdit = (rowData: Record<string, unknown>) => {
     setFormState({
       isOpen: true,
       mode: "edit",
-      data: item,
+      data: rowData as ProductResponse,
     });
   };
 
-  const handleDelete = async (item: ProductResponse) => {
-    await bulkDeleteMutation.mutateAsync([item.id]);
-    refetch();
+  const handleDelete = async (rowData: Record<string, unknown>) => {
+    await bulkDeleteMutation.mutateAsync([(rowData as ProductResponse).id]);
   };
 
   const handleCloseForm = () => {
     setFormState({ isOpen: false, mode: "create" });
   };
 
+  const openCreateForm = () => {
+    setFormState({ isOpen: true, mode: "create", data: undefined });
+  };
+
+  const handleSelectUnit = (rowData: Record<string, unknown>) => {
+    const unitData = rowData as any;
+    setSelectedUnitId(unitData.id);
+    setSelectedUnitLabel(unitData.name + (unitData.symbol ? ` (${unitData.symbol})` : ""));
+    setUnitSelectOpen(false);
+  };
+
   return (
     <Stack spacing={2}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2>Products</h2>
-        <Button
-          variant="contained"
-          onClick={() =>
-            setFormState({ isOpen: true, mode: "create", data: undefined })
-          }
-        >
-          Create Product
+        <h2>{PRODUCT_MAPPING.displayName}</h2>
+        <Button variant="contained" onClick={openCreateForm}>
+          Create {PRODUCT_MAPPING.displayName}
         </Button>
       </Box>
 
-      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-        {products.map((item: ProductResponse) => (
-          <Box key={item.id} sx={{ p: 2, border: "1px solid #ddd" }}>
-            <div>{item.name}</div>
-            {item.description && <div>{item.description}</div>}
-            <div>{item.productUnit.name}</div>
-            <Chip
-              label={item.isDisabled ? "Disabled" : "Active"}
-              color={item.isDisabled ? "default" : "success"}
-              size="small"
-            />
-            <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-              <Button size="small" onClick={() => handleEdit(item)}>
-                Edit
-              </Button>
-              <Button
-                size="small"
-                color="error"
-                onClick={() => handleDelete(item)}
-              >
-                Delete
-              </Button>
-            </Box>
-          </Box>
-        ))}
-      </Box>
+      <SmartPaginationList
+        mapping={PRODUCT_MAPPING}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
 
       <FormModal
         open={formState.isOpen && formState.mode === "create"}
         onClose={handleCloseForm}
-        title="Create Product"
-        fields={createFormFields}
+        title={`Create ${PRODUCT_MAPPING.displayName}`}
+        fields={formFields}
+        initialValues={{
+          productUnitId: selectedUnitLabel,
+        }}
         onSubmit={handleCreateSubmit}
       />
 
       <FormModal
         open={formState.isOpen && formState.mode === "edit"}
         onClose={handleCloseForm}
-        title="Edit Product"
+        title={`Edit ${PRODUCT_MAPPING.displayName}`}
         fields={editFormFields}
-        initialValues={formState.data}
+        initialValues={{
+          ...formState.data,
+          productUnitId: selectedUnitLabel || (formState.data as any)?.productUnit?.name,
+        }}
         onSubmit={handleEditSubmit}
       />
+
+      {/* Unit Selection Dialog */}
+      <Dialog
+        open={unitSelectOpen}
+        onClose={() => setUnitSelectOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Select Product Unit</DialogTitle>
+        <DialogContent sx={{ minHeight: 400 }}>
+          <Box sx={{ mt: 2 }}>
+            <SmartPaginationList
+              mapping={PRODUCT_UNIT_MAPPING}
+              onEdit={handleSelectUnit}
+            />
+          </Box>
+        </DialogContent>
+      </Dialog>
+
+      {/* Button to open unit selector - shown in form context */}
+      {formState.isOpen && (
+        <Button
+          variant="outlined"
+          onClick={() => setUnitSelectOpen(true)}
+          sx={{ mt: 2 }}
+        >
+          Select Unit
+        </Button>
+      )}
     </Stack>
   );
 };

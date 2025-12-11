@@ -7,22 +7,17 @@ import {
 import type { FormFieldDefinition } from "@/components/elements/form";
 import { FormModal, ValidationRules } from "@/components/elements/form";
 import {
-  useBusinessesPaginated,
   useDeleteBusiness,
   useCreateBusiness,
+  useUpdateBusiness,
 } from "@/queries/business";
-import { apiClient } from "@/api/client";
+import { SmartPaginationList } from "@/components/elements/pagination";
+import { BUSINESS_MAPPING } from "@ps-design/constants/business";
 import type { BusinessResponse } from "@ps-design/schemas/business";
-import { useQueryClient } from "@tanstack/react-query";
 
 export const BusinessList: React.FC = () => {
-  const { data, refetch } = useBusinessesPaginated(
-    1,
-    100,
-    undefined,
-  );
-  const queryClient = useQueryClient();
   const createMutation = useCreateBusiness();
+  const updateMutation = useUpdateBusiness();
   const deleteMutation = useDeleteBusiness();
 
   const [formState, setFormState] = useState<{
@@ -34,20 +29,7 @@ export const BusinessList: React.FC = () => {
     mode: "create",
   });
 
-  const createFormFields: FormFieldDefinition[] = [
-    {
-      name: "name",
-      label: "Name",
-      type: "text",
-      required: true,
-      validationRules: [
-        ValidationRules.minLength(1),
-        ValidationRules.maxLength(100),
-      ],
-    },
-  ];
-
-  const editFormFields: FormFieldDefinition[] = [
+  const formFields: FormFieldDefinition[] = [
     {
       name: "name",
       label: "Name",
@@ -65,64 +47,56 @@ export const BusinessList: React.FC = () => {
       name: String(values.name),
     });
     setFormState({ isOpen: false, mode: "create" });
-    refetch();
   };
 
   const handleEditSubmit = async (values: Record<string, unknown>) => {
-    await apiClient.put(`/business/${formState.data?.id}`, {
+    await updateMutation.mutateAsync({
+      id: formState.data?.id || "",
       name: String(values.name),
     });
-    queryClient.invalidateQueries({ queryKey: ["business"] });
     setFormState({ isOpen: false, mode: "create" });
-    refetch();
   };
 
-  const handleEdit = (rowData: BusinessResponse) => {
+  const handleEdit = (rowData: Record<string, unknown>) => {
     setFormState({
       isOpen: true,
       mode: "edit",
-      data: rowData,
+      data: rowData as BusinessResponse,
     });
   };
 
-  const handleDelete = async (rowData: BusinessResponse) => {
-    await deleteMutation.mutateAsync(rowData.id);
-    refetch();
+  const handleDelete = async (rowData: Record<string, unknown>) => {
+    await deleteMutation.mutateAsync((rowData as BusinessResponse).id);
   };
 
   const handleCloseForm = () => {
     setFormState({ isOpen: false, mode: "create" });
   };
 
-  const businessData = data?.items || [];
+  const openCreateForm = () => {
+    setFormState({ isOpen: true, mode: "create", data: undefined });
+  };
 
   return (
     <Stack spacing={2}>
-      <Box sx={{ display: "flex", gap: 1 }}>
-        {businessData.map((item) => (
-          <Box key={item.id} sx={{ p: 2, border: "1px solid #ddd" }}>
-            <div>{item.name}</div>
-            <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-              <Button size="small" onClick={() => handleEdit(item)}>
-                Edit
-              </Button>
-              <Button
-                size="small"
-                color="error"
-                onClick={() => handleDelete(item)}
-              >
-                Delete
-              </Button>
-            </Box>
-          </Box>
-        ))}
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h2>{BUSINESS_MAPPING.displayName}</h2>
+        <Button variant="contained" onClick={openCreateForm}>
+          Create {BUSINESS_MAPPING.displayName}
+        </Button>
       </Box>
+
+      <SmartPaginationList
+        mapping={BUSINESS_MAPPING}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
 
       <FormModal
         open={formState.isOpen && formState.mode === "create"}
         onClose={handleCloseForm}
         title="Create Business"
-        fields={createFormFields}
+        fields={formFields}
         onSubmit={handleCreateSubmit}
       />
 
@@ -130,7 +104,7 @@ export const BusinessList: React.FC = () => {
         open={formState.isOpen && formState.mode === "edit"}
         onClose={handleCloseForm}
         title="Edit Business"
-        fields={editFormFields}
+        fields={formFields}
         initialValues={formState.data}
         onSubmit={handleEditSubmit}
       />
