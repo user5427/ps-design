@@ -55,7 +55,10 @@ export function FloorPlanDashboard() {
       return;
     }
 
-    if ((table.status === "ACTIVE" || table.status === "ATTENTION") && table.orderId) {
+    if (
+      (table.status === "ACTIVE" || table.status === "ATTENTION") &&
+      table.orderId
+    ) {
       navigate({ to: URLS.ORDER_VIEW(table.orderId) });
     }
   };
@@ -149,7 +152,8 @@ export function FloorPlanDashboard() {
             Floor Plan
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Tap a table to open or create an order. Right-click (or long press) for more options.
+            Tap a table to open or create an order. Right-click (or long press)
+            for more options.
           </Typography>
         </Box>
       </Stack>

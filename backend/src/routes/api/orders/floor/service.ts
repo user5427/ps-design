@@ -5,7 +5,12 @@ import type {
   FloorTable,
   UpdateFloorTableBody,
 } from "@ps-design/schemas/order/floor";
-import { DiningTable, DiningTableStatus, Order, OrderStatus } from "@/modules/order";
+import {
+  DiningTable,
+  type DiningTableStatus,
+  Order,
+  OrderStatus,
+} from "@/modules/order";
 import { NotFoundError } from "@/shared/errors";
 
 export async function getFloorPlan(

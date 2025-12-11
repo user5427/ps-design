@@ -126,7 +126,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   const total = useMemo(
     () =>
       ticketItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
-    [ticketItems]
+    [ticketItems],
   );
 
   const handleBack = () => {
@@ -138,11 +138,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
 
     setTicketItems((prev) => {
       const existing = prev.find(
-        (item) => item.id === menuItem.id && item.status === "UNSENT"
+        (item) => item.id === menuItem.id && item.status === "UNSENT",
       );
       if (existing) {
         return prev.map((item) =>
-          item === existing ? { ...item, quantity: item.quantity + 1 } : item
+          item === existing ? { ...item, quantity: item.quantity + 1 } : item,
         );
       }
       return [
@@ -167,13 +167,13 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
           if (newQty <= 0) return null;
           return { ...item, quantity: newQty };
         })
-        .filter((x): x is TicketItem => x !== null)
+        .filter((x): x is TicketItem => x !== null),
     );
   };
 
   const handleDeleteItem = (itemId: string) => {
     setTicketItems((prev) =>
-      prev.filter((item) => item.id !== itemId || item.status === "SENT")
+      prev.filter((item) => item.id !== itemId || item.status === "SENT"),
     );
   };
 
@@ -186,8 +186,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     if (orderStatus === "ACTIVE") {
       setTicketItems((prev) =>
         prev.map((item) =>
-          item.status === "UNSENT" ? { ...item, status: "SENT" } : item
-        )
+          item.status === "UNSENT" ? { ...item, status: "SENT" } : item,
+        ),
       );
     }
   };
@@ -212,9 +212,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   const statusChipColor = orderStatus === "NEW" ? "default" : "success";
 
   return (
-    <Box sx={
-        { display: "flex", flexDirection: "column", height: "100%" }
-        }>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
       {/* Panel A: Header */}
       <AppBar position="static" color="transparent" elevation={0}>
         <Toolbar sx={{ px: 2 }}>
