@@ -1,6 +1,5 @@
-export type { FormAlertProps } from "./form-alert";
+// Components
 export { FormAlert } from "./form-alert";
-export type { FormFieldProps } from "./form-field";
-export { FormField } from "./form-field";
-export type { ConfirmationDialogProps } from "./confirmation-dialog";
 export { ConfirmationDialog } from "./confirmation-dialog";
+export { FormModal } from "./form-modal";
+export { DeleteConfirmationModal } from "./delete-confirmation-modal";

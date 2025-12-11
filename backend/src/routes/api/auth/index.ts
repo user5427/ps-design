@@ -15,11 +15,11 @@ import {
 import {
   ErrorResponseSchema,
   SuccessResponseSchema,
-} from "@ps-design/schemas/shared/response-types";
+} from "@ps-design/schemas/shared/response-messages";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
-
+  
   server.post(
     "/login",
     {
