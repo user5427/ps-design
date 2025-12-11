@@ -211,7 +211,12 @@ async function main() {
         { label: "2A", capacity: 4, status: DiningTableStatus.ACTIVE },
         { label: "3A", capacity: 4, status: DiningTableStatus.ATTENTION },
         { label: "1B", capacity: 2, status: DiningTableStatus.AVAILABLE },
-        { label: "2B", capacity: 4, status: DiningTableStatus.AVAILABLE },
+        {
+          label: "2B",
+          capacity: 4,
+          status: DiningTableStatus.AVAILABLE,
+          reserved: true,
+        },
         { label: "3B", capacity: 6, status: DiningTableStatus.ACTIVE },
       ];
 
@@ -223,6 +228,7 @@ async function main() {
           label: t.label!,
           capacity: t.capacity!,
           status: t.status!,
+          reserved: t.reserved ?? false,
         });
         createdTables.push(await tableRepo.save(table));
         console.log(`Created table: ${table.label} (${table.capacity} seats)`);

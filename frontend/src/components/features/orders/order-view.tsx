@@ -19,6 +19,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useFloorPlan } from "@/hooks/orders/floor-hooks";
 import { URLS } from "@/constants/urls";
 
 type TicketItemStatus = "UNSENT" | "SENT";
@@ -91,17 +92,28 @@ interface OrderViewProps {
 
 export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   const navigate = useNavigate();
+  const { data: floorData } = useFloorPlan();
 
   const [orderStatus, setOrderStatus] = useState<OrderUiStatus>(
-    orderId ? "ACTIVE" : "NEW"
+    orderId ? "ACTIVE" : "NEW",
   );
-  const [tableLabel] = useState<string>("2A");
+  const [tableLabel, setTableLabel] = useState<string | null>(null);
   const [servedBy] = useState<string>("Demo Waiter");
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<MenuCategory>("All");
 
   const [ticketItems, setTicketItems] = useState<TicketItem[]>([]);
+
+  // Derive table label from floor plan data when available
+  const matchingTable = useMemo(() => {
+    if (!floorData?.tables?.length) return null;
+    return floorData.tables.find((t) => t.orderId === orderId) ?? null;
+  }, [floorData, orderId]);
+
+  if (!tableLabel && matchingTable) {
+    setTableLabel(matchingTable.label);
+  }
 
   const filteredMenuItems = useMemo(() => {
     return INITIAL_MENU_ITEMS.filter((item) => {
@@ -214,7 +226,9 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
             <ArrowBackIcon />
           </IconButton>
           <Box sx={{ flexGrow: 1, ml: 2 }}>
-            <Typography variant="h6">Table {tableLabel}</Typography>
+            <Typography variant="h6">
+              {tableLabel ? `Table ${tableLabel}` : "Order"}
+            </Typography>
             <Typography variant="body2" color="text.secondary">
               Order {orderId || "(new)"}
             </Typography>

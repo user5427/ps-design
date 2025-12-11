@@ -42,6 +42,9 @@ export class DiningTable {
   @Column({ type: "enum", enum: DiningTableStatus })
   status: DiningTableStatus;
 
+  @Column({ type: "boolean", default: false })
+  reserved: boolean;
+
   @OneToMany("Order", "table")
   orders: Relation<Order[]>;
 

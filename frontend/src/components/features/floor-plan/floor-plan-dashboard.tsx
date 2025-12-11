@@ -9,20 +9,13 @@ import {
   DialogActions,
   Button,
   Stack,
+  CircularProgress,
 } from "@mui/material";
-import { useState, type MouseEvent } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { TableCard, type FloorPlanTable } from "./table-card";
+import { useFloorPlan, useUpdateFloorTable } from "@/hooks/orders/floor-hooks";
 import { URLS } from "@/constants/urls";
-
-const INITIAL_TABLES: FloorPlanTable[] = [
-  { id: "1", label: "1A", capacity: 2, status: "AVAILABLE" },
-  { id: "2", label: "2A", capacity: 4, status: "ACTIVE", orderId: "o-1001" },
-  { id: "3", label: "3A", capacity: 4, status: "ATTENTION", orderId: "o-1002" },
-  { id: "4", label: "1B", capacity: 2, status: "AVAILABLE" },
-  { id: "5", label: "2B", capacity: 4, status: "AVAILABLE", reserved: true },
-  { id: "6", label: "3B", capacity: 6, status: "ACTIVE", orderId: "o-1003" },
-];
 
 interface ContextMenuState {
   anchorEl: HTMLElement | null;
@@ -31,7 +24,9 @@ interface ContextMenuState {
 
 export function FloorPlanDashboard() {
   const navigate = useNavigate();
-  const [tables, setTables] = useState<FloorPlanTable[]>(INITIAL_TABLES);
+  const { data, isLoading } = useFloorPlan();
+  const updateFloorTable = useUpdateFloorTable();
+  const [tables, setTables] = useState<FloorPlanTable[]>([]);
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
     anchorEl: null,
     tableId: null,
@@ -79,11 +74,22 @@ export function FloorPlanDashboard() {
 
   const toggleReserved = () => {
     if (!contextMenu.tableId) return;
+    const table = tables.find((t) => t.id === contextMenu.tableId);
+    if (!table) return;
+
+    const nextReserved = !table.reserved;
+
+    // Optimistic UI update
     setTables((prev) =>
       prev.map((t) =>
-        t.id === contextMenu.tableId ? { ...t, reserved: !t.reserved } : t,
+        t.id === contextMenu.tableId ? { ...t, reserved: nextReserved } : t,
       ),
     );
+
+    updateFloorTable.mutate({
+      tableId: contextMenu.tableId,
+      reserved: nextReserved,
+    });
     closeContextMenu();
   };
 
@@ -128,6 +134,13 @@ export function FloorPlanDashboard() {
       (t.status === "AVAILABLE" || (!t.orderId && t.status === "ACTIVE")),
   );
 
+  // Sync local editable state from server data when it loads or changes
+  useEffect(() => {
+    if (data?.tables) {
+      setTables(data.tables as FloorPlanTable[]);
+    }
+  }, [data]);
+
   return (
     <Box sx={{ p: 3 }}>
       <Stack direction="row" justifyContent="space-between" mb={2}>
@@ -141,23 +154,35 @@ export function FloorPlanDashboard() {
         </Box>
       </Stack>
 
-      <Box
-        sx={{
-          mt: 3,
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
-          gap: 2,
-        }}
-      >
-        {tables.map((table) => (
-          <TableCard
-            key={table.id}
-            table={table}
-            onClick={() => handleTableClick(table)}
-            onContextMenu={(event) => handleTableContextMenu(event, table)}
-          />
-        ))}
-      </Box>
+      {isLoading ? (
+        <Box
+          sx={{
+            mt: 3,
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            mt: 3,
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+            gap: 2,
+          }}
+        >
+          {tables.map((table) => (
+            <TableCard
+              key={table.id}
+              table={table}
+              onClick={() => handleTableClick(table)}
+              onContextMenu={(event) => handleTableContextMenu(event, table)}
+            />
+          ))}
+        </Box>
+      )}
 
       <Menu
         anchorEl={contextMenu.anchorEl}
