@@ -10,6 +10,6 @@ export const BUSINESS_MAPPING = createEntityMapping(
     name: { column: "business.name", type: "string", displayName: "Business Name" },
   },
   ["id"],
-  "/api/business",
+  "/business",
   "Business"
 );

@@ -1,5 +1,5 @@
-import { createEntityMapping } from "../../utils/field-mapping-builder";
-import { ProductUnitResponseSchema } from "../../schemas/inventory/units";
+import { createEntityMapping } from "../../../utils/field-mapping-builder";
+import { ProductUnitResponseSchema } from "../../../schemas/inventory/product-unit";
 
 /**
  * Complete mapping for Product Unit entity including fields, display names, and API endpoint
@@ -13,6 +13,6 @@ export const PRODUCT_UNIT_MAPPING = createEntityMapping(
     updatedAt: { column: "unit.updatedAt", type: "date", displayName: "Updated" },
   },
   ["id", "businessId", "deletedAt"],
-  "/api/inventory/units",
+  "/inventory/units",
   "Product Unit"
 );

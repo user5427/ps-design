@@ -3,7 +3,7 @@ import type {
   CreateProductBody,
   ProductResponse,
   UpdateProductBody,
-} from "@ps-design/schemas/inventory/products";
+} from "@ps-design/schemas/inventory/product";
 
 export async function getProducts(): Promise<ProductResponse[]> {
   const response = await apiClient.get<ProductResponse[]>(

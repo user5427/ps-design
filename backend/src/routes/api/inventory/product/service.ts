@@ -5,8 +5,8 @@ import type {
   ProductResponse,
   PaginatedProductResponse,
   ProductQuery,
-} from "@ps-design/schemas/inventory/products";
-import { ProductResponseSchema } from "@ps-design/schemas/inventory/products";
+} from "@ps-design/schemas/inventory/product";
+import { ProductResponseSchema } from "@ps-design/schemas/inventory/product";
 import type { Product } from "../../../../modules/inventory/product/product.entity";
 
 function toProductResponse(product: Product): ProductResponse {

@@ -21,14 +21,14 @@ import {
   ProductQuerySchema,
   type ProductQuery,
   PaginatedProductResponseSchema,
-} from "@ps-design/schemas/inventory/products";
+} from "@ps-design/schemas/inventory/product";
 import {
   BulkDeleteSchema,
   type BulkDeleteBody,
 } from "@ps-design/schemas/shared";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
-import { bulkDeleteUnits } from "../units/service";
+import { bulkDeleteUnits } from "../product-unit/service";
 
 export default async function productsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();

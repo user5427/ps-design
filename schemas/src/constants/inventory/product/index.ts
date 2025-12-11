@@ -1,0 +1,1 @@
+export { PRODUCT_MAPPING } from "./product";

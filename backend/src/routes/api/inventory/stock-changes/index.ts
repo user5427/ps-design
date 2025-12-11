@@ -3,9 +3,7 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
 import {
   createStockChange,
-  getAllStockLevelsPaginated,
   getStockChangesPaginated,
-  getStockLevelByProductId,
   updateStockChange,
 } from "./service";
 import { getBusinessId } from "@/shared/auth-utils";
@@ -15,91 +13,21 @@ import { ScopeNames } from "@/modules/user";
 import {
   type CreateStockChangeBody,
   CreateStockChangeSchema,
-  ProductIdParam,
-  type ProductIdParams,
-  type StockQuery,
-  StockQuerySchema,
-  PaginatedStockLevelResponseSchema,
+  ChangeIdParam,
+  type ChangeIdParams,
+  type StockChangeQuery,
+  StockChangeQuerySchema,
   PaginatedStockChangeResponseSchema,
-} from "@ps-design/schemas/inventory/stock";
+  UpdateStockChangeSchema,
+  type UpdateStockChangeBody,
+} from "@ps-design/schemas/inventory/stock-change";
 
-export default async function stockRoutes(fastify: FastifyInstance) {
+export default async function stockChangesRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope } = createScopeMiddleware(fastify);
 
-  server.get<{ Querystring: StockQuery }>(
-    "/",
-    {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_READ),
-      ],
-      schema: {
-        querystring: StockQuerySchema,
-        response: {
-          200: PaginatedStockLevelResponseSchema,
-        },
-      },
-    },
-    async (
-      request: FastifyRequest<{
-        Querystring: StockQuery;
-      }>,
-      reply: FastifyReply,
-    ) => {
-      const businessId = getBusinessId(request, reply);
-      if (!businessId) return;
-
-      try {
-        const stockLevels = await getAllStockLevelsPaginated(
-          fastify,
-          businessId,
-          request.query,
-        );
-        return reply.send(stockLevels);
-      } catch (error) {
-        return handleServiceError(error, reply);
-      }
-    },
-  );
-
-  server.get<{ Params: ProductIdParams }>(
-    "/:productId",
-    {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_READ),
-      ],
-      schema: {
-        params: ProductIdParam,
-      },
-    },
-    async (
-      request: FastifyRequest<{
-        Params: ProductIdParams;
-      }>,
-      reply: FastifyReply,
-    ) => {
-      const businessId = getBusinessId(request, reply);
-      if (!businessId) return;
-
-      const { productId } = request.params;
-
-      try {
-        const stockLevel = await getStockLevelByProductId(
-          fastify,
-          businessId,
-          productId,
-        );
-        return reply.send(stockLevel);
-      } catch (error) {
-        return handleServiceError(error, reply);
-      }
-    },
-  );
-
   server.post<{ Body: CreateStockChangeBody }>(
-    "/changes",
+    "/",
     {
       onRequest: [
         fastify.authenticate,
@@ -134,15 +62,15 @@ export default async function stockRoutes(fastify: FastifyInstance) {
     },
   );
 
-  server.get<{ Querystring: StockQuery }>(
-    "/changes",
+  server.get<{ Querystring: StockChangeQuery }>(
+    "/",
     {
       onRequest: [
         fastify.authenticate,
         requireScope(ScopeNames.INVENTORY_READ),
       ],
       schema: {
-        querystring: StockQuerySchema,
+        querystring: StockChangeQuerySchema,
         response: {
           200: PaginatedStockChangeResponseSchema,
         },
@@ -150,7 +78,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Querystring: StockQuery;
+        Querystring: StockChangeQuery;
       }>,
       reply: FastifyReply,
     ) => {
@@ -164,6 +92,44 @@ export default async function stockRoutes(fastify: FastifyInstance) {
           request.query,
         );
         return reply.send(changes);
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
+
+  server.put<{ Params: ChangeIdParams; Body: UpdateStockChangeBody }>(
+    "/:changeId",
+    {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.INVENTORY_WRITE),
+      ],
+      schema: {
+        params: ChangeIdParam,
+        body: UpdateStockChangeSchema,
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Params: ChangeIdParams;
+        Body: UpdateStockChangeBody;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
+
+      const { changeId } = request.params;
+
+      try {
+        const stockChange = await updateStockChange(
+          fastify,
+          businessId,
+          changeId,
+          request.body,
+        );
+        return reply.send(stockChange);
       } catch (error) {
         return handleServiceError(error, reply);
       }

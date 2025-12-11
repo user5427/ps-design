@@ -5,7 +5,7 @@ import {
   useBulkDeleteProductUnits,
   useUpdateProductUnit,
 } from "@/queries/inventory/units";
-import type { ProductUnitResponse } from "@ps-design/schemas/inventory/units";
+import type { ProductUnitResponse } from "@ps-design/schemas/inventory/product-unit";
 
 export const ProductUnitsListView = () => {
   const createMutation = useCreateProductUnit();

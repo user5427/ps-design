@@ -21,7 +21,7 @@ import {
   type CreateProductUnitBody,
   type UnitQuery,
   PaginatedProductUnitResponseSchema,
-} from "@ps-design/schemas/inventory/units";
+} from "@ps-design/schemas/inventory/product-unit";
 import {
   BulkDeleteSchema,
   type BulkDeleteBody,

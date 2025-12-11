@@ -8,7 +8,7 @@ import {
 } from "@/api/inventory/stock";
 import type {
   CreateStockChangeBody,
-} from "@ps-design/schemas/inventory/stock";
+} from "@ps-design/schemas/inventory/stock-change";
 
 export const STOCK_LEVELS_QUERY_KEY = ["stockLevels"];
 export const STOCK_CHANGES_QUERY_KEY = ["stockChanges"];

@@ -1,19 +1,14 @@
 import type { FastifyInstance } from "fastify";
-import type { Product } from "@/modules/inventory/product";
 import type { StockChange } from "@/modules/inventory/stock-change/stock-change.entity";
 import type {
   CreateStockChangeBody,
   UpdateStockChangeBody,
-  StockLevelResponse,
   StockChangeResponse,
-  PaginatedStockLevelResponse,
   PaginatedStockChangeResponse,
-  StockQuery,
-} from "@ps-design/schemas/inventory/stock";
+} from "@ps-design/schemas/inventory/stock-change";
 import {
-  StockLevelResponseSchema,
   StockChangeResponseSchema,
-} from "@ps-design/schemas/inventory/stock";
+} from "@ps-design/schemas/inventory/stock-change";
 import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 function toStockChangeResponse(change: StockChange): StockChangeResponse {
@@ -46,44 +41,6 @@ function toStockChangeResponse(change: StockChange): StockChangeResponse {
       },
     },
   };
-}
-
-function toStockLevelResponse(product: Product): StockLevelResponse {
-  return {
-    productId: product.id,
-    productName: product.name,
-    productUnit: {
-      id: product.productUnit.id,
-      name: product.productUnit.name,
-      symbol: product.productUnit.symbol,
-    },
-    isDisabled: product.isDisabled,
-    totalQuantity: product.stockLevel?.quantity ?? 0,
-  };
-}
-
-export async function getAllStockLevelsPaginated(
-  fastify: FastifyInstance,
-  businessId: string,
-  query: StockQuery,
-): Promise<PaginatedStockLevelResponse> {
-  const result = await fastify.db.product.findAllPaginated(
-    businessId,
-    query,
-  );
-  return {
-    items: result.items.map((item: Product) => StockLevelResponseSchema.parse(toStockLevelResponse(item))),
-    metadata: result.metadata,
-  };
-}
-
-export async function getStockLevelByProductId(
-  fastify: FastifyInstance,
-  businessId: string,
-  productId: string,
-): Promise<StockLevelResponse> {
-  const product = await fastify.db.product.getById(productId, businessId);
-  return toStockLevelResponse(product);
 }
 
 export async function createStockChange(
@@ -139,4 +96,3 @@ export async function getStockChangesPaginated(
     metadata: result.metadata,
   };
 }
-

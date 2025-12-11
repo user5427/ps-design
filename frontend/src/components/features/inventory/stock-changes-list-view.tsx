@@ -1,7 +1,7 @@
 import { AutoRecordListView } from "@/components/elements/record-list-view";
 import { STOCK_CHANGE_MAPPING } from "@ps-design/constants/inventory";
 import { useCreateStockChange } from "@/queries/inventory/stock";
-import type { StockChangeResponse } from "@ps-design/schemas/inventory/stock";
+import type { StockChangeResponse } from "@ps-design/schemas/inventory/stock-change";
 
 export const StockChangesListView = () => {
   const createMutation = useCreateStockChange();

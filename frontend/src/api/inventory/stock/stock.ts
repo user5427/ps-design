@@ -2,8 +2,10 @@ import { apiClient } from "@/api/client";
 import type {
   CreateStockChangeBody,
   StockChangeResponse,
+} from "@ps-design/schemas/inventory/stock-change";
+import type {
   StockLevelResponse,
-} from "@ps-design/schemas/inventory/stock";
+} from "@ps-design/schemas/inventory/stock-level";
 
 export async function getStockLevels(): Promise<StockLevelResponse[]> {
   const response =

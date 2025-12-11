@@ -8,7 +8,7 @@ import {
 import type {
   CreateProductUnitBody,
   UpdateProductUnitBody,
-} from "@ps-design/schemas/inventory/units";
+} from "@ps-design/schemas/inventory/product-unit";
 
 export const PRODUCT_UNITS_QUERY_KEY = ["productUnits"];
 

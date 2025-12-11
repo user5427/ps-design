@@ -3,7 +3,7 @@ import type {
   CreateProductUnitBody,
   ProductUnitResponse,
   UpdateProductUnitBody,
-} from "@ps-design/schemas/inventory/units";
+} from "@ps-design/schemas/inventory/product-unit";
 
 export async function getProductUnits(): Promise<ProductUnitResponse[]> {
   const response =

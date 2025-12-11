@@ -9,7 +9,7 @@ import {
 import type {
   CreateProductBody,
   UpdateProductBody,
-} from "@ps-design/schemas/inventory/products";
+} from "@ps-design/schemas/inventory/product";
 
 export const PRODUCTS_QUERY_KEY = ["products"];
 

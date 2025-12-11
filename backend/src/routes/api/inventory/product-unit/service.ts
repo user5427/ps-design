@@ -6,8 +6,8 @@ import type {
   CreateProductUnitBody,
   UpdateProductUnitBody,
   UnitQuery,
-} from "@ps-design/schemas/inventory/units";
-import { ProductUnitResponseSchema } from "@ps-design/schemas/inventory/units";
+} from "@ps-design/schemas/inventory/product-unit";
+import { ProductUnitResponseSchema } from "@ps-design/schemas/inventory/product-unit";
 
 function toProductUnitResponse(unit: ProductUnit): ProductUnitResponse {
   return {
