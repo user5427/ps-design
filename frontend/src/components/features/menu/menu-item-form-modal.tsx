@@ -121,6 +121,7 @@ const useMenuItemForm = ({
             })) || [],
         })) || [],
       );
+      setCategoryId(initialData.category?.id || null);
     } else {
       setBaseName("");
       setBasePrice("");
