@@ -1,10 +1,6 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import httpStatus from "http-status";
-import {
-  getAvailabilityByServiceId,
-  bulkSetAvailability,
-} from "./service";
+import { getAvailabilityByServiceId, bulkSetAvailability } from "./service";
 import { getBusinessId } from "@/shared/auth-utils";
 import { handleServiceError } from "@/shared/error-handler";
 import {
@@ -24,7 +20,10 @@ export default async function availabilityRoutes(fastify: FastifyInstance) {
   server.get<{ Params: StaffServiceIdForAvailabilityParams }>(
     "/staff-service/:serviceId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS_READ)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.APPOINTMENTS_READ),
+      ],
       schema: {
         params: ServiceIdForAvailabilityParam,
       },
@@ -41,7 +40,10 @@ export default async function availabilityRoutes(fastify: FastifyInstance) {
       const { serviceId } = request.params;
 
       try {
-        const availabilities = await getAvailabilityByServiceId(fastify, serviceId);
+        const availabilities = await getAvailabilityByServiceId(
+          fastify,
+          serviceId,
+        );
         return reply.send(availabilities);
       } catch (error) {
         return handleServiceError(error, reply);
@@ -56,7 +58,10 @@ export default async function availabilityRoutes(fastify: FastifyInstance) {
   }>(
     "/staff-service/:serviceId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS_WRITE)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+      ],
       schema: {
         params: ServiceIdForAvailabilityParam,
         body: BulkSetAvailabilitySchema,
@@ -75,13 +80,8 @@ export default async function availabilityRoutes(fastify: FastifyInstance) {
       const { serviceId } = request.params;
 
       try {
-        const availabilities = await bulkSetAvailability(
-          fastify,
-          businessId,
-          serviceId,
-          request.body,
-        );
-        return reply.send(availabilities);
+        await bulkSetAvailability(fastify, businessId, serviceId, request.body);
+        return reply.send();
       } catch (error) {
         return handleServiceError(error, reply);
       }

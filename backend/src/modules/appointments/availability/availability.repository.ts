@@ -27,7 +27,7 @@ export class AvailabilityRepository {
   async bulkSetForService(
     data: IBulkSetAvailability,
     businessId: string,
-  ): Promise<Availability[]> {
+  ): Promise<void> {
     // Validate staff service exists and belongs to business
     const staffService = await this.staffServiceRepository.findOne({
       where: { id: data.serviceId, businessId, deletedAt: IsNull() },
@@ -41,7 +41,7 @@ export class AvailabilityRepository {
     // Validate no overlaps within same day
     this.validateNoOverlaps(data.availabilities);
 
-    return await this.dataSource.transaction(async (manager) => {
+    await this.dataSource.transaction(async (manager) => {
       // Soft delete all existing availabilities for this service
       await manager.update(
         this.repository.target,
@@ -51,7 +51,7 @@ export class AvailabilityRepository {
 
       // Create new availabilities
       if (data.availabilities.length === 0) {
-        return [];
+        return;
       }
 
       const newAvailabilities = data.availabilities.map((av) =>
@@ -64,8 +64,6 @@ export class AvailabilityRepository {
       );
 
       await manager.save(newAvailabilities);
-
-      return this.findByServiceId(data.serviceId);
     });
   }
 
@@ -88,18 +86,21 @@ export class AvailabilityRepository {
       if (slots.length < 2) continue;
 
       // Sort by start time
-      const sorted = [...slots].sort((a, b) =>
-        this.timeToMinutes(a.startTimeLocal) - this.timeToMinutes(b.startTimeLocal)
+      const sorted = [...slots].sort(
+        (a, b) =>
+          this.timeToMinutes(a.startTimeLocal) -
+          this.timeToMinutes(b.startTimeLocal),
       );
 
       for (let i = 0; i < sorted.length - 1; i++) {
         const current = sorted[i];
         const next = sorted[i + 1];
 
-        if (this.timeToMinutes(next.startTimeLocal) < this.timeToMinutes(current.endTimeLocal)) {
-          throw new BadRequestError(
-            `Overlapping availability slots on ${day}`,
-          );
+        if (
+          this.timeToMinutes(next.startTimeLocal) <
+          this.timeToMinutes(current.endTimeLocal)
+        ) {
+          throw new BadRequestError(`Overlapping availability slots on ${day}`);
         }
       }
     }

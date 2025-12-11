@@ -33,14 +33,12 @@ export async function bulkSetAvailability(
   businessId: string,
   serviceId: string,
   input: BulkSetAvailabilityBody,
-): Promise<AvailabilityResponse[]> {
-  const availabilities = await fastify.db.availability.bulkSetForService(
+): Promise<void> {
+  await fastify.db.availability.bulkSetForService(
     {
       serviceId,
       availabilities: input.availabilities,
     },
     businessId,
   );
-
-  return availabilities.map(toAvailabilityResponse);
 }
