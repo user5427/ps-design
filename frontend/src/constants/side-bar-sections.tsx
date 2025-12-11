@@ -9,6 +9,9 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AddIcon from "@mui/icons-material/Add";
 import ViewListIcon from "@mui/icons-material/ViewList";
+import EventIcon from "@mui/icons-material/Event";
+import SpaIcon from "@mui/icons-material/Spa";
+import PersonIcon from "@mui/icons-material/Person";
 import type { Section } from "@/components/layouts/side-bar/side-bar-item";
 import { URLS } from "./urls";
 
@@ -73,6 +76,32 @@ export const sidebarSections: Section[] = [
         label: "Items",
         icon: <RestaurantMenuIcon />,
         path: URLS.MENU_ITEMS,
+      },
+    ],
+  },
+  {
+    label: "Appointments",
+    icon: <EventIcon />,
+    children: [
+      {
+        label: "Appointments",
+        icon: <EventIcon />,
+        path: URLS.APPOINTMENTS_LIST,
+      },
+      {
+        label: "Service Categories",
+        icon: <CategoryIcon />,
+        path: URLS.APPOINTMENTS_SERVICE_CATEGORIES,
+      },
+      {
+        label: "Services",
+        icon: <SpaIcon />,
+        path: URLS.APPOINTMENTS_SERVICE_DEFINITIONS,
+      },
+      {
+        label: "Staff Services",
+        icon: <PersonIcon />,
+        path: URLS.APPOINTMENTS_SERVICES,
       },
     ],
   },
