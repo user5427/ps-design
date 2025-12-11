@@ -17,9 +17,9 @@ import {
 } from "./audit-log.types";
 
 @Entity("AuditBusinessLog")
-@Index([ "entityType", "entityId" ])
-@Index([ "businessId" ])
-@Index([ "userId" ])
+@Index(["entityType", "entityId"])
+@Index(["businessId"])
+@Index(["userId"])
 export class AuditBusinessLog {
   @PrimaryGeneratedColumn("uuid")
   id: string;

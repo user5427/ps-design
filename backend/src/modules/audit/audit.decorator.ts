@@ -16,10 +16,7 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
   entityId: string,
   ip: string | null,
 ): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
-  return async (
-    ...args: Parameters<T>
-  ): Promise<Awaited<ReturnType<T>>> => {
-
+  return async (...args: Parameters<T>): Promise<Awaited<ReturnType<T>>> => {
     const oldValues =
       action === AuditActionType.CREATE
         ? null

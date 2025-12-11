@@ -49,25 +49,19 @@ export default async function businessRoutes(fastify: FastifyInstance) {
       businessId: string | null;
     };
 
-    return auditLogWrapper(
-      fn,
-      fastify.db.auditLogService,
-      auditType,
-      {
-        userId: userContext.userId,
-        ip: request.ip,
-        businessId: userContext.businessId ?? undefined,
-        entityType: "Business",
-        entityId: userContext.businessId ?? undefined,
-      }
-    );
-
+    return auditLogWrapper(fn, fastify.db.auditLogService, auditType, {
+      userId: userContext.userId,
+      ip: request.ip,
+      businessId: userContext.businessId ?? undefined,
+      entityType: "Business",
+      entityId: userContext.businessId ?? undefined,
+    });
   };
 
   server.get<{ Querystring: BusinessQuery }>(
     "/",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ)],
       schema: {
         querystring: BusinessQuerySchema,
         response: {
@@ -137,7 +131,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.get<{ Params: BusinessIdParams }>(
     "/:businessId",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ)],
       schema: {
         params: BusinessIdParam,
         response: {
