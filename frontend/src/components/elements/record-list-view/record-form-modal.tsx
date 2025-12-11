@@ -15,8 +15,10 @@ import {
   Select,
   TextField,
 } from "@mui/material";
+import { DateTimeField } from "@mui/x-date-pickers/DateTimeField";
 import type React from "react";
 import { useRef, useState } from "react";
+import dayjs from "dayjs";
 import { FormAlert } from "@/components/elements/form";
 import type { FormFieldDefinition } from "./types";
 import { getReadableError } from "@/utils/get-readable-error";
@@ -276,17 +278,23 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
 
       case "datetime":
         return (
-          <TextField
+          <DateTimeField
             key={field.name}
-            fullWidth
-            type="datetime-local"
             label={field.label}
-            value={value}
-            onChange={(e) => handleChange(field.name, e.target.value)}
-            error={!!error}
-            helperText={error}
+            value={value ? dayjs(value as string) : null}
+            onChange={(newValue) =>
+              handleChange(field.name, newValue ? newValue.toISOString() : "")
+            }
             disabled={isSubmitting}
             required={field.required}
+            slotProps={{
+              textField: {
+                fullWidth: true,
+                error: !!error,
+                helperText: error,
+              },
+            }}
+            format="YYYY-MM-DD HH:mm"
           />
         );
 
