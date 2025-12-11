@@ -23,13 +23,12 @@ import { RecordFormModal } from "./record-form-modal";
 import { ViewRecordModal } from "./view-record-modal";
 import type { EntityMapping } from "@ps-design/utils";
 import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
-import { z } from "zod";
 import { usePaginatedQuery } from "@/queries/pagination";
 
-export interface AutoRecordListViewProps<T extends z.ZodObject<any>> {
-  mapping: EntityMapping<T>;
-  onCreate?: (data: Partial<z.infer<T>>) => Promise<void>;
-  onEdit?: (id: string, data: Partial<z.infer<T>>) => Promise<void>;
+export interface AutoRecordListViewProps {
+  mapping: EntityMapping;
+  onCreate?: (data: Record<string, unknown>) => Promise<void>;
+  onEdit?: (id: string, data: Record<string, unknown>) => Promise<void>;
   onDelete?: (ids: string[]) => Promise<void>;
   idKey?: string;
   onSuccess?: () => void;
@@ -38,7 +37,7 @@ export interface AutoRecordListViewProps<T extends z.ZodObject<any>> {
   onQueryChange?: (query: UniversalPaginationQuery) => void;
 }
 
-export function AutoRecordListView<T extends z.ZodObject<any>>({
+export function AutoRecordListView({
   mapping,
   onCreate,
   onEdit,
@@ -48,7 +47,7 @@ export function AutoRecordListView<T extends z.ZodObject<any>>({
   hasViewAction = true,
   query: externalQuery,
   onQueryChange,
-}: AutoRecordListViewProps<T>) {
+}: AutoRecordListViewProps) {
   const {
     items,
     metadata,
@@ -74,8 +73,8 @@ export function AutoRecordListView<T extends z.ZodObject<any>>({
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<z.infer<T> | null>(null);
-  const [viewingRecord, setViewingRecord] = useState<z.infer<T> | null>(null);
+  const [editingRecord, setEditingRecord] = useState<Record<string, unknown> | null>(null);
+  const [viewingRecord, setViewingRecord] = useState<Record<string, unknown> | null>(null);
   const [deletingIds, setDeletingIds] = useState<string[]>([]);
   const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
 
@@ -94,7 +93,7 @@ export function AutoRecordListView<T extends z.ZodObject<any>>({
   const handleCreate = async (values: Record<string, unknown>) => {
     if (!onCreate) return;
     try {
-      await onCreate(values as Partial<z.infer<T>>);
+      await onCreate(values);
       setSnackbar({
         open: true,
         message: `${mapping.displayName} created successfully`,
@@ -114,8 +113,8 @@ export function AutoRecordListView<T extends z.ZodObject<any>>({
   const handleEdit = async (values: Record<string, unknown>) => {
     if (!editingRecord || !onEdit) return;
     try {
-      const id = String(editingRecord[idKey as keyof z.infer<T>]);
-      await onEdit(id, values as Partial<z.infer<T>>);
+      const id = String(editingRecord[idKey]);
+      await onEdit(id, values);
       setSnackbar({
         open: true,
         message: `${mapping.displayName} updated successfully`,
@@ -155,8 +154,8 @@ export function AutoRecordListView<T extends z.ZodObject<any>>({
   };
 
   // Auto-generate columns from mapping
-  const tableColumns = useMemo<MRT_ColumnDef<z.infer<T>>[]>(() => {
-    const columns: MRT_ColumnDef<z.infer<T>>[] = [];
+  const tableColumns = useMemo<MRT_ColumnDef<Record<string, unknown>>[]>(() => {
+    const columns: MRT_ColumnDef<Record<string, unknown>>[] = [];
 
     // Add field columns
     Object.entries(mapping.fields).forEach(([fieldName, fieldConfig]) => {
@@ -164,7 +163,7 @@ export function AutoRecordListView<T extends z.ZodObject<any>>({
         accessorKey: fieldName,
         header: fieldConfig.displayName,
         size: 150,
-      } as MRT_ColumnDef<z.infer<T>>);
+      } as MRT_ColumnDef<Record<string, unknown>>);
     });
 
     // Add actions column
@@ -208,7 +207,7 @@ export function AutoRecordListView<T extends z.ZodObject<any>>({
                 size="small"
                 color="error"
                 onClick={() => {
-                  const id = String(row.original[idKey as keyof z.infer<T>]);
+                  const id = String(row.original[idKey as keyof Record<string, unknown>]);
                   setDeletingIds([id]);
                   setDeleteDialogOpen(true);
                 }}
@@ -219,7 +218,7 @@ export function AutoRecordListView<T extends z.ZodObject<any>>({
           )}
         </Box>
       ),
-    } as MRT_ColumnDef<z.infer<T>>);
+    } as MRT_ColumnDef<Record<string, unknown>>);
 
     return columns;
   }, [mapping, hasViewAction, onEdit, onDelete, idKey]);
@@ -237,7 +236,7 @@ export function AutoRecordListView<T extends z.ZodObject<any>>({
       rowSelection,
     },
     onRowSelectionChange: setRowSelection,
-    getRowId: (row) => String(row[idKey as keyof z.infer<T>]),
+    getRowId: (row) => String(row[idKey as keyof Record<string, unknown>]),
     muiTableContainerProps: {
       sx: { maxHeight: "calc(100vh - 300px)" },
     },

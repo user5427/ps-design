@@ -2,7 +2,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { EntityMapping } from "@ps-design/utils";
 import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 import { PaginationHelper } from "@/api/pagination-helper";
-import { z } from "zod";
 import { useState } from "react";
 
 /**
@@ -10,9 +9,7 @@ import { useState } from "react";
  * Manages fetching paginated data with filtering, sorting, etc.
  * Does NOT handle mutations - those are passed as callbacks to UI components
  */
-export function usePaginatedQuery<T extends z.ZodObject<any>>(
-  mapping: EntityMapping<T>
-) {
+export function usePaginatedQuery(mapping: EntityMapping) {
   const [query, setQuery] = useState<UniversalPaginationQuery>({
     page: 1,
     limit: 20,

@@ -19,11 +19,10 @@ export interface FieldMapping {
 /**
  * Complete entity mapping with field definitions and metadata
  */
-export interface EntityMapping<T extends z.ZodObject<any>> {
+export interface EntityMapping {
   fields: FieldMapping;
   endpoint: string; // API endpoint URL for this entity (e.g., "/api/business")
   displayName: string; // Display name for the entity (e.g., "Business")
-  schema: T; // Zod schema for validation
 }
 
 /**
@@ -38,50 +37,29 @@ function camelCaseToTitleCase(str: string): string {
 }
 
 /**
- * Creates entity mappings from a Zod schema with TypeScript validation
- * Ensures all fields are either mapped or explicitly excluded
+ * Creates entity mappings from field definitions
  * 
  * @example
  * ```ts
  * const mapping = createEntityMapping(
- *   BusinessResponseSchema,
  *   {
  *     name: { column: "business.name", type: "string", displayName: "Name" },
  *   },
- *   ["id"], // Excluded fields
  *   "/api/business", // Endpoint
  *   "Business" // Display name
  * );
  * ```
  */
-export function createEntityMapping<T extends z.ZodObject<any>>(
-  schema: T,
-  mappings: Partial<Record<keyof z.infer<T>, Omit<FieldConfig, "displayName">>> & {
-    [K in keyof Record<keyof z.infer<T>, never>]?: FieldConfig;
+export function createEntityMapping(
+  mappings: Record<string, Omit<FieldConfig, "displayName">> & {
+    [K in string]?: FieldConfig;
   },
-  excludedFields: (keyof z.infer<T>)[] = [],
   endpoint: string,
   displayName: string
-): EntityMapping<T> {
-  const schemaKeys = Object.keys((schema as any).shape) as (keyof z.infer<T>)[];
-  const mappedKeys = Object.keys(mappings) as (keyof z.infer<T>)[];
-
-  // Check for unmapped fields
-  const unmapped = schemaKeys.filter(
-    (key) => !mappedKeys.includes(key) && !excludedFields.includes(key)
-  );
-
-  if (unmapped.length > 0) {
-    console.warn(
-      `Fields not mapped or excluded: ${String(unmapped.join(", "))}. ` +
-        `Please add them to mappings or add to excludedFields parameter.`
-    );
-  }
-
+): EntityMapping {
   // Build final field mappings with auto-generated display names if not provided
   const finalFields: FieldMapping = {};
   for (const [fieldName, config] of Object.entries(mappings)) {
-    const typedName = fieldName as keyof z.infer<T>;
     finalFields[fieldName as string] = {
       ...(config as FieldConfig),
       displayName:
@@ -93,7 +71,6 @@ export function createEntityMapping<T extends z.ZodObject<any>>(
     fields: finalFields,
     endpoint,
     displayName,
-    schema,
   };
 }
 
@@ -101,6 +78,6 @@ export function createEntityMapping<T extends z.ZodObject<any>>(
  * Utility to extract just the field mappings from an entity mapping
  * Useful for backward compatibility with code expecting plain field mappings
  */
-export function getFieldMappings(entityMapping: EntityMapping<any>): FieldMapping {
+export function getFieldMappings(entityMapping: EntityMapping): FieldMapping {
   return entityMapping.fields;
 }

@@ -6,7 +6,6 @@ import type {
 } from "@ps-design/schemas/pagination";
 import type { EntityMapping } from "@ps-design/utils";
 import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
-import { z } from "zod";
 
 export type FieldType =
   | "text"
@@ -113,13 +112,13 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
  * Ultra-simple list view component that requires only a mapping constant
  * All columns, fields, and validation are auto-generated from the mapping
  */
-export interface AutoRecordListViewProps<T extends z.ZodObject<any>> {
-  /** Entity mapping constant that defines fields, endpoint, display name, and schema */
-  mapping: EntityMapping<T>;
+export interface AutoRecordListViewProps {
+  /** Entity mapping constant that defines fields, endpoint, and display name */
+  mapping: EntityMapping;
   /** Callback for creating a new record */
-  onCreate?: (data: Partial<z.infer<T>>) => Promise<void>;
+  onCreate?: (data: Record<string, unknown>) => Promise<void>;
   /** Callback for editing a record */
-  onEdit?: (id: string, data: Partial<z.infer<T>>) => Promise<void>;
+  onEdit?: (id: string, data: Record<string, unknown>) => Promise<void>;
   /** Callback for deleting record(s) */
   onDelete?: (ids: string[]) => Promise<void>;
   /** Unique identifier key for records (default: 'id') */
