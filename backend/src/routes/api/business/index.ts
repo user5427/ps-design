@@ -30,48 +30,11 @@ import {
   ErrorResponseSchema,
   SuccessResponseSchema,
 } from "@ps-design/schemas/shared/response-types";
-import { AuditActionType, auditLogWrapper } from "@/modules/audit";
+import { AuditActionType } from "@/modules/audit";
 
 export default async function businessRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope } = createScopeMiddleware(fastify);
-
-  // Making helper to create audit wrappers easier
-  const createAuditWrapper = async (
-    fn: (...args: any[]) => any,
-    auditType: AuditActionType,
-    request: FastifyRequest | FastifyRequest<{ Params: BusinessIdParams }>
-  ) => {
-    const userContext = request.user as {
-      userId: string;
-      businessId: string | undefined;
-    };
-
-    const baseParams = {
-      userId: userContext.userId,
-      ip: request.ip,
-      entityType: "Business",
-    };
-
-    if (auditType === AuditActionType.CREATE) {
-      return auditLogWrapper(fn, fastify.db.auditLogService, auditType, {
-        ...baseParams,
-        businessId: undefined,
-        entityId: undefined,
-      });
-    }
-
-    const params = request.params as Partial<BusinessIdParams>;
-    if ("businessId" in params) {
-      userContext.businessId = params.businessId;
-    }
-    return auditLogWrapper(fn, fastify.db.auditLogService, auditType, {
-      ...baseParams,
-      businessId: userContext.businessId!,
-      entityId: userContext.businessId!,
-    });
-  };
-
 
   server.get<{ Querystring: BusinessQuery }>(
     "/",
@@ -128,7 +91,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
-        const createBusinessWrapped = await createAuditWrapper(
+        const createBusinessWrapped = await fastify.audit.business(
           createBusiness,
           AuditActionType.CREATE,
           request
@@ -195,7 +158,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
     ) => {
       try {
         const { businessId } = request.params;
-        const updateBusinessWrapped = await createAuditWrapper(
+        const updateBusinessWrapped = await fastify.audit.business(
           updateBusiness,
           AuditActionType.UPDATE,
           request,
@@ -236,7 +199,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
     ) => {
       try {
         const { businessId } = request.params;
-        const deleteBusinessWrapped = await createAuditWrapper(
+        const deleteBusinessWrapped = await fastify.audit.business(
           deleteBusiness,
           AuditActionType.DELETE,
           request,

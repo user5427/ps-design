@@ -21,7 +21,7 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
 
     // Only fetch oldValues for UPDATE/DELETE
     if (action !== AuditActionType.CREATE && entityId) {
-      oldValues = await auditLogService.getEntitySnapshot(entityType, entityId);
+      oldValues = await auditLogService.getEntitySnapshot(entityType as any, entityId);
     }
 
     let result: ActionResult = ActionResult.FAILURE;
@@ -40,7 +40,7 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
       result = ActionResult.SUCCESS;
     } finally {
       const newValues = finalEntityId
-        ? await auditLogService.getEntitySnapshot(entityType, finalEntityId)
+        ? await auditLogService.getEntitySnapshot(entityType as any, finalEntityId)
         : null;
 
       if (!newValues) {

@@ -12,7 +12,6 @@ import type { User } from "@/modules/user/user.entity";
 import type { Business } from "@/modules/business/business.entity";
 import {
   AuditActionType,
-  AuditSecurityType,
   ActionResult,
 } from "./audit-log.types";
 

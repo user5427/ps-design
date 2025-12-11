@@ -23,6 +23,7 @@ import {
   BulkDeleteSchema,
   type BulkDeleteBody,
 } from "@ps-design/schemas/shared";
+import { AuditActionType } from "@/modules/audit/audit-log.types";
 
 export default async function unitsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -66,7 +67,15 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        const unit = await createUnit(fastify, businessId, request.body);
+        const wrapCreateUnit = await fastify.audit.generic(
+          createUnit,
+          AuditActionType.CREATE,
+          request,
+          reply,
+          "ProductUnit"
+        );
+
+        const unit = await wrapCreateUnit(fastify, businessId, request.body);
         return reply.code(httpStatus.CREATED).send(unit);
       } catch (error) {
         return handleServiceError(error, reply);
@@ -99,7 +108,16 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
       const { unitId } = request.params;
 
       try {
-        const unit = await updateUnit(
+        const wrapUpdateUnit = await fastify.audit.generic(
+          updateUnit,
+          AuditActionType.UPDATE,
+          request,
+          reply,
+          "ProductUnit",
+          unitId
+        );
+
+        const unit = await wrapUpdateUnit(
           fastify,
           businessId,
           unitId,
@@ -133,7 +151,15 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        await bulkDeleteUnits(fastify, businessId, request.body.ids);
+        const wrapBulkDeleteUnits = await fastify.audit.generic(
+          bulkDeleteUnits,
+          AuditActionType.DELETE,
+          request,
+          reply,
+          "ProductUnit"
+        );
+
+        await wrapBulkDeleteUnits(fastify, businessId, request.body.ids);
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);

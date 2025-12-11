@@ -24,6 +24,7 @@ import {
 } from "@ps-design/schemas/shared";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
+import { AuditActionType } from "@/modules/audit";
 
 export default async function menuItemsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -32,7 +33,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
   server.get(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
+      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_READ) ],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);
@@ -46,7 +47,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateMenuItemBody }>(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_WRITE)],
+      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_WRITE) ],
       schema: {
         body: CreateMenuItemSchema,
       },
@@ -61,7 +62,15 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        const menuItem = await createMenuItem(
+        const wrapCreateMenuItem = await fastify.audit.generic(
+          createMenuItem,
+          AuditActionType.CREATE,
+          request,
+          reply,
+          "MenuItem"
+        );
+
+        const menuItem = await wrapCreateMenuItem(
           fastify,
           businessId,
           request.body,
@@ -76,7 +85,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
   server.get<{ Params: MenuItemIdParams }>(
     "/:menuItemId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
+      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_READ) ],
       schema: {
         params: MenuItemIdParam,
       },
@@ -104,7 +113,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
   server.put<{ Params: MenuItemIdParams; Body: UpdateMenuItemBody }>(
     "/:menuItemId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_WRITE)],
+      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_WRITE) ],
       schema: {
         params: MenuItemIdParam,
         body: UpdateMenuItemSchema,
@@ -123,7 +132,16 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
       const { menuItemId } = request.params;
 
       try {
-        const updated = await updateMenuItem(
+        const wrapUpdateMenuItem = await fastify.audit.generic(
+          updateMenuItem,
+          AuditActionType.UPDATE,
+          request,
+          reply,
+          "MenuItem",
+          menuItemId
+        );
+
+        const updated = await wrapUpdateMenuItem(
           fastify,
           businessId,
           menuItemId,
@@ -139,7 +157,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
   server.post<{ Body: BulkDeleteBody }>(
     "/bulk-delete",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_DELETE)],
+      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_DELETE) ],
       schema: {
         body: BulkDeleteSchema,
       },
@@ -154,7 +172,15 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        await bulkDeleteMenuItems(fastify, businessId, request.body.ids);
+        const wrapBulkDeleteMenuItems = await fastify.audit.generic(
+          bulkDeleteMenuItems,
+          AuditActionType.DELETE,
+          request,
+          reply,
+          "MenuItem"
+        );
+
+        await wrapBulkDeleteMenuItems(fastify, businessId, request.body.ids);
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);

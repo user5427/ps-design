@@ -1,90 +1,81 @@
-import type { Repository } from "typeorm";
-import type { AuditBusinessLog } from "./audit-business-log.entity";
-import type { AuditSecurityLog } from "./audit-security-log.entity";
-import type {
-  ICreateAuditBusinessLog,
-  ICreateAuditSecurityLog,
-} from "./audit-log.types";
-import type { Business } from "@/modules/business/business.entity";
-import type { User } from "@/modules/user/user.entity";
+import { DataSource, Repository } from "typeorm";
+import { AuditBusinessLog } from "./audit-business-log.entity";
+import { AuditSecurityLog } from "./audit-security-log.entity";
+import { User } from "@/modules/user/user.entity";
+import { Business } from "@/modules/business/business.entity";
+import { Product } from "@/modules/inventory/product/product.entity";
+import { ProductUnit } from "@/modules/inventory/product-unit/product-unit.entity";
+import { StockChange } from "@/modules/inventory/stock-change/stock-change.entity";
+import { StockLevel } from "@/modules/inventory/stock-level/stock-level.entity";
+import { Country } from "@/modules/country/country.entity";
+import { Tax } from "@/modules/tax/tax.entity";
+import { MenuItem } from "@/modules/menu/menu-item/menu-item.entity";
+import { MenuItemCategory } from "@/modules/menu/menu-item-category/menu-item-category.entity";
+import { MenuItemVariation } from "@/modules/menu/menu-item-variation/menu-item-variation.entity";
+import { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product/menu-item-base-product.entity";
+import { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product/menu-item-variation-product.entity";
+
+
+type EntityMap = {
+  "User": typeof User;
+  "Business": typeof Business;
+  "Product": typeof Product;
+  "ProductUnit": typeof ProductUnit;
+  "StockChange": typeof StockChange;
+  "StockLevel": typeof StockLevel;
+  "Country": typeof Country;
+  "Tax": typeof Tax;
+  "MenuItem": typeof MenuItem;
+  "MenuItemCategory": typeof MenuItemCategory;
+  "MenuItemVariation": typeof MenuItemVariation;
+  "MenuItemBaseProduct": typeof MenuItemBaseProduct;
+  "MenuItemVariationProduct": typeof MenuItemVariationProduct;
+  "AuditBusinessLog": typeof AuditBusinessLog;
+  "AuditSecurityLog": typeof AuditSecurityLog;
+};
+
+const entityClassMap: EntityMap = {
+  "User": User,
+  "Business": Business,
+  "Product": Product,
+  "ProductUnit": ProductUnit,
+  "StockChange": StockChange,
+  "StockLevel": StockLevel,
+  "Country": Country,
+  "Tax": Tax,
+  "MenuItem": MenuItem,
+  "MenuItemCategory": MenuItemCategory,
+  "MenuItemVariation": MenuItemVariation,
+  "MenuItemBaseProduct": MenuItemBaseProduct,
+  "MenuItemVariationProduct": MenuItemVariationProduct,
+  "AuditBusinessLog": AuditBusinessLog,
+  "AuditSecurityLog": AuditSecurityLog,
+};
 
 export class AuditLogRepository {
-  constructor(
-    private businessLogRepo: Repository<AuditBusinessLog>,
-    private securityLogRepo: Repository<AuditSecurityLog>,
-    private userRepo: Repository<User>,
-    private businessRepo: Repository<Business>,
-  ) { }
+  private dataSource: DataSource;
+  constructor(dataSource: DataSource) { this.dataSource = dataSource; }
 
-  async findBusinessById(id: string): Promise<AuditBusinessLog | null> {
-    return this.businessLogRepo.findOne({ where: { id } });
+  getRepository<T extends keyof EntityMap>(entityName: T): Repository<InstanceType<EntityMap[ T ]>> {
+    const entityClass = entityClassMap[ entityName ];
+    return this.dataSource.getRepository(entityClass) as Repository<InstanceType<EntityMap[ T ]>>;
   }
 
-  async findByBusiness(businessId: string): Promise<AuditBusinessLog[]> {
-    return this.businessLogRepo.find({
-      where: { businessId },
-      order: { createdAt: "DESC" },
-    });
+  async getEntitySnapshot(entityType: keyof EntityMap, entityId: string) {
+    const repo = this.getRepository(entityType);
+    const entity = await repo.findOne({ where: { id: entityId } });
+    return entity ? { ...entity } : null;
   }
 
-  async findByEntity(
-    entityType: string,
-    entityId: string,
-  ): Promise<AuditBusinessLog[]> {
-    return this.businessLogRepo.find({
-      where: { entityType, entityId },
-      order: { createdAt: "DESC" },
-    });
+  async logBusiness(log: Partial<AuditBusinessLog>) {
+    const repo = this.getRepository("AuditBusinessLog");
+    const audit = repo.create(log);
+    await repo.save(audit);
   }
 
-  async create(data: ICreateAuditBusinessLog): Promise<AuditBusinessLog>;
-  async create(data: ICreateAuditSecurityLog): Promise<AuditSecurityLog>;
-
-  async create(
-    data: ICreateAuditBusinessLog | ICreateAuditSecurityLog,
-  ): Promise<AuditBusinessLog | AuditSecurityLog> {
-    if ("entityId" in data) {
-      const entry = this.businessLogRepo.create({
-        businessId: data.businessId,
-        entityType: data.entityType,
-        entityId: data.entityId,
-        action: data.action,
-        oldValues: data.oldValues ?? null,
-        newValues: data.newValues ?? null,
-        userId: data.userId ?? null,
-        ip: data.ip ?? null,
-        result: data.result,
-      });
-      return this.businessLogRepo.save(entry);
-    } else {
-      const entry = this.securityLogRepo.create({
-        action: data.action,
-        userId: data.userId ?? null,
-        ip: data.ip ?? null,
-        result: data.result,
-      });
-      return this.securityLogRepo.save(entry);
-    }
+  async logSecurity(log: Partial<AuditSecurityLog>) {
+    const repo = this.getRepository("AuditSecurityLog");
+    const audit = repo.create(log);
+    await repo.save(audit);
   }
-
-  async getEntitySnapshot(entityType: string, entityId: string) {
-    switch (entityType) {
-      case "Business":
-        const business = await this.businessRepo.findOne({
-          where: { id: entityId },
-          relations: [], // add any relations you want to include in snapshot
-        });
-        return business ? { ...business } : null;
-
-      case "User":
-        const user = await this.userRepo.findOne({
-          where: { id: entityId },
-        });
-        return user ? { ...user } : null;
-
-      default:
-        return null;
-    }
-  }
-
 }

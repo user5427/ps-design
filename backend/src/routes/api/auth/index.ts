@@ -16,35 +16,10 @@ import {
   ErrorResponseSchema,
   SuccessResponseSchema,
 } from "@ps-design/schemas/shared/response-types";
-import { auditLogWrapper, AuditSecurityType } from "@/modules/audit";
+import { AuditSecurityType } from "@/modules/audit";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
-
-  // Making helper to create audit wrappers easier
-  const createAuditWrapper = async (
-    fn: (...args: any[]) => any,
-    auditType: AuditSecurityType,
-    request: FastifyRequest,
-  ) => {
-    let userId = request.user?.userId || null;
-
-    if (!userId) {
-      const user = await fastify.db.user.findByEmail(
-        (request.body as any).email,
-      );
-      userId = user ? user.id : null;
-    }
-
-    if (!userId) {
-      userId = "unknown";
-    }
-
-    return auditLogWrapper(fn, fastify.db.auditLogService, auditType, {
-      userId,
-      ip: request.ip,
-    });
-  };
 
   server.post(
     "/login",
@@ -62,7 +37,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
-        const loginWrapped = await createAuditWrapper(
+        const loginWrapped = await fastify.audit.security(
           login,
           AuditSecurityType.LOGIN,
           request,
@@ -92,7 +67,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
-        const logoutWrapped = await createAuditWrapper(
+        const logoutWrapped = await fastify.audit.security(
           logout,
           AuditSecurityType.LOGOUT,
           request,
@@ -153,7 +128,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
           .send({ message: "Unauthorized" });
 
       try {
-        const changePasswordWrapped = await createAuditWrapper(
+        const changePasswordWrapped = await fastify.audit.security(
           changePassword,
           AuditSecurityType.PASSWORD_CHANGE,
           request,

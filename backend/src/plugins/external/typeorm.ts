@@ -40,8 +40,6 @@ import { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-pro
 import {
   AuditLogService,
   AuditLogRepository,
-  AuditBusinessLog,
-  AuditSecurityLog,
 } from "@/modules/audit";
 
 export interface Services {
@@ -59,6 +57,7 @@ export interface Services {
   stockChange: StockChangeRepository;
   menuItemCategory: MenuItemCategoryRepository;
   menuItem: MenuItemRepository;
+  auditLogRepository: AuditLogRepository;
   auditLogService: AuditLogService;
 }
 
@@ -119,14 +118,8 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
       dataSource.getRepository(Product),
       dataSource.getRepository(StockLevel),
     ),
-    auditLogService: new AuditLogService(
-      new AuditLogRepository(
-        dataSource.getRepository(AuditBusinessLog),
-        dataSource.getRepository(AuditSecurityLog),
-        dataSource.getRepository(User),
-        dataSource.getRepository(Business)
-      ),
-    ),
+    auditLogRepository: new AuditLogRepository(dataSource),
+    auditLogService: new AuditLogService(dataSource),
   };
 
   fastify.decorate("db", services);
