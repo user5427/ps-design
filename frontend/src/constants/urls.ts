@@ -19,6 +19,6 @@ export const URLS = {
   // Appointments
   APPOINTMENTS_SERVICE_CATEGORIES: "/appointments/service-categories",
   APPOINTMENTS_SERVICE_DEFINITIONS: "/appointments/service-definitions",
-  APPOINTMENTS_SERVICES: "/appointments/services",
+  APPOINTMENTS_EMPLOYEES: "/appointments/employees",
   APPOINTMENTS_LIST: "/appointments/appointments",
 };

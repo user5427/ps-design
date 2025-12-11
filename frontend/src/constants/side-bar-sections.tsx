@@ -10,7 +10,6 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AddIcon from "@mui/icons-material/Add";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import EventIcon from "@mui/icons-material/Event";
-import SpaIcon from "@mui/icons-material/Spa";
 import PersonIcon from "@mui/icons-material/Person";
 import type { Section } from "@/components/layouts/side-bar/side-bar-item";
 import { URLS } from "./urls";
@@ -95,13 +94,13 @@ export const sidebarSections: Section[] = [
       },
       {
         label: "Services",
-        icon: <SpaIcon />,
+        icon: <ShoppingCartIcon />,
         path: URLS.APPOINTMENTS_SERVICE_DEFINITIONS,
       },
       {
-        label: "Staff Services",
+        label: "Employees",
         icon: <PersonIcon />,
-        path: URLS.APPOINTMENTS_SERVICES,
+        path: URLS.APPOINTMENTS_EMPLOYEES,
       },
     ],
   },
