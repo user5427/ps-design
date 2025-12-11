@@ -30,16 +30,23 @@ const ServiceDefinitionFilterSchema = z.object({
   active: z.string().optional(),
 });
 
-type ServiceDefinitionFilterQuery = z.infer<typeof ServiceDefinitionFilterSchema>;
+type ServiceDefinitionFilterQuery = z.infer<
+  typeof ServiceDefinitionFilterSchema
+>;
 
-export default async function serviceDefinitionsRoutes(fastify: FastifyInstance) {
+export default async function serviceDefinitionsRoutes(
+  fastify: FastifyInstance,
+) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope } = createScopeMiddleware(fastify);
 
   server.get(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS_READ)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.APPOINTMENTS_READ),
+      ],
       schema: {
         querystring: ServiceDefinitionFilterSchema,
       },
@@ -60,7 +67,10 @@ export default async function serviceDefinitionsRoutes(fastify: FastifyInstance)
   server.post<{ Body: CreateServiceDefinitionBody }>(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS_WRITE)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+      ],
       schema: {
         body: CreateServiceDefinitionSchema,
       },
@@ -75,12 +85,8 @@ export default async function serviceDefinitionsRoutes(fastify: FastifyInstance)
       if (!businessId) return;
 
       try {
-        const definition = await createServiceDefinition(
-          fastify,
-          businessId,
-          request.body,
-        );
-        return reply.code(httpStatus.CREATED).send(definition);
+        await createServiceDefinition(fastify, businessId, request.body);
+        return reply.code(httpStatus.CREATED).send();
       } catch (error) {
         return handleServiceError(error, reply);
       }
@@ -90,7 +96,10 @@ export default async function serviceDefinitionsRoutes(fastify: FastifyInstance)
   server.get<{ Params: ServiceDefinitionIdParams }>(
     "/:serviceDefinitionId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS_READ)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.APPOINTMENTS_READ),
+      ],
       schema: {
         params: ServiceDefinitionIdParam,
       },
@@ -119,10 +128,16 @@ export default async function serviceDefinitionsRoutes(fastify: FastifyInstance)
     },
   );
 
-  server.put<{ Params: ServiceDefinitionIdParams; Body: UpdateServiceDefinitionBody }>(
+  server.put<{
+    Params: ServiceDefinitionIdParams;
+    Body: UpdateServiceDefinitionBody;
+  }>(
     "/:serviceDefinitionId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS_WRITE)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+      ],
       schema: {
         params: ServiceDefinitionIdParam,
         body: UpdateServiceDefinitionSchema,
@@ -141,13 +156,13 @@ export default async function serviceDefinitionsRoutes(fastify: FastifyInstance)
       const { serviceDefinitionId } = request.params;
 
       try {
-        const updated = await updateServiceDefinition(
+        await updateServiceDefinition(
           fastify,
           businessId,
           serviceDefinitionId,
           request.body,
         );
-        return reply.send(updated);
+        return reply.send();
       } catch (error) {
         return handleServiceError(error, reply);
       }
@@ -157,7 +172,10 @@ export default async function serviceDefinitionsRoutes(fastify: FastifyInstance)
   server.post<{ Body: BulkDeleteBody }>(
     "/bulk-delete",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS_DELETE)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.APPOINTMENTS_DELETE),
+      ],
       schema: {
         body: BulkDeleteSchema,
       },
@@ -172,7 +190,11 @@ export default async function serviceDefinitionsRoutes(fastify: FastifyInstance)
       if (!businessId) return;
 
       try {
-        await bulkDeleteServiceDefinitions(fastify, businessId, request.body.ids);
+        await bulkDeleteServiceDefinitions(
+          fastify,
+          businessId,
+          request.body.ids,
+        );
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);

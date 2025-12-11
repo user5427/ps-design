@@ -44,10 +44,10 @@ export class ServiceCategoryRepository {
     return category;
   }
 
-  async create(data: ICreateServiceCategory): Promise<ServiceCategory> {
+  async create(data: ICreateServiceCategory): Promise<void> {
     try {
       const category = this.repository.create(data);
-      return await this.repository.save(category);
+      await this.repository.save(category);
     } catch (error) {
       if (isUniqueConstraintError(error)) {
         throw new ConflictError(
@@ -62,19 +62,14 @@ export class ServiceCategoryRepository {
     id: string,
     businessId: string,
     data: IUpdateServiceCategory,
-  ): Promise<ServiceCategory> {
+  ): Promise<void> {
     const category = await this.findByIdAndBusinessId(id, businessId);
     if (!category) {
       throw new NotFoundError("Service category not found");
     }
 
     try {
-      await this.repository.update(id, data);
-      const updatedCategory = await this.findById(id);
-      if (!updatedCategory) {
-        throw new NotFoundError("Service category not found after update");
-      }
-      return updatedCategory;
+      this.repository.update(id, data);
     } catch (error) {
       if (isUniqueConstraintError(error)) {
         throw new ConflictError(
@@ -98,9 +93,10 @@ export class ServiceCategoryRepository {
       );
     }
 
-    const totalServiceDefinitions = await this.serviceDefinitionRepository.count({
-      where: { categoryId: In(ids), deletedAt: IsNull() },
-    });
+    const totalServiceDefinitions =
+      await this.serviceDefinitionRepository.count({
+        where: { categoryId: In(ids), deletedAt: IsNull() },
+      });
 
     if (totalServiceDefinitions > 0) {
       throw new ConflictError(

@@ -30,15 +30,13 @@ export async function createServiceCategory(
   fastify: FastifyInstance,
   businessId: string,
   input: CreateServiceCategoryBody,
-): Promise<ServiceCategoryResponse> {
+): Promise<void> {
   const { name } = input;
 
-  const category = await fastify.db.serviceCategory.create({
+  await fastify.db.serviceCategory.create({
     name,
     businessId,
   });
-
-  return toCategoryResponse(category);
 }
 
 export async function getServiceCategoryById(
@@ -58,13 +56,8 @@ export async function updateServiceCategory(
   businessId: string,
   categoryId: string,
   input: UpdateServiceCategoryBody,
-): Promise<ServiceCategoryResponse> {
-  const updated = await fastify.db.serviceCategory.update(
-    categoryId,
-    businessId,
-    input,
-  );
-  return toCategoryResponse(updated);
+): Promise<void> {
+  await fastify.db.serviceCategory.update(categoryId, businessId, input);
 }
 
 export async function bulkDeleteServiceCategories(

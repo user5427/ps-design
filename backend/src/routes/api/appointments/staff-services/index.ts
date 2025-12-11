@@ -32,7 +32,10 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
   server.get(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS_READ)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.APPOINTMENTS_READ),
+      ],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);
@@ -46,7 +49,10 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateServiceBody }>(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS_WRITE)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+      ],
       schema: {
         body: CreateServiceSchema,
       },
@@ -61,12 +67,8 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        const staffService = await createStaffService(
-          fastify,
-          businessId,
-          request.body,
-        );
-        return reply.code(httpStatus.CREATED).send(staffService);
+        await createStaffService(fastify, businessId, request.body);
+        return reply.code(httpStatus.CREATED).send();
       } catch (error) {
         return handleServiceError(error, reply);
       }
@@ -76,7 +78,10 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
   server.get<{ Params: ServiceIdParams }>(
     "/:serviceId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS_READ)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.APPOINTMENTS_READ),
+      ],
       schema: {
         params: ServiceIdParam,
       },
@@ -108,7 +113,10 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
   server.put<{ Params: ServiceIdParams; Body: UpdateServiceBody }>(
     "/:serviceId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS_WRITE)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+      ],
       schema: {
         params: ServiceIdParam,
         body: UpdateServiceSchema,
@@ -127,13 +135,8 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
       const { serviceId } = request.params;
 
       try {
-        const updated = await updateStaffService(
-          fastify,
-          businessId,
-          serviceId,
-          request.body,
-        );
-        return reply.send(updated);
+        await updateStaffService(fastify, businessId, serviceId, request.body);
+        return reply.send();
       } catch (error) {
         return handleServiceError(error, reply);
       }
@@ -143,7 +146,10 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
   server.post<{ Body: BulkDeleteBody }>(
     "/bulk-delete",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS_DELETE)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.APPOINTMENTS_DELETE),
+      ],
       schema: {
         body: BulkDeleteSchema,
       },

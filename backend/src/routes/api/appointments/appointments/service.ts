@@ -8,9 +8,7 @@ import type {
 } from "@ps-design/schemas/appointments/appointment";
 import type { Appointment } from "@/modules/appointments/appointment/appointment.entity";
 
-function toAppointmentResponse(
-  appointment: Appointment,
-): AppointmentResponse {
+function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
   return {
     id: appointment.id,
     customerName: appointment.customerName,
@@ -58,9 +56,14 @@ export async function getAllAppointments(
       ? {
           serviceId: filter.serviceId,
           employeeId: filter.eployeeId, // Note: typo in schema
-          status: filter.status as unknown as import("@/modules/appointments/appointment/appointment.entity").AppointmentStatus[],
-          startTimeFrom: filter.startTimeFrom ? new Date(filter.startTimeFrom) : undefined,
-          startTimeTo: filter.startTimeTo ? new Date(filter.startTimeTo) : undefined,
+          status:
+            filter.status as unknown as import("@/modules/appointments/appointment/appointment.entity").AppointmentStatus[],
+          startTimeFrom: filter.startTimeFrom
+            ? new Date(filter.startTimeFrom)
+            : undefined,
+          startTimeTo: filter.startTimeTo
+            ? new Date(filter.startTimeTo)
+            : undefined,
         }
       : undefined,
   );
@@ -72,8 +75,8 @@ export async function createAppointment(
   businessId: string,
   createdById: string,
   input: CreateAppointmentBody,
-): Promise<AppointmentResponse> {
-  const appointment = await fastify.db.appointment.create({
+): Promise<void> {
+  await fastify.db.appointment.create({
     customerName: input.customerName,
     customerPhone: input.customerPhone,
     customerEmail: input.customerEmail,
@@ -84,8 +87,6 @@ export async function createAppointment(
     businessId,
     createdById,
   });
-
-  return toAppointmentResponse(appointment);
 }
 
 export async function getAppointmentById(
@@ -105,8 +106,8 @@ export async function updateAppointment(
   businessId: string,
   appointmentId: string,
   input: UpdateAppointmentBody,
-): Promise<AppointmentResponse> {
-  const updated = await fastify.db.appointment.update(appointmentId, businessId, {
+): Promise<void> {
+  await fastify.db.appointment.update(appointmentId, businessId, {
     customerName: input.customerName,
     customerPhone: input.customerPhone,
     customerEmail: input.customerEmail,
@@ -114,7 +115,6 @@ export async function updateAppointment(
     blockDuration: input.blockDuration,
     notes: input.notes,
   });
-  return toAppointmentResponse(updated);
 }
 
 export async function updateAppointmentStatus(
@@ -129,12 +129,4 @@ export async function updateAppointmentStatus(
     status as import("@/modules/appointments/appointment/appointment.entity").AppointmentStatus,
   );
   return toAppointmentResponse(updated);
-}
-
-export async function bulkDeleteAppointments(
-  fastify: FastifyInstance,
-  businessId: string,
-  ids: string[],
-): Promise<void> {
-  await fastify.db.appointment.bulkDelete(ids, businessId);
 }

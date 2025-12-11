@@ -48,8 +48,8 @@ export async function createStaffService(
   fastify: FastifyInstance,
   businessId: string,
   input: CreateServiceBody,
-): Promise<StaffServiceResponse> {
-  const staffService = await fastify.db.staffService.create({
+): Promise<void> {
+  await fastify.db.staffService.create({
     price: input.price,
     baseDuration: input.baseDuration,
     isDisabled: input.isDisabled,
@@ -57,8 +57,6 @@ export async function createStaffService(
     serviceDefinitionId: input.serviceDefinitionId,
     businessId,
   });
-
-  return toStaffServiceResponse(staffService);
 }
 
 export async function getStaffServiceById(
@@ -78,13 +76,8 @@ export async function updateStaffService(
   businessId: string,
   serviceId: string,
   input: UpdateServiceBody,
-): Promise<StaffServiceResponse> {
-  const updated = await fastify.db.staffService.update(
-    serviceId,
-    businessId,
-    input,
-  );
-  return toStaffServiceResponse(updated);
+): Promise<void> {
+  await fastify.db.staffService.update(serviceId, businessId, input);
 }
 
 export async function bulkDeleteStaffServices(

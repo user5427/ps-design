@@ -58,7 +58,7 @@ export class ServiceDefinitionRepository {
     return definition;
   }
 
-  async create(data: ICreateServiceDefinition): Promise<ServiceDefinition> {
+  async create(data: ICreateServiceDefinition): Promise<void> {
     if (data.categoryId) {
       await this.validateCategoryExists(data.categoryId, data.businessId);
     }
@@ -71,8 +71,7 @@ export class ServiceDefinitionRepository {
         businessId: data.businessId,
         categoryId: data.categoryId ?? null,
       });
-      const saved = await this.repository.save(definition);
-      return (await this.findById(saved.id))!;
+      await this.repository.save(definition);
     } catch (error) {
       if (isUniqueConstraintError(error)) {
         throw new ConflictError(
@@ -87,7 +86,7 @@ export class ServiceDefinitionRepository {
     id: string,
     businessId: string,
     data: IUpdateServiceDefinition,
-  ): Promise<ServiceDefinition> {
+  ): Promise<void> {
     const definition = await this.findByIdAndBusinessId(id, businessId);
     if (!definition) {
       throw new NotFoundError("Service definition not found");
@@ -99,11 +98,7 @@ export class ServiceDefinitionRepository {
 
     try {
       await this.repository.update(id, data);
-      const updated = await this.findById(id);
-      if (!updated) {
-        throw new NotFoundError("Service definition not found after update");
-      }
-      return updated;
+      await this.findById(id);
     } catch (error) {
       if (isUniqueConstraintError(error)) {
         throw new ConflictError(

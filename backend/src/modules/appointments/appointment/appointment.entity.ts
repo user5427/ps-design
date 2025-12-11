@@ -65,9 +65,6 @@ export class Appointment {
   @JoinColumn({ name: "createdById" })
   createdBy: Relation<User>;
 
-  @Column({ type: "timestamp", nullable: true })
-  deletedAt: Date | null;
-
   @CreateDateColumn()
   createdAt: Date;
 

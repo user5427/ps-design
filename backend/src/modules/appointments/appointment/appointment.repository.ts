@@ -1,15 +1,4 @@
-import {
-  In,
-  IsNull,
-  type Repository,
-  type DataSource,
-  Between,
-  LessThanOrEqual,
-  MoreThanOrEqual,
-  And,
-  Not,
-  Raw,
-} from "typeorm";
+import { In, IsNull, type Repository, type DataSource } from "typeorm";
 import { BadRequestError, ConflictError, NotFoundError } from "@/shared/errors";
 import type { StaffService } from "@/modules/appointments/staff-service/staff-service.entity";
 import type { Availability } from "@/modules/appointments/availability/availability.entity";
@@ -85,7 +74,7 @@ export class AppointmentRepository {
 
   async findById(id: string): Promise<Appointment | null> {
     return this.repository.findOne({
-      where: { id, deletedAt: IsNull() },
+      where: { id },
       relations: APPOINTMENT_RELATIONS,
     });
   }
@@ -95,7 +84,7 @@ export class AppointmentRepository {
     businessId: string,
   ): Promise<Appointment | null> {
     return this.repository.findOne({
-      where: { id, businessId, deletedAt: IsNull() },
+      where: { id, businessId },
       relations: APPOINTMENT_RELATIONS,
     });
   }
@@ -108,24 +97,25 @@ export class AppointmentRepository {
     return appointment;
   }
 
-  async create(data: ICreateAppointment): Promise<Appointment> {
-    // Validate staff service exists
+  async create(data: ICreateAppointment): Promise<void> {
     const staffService = await this.staffServiceRepository.findOne({
-      where: { id: data.serviceId, businessId: data.businessId, deletedAt: IsNull() },
+      where: {
+        id: data.serviceId,
+        businessId: data.businessId,
+        deletedAt: IsNull(),
+      },
     });
 
     if (!staffService) {
       throw new BadRequestError("Invalid service");
     }
 
-    // Validate block duration is at least base duration
     if (data.blockDuration < staffService.baseDuration) {
       throw new BadRequestError(
         `Block duration must be at least ${staffService.baseDuration} minutes`,
       );
     }
 
-    // Check for overlapping appointments
     await this.checkForOverlap(
       data.serviceId,
       data.startTime,
@@ -146,8 +136,7 @@ export class AppointmentRepository {
         createdById: data.createdById,
       });
 
-      const saved = await manager.save(appointment);
-      return (await this.findById(saved.id))!;
+      await manager.save(appointment);
     });
   }
 
@@ -155,7 +144,7 @@ export class AppointmentRepository {
     id: string,
     businessId: string,
     data: IUpdateAppointment,
-  ): Promise<Appointment> {
+  ): Promise<void> {
     const appointment = await this.findByIdAndBusinessId(id, businessId);
     if (!appointment) {
       throw new NotFoundError("Appointment not found");
@@ -178,8 +167,7 @@ export class AppointmentRepository {
       );
     }
 
-    await this.repository.update(id, data);
-    return (await this.findById(id))!;
+    this.repository.update(id, data);
   }
 
   async updateStatus(
@@ -199,22 +187,6 @@ export class AppointmentRepository {
     return (await this.findById(id))!;
   }
 
-  async bulkDelete(ids: string[], businessId: string): Promise<void> {
-    const appointments = await this.repository.find({
-      where: { id: In(ids), businessId, deletedAt: IsNull() },
-    });
-
-    if (appointments.length !== ids.length) {
-      const foundIds = new Set(appointments.map((a) => a.id));
-      const missingIds = ids.filter((id) => !foundIds.has(id));
-      throw new NotFoundError(
-        `Appointments not found: ${missingIds.join(", ")}`,
-      );
-    }
-
-    await this.repository.update(ids, { deletedAt: new Date() });
-  }
-
   private async checkForOverlap(
     serviceId: string,
     startTime: Date,
@@ -226,7 +198,6 @@ export class AppointmentRepository {
     const queryBuilder = this.repository
       .createQueryBuilder("appointment")
       .where("appointment.serviceId = :serviceId", { serviceId })
-      .andWhere("appointment.deletedAt IS NULL")
       .andWhere("appointment.status != :cancelledStatus", {
         cancelledStatus: "CANCELLED",
       })
