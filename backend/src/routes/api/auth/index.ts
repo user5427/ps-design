@@ -1,3 +1,4 @@
+import { UserCountAggregateInputType } from './../../../generated/prisma/models/User';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
@@ -16,9 +17,39 @@ import {
   ErrorResponseSchema,
   SuccessResponseSchema,
 } from "@ps-design/schemas/shared/response-types";
+import { auditLogWrapper, AuditSecurityType } from "@/modules/audit";
+
 
 export default async function authRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
+
+  // Making helper to create audit wrappers easier
+  const createAuditWrapper = async (
+    fn: (...args: any[]) => any,
+    auditType: AuditSecurityType,
+    request: FastifyRequest
+  ) => {
+    let userId = request.user?.userId || null;
+
+    if (!userId) {
+      const user = await fastify.db.user.findByEmail((request.body as any).email);
+      userId = user ? user.id : null;
+    }
+
+    if (!userId) {
+      userId = "unknown";
+    }
+
+    return auditLogWrapper(
+      fn,
+      fastify.db.auditLogService,
+      auditType,
+      {
+        userId,
+        ip: request.ip,
+      }
+    );
+  };
 
   server.post(
     "/login",
@@ -36,7 +67,10 @@ export default async function authRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
-        const result = await login(fastify, request, request.body);
+        const loginWrapped = await createAuditWrapper(login, AuditSecurityType.LOGIN, request);
+        const result = await loginWrapped(fastify, request, request.body);
+
+        // const result = await login(fastify, request, request.body);
         setRefreshCookie(fastify, reply, result.refreshToken);
 
         return reply.send(result);
@@ -60,7 +94,9 @@ export default async function authRoutes(fastify: FastifyInstance) {
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
-        await logout(fastify, request);
+        const logoutWrapped = await createAuditWrapper(logout, AuditSecurityType.LOGOUT, request);
+        await logoutWrapped(fastify, request);
+
         reply.clearCookie("refresh_token", { path: "/api/auth" });
         return reply.send({ success: true });
       } catch (err) {
@@ -115,7 +151,9 @@ export default async function authRoutes(fastify: FastifyInstance) {
           .send({ message: "Unauthorized" });
 
       try {
-        await changePassword(fastify, user.id, request.body);
+        const changePasswordWrapped = await createAuditWrapper(changePassword, AuditSecurityType.PASSWORD_CHANGE, request);
+        await changePasswordWrapped(fastify, user.id, request.body);
+
         return reply.send({ success: true });
       } catch (err: any) {
         const statusCode = err?.code || httpStatus.INTERNAL_SERVER_ERROR;
