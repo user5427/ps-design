@@ -7,75 +7,103 @@ const timeToMinutes = (timeStr: string): number => {
   return hours * 60 + minutes;
 };
 
-// Check for overlaps in a list of time slots
-// Returns the index of the conflicting item or -1 if valid
-const findOverlapIndex = (
-  slots: { startTimeLocal: string; endTimeLocal: string }[]
-): number => {
-  // Sort by start time
-  const sorted = [...slots].map((s, i) => ({ ...s, originalIndex: i }))
-    .sort((a, b) => timeToMinutes(a.startTimeLocal) - timeToMinutes(b.startTimeLocal));
-
-  for (let i = 0; i < sorted.length - 1; i++) {
-    const current = sorted[i];
-    const next = sorted[i + 1];
-
-    if (timeToMinutes(next.startTimeLocal) < timeToMinutes(current.endTimeLocal)) {
-      // Return the second conflicting slot
-      return next.originalIndex; 
-    }
-  }
-  return -1;
+const NEXT_DAY: Record<string, string> = {
+  MON: "TUE",
+  TUE: "WED",
+  WED: "THU",
+  THU: "FRI",
+  FRI: "SAT",
+  SAT: "SUN",
+  SUN: "MON",
 };
 
 export const AvailabilityIdParam = z.object({ availabilityId: uuid() });
-export const ServiceIdForAvailabilityParam = z.object({
-  serviceId: uuid(),
+export const UserIdForAvailabilityParam = z.object({
+  userId: uuid(),
 });
 
 export const CreateAvailabilitySchema = z
   .object({
     dayOfWeek: DayOfWeekSchema,
-    startTimeLocal: TimeStringSchema,
-    endTimeLocal: TimeStringSchema,
+    startTime: TimeStringSchema,
+    endTime: TimeStringSchema,
+    isOvernight: z.boolean().default(false),
   })
   .superRefine((data, ctx) => {
-    const startMins = timeToMinutes(data.startTimeLocal);
-    const endMins = timeToMinutes(data.endTimeLocal);
+    const startMins = timeToMinutes(data.startTime);
+    const endMins = timeToMinutes(data.endTime);
 
-    if (startMins >= endMins) {
-      ctx.addIssue({ code: "custom", message: "End time must be after start time", path: ["endTimeLocal"] });
-      return;
+    if (data.isOvernight) {
+      // For overnight shifts, end time should be less than start time (e.g., 23:00 - 01:00)
+      if (endMins >= startMins) {
+        ctx.addIssue({
+          code: "custom",
+          message:
+            "For overnight shifts, end time must be earlier than start time (next day)",
+          path: ["endTime"],
+        });
+      }
+    } else {
+      // For regular shifts, end time must be after start time
+      if (startMins >= endMins) {
+        ctx.addIssue({
+          code: "custom",
+          message: "End time must be after start time",
+          path: ["endTime"],
+        });
+      }
     }
-
   });
 
 export const BulkSetAvailabilitySchema = z.object({
   availabilities: z
     .array(CreateAvailabilitySchema)
     .superRefine((items, ctx) => {
-      const slotsByDay: Record<string, typeof items> = {};
-      
-      items.forEach(item => {
+      const slotsByDay: Record<
+        string,
+        Array<{ start: number; end: number; index: number }>
+      > = {};
+
+      items.forEach((item, index) => {
+        const startMins = timeToMinutes(item.startTime);
+        const endMins = timeToMinutes(item.endTime);
+
         slotsByDay[item.dayOfWeek] = slotsByDay[item.dayOfWeek] || [];
-        slotsByDay[item.dayOfWeek].push(item);
+        if (item.isOvernight) {
+          slotsByDay[item.dayOfWeek].push({
+            start: startMins,
+            end: 24 * 60,
+            index,
+          });
+
+          const nextDay = NEXT_DAY[item.dayOfWeek];
+          slotsByDay[nextDay] = slotsByDay[nextDay] || [];
+          slotsByDay[nextDay].push({ start: 0, end: endMins, index });
+        } else {
+          slotsByDay[item.dayOfWeek].push({
+            start: startMins,
+            end: endMins,
+            index,
+          });
+        }
       });
 
+      // Check for overlaps
       for (const dayKey of Object.keys(slotsByDay)) {
-        const slots = slotsByDay[dayKey]; 
-        const dayNumber = Number(dayKey); 
+        const slots = slotsByDay[dayKey];
+        if (slots.length < 2) continue;
 
-        if (slots.length > 1) {
-          const conflictIndex = findOverlapIndex(slots); 
-          
-          if (conflictIndex !== -1) {
-            const conflictingSlot = slots[conflictIndex];
-            const actualIndex = items.indexOf(conflictingSlot);
+        const sorted = [...slots].sort((a, b) => a.start - b.start);
 
+        for (let i = 0; i < sorted.length - 1; i++) {
+          const current = sorted[i];
+          const next = sorted[i + 1];
+
+          if (next.start < current.end) {
             ctx.addIssue({
               code: "custom",
-              message: `Overlapping shifts detected on day ${dayNumber}. Split shifts must have a gap between them.`,
-              path: [actualIndex, "startTimeLocal"],
+              message: `Overlapping availability on ${dayKey}`,
+              path: [next.index, "startTime"],
             });
           }
         }
@@ -83,8 +111,9 @@ export const BulkSetAvailabilitySchema = z.object({
     }),
 });
 
-export type DayOfWeek = z.infer<typeof DayOfWeekSchema>;
 export type CreateAvailabilityBody = z.infer<typeof CreateAvailabilitySchema>;
 export type BulkSetAvailabilityBody = z.infer<typeof BulkSetAvailabilitySchema>;
 export type AvailabilityIdParams = z.infer<typeof AvailabilityIdParam>;
-export type StaffServiceIdForAvailabilityParams = z.infer<typeof ServiceIdForAvailabilityParam>;
+export type UserIdForAvailabilityParams = z.infer<
+  typeof UserIdForAvailabilityParam
+>;

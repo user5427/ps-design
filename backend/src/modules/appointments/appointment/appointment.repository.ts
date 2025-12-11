@@ -1,7 +1,7 @@
 import { IsNull, type Repository, type DataSource } from "typeorm";
 import { BadRequestError, ConflictError, NotFoundError } from "@/shared/errors";
 import type { StaffService } from "@/modules/appointments/staff-service/staff-service.entity";
-import type { Availability } from "@/modules/appointments/availability/availability.entity";
+import type { AvailabilityRepository } from "@/modules/appointments/availability/availability.repository";
 import type { Appointment, AppointmentStatus } from "./appointment.entity";
 import type {
   ICreateAppointment,
@@ -21,7 +21,7 @@ export class AppointmentRepository {
     private dataSource: DataSource,
     private repository: Repository<Appointment>,
     private staffServiceRepository: Repository<StaffService>,
-    private availabilityRepository: Repository<Availability>,
+    private availabilityRepository: AvailabilityRepository,
   ) {}
 
   async findAllByBusinessId(
@@ -115,6 +115,18 @@ export class AppointmentRepository {
       );
     }
 
+    // Check employee availability
+    const isAvailable = await this.availabilityRepository.isEmployeeAvailable(
+      staffService.employeeId,
+      data.businessId,
+      data.startTime,
+      data.blockDuration,
+    );
+
+    if (!isAvailable) {
+      throw new BadRequestError("Employee is not available at this time");
+    }
+
     await this.checkForOverlap(
       data.serviceId,
       data.startTime,
@@ -156,6 +168,18 @@ export class AppointmentRepository {
     if (data.startTime !== undefined || data.blockDuration !== undefined) {
       const newStartTime = data.startTime ?? appointment.startTime;
       const newDuration = data.blockDuration ?? appointment.blockDuration;
+
+      // Check employee availability for the new time
+      const isAvailable = await this.availabilityRepository.isEmployeeAvailable(
+        appointment.service.employeeId,
+        businessId,
+        newStartTime,
+        newDuration,
+      );
+
+      if (!isAvailable) {
+        throw new BadRequestError("Employee is not available at this time");
+      }
 
       await this.checkForOverlap(
         appointment.serviceId,

@@ -1,13 +1,13 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { getAvailabilityByServiceId, bulkSetAvailability } from "./service";
+import { getAvailabilityByUserId, bulkSetAvailability } from "./service";
 import { getBusinessId } from "@/shared/auth-utils";
 import { handleServiceError } from "@/shared/error-handler";
 import {
   type BulkSetAvailabilityBody,
   BulkSetAvailabilitySchema,
-  ServiceIdForAvailabilityParam,
-  type StaffServiceIdForAvailabilityParams,
+  UserIdForAvailabilityParam,
+  type UserIdForAvailabilityParams,
 } from "@ps-design/schemas/appointments/availability";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
@@ -16,33 +16,33 @@ export default async function availabilityRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope } = createScopeMiddleware(fastify);
 
-  // Get availability for a specific staff service
-  server.get<{ Params: StaffServiceIdForAvailabilityParams }>(
-    "/staff-service/:serviceId",
+  server.get<{ Params: UserIdForAvailabilityParams }>(
+    "/user/:userId",
     {
       onRequest: [
         fastify.authenticate,
         requireScope(ScopeNames.APPOINTMENTS_READ),
       ],
       schema: {
-        params: ServiceIdForAvailabilityParam,
+        params: UserIdForAvailabilityParam,
       },
     },
     async (
       request: FastifyRequest<{
-        Params: StaffServiceIdForAvailabilityParams;
+        Params: UserIdForAvailabilityParams;
       }>,
       reply: FastifyReply,
     ) => {
       const businessId = getBusinessId(request, reply);
       if (!businessId) return;
 
-      const { serviceId } = request.params;
+      const { userId } = request.params;
 
       try {
-        const availabilities = await getAvailabilityByServiceId(
+        const availabilities = await getAvailabilityByUserId(
           fastify,
-          serviceId,
+          userId,
+          businessId,
         );
         return reply.send(availabilities);
       } catch (error) {
@@ -51,25 +51,24 @@ export default async function availabilityRoutes(fastify: FastifyInstance) {
     },
   );
 
-  // Bulk set availability for a staff service (replaces all existing)
   server.put<{
-    Params: StaffServiceIdForAvailabilityParams;
+    Params: UserIdForAvailabilityParams;
     Body: BulkSetAvailabilityBody;
   }>(
-    "/staff-service/:serviceId",
+    "/user/:userId",
     {
       onRequest: [
         fastify.authenticate,
         requireScope(ScopeNames.APPOINTMENTS_WRITE),
       ],
       schema: {
-        params: ServiceIdForAvailabilityParam,
+        params: UserIdForAvailabilityParam,
         body: BulkSetAvailabilitySchema,
       },
     },
     async (
       request: FastifyRequest<{
-        Params: StaffServiceIdForAvailabilityParams;
+        Params: UserIdForAvailabilityParams;
         Body: BulkSetAvailabilityBody;
       }>,
       reply: FastifyReply,
@@ -77,10 +76,10 @@ export default async function availabilityRoutes(fastify: FastifyInstance) {
       const businessId = getBusinessId(request, reply);
       if (!businessId) return;
 
-      const { serviceId } = request.params;
+      const { userId } = request.params;
 
       try {
-        await bulkSetAvailability(fastify, businessId, serviceId, request.body);
+        await bulkSetAvailability(fastify, businessId, userId, request.body);
         return reply.send();
       } catch (error) {
         return handleServiceError(error, reply);

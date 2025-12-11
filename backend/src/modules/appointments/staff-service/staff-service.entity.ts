@@ -14,7 +14,6 @@ import { decimalTransformer } from "@/shared/decimal-transformer";
 import type { Business } from "@/modules/business/business.entity";
 import type { User } from "@/modules/user/user.entity";
 import type { ServiceDefinition } from "@/modules/appointments/service-definition/service-definition.entity";
-import type { Availability } from "@/modules/appointments/availability/availability.entity";
 import type { Appointment } from "@/modules/appointments/appointment/appointment.entity";
 
 @Entity("StaffService")
@@ -59,9 +58,6 @@ export class StaffService {
   @ManyToOne("ServiceDefinition", "staffServices", { onDelete: "CASCADE" })
   @JoinColumn({ name: "serviceDefinitionId" })
   serviceDefinition: Relation<ServiceDefinition>;
-
-  @OneToMany("Availability", "staffService")
-  availabilities: Relation<Availability[]>;
 
   @OneToMany("Appointment", "service")
   appointments: Relation<Appointment[]>;

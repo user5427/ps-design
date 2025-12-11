@@ -98,6 +98,12 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
   await dataSource.initialize();
   fastify.log.info("TypeORM DataSource initialized");
 
+  const availabilityRepo = new AvailabilityRepository(
+    dataSource,
+    dataSource.getRepository(Availability),
+    dataSource.getRepository(User),
+  );
+
   const services: Services = {
     dataSource,
     business: new BusinessRepository(dataSource.getRepository(Business)),
@@ -151,16 +157,12 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
       dataSource.getRepository(User),
       dataSource.getRepository(ServiceDefinition),
     ),
-    availability: new AvailabilityRepository(
-      dataSource,
-      dataSource.getRepository(Availability),
-      dataSource.getRepository(StaffService),
-    ),
+    availability: availabilityRepo,
     appointment: new AppointmentRepository(
       dataSource,
       dataSource.getRepository(Appointment),
       dataSource.getRepository(StaffService),
-      dataSource.getRepository(Availability),
+      availabilityRepo,
     ),
   };
 

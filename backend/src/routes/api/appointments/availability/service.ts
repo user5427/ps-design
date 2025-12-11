@@ -11,34 +11,37 @@ function toAvailabilityResponse(
   return {
     id: availability.id,
     dayOfWeek: availability.dayOfWeek,
-    startTimeLocal: availability.startTimeLocal,
-    endTimeLocal: availability.endTimeLocal,
-    serviceId: availability.serviceId,
+    startTime: availability.startTime,
+    endTime: availability.endTime,
+    isOvernight: availability.isOvernight,
+    userId: availability.userId,
+    businessId: availability.businessId,
     createdAt: availability.createdAt.toISOString(),
     updatedAt: availability.updatedAt.toISOString(),
   };
 }
 
-export async function getAvailabilityByServiceId(
+export async function getAvailabilityByUserId(
   fastify: FastifyInstance,
-  serviceId: string,
+  userId: string,
+  businessId: string,
 ): Promise<AvailabilityResponse[]> {
-  const availabilities =
-    await fastify.db.availability.findByServiceId(serviceId);
+  const availabilities = await fastify.db.availability.findByUserId(
+    userId,
+    businessId,
+  );
   return availabilities.map(toAvailabilityResponse);
 }
 
 export async function bulkSetAvailability(
   fastify: FastifyInstance,
   businessId: string,
-  serviceId: string,
+  userId: string,
   input: BulkSetAvailabilityBody,
 ): Promise<void> {
-  await fastify.db.availability.bulkSetForService(
-    {
-      serviceId,
-      availabilities: input.availabilities,
-    },
+  await fastify.db.availability.bulkSetForUser({
+    userId,
     businessId,
-  );
+    availabilities: input.availabilities,
+  });
 }

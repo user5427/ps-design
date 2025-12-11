@@ -5,9 +5,11 @@ import { DayOfWeekSchema, TimeStringSchema } from "./shared";
 export const AvailabilityResponseSchema = z.object({
   id: uuid(),
   dayOfWeek: DayOfWeekSchema,
-  startTimeLocal: TimeStringSchema, 
-  endTimeLocal: TimeStringSchema,
-  serviceId: uuid(),
+  startTime: TimeStringSchema,
+  endTime: TimeStringSchema,
+  isOvernight: z.boolean(),
+  userId: uuid(),
+  businessId: uuid(),
   createdAt: datetime(),
   updatedAt: datetime(),
 });

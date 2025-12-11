@@ -13,16 +13,18 @@ export const DayOfWeekLiteral = {
   SUN: "SUN",
 } as const;
 
-export const DayOfWeekSchema = z.union([
-  z.literal("MON"),
-  z.literal("TUE"),
-  z.literal("WED"),
-  z.literal("THU"),
-  z.literal("FRI"),
-  z.literal("SAT"),
-  z.literal("SUN"),
+export const DayOfWeekSchema = z.enum([
+  "MON",
+  "TUE",
+  "WED",
+  "THU",
+  "FRI",
+  "SAT",
+  "SUN",
 ]);
 
 export const TimeStringSchema = z
   .string()
   .regex(TIME_REGEX, TIME_FORMAT_MESSAGE);
+
+export type DayOfWeek = z.infer<typeof DayOfWeekSchema>;

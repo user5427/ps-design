@@ -9,7 +9,8 @@ import {
   type Relation,
   UpdateDateColumn,
 } from "typeorm";
-import type { StaffService } from "@/modules/appointments/staff-service/staff-service.entity";
+import type { User } from "@/modules/user/user.entity";
+import type { Business } from "@/modules/business/business.entity";
 
 export type DayOfWeek = "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN";
 
@@ -22,18 +23,29 @@ export class Availability {
   dayOfWeek: DayOfWeek;
 
   @Column({ type: "time" })
-  startTimeLocal: string; // HH:MM format
+  startTime: string; // HH:MM format
 
   @Column({ type: "time" })
-  endTimeLocal: string; // HH:MM format
+  endTime: string; // HH:MM format
+
+  @Column({ type: "boolean", default: false })
+  isOvernight: boolean; // true if endTime is on the next day (e.g., 23:00 - 01:00)
 
   @Column({ type: "uuid" })
   @Index()
-  serviceId: string;
+  userId: string;
 
-  @ManyToOne("StaffService", "availabilities", { onDelete: "CASCADE" })
-  @JoinColumn({ name: "serviceId" })
-  staffService: Relation<StaffService>;
+  @ManyToOne("User", { onDelete: "CASCADE" })
+  @JoinColumn({ name: "userId" })
+  user: Relation<User>;
+
+  @Column({ type: "uuid" })
+  @Index()
+  businessId: string;
+
+  @ManyToOne("Business", { onDelete: "CASCADE" })
+  @JoinColumn({ name: "businessId" })
+  business: Relation<Business>;
 
   @Column({ type: "timestamp", nullable: true })
   deletedAt: Date | null;

@@ -3,9 +3,11 @@ import type { DayOfWeek } from "./availability.entity";
 export interface IAvailability {
   id: string;
   dayOfWeek: DayOfWeek;
-  startTimeLocal: string;
-  endTimeLocal: string;
-  serviceId: string;
+  startTime: string;
+  endTime: string;
+  isOvernight: boolean;
+  userId: string;
+  businessId: string;
   deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -13,16 +15,13 @@ export interface IAvailability {
 
 export interface ICreateAvailability {
   dayOfWeek: DayOfWeek;
-  startTimeLocal: string;
-  endTimeLocal: string;
-  serviceId: string;
+  startTime: string;
+  endTime: string;
+  isOvernight: boolean;
 }
 
 export interface IBulkSetAvailability {
-  serviceId: string;
-  availabilities: Array<{
-    dayOfWeek: DayOfWeek;
-    startTimeLocal: string;
-    endTimeLocal: string;
-  }>;
+  userId: string;
+  businessId: string;
+  availabilities: ICreateAvailability[];
 }
