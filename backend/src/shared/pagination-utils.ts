@@ -1,4 +1,5 @@
 import { FilterOperator, PaginationMetadata, SortDirection, UniversalPaginationQuery } from "@ps-design/schemas/pagination";
+import type { FieldMapping } from "@ps-design/utils";
 import type { ObjectLiteral, SelectQueryBuilder } from "typeorm";
 
 /**
@@ -11,17 +12,6 @@ export function applyPagination<T extends ObjectLiteral>(
 ): SelectQueryBuilder<T> {
   const skip = (page - 1) * limit;
   return query.skip(skip).take(limit);
-}
-
-/**
- * Interface for field mapping for filtering and sorting
- * Maps frontend field names to database column names
- */
-export interface FieldMapping {
-  [fieldName: string]: {
-    column: string; // Database column name (e.g., "business.name")
-    type?: "string" | "number" | "date" | "boolean"; // Optional type info for type-safe operations
-  };
 }
 
 /**
