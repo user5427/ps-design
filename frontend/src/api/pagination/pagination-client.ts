@@ -3,6 +3,7 @@ import type {
   PaginatedResult,
 } from "@ps-design/schemas/pagination";
 import type { EntityMapping } from "@ps-design/utils";
+import { apiClient } from "@/api/client";
 
 /**
  * Pagination API Client
@@ -10,17 +11,7 @@ import type { EntityMapping } from "@ps-design/utils";
  * Automatically constructs requests with filters, sorting, search, column selection, etc.
  */
 
-interface PaginationClientOptions {
-  baseUrl?: string;
-}
-
 export class PaginationClient {
-  private baseUrl: string;
-
-  constructor(options: PaginationClientOptions = {}) {
-    this.baseUrl = options.baseUrl || "/api";
-  }
-
   /**
    * Fetches paginated data from the backend
    * Constructs the complete URL with query parameters from UniversalPaginationQuery
@@ -35,23 +26,9 @@ export class PaginationClient {
   ): Promise<PaginatedResult<T>> {
     const url = this.buildUrl(mapping.endpoint, query);
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
+    const response = await apiClient.get(url);
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(
-        error.message || `Failed to fetch ${mapping.displayName}: ${response.statusText}`,
-      );
-    }
-
-    const data = await response.json();
-    return data as PaginatedResult<T>;
+    return response.data as PaginatedResult<T>;
   }
 
   /**
@@ -117,9 +94,8 @@ export class PaginationClient {
     }
 
     const queryString = params.toString();
-    const url = `${this.baseUrl}${endpoint}`;
 
-    return queryString ? `${url}?${queryString}` : url;
+    return queryString ? `${endpoint}?${queryString}` : endpoint;
   }
 }
 

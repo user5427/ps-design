@@ -13,7 +13,7 @@ import {
   useProducts,
   useUpdateProduct,
 } from "@/queries/inventory/products";
-import type { Product } from "@/schemas/inventory";
+import type { ProductResponse } from "@ps-design/schemas/inventory/product";
 import { useProductUnits } from "@/queries/inventory/product-unit";
 
 export const ProductsListView = () => {
@@ -26,7 +26,7 @@ export const ProductsListView = () => {
   const [formState, setFormState] = useState<{
     isOpen: boolean;
     mode: "create" | "edit";
-    data?: Product;
+    data?: ProductResponse;
   }>({
     isOpen: false,
     mode: "create",
@@ -79,7 +79,7 @@ export const ProductsListView = () => {
   const handleCreateSubmit = async (values: Record<string, unknown>) => {
     await createMutation.mutateAsync({
       name: String(values.name),
-      description: values.description || undefined,
+      description: values.description ? String(values.description) : undefined,
       productUnitId: String(values.productUnitId),
     });
     setFormState({ isOpen: false, mode: "create" });
@@ -89,18 +89,16 @@ export const ProductsListView = () => {
   const handleEditSubmit = async (values: Record<string, unknown>) => {
     await updateMutation.mutateAsync({
       id: formState.data?.id || "",
-      data: {
-        name: values.name,
-        description: values.description || undefined,
-        productUnitId: values.productUnitId,
-        isDisabled: values.isDisabled,
-      },
+      name: values.name ? String(values.name) : undefined,
+      description: values.description ? String(values.description) : undefined,
+      productUnitId: values.productUnitId ? String(values.productUnitId) : undefined,
+      isDisabled: values.isDisabled as boolean | undefined,
     });
     setFormState({ isOpen: false, mode: "create" });
     refetch();
   };
 
-  const handleEdit = (item: Product) => {
+  const handleEdit = (item: ProductResponse) => {
     setFormState({
       isOpen: true,
       mode: "edit",
@@ -108,7 +106,7 @@ export const ProductsListView = () => {
     });
   };
 
-  const handleDelete = async (item: Product) => {
+  const handleDelete = async (item: ProductResponse) => {
     await bulkDeleteMutation.mutateAsync([item.id]);
     refetch();
   };
@@ -132,7 +130,7 @@ export const ProductsListView = () => {
       </Box>
 
       <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-        {products.map((item: Product) => (
+        {products.map((item: ProductResponse) => (
           <Box key={item.id} sx={{ p: 2, border: "1px solid #ddd" }}>
             <div>{item.name}</div>
             {item.description && <div>{item.description}</div>}

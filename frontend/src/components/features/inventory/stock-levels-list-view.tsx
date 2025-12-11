@@ -3,7 +3,7 @@ import {
   Box,
   Stack,
 } from "@mui/material";
-import type { StockLevel } from "@/schemas/inventory/stock-level";
+import type { StockLevelResponse } from "@ps-design/schemas/inventory/stock-level";
 import { useStockLevels } from "@/queries/inventory/stock-level";
 
 export const StockLevelsListView = () => {
@@ -16,7 +16,7 @@ export const StockLevelsListView = () => {
       </Box>
 
       <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-        {stockLevels.map((item: StockLevel) => (
+        {stockLevels.map((item: StockLevelResponse) => (
           <Box key={item.productId} sx={{ p: 2, border: "1px solid #ddd" }}>
             <div>{item.productName}</div>
             <div>

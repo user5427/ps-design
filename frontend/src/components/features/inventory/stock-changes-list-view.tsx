@@ -10,11 +10,13 @@ import { FormModal } from "@/components/elements/form";
 import {
   useProducts,
 } from "@/queries/inventory/products";
-import type { StockChange, StockChangeType } from "@/schemas/inventory/stock-change";
+import { z } from "zod";
+import type { StockChangeResponse } from "@ps-design/schemas/inventory/stock-change";
+import { StockChangeTypeEnum } from "@ps-design/schemas/inventory/stock-change";
 import { useCreateStockChange, useStockChanges } from "@/queries/inventory/stock-change";
 
 const stockChangeTypeColors: Record<
-  StockChangeType,
+  z.infer<typeof StockChangeTypeEnum>,
   "success" | "warning" | "info" | "error"
 > = {
   SUPPLY: "success",
@@ -73,7 +75,7 @@ export const StockChangesListView = () => {
   const [formState, setFormState] = useState<{
     isOpen: boolean;
     mode: "create";
-    data?: StockChange;
+    data?: StockChangeResponse;
   }>({
     isOpen: false,
     mode: "create",
@@ -135,7 +137,7 @@ export const StockChangesListView = () => {
       productId: String(values.productId),
       type: values.type as "SUPPLY" | "ADJUSTMENT" | "WASTE",
       quantity: Number(values.quantity),
-      expirationDate: values.expirationDate || undefined,
+      expirationDate: values.expirationDate ? String(values.expirationDate) : undefined,
     });
     setFormState({ isOpen: false, mode: "create" });
     refetch();
@@ -160,7 +162,7 @@ export const StockChangesListView = () => {
       </Box>
 
       <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-        {stockChanges.map((item: StockChange) => (
+        {stockChanges.map((item: StockChangeResponse) => (
           <Box key={item.id} sx={{ p: 2, border: "1px solid #ddd" }}>
             <div>{item.product.name}</div>
             <Chip

@@ -12,7 +12,7 @@ import {
   useProductUnits,
   useUpdateProductUnit,
 } from "@/queries/inventory/product-unit";
-import type { ProductUnit } from "@/schemas/inventory/product-unit";
+import type { ProductUnitResponse } from "@ps-design/schemas/inventory/product-unit";
 
 export const ProductUnitsListView = () => {
   const { data: units = [], refetch } = useProductUnits();
@@ -23,7 +23,7 @@ export const ProductUnitsListView = () => {
   const [formState, setFormState] = useState<{
     isOpen: boolean;
     mode: "create" | "edit";
-    data?: ProductUnit;
+    data?: ProductUnitResponse;
   }>({
     isOpen: false,
     mode: "create",
@@ -54,7 +54,7 @@ export const ProductUnitsListView = () => {
   const handleCreateSubmit = async (values: Record<string, unknown>) => {
     await createMutation.mutateAsync({
       name: String(values.name),
-      symbol: values.symbol || undefined,
+      symbol: values.symbol ? String(values.symbol) : undefined,
     });
     setFormState({ isOpen: false, mode: "create" });
     refetch();
@@ -63,16 +63,14 @@ export const ProductUnitsListView = () => {
   const handleEditSubmit = async (values: Record<string, unknown>) => {
     await updateMutation.mutateAsync({
       id: formState.data?.id || "",
-      data: {
-        name: values.name,
-        symbol: values.symbol || undefined,
-      },
+      name: String(values.name),
+      symbol: values.symbol ? String(values.symbol) : undefined,
     });
     setFormState({ isOpen: false, mode: "create" });
     refetch();
   };
 
-  const handleEdit = (item: ProductUnit) => {
+  const handleEdit = (item: ProductUnitResponse) => {
     setFormState({
       isOpen: true,
       mode: "edit",
@@ -80,7 +78,7 @@ export const ProductUnitsListView = () => {
     });
   };
 
-  const handleDelete = async (item: ProductUnit) => {
+  const handleDelete = async (item: ProductUnitResponse) => {
     await bulkDeleteMutation.mutateAsync([item.id]);
     refetch();
   };
@@ -104,7 +102,7 @@ export const ProductUnitsListView = () => {
       </Box>
 
       <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-        {units.map((item: ProductUnit) => (
+        {units.map((item: ProductUnitResponse) => (
           <Box key={item.id} sx={{ p: 2, border: "1px solid #ddd" }}>
             <div>{item.name}</div>
             {item.symbol && <div>{item.symbol}</div>}
