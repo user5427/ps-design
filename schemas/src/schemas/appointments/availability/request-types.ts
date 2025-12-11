@@ -50,29 +50,6 @@ export const CreateAvailabilitySchema = z
 
   });
 
-export const UpdateAvailabilitySchema = z
-  .object({
-    dayOfWeek: DayOfWeekSchema.optional(),
-    startTimeLocal: TimeStringSchema.optional(),
-    endTimeLocal: TimeStringSchema.optional(),
-  })
-  .superRefine((data, ctx) => {
-    // Only validate duration/order if both times are provided in the payload
-    if (data.startTimeLocal && data.endTimeLocal) {
-      const startMins = timeToMinutes(data.startTimeLocal);
-      const endMins = timeToMinutes(data.endTimeLocal);
-
-      if (startMins >= endMins) {
-        ctx.addIssue({
-          code: "custom",
-          message: "End time must be after start time",
-          path: ["endTimeLocal"],
-        });
-      }
-      
-    }
-  });
-
 export const BulkSetAvailabilitySchema = z.object({
   availabilities: z
     .array(CreateAvailabilitySchema)
@@ -108,7 +85,6 @@ export const BulkSetAvailabilitySchema = z.object({
 
 export type DayOfWeek = z.infer<typeof DayOfWeekSchema>;
 export type CreateAvailabilityBody = z.infer<typeof CreateAvailabilitySchema>;
-export type UpdateAvailabilityBody = z.infer<typeof UpdateAvailabilitySchema>;
 export type BulkSetAvailabilityBody = z.infer<typeof BulkSetAvailabilitySchema>;
 export type AvailabilityIdParams = z.infer<typeof AvailabilityIdParam>;
 export type StaffServiceIdForAvailabilityParams = z.infer<typeof ServiceIdForAvailabilityParam>;
