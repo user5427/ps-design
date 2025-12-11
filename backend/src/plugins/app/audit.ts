@@ -5,7 +5,6 @@ import type { BusinessIdParams } from "@ps-design/schemas/business";
 import { AuditActionType } from "@/modules/audit";
 import { getBusinessId } from "@/shared/auth-utils";
 
-
 export default fp(async (fastify: FastifyInstance) => {
   fastify.decorate("audit", {
     business: async (
@@ -84,7 +83,6 @@ export default fp(async (fastify: FastifyInstance) => {
         entityType: entityType,
       };
 
-      // For CREATE, entityId is undefined at first
       return auditLogWrapper(fn, fastify.db.auditLogService, auditType, {
         ...baseParams,
         businessId,

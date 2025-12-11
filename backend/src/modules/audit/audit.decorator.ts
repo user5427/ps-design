@@ -13,13 +13,12 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
   entityType: string,
   businessId: string | null,
   userId: string,
-  entityId: string | null, // allow null for CREATE
+  entityId: string | null,
   ip: string | null,
 ): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
   return async (...args: Parameters<T>): Promise<Awaited<ReturnType<T>>> => {
     let oldValues = null;
 
-    // Only fetch oldValues for UPDATE/DELETE
     if (action !== AuditActionType.CREATE && entityId) {
       oldValues = await auditLogService.getEntitySnapshot(entityType as any, entityId);
     }
@@ -29,12 +28,10 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
     let finalEntityId = entityId;
 
     try {
-      // Call the real function
       res = await fn(...args);
 
-      // If CREATE: extract ID from response
       if (action === AuditActionType.CREATE) {
-        finalEntityId = res.id; // adjust to your return shape
+        finalEntityId = res.id;
       }
 
       result = ActionResult.SUCCESS;
@@ -42,10 +39,6 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
       const newValues = finalEntityId
         ? await auditLogService.getEntitySnapshot(entityType as any, finalEntityId)
         : null;
-
-      if (!newValues) {
-        throw new Error("Failed to retrieve new values for audit log with entityId: " + finalEntityId + " and entityType: " + entityType);
-      }
 
       await auditLogService.logBusiness({
         businessId,
@@ -109,7 +102,6 @@ export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
   if (isBusinessAction) {
     const action = auditType as AuditActionType;
 
-    // ✅ CREATE should NOT require businessId or entityId
     if (action === AuditActionType.CREATE) {
       if (!params.entityType) {
         throw new Error("CREATE requires entityType");
@@ -120,14 +112,13 @@ export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
         auditLogService,
         action,
         params.entityType,
-        params.businessId ?? null, // not used for CREATE
+        params.businessId ?? null,
         params.userId,
-        null,                    // entityId is null for CREATE
+        null,
         params.ip,
       );
     }
 
-    // ❗ For UPDATE or DELETE: these 3 must be present
     if (!params.entityType || !params.businessId || !params.entityId) {
       throw new Error(
         "UPDATE/DELETE action requires entityType, businessId, and entityId",
@@ -146,7 +137,6 @@ export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
     );
   }
 
-  // Security logs
   return auditSecurityWrapper(
     fn, auditLogService, auditType as AuditSecurityType, params.userId, params.ip
   );

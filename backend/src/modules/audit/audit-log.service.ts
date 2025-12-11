@@ -41,7 +41,6 @@ type EntityName = keyof typeof EntityMap;
 export class AuditLogService {
   constructor(private dataSource: DataSource) { }
 
-  // Dynamically get repository for any entity
   getRepository<T extends EntityName>(
     entityName: T
   ): Repository<InstanceType<typeof EntityMap[ T ]>> {
@@ -51,21 +50,18 @@ export class AuditLogService {
     ) as Repository<InstanceType<typeof EntityMap[ T ]>>;
   }
 
-  // Generic snapshot for any entity
   async getEntitySnapshot(entityType: EntityName, entityId: string) {
     const repo = this.getRepository(entityType);
     const entity = await repo.findOne({ where: { id: entityId } });
     return entity ? { ...entity } : null;
   }
 
-  // Audit business action
   async logBusiness(log: ICreateAuditBusinessLog) {
     const repo = this.getRepository("AuditBusinessLog");
     const audit = repo.create(log);
     await repo.save(audit);
   }
 
-  // Audit security action
   async logSecurity(log: ICreateAuditSecurityLog) {
     const repo = this.getRepository("AuditSecurityLog");
     const audit = repo.create(log);
