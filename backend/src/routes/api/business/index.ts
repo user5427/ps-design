@@ -19,13 +19,12 @@ import {
   CreateBusinessSchema,
   type UpdateBusinessBody,
   UpdateBusinessSchema,
-  type BusinessQuery,
-  BusinessQuerySchema,
 } from "@ps-design/schemas/business";
 import {
   BusinessResponseSchema,
   PaginatedBusinessResponseSchema,
 } from "@ps-design/schemas/business";
+import { UniversalPaginationQuerySchema, type UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 import {
   ErrorResponseSchema,
   SuccessResponseSchema,
@@ -35,12 +34,12 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope } = createScopeMiddleware(fastify);
 
-  server.get<{ Querystring: BusinessQuery }>(
+  server.get<{ Querystring: UniversalPaginationQuery }>(
     "/",
     {
       onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ)],
       schema: {
-        querystring: BusinessQuerySchema,
+        querystring: UniversalPaginationQuerySchema,
         response: {
           200: PaginatedBusinessResponseSchema,
           401: ErrorResponseSchema,
@@ -49,7 +48,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Querystring: BusinessQuery;
+        Querystring: UniversalPaginationQuery;
       }>,
       reply: FastifyReply,
     ) => {

@@ -1,7 +1,7 @@
-import { createEntityMapping } from "../../utils/field-mapping-builder";
+import { createEntityMapping } from "../../../utils/field-mapping-builder";
 import {
   StockLevelResponseSchema,
-} from "../../schemas/inventory/stock-level";
+} from "../../../schemas/inventory/stock-level";
 
 /**
  * Complete mapping for Stock Level entity including fields, display names, and API endpoint

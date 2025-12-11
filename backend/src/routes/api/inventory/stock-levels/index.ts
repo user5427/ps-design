@@ -11,17 +11,19 @@ import { ScopeNames } from "@/modules/user";
 import {
   StockLevelProductIdParam,
   type StockLevelProductIdParams,
-  type StockLevelQuery,
-  StockLevelQuerySchema,
   PaginatedStockLevelResponseSchema,
   StockLevelResponseSchema,
 } from "@ps-design/schemas/inventory/stock-level";
+import {
+  UniversalPaginationQuerySchema,
+  type UniversalPaginationQuery,
+} from "@ps-design/schemas/pagination";
 
 export default async function stockLevelsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope } = createScopeMiddleware(fastify);
 
-  server.get<{ Querystring: StockLevelQuery }>(
+  server.get<{ Querystring: UniversalPaginationQuery }>(
     "/",
     {
       onRequest: [
@@ -29,7 +31,7 @@ export default async function stockLevelsRoutes(fastify: FastifyInstance) {
         requireScope(ScopeNames.INVENTORY_READ),
       ],
       schema: {
-        querystring: StockLevelQuerySchema,
+        querystring: UniversalPaginationQuerySchema,
         response: {
           200: PaginatedStockLevelResponseSchema,
         },
@@ -37,7 +39,7 @@ export default async function stockLevelsRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Querystring: StockLevelQuery;
+        Querystring: UniversalPaginationQuery;
       }>,
       reply: FastifyReply,
     ) => {

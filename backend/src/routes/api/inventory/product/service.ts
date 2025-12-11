@@ -4,9 +4,9 @@ import type {
   UpdateProductBody,
   ProductResponse,
   PaginatedProductResponse,
-  ProductQuery,
 } from "@ps-design/schemas/inventory/product";
 import { ProductResponseSchema } from "@ps-design/schemas/inventory/product";
+import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 import type { Product } from "../../../../modules/inventory/product/product.entity";
 
 function toProductResponse(product: Product): ProductResponse {
@@ -31,7 +31,7 @@ function toProductResponse(product: Product): ProductResponse {
 export async function getAllProductsPaginated(
   fastify: FastifyInstance,
   businessId: string,
-  query: ProductQuery,
+  query: UniversalPaginationQuery,
 ): Promise<PaginatedProductResponse> {
   const result = await fastify.db.product.findAllPaginated(
     businessId,

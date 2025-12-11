@@ -3,11 +3,11 @@ import type { Product } from "@/modules/inventory/product";
 import type {
   StockLevelResponse,
   PaginatedStockLevelResponse,
-  StockLevelQuery,
 } from "@ps-design/schemas/inventory/stock-level";
 import {
   StockLevelResponseSchema,
 } from "@ps-design/schemas/inventory/stock-level";
+import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 function toStockLevelResponse(product: Product): StockLevelResponse {
   return {
@@ -26,7 +26,7 @@ function toStockLevelResponse(product: Product): StockLevelResponse {
 export async function getAllStockLevelsPaginated(
   fastify: FastifyInstance,
   businessId: string,
-  query: StockLevelQuery,
+  query: UniversalPaginationQuery,
 ): Promise<PaginatedStockLevelResponse> {
   const result = await fastify.db.product.findAllPaginated(
     businessId,

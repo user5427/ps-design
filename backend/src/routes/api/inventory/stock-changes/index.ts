@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
+import { z } from "zod";
 import {
   createStockChange,
   getStockChangesPaginated,
@@ -15,12 +16,11 @@ import {
   CreateStockChangeSchema,
   ChangeIdParam,
   type ChangeIdParams,
-  type StockChangeQuery,
-  StockChangeQuerySchema,
   PaginatedStockChangeResponseSchema,
   UpdateStockChangeSchema,
   type UpdateStockChangeBody,
 } from "@ps-design/schemas/inventory/stock-change";
+import { UniversalPaginationQuerySchema, type UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export default async function stockChangesRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -62,7 +62,7 @@ export default async function stockChangesRoutes(fastify: FastifyInstance) {
     },
   );
 
-  server.get<{ Querystring: StockChangeQuery }>(
+  server.get<{ Querystring: z.infer<typeof UniversalPaginationQuerySchema> }>(
     "/",
     {
       onRequest: [
@@ -70,7 +70,7 @@ export default async function stockChangesRoutes(fastify: FastifyInstance) {
         requireScope(ScopeNames.INVENTORY_READ),
       ],
       schema: {
-        querystring: StockChangeQuerySchema,
+        querystring: UniversalPaginationQuerySchema,
         response: {
           200: PaginatedStockChangeResponseSchema,
         },
@@ -78,7 +78,7 @@ export default async function stockChangesRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Querystring: StockChangeQuery;
+        Querystring: UniversalPaginationQuery;
       }>,
       reply: FastifyReply,
     ) => {

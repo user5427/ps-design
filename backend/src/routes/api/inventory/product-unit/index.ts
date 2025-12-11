@@ -15,13 +15,12 @@ import {
   CreateProductUnitSchema,
   UnitIdParam,
   UpdateProductUnitSchema,
-  UnitQuerySchema,
   type UnitIdParams,
   type UpdateProductUnitBody,
   type CreateProductUnitBody,
-  type UnitQuery,
   PaginatedProductUnitResponseSchema,
 } from "@ps-design/schemas/inventory/product-unit";
+import { UniversalPaginationQuerySchema, type UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 import {
   BulkDeleteSchema,
   type BulkDeleteBody,
@@ -31,7 +30,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope, requireAllScopes } = createScopeMiddleware(fastify);
 
-  server.get<{ Querystring: UnitQuery }>(
+  server.get<{ Querystring: UniversalPaginationQuery }>(
     "/",
     {
       onRequest: [
@@ -39,7 +38,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
         requireScope(ScopeNames.INVENTORY_READ),
       ],
       schema: {
-        querystring: UnitQuerySchema,
+        querystring: UniversalPaginationQuerySchema,
         response: {
           200: PaginatedProductUnitResponseSchema,
         },
@@ -47,7 +46,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Querystring: UnitQuery;
+        Querystring: UniversalPaginationQuery;
       }>,
       reply: FastifyReply,
     ) => {

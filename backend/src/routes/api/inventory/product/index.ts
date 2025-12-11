@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
+import { z } from "zod";
 import {
   bulkDeleteProducts,
   createProduct,
@@ -18,10 +19,9 @@ import {
   ProductResponseSchema,
   type UpdateProductBody,
   UpdateProductSchema,
-  ProductQuerySchema,
-  type ProductQuery,
   PaginatedProductResponseSchema,
 } from "@ps-design/schemas/inventory/product";
+import { UniversalPaginationQuerySchema, type UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 import {
   BulkDeleteSchema,
   type BulkDeleteBody,
@@ -35,7 +35,7 @@ export default async function productsRoutes(fastify: FastifyInstance) {
   const { requireScope, requireAllScopes, requireAnyScope } =
     createScopeMiddleware(fastify);
 
-  server.get<{ Querystring: ProductQuery }>(
+  server.get<{ Querystring: z.infer<typeof UniversalPaginationQuerySchema> }>(
     "/",
     {
       onRequest: [
@@ -43,7 +43,7 @@ export default async function productsRoutes(fastify: FastifyInstance) {
         requireScope(ScopeNames.INVENTORY_READ),
       ],
       schema: {
-        querystring: ProductQuerySchema,
+        querystring: UniversalPaginationQuerySchema,
         response: {
           200: PaginatedProductResponseSchema,
         },
@@ -51,7 +51,7 @@ export default async function productsRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Querystring: ProductQuery;
+        Querystring: UniversalPaginationQuery;
       }>,
       reply: FastifyReply,
     ) => {
