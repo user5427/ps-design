@@ -45,7 +45,16 @@ export const UpdateAppointmentSchema = z.object({
     .optional(),
 });
 
+export const AppointmentFilterSchema = z.object({
+  serviceId: uuid().optional(),
+  eployeeId: uuid().optional(),
+  status: z.array(AppointmentStatusEnum).optional(),
+  startTimeFrom: datetime().optional(),
+  startTimeTo: datetime().optional(),
+});
+
 export type AppointmentStatus = z.infer<typeof AppointmentStatusEnum>;
 export type CreateAppointmentBody = z.infer<typeof CreateAppointmentSchema>;
 export type UpdateAppointmentBody = z.infer<typeof UpdateAppointmentSchema>;
 export type AppointmentIdParams = z.infer<typeof AppointmentIdParam>;
+export type AppointmentFilterQuery = z.infer<typeof AppointmentFilterSchema>;

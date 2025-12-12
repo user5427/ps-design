@@ -14,7 +14,7 @@ function toDefinitionResponse(
     name: definition.name,
     description: definition.description,
     price: definition.price,
-    baseDuration: definition.baseDuration,
+    duration: definition.baseDuration,
     isDisabled: definition.isDisabled,
     category: definition.category
       ? {
@@ -48,7 +48,7 @@ export async function createServiceDefinition(
     name: input.name,
     description: input.description,
     price: input.price,
-    baseDuration: input.baseDuration,
+    baseDuration: input.duration,
     isDisabled: input.isDisabled,
     categoryId: input.categoryId,
     businessId,
@@ -73,7 +73,11 @@ export async function updateServiceDefinition(
   definitionId: string,
   input: UpdateServiceDefinitionBody,
 ): Promise<void> {
-  await fastify.db.serviceDefinition.update(definitionId, businessId, input);
+  const { duration, ...rest } = input;
+  await fastify.db.serviceDefinition.update(definitionId, businessId, {
+    ...rest,
+    ...(duration !== undefined && { baseDuration: duration }),
+  });
 }
 
 export async function bulkDeleteServiceDefinitions(

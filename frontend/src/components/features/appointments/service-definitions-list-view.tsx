@@ -69,7 +69,7 @@ export const ServiceDefinitionsListView = () => {
         Cell: ({ cell }) => `${cell.getValue<number>().toFixed(2)}€`,
       },
       {
-        accessorKey: "baseDuration",
+        accessorKey: "duration",
         header: "Duration (min)",
         size: 100,
       },
@@ -127,7 +127,7 @@ export const ServiceDefinitionsListView = () => {
       validationRules: [ValidationRules.min(0)],
     },
     {
-      name: "baseDuration",
+      name: "duration",
       label: "Duration (minutes)",
       type: "number",
       required: true,
@@ -161,7 +161,7 @@ export const ServiceDefinitionsListView = () => {
       render: (value) => `${(value as number).toFixed(2)}€`,
     },
     {
-      name: "baseDuration",
+      name: "duration",
       label: "Duration",
       render: (value) => `${value} minutes`,
     },
@@ -176,7 +176,7 @@ export const ServiceDefinitionsListView = () => {
       name: String(values.name),
       description: values.description || null,
       price: Number(values.price) || 0,
-      baseDuration: Number(values.baseDuration) || 30,
+      duration: Number(values.duration) || 30,
       categoryId: (values as { categoryId?: string }).categoryId || null,
       isDisabled: values.isDisabled || false,
     });
@@ -189,9 +189,9 @@ export const ServiceDefinitionsListView = () => {
         name: values.name,
         description: values.description,
         price: values.price !== undefined ? Number(values.price) : undefined,
-        baseDuration:
-          values.baseDuration !== undefined
-            ? Number(values.baseDuration)
+        duration:
+          values.duration !== undefined
+            ? Number(values.duration)
             : undefined,
         categoryId: (values as { categoryId?: string }).categoryId,
         isDisabled: values.isDisabled,

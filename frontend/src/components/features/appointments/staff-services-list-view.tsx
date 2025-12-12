@@ -81,10 +81,10 @@ export const StaffServicesListView = () => {
           `${row.original.serviceDefinition?.price?.toFixed(2) || "0.00"}€`,
       },
       {
-        accessorKey: "serviceDefinition.baseDuration",
+        accessorKey: "serviceDefinition.duration",
         header: "Duration (min)",
         size: 100,
-        Cell: ({ row }) => row.original.serviceDefinition?.baseDuration || 0,
+        Cell: ({ row }) => row.original.serviceDefinition?.duration || 0,
       },
       {
         accessorKey: "isDisabled",
@@ -151,7 +151,7 @@ export const StaffServicesListView = () => {
       render: (value) => `${(value as number)?.toFixed(2) || "0.00"}€`,
     },
     {
-      name: "serviceDefinition.baseDuration",
+      name: "serviceDefinition.duration",
       label: "Duration",
       render: (value) => `${value || 0} minutes`,
     },
@@ -177,7 +177,7 @@ export const StaffServicesListView = () => {
     await updateMutation.mutateAsync({
       id,
       data: {
-        isDisabled: values.isDisabled,
+        isDisabled: values.isDisabled ?? false,
       },
     });
   };

@@ -22,7 +22,7 @@ function toStaffServiceResponse(
       name: staffService.serviceDefinition.name,
       description: staffService.serviceDefinition.description,
       price: staffService.serviceDefinition.price,
-      baseDuration: staffService.serviceDefinition.baseDuration,
+      duration: staffService.serviceDefinition.baseDuration,
       category: staffService.serviceDefinition.category
         ? {
             id: staffService.serviceDefinition.category.id,

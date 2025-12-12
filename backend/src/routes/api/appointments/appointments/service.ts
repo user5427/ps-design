@@ -19,8 +19,6 @@ function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
     notes: appointment.notes,
     service: {
       id: appointment.service.id,
-      price: appointment.service.serviceDefinition.price,
-      baseDuration: appointment.service.serviceDefinition.baseDuration,
       employee: {
         id: appointment.service.employee.id,
         name: appointment.service.employee.name,
@@ -30,6 +28,8 @@ function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
         id: appointment.service.serviceDefinition.id,
         name: appointment.service.serviceDefinition.name,
         description: appointment.service.serviceDefinition.description,
+        duration: appointment.service.serviceDefinition.baseDuration,
+        price: appointment.service.serviceDefinition.price,
         category: appointment.service.serviceDefinition.category
           ? {
               id: appointment.service.serviceDefinition.category.id,

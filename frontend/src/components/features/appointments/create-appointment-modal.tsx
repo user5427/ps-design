@@ -35,12 +35,12 @@ interface CreateAppointmentModalProps {
   staffServiceOptions: Array<{
     label: string;
     value: string;
-    baseDuration: number;
+    duration: number;
   }>;
   serviceDefinitionOptions: Array<{
     label: string;
     value: string;
-    baseDuration: number;
+    duration: number;
   }>;
 }
 
@@ -67,7 +67,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
   const selectedServiceDef = serviceDefinitionOptions.find(
     (s) => s.value === serviceDefinitionId,
   );
-  const duration = selectedServiceDef?.baseDuration || 30;
+  const duration = selectedServiceDef?.duration || 30;
 
   const handleSlotClick = (data: AppointmentTimeSelection) => {
     setSelection(data);

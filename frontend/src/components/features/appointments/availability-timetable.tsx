@@ -49,7 +49,7 @@ interface AvailabilityTimetableProps {
   serviceDefinitionOptions?: Array<{
     label: string;
     value: string;
-    baseDuration: number;
+    duration: number;
   }>;
   onServiceDefinitionChange?: (serviceDefinitionId: string) => void;
 }

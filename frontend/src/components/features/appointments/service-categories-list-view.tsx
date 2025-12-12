@@ -77,7 +77,7 @@ export const ServiceCategoriesListView = () => {
     await updateMutation.mutateAsync({
       id,
       data: {
-        name: values.name,
+        name: values.name || "",
       },
     });
   };

@@ -46,7 +46,7 @@ export const AppointmentsListView = () => {
         .map((ss) => ({
           label: `${ss.serviceDefinition.name} (${ss.serviceDefinition.price.toFixed(2)}€)`,
           value: ss.id,
-          baseDuration: ss.serviceDefinition.baseDuration,
+          duration: ss.serviceDefinition.duration,
         })),
     [staffServices],
   );
@@ -55,7 +55,7 @@ export const AppointmentsListView = () => {
     // Group staff services by service definition and get the first duration for each
     const serviceDefMap = new Map<
       string,
-      { label: string; value: string; baseDuration: number }
+      { label: string; value: string; duration: number }
     >();
 
     staffServices
@@ -65,7 +65,7 @@ export const AppointmentsListView = () => {
           serviceDefMap.set(ss.serviceDefinition.id, {
             label: ss.serviceDefinition.name,
             value: ss.serviceDefinition.id,
-            baseDuration: ss.serviceDefinition.baseDuration,
+            duration: ss.serviceDefinition.duration,
           });
         }
       });
@@ -102,10 +102,10 @@ export const AppointmentsListView = () => {
         },
       },
       {
-        accessorKey: "service.baseDuration",
+        accessorKey: "service.serviceDefinition.duration",
         header: "Duration",
         size: 100,
-        Cell: ({ row }) => `${row.original.service?.baseDuration || 0} min`,
+        Cell: ({ row }) => `${row.original.service?.serviceDefinition?.duration || 0} min`,
       },
       {
         accessorKey: "status",
@@ -178,7 +178,7 @@ export const AppointmentsListView = () => {
         value ? new Date(value as string).toLocaleString() : "-",
     },
     {
-      name: "service.baseDuration",
+      name: "service.serviceDefinition.duration",
       label: "Duration",
       render: (value) => `${value} minutes`,
     },
