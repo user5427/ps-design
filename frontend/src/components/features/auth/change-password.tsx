@@ -95,9 +95,8 @@ export const ChangePassword: React.FC = () => {
           form.handleSubmit();
         }}
       >
-        <form.Field
-          name="currentPassword"
-          children={(field: any) => (
+        <form.Field name="currentPassword">
+          {(field: any) => (
             <TextField
               fullWidth
               label="Current Password"
@@ -112,10 +111,9 @@ export const ChangePassword: React.FC = () => {
               margin="normal"
             />
           )}
-        />
-        <form.Field
-          name="newPassword"
-          children={(field: any) => (
+        </form.Field>
+        <form.Field name="newPassword">
+          {(field: any) => (
             <>
               <TextField
                 fullWidth
@@ -143,10 +141,9 @@ export const ChangePassword: React.FC = () => {
               )}
             </>
           )}
-        />
-        <form.Field
-          name="confirmPassword"
-          children={(field: any) => (
+        </form.Field>
+        <form.Field name="confirmPassword">
+          {(field: any) => (
             <>
               <TextField
                 fullWidth
@@ -166,7 +163,7 @@ export const ChangePassword: React.FC = () => {
               )}
             </>
           )}
-        />
+        </form.Field>
         {!passwordStrength.isValid && newPwdValue.length > 0 && (
           <FormAlert
             message={

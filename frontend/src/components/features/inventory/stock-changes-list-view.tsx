@@ -109,7 +109,8 @@ export const StockChangesListView = () => {
                   return undefined;
                 },
               }}
-              children={(field: any) => (
+            >
+              {(field: any) => (
                 <TextField
                   fullWidth
                   label="Product"
@@ -127,7 +128,7 @@ export const StockChangesListView = () => {
                   required
                 />
               )}
-            />
+            </form.Field>
             <Button
               variant="outlined"
               onClick={() => setProductSelectOpen(true)}
@@ -146,7 +147,8 @@ export const StockChangesListView = () => {
                   return undefined;
                 },
               }}
-              children={(field: any) => (
+            >
+              {(field: any) => (
                 <TextField
                   fullWidth
                   select
@@ -165,7 +167,7 @@ export const StockChangesListView = () => {
                   ))}
                 </TextField>
               )}
-            />
+            </form.Field>
 
             <form.Field
               name="quantity"
@@ -192,7 +194,8 @@ export const StockChangesListView = () => {
                   return undefined;
                 },
               }}
-              children={(field: any) => (
+            >
+              {(field: any) => (
                 <TextField
                   fullWidth
                   type="number"
@@ -205,7 +208,7 @@ export const StockChangesListView = () => {
                   required
                 />
               )}
-            />
+            </form.Field>
 
             <form.Field
               name="expirationDate"
@@ -223,7 +226,8 @@ export const StockChangesListView = () => {
                   return undefined;
                 },
               }}
-              children={(field: any) => (
+            >
+              {(field: any) => (
                 <TextField
                   fullWidth
                   type="date"
@@ -236,7 +240,7 @@ export const StockChangesListView = () => {
                   InputLabelProps={{ shrink: true }}
                 />
               )}
-            />
+            </form.Field>
           </Stack>
         )}
       </FormModal>

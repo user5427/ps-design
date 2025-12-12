@@ -53,9 +53,8 @@ export const Login: React.FC = () => {
           form.handleSubmit();
         }}
       >
-        <form.Field
-          name="email"
-          children={(field: any) => (
+        <form.Field name="email">
+          {(field: any) => (
             <TextField
               fullWidth
               label="Email"
@@ -70,10 +69,9 @@ export const Login: React.FC = () => {
               margin="normal"
             />
           )}
-        />
-        <form.Field
-          name="password"
-          children={(field: any) => (
+        </form.Field>
+        <form.Field name="password">
+          {(field: any) => (
             <TextField
               fullWidth
               label="Password"
@@ -88,7 +86,7 @@ export const Login: React.FC = () => {
               margin="normal"
             />
           )}
-        />
+        </form.Field>
         <Button
           fullWidth
           variant="contained"

@@ -121,7 +121,8 @@ export const ProductUnitsListView = () => {
                   return undefined;
                 },
               }}
-              children={(field: any) => (
+              >
+              {(field: any) => (
                 <TextField
                   fullWidth
                   label="Name"
@@ -133,7 +134,7 @@ export const ProductUnitsListView = () => {
                   required
                 />
               )}
-            />
+            </form.Field>
             <form.Field
               name="symbol"
               validators={{
@@ -146,7 +147,8 @@ export const ProductUnitsListView = () => {
                   return undefined;
                 },
               }}
-              children={(field: any) => (
+              >
+              {(field: any) => (
                 <TextField
                   fullWidth
                   label="Symbol"
@@ -158,7 +160,7 @@ export const ProductUnitsListView = () => {
                   helperText={field.state.meta.errors[0]}
                 />
               )}
-            />
+            </form.Field>
           </>
         )}
       </FormModal>
@@ -185,7 +187,8 @@ export const ProductUnitsListView = () => {
                   return undefined;
                 },
               }}
-              children={(field: any) => (
+              >
+              {(field: any) => (
                 <TextField
                   fullWidth
                   label="Name"
@@ -197,7 +200,7 @@ export const ProductUnitsListView = () => {
                   required
                 />
               )}
-            />
+            </form.Field>
             <form.Field
               name="symbol"
               validators={{
@@ -210,7 +213,8 @@ export const ProductUnitsListView = () => {
                   return undefined;
                 },
               }}
-              children={(field: any) => (
+              >
+              {(field: any) => (
                 <TextField
                   fullWidth
                   label="Symbol"
@@ -222,7 +226,7 @@ export const ProductUnitsListView = () => {
                   helperText={field.state.meta.errors[0]}
                 />
               )}
-            />
+            </form.Field>
           </>
         )}
       </FormModal>

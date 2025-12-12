@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import type {
   UniversalPaginationQuery,
 } from "@ps-design/schemas/pagination";
@@ -33,11 +33,11 @@ export function usePaginatedQuery<T extends Record<string, unknown> = Record<str
   initialQuery?: UniversalPaginationQuery,
 ) {
   // Default query: page 1, limit 20, no filters
-  const defaultQuery: UniversalPaginationQuery = {
+  const defaultQuery: UniversalPaginationQuery = useMemo(() => ({
     page: 1,
     limit: 20,
     ...initialQuery,
-  };
+  }), [initialQuery]);
 
   const [query, setQuery] = useState<UniversalPaginationQuery>(defaultQuery);
 
