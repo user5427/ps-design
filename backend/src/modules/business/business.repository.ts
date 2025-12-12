@@ -24,7 +24,12 @@ export class BusinessRepository {
       });
     }
 
-    return executePaginatedQuery(qb, query, BUSINESS_MAPPING.fields, "business");
+    return executePaginatedQuery(
+      qb,
+      query,
+      BUSINESS_MAPPING.fields,
+      "business",
+    );
   }
 
   async findById(id: string): Promise<Business | null> {

@@ -100,4 +100,4 @@ export const Login: React.FC = () => {
       </form>
     </AuthFormLayout>
   );
-}
+};

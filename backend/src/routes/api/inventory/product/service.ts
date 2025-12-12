@@ -33,12 +33,11 @@ export async function getAllProductsPaginated(
   businessId: string,
   query: UniversalPaginationQuery,
 ): Promise<PaginatedProductResponse> {
-  const result = await fastify.db.product.findAllPaginated(
-    businessId,
-    query,
-  );
+  const result = await fastify.db.product.findAllPaginated(businessId, query);
   return {
-    items: result.items.map((item: Product) => ProductResponseSchema.parse(toProductResponse(item))),
+    items: result.items.map((item: Product) =>
+      ProductResponseSchema.parse(toProductResponse(item)),
+    ),
     metadata: result.metadata,
   };
 }

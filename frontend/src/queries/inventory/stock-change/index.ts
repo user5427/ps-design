@@ -1,3 +1,1 @@
-export {
-    useCreateStockChange,
-} from "./stock-change";
+export { useCreateStockChange } from "./stock-change";

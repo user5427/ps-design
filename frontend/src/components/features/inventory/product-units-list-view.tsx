@@ -1,18 +1,19 @@
 import { useState, useRef } from "react";
-import {
-  Box,
-  Button,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { Box, Button, Stack, TextField } from "@mui/material";
 import { FormModal, DeleteConfirmationModal } from "@/components/elements/form";
 import {
   useCreateProductUnit,
   useBulkDeleteProductUnits,
   useUpdateProductUnit,
 } from "@/queries/inventory/product-unit";
-import { SmartPaginationList, type SmartPaginationListRef } from "@/components/elements/pagination";
-import { PRODUCT_UNIT_MAPPING, PRODUCT_UNIT_CONSTRAINTS } from "@ps-design/constants/inventory/product-unit";
+import {
+  SmartPaginationList,
+  type SmartPaginationListRef,
+} from "@/components/elements/pagination";
+import {
+  PRODUCT_UNIT_MAPPING,
+  PRODUCT_UNIT_CONSTRAINTS,
+} from "@ps-design/constants/inventory/product-unit";
 import type { ProductUnitResponse } from "@ps-design/schemas/inventory/product-unit";
 
 export const ProductUnitsListView = () => {
@@ -86,7 +87,13 @@ export const ProductUnitsListView = () => {
 
   return (
     <Stack spacing={2}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Button variant="contained" onClick={openCreateForm}>
           Create {PRODUCT_UNIT_MAPPING.displayName}
         </Button>
@@ -115,13 +122,16 @@ export const ProductUnitsListView = () => {
                   if (!value || String(value).trim().length === 0) {
                     return "Name is required";
                   }
-                  if (String(value).length > PRODUCT_UNIT_CONSTRAINTS.NAME.MAX_LENGTH) {
+                  if (
+                    String(value).length >
+                    PRODUCT_UNIT_CONSTRAINTS.NAME.MAX_LENGTH
+                  ) {
                     return PRODUCT_UNIT_CONSTRAINTS.NAME.MAX_LENGTH_MESSAGE;
                   }
                   return undefined;
                 },
               }}
-              >
+            >
               {(field: any) => (
                 <TextField
                   fullWidth
@@ -140,14 +150,17 @@ export const ProductUnitsListView = () => {
               validators={{
                 onChange: ({ value }: { value: unknown }) => {
                   if (value && String(value).trim().length > 0) {
-                    if (String(value).length > PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MAX_LENGTH) {
+                    if (
+                      String(value).length >
+                      PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MAX_LENGTH
+                    ) {
                       return PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MAX_LENGTH_MESSAGE;
                     }
                   }
                   return undefined;
                 },
               }}
-              >
+            >
               {(field: any) => (
                 <TextField
                   fullWidth
@@ -181,13 +194,16 @@ export const ProductUnitsListView = () => {
                   if (!value || String(value).trim().length === 0) {
                     return "Name is required";
                   }
-                  if (String(value).length > PRODUCT_UNIT_CONSTRAINTS.NAME.MAX_LENGTH) {
+                  if (
+                    String(value).length >
+                    PRODUCT_UNIT_CONSTRAINTS.NAME.MAX_LENGTH
+                  ) {
                     return PRODUCT_UNIT_CONSTRAINTS.NAME.MAX_LENGTH_MESSAGE;
                   }
                   return undefined;
                 },
               }}
-              >
+            >
               {(field: any) => (
                 <TextField
                   fullWidth
@@ -206,14 +222,17 @@ export const ProductUnitsListView = () => {
               validators={{
                 onChange: ({ value }: { value: unknown }) => {
                   if (value && String(value).trim().length > 0) {
-                    if (String(value).length > PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MAX_LENGTH) {
+                    if (
+                      String(value).length >
+                      PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MAX_LENGTH
+                    ) {
                       return PRODUCT_UNIT_CONSTRAINTS.SYMBOL.MAX_LENGTH_MESSAGE;
                     }
                   }
                   return undefined;
                 },
               }}
-              >
+            >
               {(field: any) => (
                 <TextField
                   fullWidth

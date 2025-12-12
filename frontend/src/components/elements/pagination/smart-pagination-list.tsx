@@ -53,70 +53,79 @@ export interface SmartPaginationListProps {
   query?: UniversalPaginationQuery;
 }
 
-export const SmartPaginationList = forwardRef<SmartPaginationListRef, SmartPaginationListProps>(
-  function SmartPaginationListComponent(
-    {
-      mapping,
-      onEdit,
-      onDelete,
-      onView,
-      onSelect,
-      query: externalQuery,
-      onQueryChange,
-    }: SmartPaginationListProps,
-    ref,
-  ) {
-    // Fetch paginated data using the smart hook
-    const {
-      items,
-      metadata,
-      isLoading,
-      error,
-      query: internalQuery,
-      setQuery,
-      refetch,
-    } = usePaginatedQuery(mapping);
+export const SmartPaginationList = forwardRef<
+  SmartPaginationListRef,
+  SmartPaginationListProps
+>(function SmartPaginationListComponent(
+  {
+    mapping,
+    onEdit,
+    onDelete,
+    onView,
+    onSelect,
+    query: externalQuery,
+    onQueryChange,
+  }: SmartPaginationListProps,
+  ref,
+) {
+  // Fetch paginated data using the smart hook
+  const {
+    items,
+    metadata,
+    isLoading,
+    error,
+    query: internalQuery,
+    setQuery,
+    refetch,
+  } = usePaginatedQuery(mapping);
 
-    // Expose refetch to parent via ref
-    useImperativeHandle(
-      ref,
-      () => ({
-        refetch: async () => {
-          await refetch();
-        },
-      }),
-      [refetch],
-    );
+  // Expose refetch to parent via ref
+  useImperativeHandle(
+    ref,
+    () => ({
+      refetch: async () => {
+        await refetch();
+      },
+    }),
+    [refetch],
+  );
 
   // Use external query if provided, otherwise use internal query state
   const query = externalQuery ?? internalQuery;
 
   const [searchInput, setSearchInput] = useState(query.search || "");
-  const [columnMenuAnchor, setColumnMenuAnchor] = useState<null | HTMLElement>(null);
-  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({})
-  const [sorting, setSorting] = useState<Array<{ id: string; desc: boolean }>>([]);
-  const [columnFilters, setColumnFilters] = useState<Array<{ id: string; value: unknown }>>([]);
+  const [columnMenuAnchor, setColumnMenuAnchor] = useState<null | HTMLElement>(
+    null,
+  );
+  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(
+    {},
+  );
+  const [sorting, setSorting] = useState<Array<{ id: string; desc: boolean }>>(
+    [],
+  );
+  const [columnFilters, setColumnFilters] = useState<
+    Array<{ id: string; value: unknown }>
+  >([]);
 
   // Build table columns from mapping
   const columns = useMemo(() => {
-    const baseColumns: MRT_ColumnDef<Record<string, unknown>>[] = Object.entries(
-      mapping.fields
-    )
-      .filter(([fieldName]) => visibleColumns[fieldName] !== false)
-      .map(([fieldName, config]) => ({
-        accessorKey: fieldName,
-        header: config.displayName,
-        size: 150,
-        enableSorting: true,
-        Cell: ({ cell }) => {
-          const value = cell.getValue();
-          if (config.type === "date" && value) {
-            const date = new Date(String(value));
-            return date.toLocaleDateString();
-          }
-          return String(value || "-");
-        },
-      }));
+    const baseColumns: MRT_ColumnDef<Record<string, unknown>>[] =
+      Object.entries(mapping.fields)
+        .filter(([fieldName]) => visibleColumns[fieldName] !== false)
+        .map(([fieldName, config]) => ({
+          accessorKey: fieldName,
+          header: config.displayName,
+          size: 150,
+          enableSorting: true,
+          Cell: ({ cell }) => {
+            const value = cell.getValue();
+            if (config.type === "date" && value) {
+              const date = new Date(String(value));
+              return date.toLocaleDateString();
+            }
+            return String(value || "-");
+          },
+        }));
 
     return baseColumns;
   }, [mapping, visibleColumns]);
@@ -156,17 +165,25 @@ export const SmartPaginationList = forwardRef<SmartPaginationListRef, SmartPagin
   };
 
   // Handle sorting change from table
-  const handleSortingChange = (updaterOrValue: ((prev: typeof sorting) => typeof sorting) | typeof sorting) => {
-    const newSorting = typeof updaterOrValue === "function" ? updaterOrValue(sorting) : updaterOrValue;
+  const handleSortingChange = (
+    updaterOrValue: ((prev: typeof sorting) => typeof sorting) | typeof sorting,
+  ) => {
+    const newSorting =
+      typeof updaterOrValue === "function"
+        ? updaterOrValue(sorting)
+        : updaterOrValue;
     setSorting(newSorting);
     const newQuery: UniversalPaginationQuery = {
       ...query,
-      sort: newSorting.length > 0 
-        ? { 
-            fieldName: newSorting[0].id, 
-            direction: newSorting[0].desc ? SortDirection.DESC : SortDirection.ASC 
-          }
-        : undefined,
+      sort:
+        newSorting.length > 0
+          ? {
+              fieldName: newSorting[0].id,
+              direction: newSorting[0].desc
+                ? SortDirection.DESC
+                : SortDirection.ASC,
+            }
+          : undefined,
       page: 1,
     };
     setQuery(newQuery);
@@ -174,8 +191,15 @@ export const SmartPaginationList = forwardRef<SmartPaginationListRef, SmartPagin
   };
 
   // Handle column filters change from table
-  const handleColumnFiltersChange = (updaterOrValue: ((prev: typeof columnFilters) => typeof columnFilters) | typeof columnFilters) => {
-    const newFilters = typeof updaterOrValue === "function" ? updaterOrValue(columnFilters) : updaterOrValue;
+  const handleColumnFiltersChange = (
+    updaterOrValue:
+      | ((prev: typeof columnFilters) => typeof columnFilters)
+      | typeof columnFilters,
+  ) => {
+    const newFilters =
+      typeof updaterOrValue === "function"
+        ? updaterOrValue(columnFilters)
+        : updaterOrValue;
     setColumnFilters(newFilters);
     const newQuery: UniversalPaginationQuery = {
       ...query,
@@ -191,7 +215,10 @@ export const SmartPaginationList = forwardRef<SmartPaginationListRef, SmartPagin
   };
 
   // Handle column visibility
-  const handleColumnVisibilityChange = (columnName: string, visible: boolean) => {
+  const handleColumnVisibilityChange = (
+    columnName: string,
+    visible: boolean,
+  ) => {
     setVisibleColumns((prev) => ({
       ...prev,
       [columnName]: visible,
@@ -255,7 +282,10 @@ export const SmartPaginationList = forwardRef<SmartPaginationListRef, SmartPagin
                     <Checkbox
                       checked={visibleColumns[fieldName] !== false}
                       onChange={(e) =>
-                        handleColumnVisibilityChange(fieldName, e.target.checked)
+                        handleColumnVisibilityChange(
+                          fieldName,
+                          e.target.checked,
+                        )
                       }
                     />
                   }
@@ -274,7 +304,9 @@ export const SmartPaginationList = forwardRef<SmartPaginationListRef, SmartPagin
           value={searchInput}
           onChange={(e) => handleSearch(e.target.value)}
           InputProps={{
-            startAdornment: <SearchIcon sx={{ mr: 1, color: "action.active" }} />,
+            startAdornment: (
+              <SearchIcon sx={{ mr: 1, color: "action.active" }} />
+            ),
           }}
           size="small"
           variant="outlined"
@@ -305,5 +337,4 @@ export const SmartPaginationList = forwardRef<SmartPaginationListRef, SmartPagin
       )}
     </Box>
   );
-  },
-);
+});

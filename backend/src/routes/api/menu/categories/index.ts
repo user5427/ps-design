@@ -23,7 +23,10 @@ import {
   BulkDeleteSchema,
   type BulkDeleteBody,
 } from "@ps-design/schemas/shared";
-import { UniversalPaginationQuerySchema, type UniversalPaginationQuery } from "@ps-design/schemas/pagination";
+import {
+  UniversalPaginationQuerySchema,
+  type UniversalPaginationQuery,
+} from "@ps-design/schemas/pagination";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
 

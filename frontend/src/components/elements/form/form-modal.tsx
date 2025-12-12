@@ -88,7 +88,10 @@ export const FormModal: React.FC<FormModalProps> = ({
         onClose();
       } catch (error) {
         // Capture error message for display
-        const errorMessage = error instanceof Error ? error.message : "An error occurred while submitting the form";
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "An error occurred while submitting the form";
         setSubmissionError(errorMessage);
       }
     },
@@ -118,7 +121,13 @@ export const FormModal: React.FC<FormModalProps> = ({
   }, [initialValues, form, open]);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth disableRestoreFocus>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      disableRestoreFocus
+    >
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -135,7 +144,7 @@ export const FormModal: React.FC<FormModalProps> = ({
             {form.state.submissionAttempts > 0 &&
               form.state.isSubmitting === false &&
               Object.keys(form.state.fieldMeta).some(
-                (fieldName) => form.state.fieldMeta[fieldName]?.errors?.length
+                (fieldName) => form.state.fieldMeta[fieldName]?.errors?.length,
               ) && (
                 <FormAlert
                   message="Form has errors. Please check all fields."
@@ -153,7 +162,9 @@ export const FormModal: React.FC<FormModalProps> = ({
             type="submit"
             variant="contained"
             disabled={form.state.isSubmitting}
-            startIcon={form.state.isSubmitting ? <CircularProgress size={16} /> : null}
+            startIcon={
+              form.state.isSubmitting ? <CircularProgress size={16} /> : null
+            }
           >
             {submitLabel}
           </Button>

@@ -1,11 +1,5 @@
 import AddIcon from "@mui/icons-material/Add";
-import {
-  Alert,
-  Box,
-  Button,
-  Snackbar,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, Button, Snackbar, Typography } from "@mui/material";
 import { useMemo, useState, useCallback } from "react";
 import type { EntityMapping } from "@ps-design/utils";
 
@@ -45,7 +39,6 @@ export function RecordListView<T extends Record<string, unknown>>({
   renderCustomCreateModal: _renderCustomCreateModal,
   renderCustomEditModal: _renderCustomEditModal,
 }: RecordListViewProps<T> & { mapping: EntityMapping }) {
-
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -165,9 +158,12 @@ export function RecordListView<T extends Record<string, unknown>>({
         </Button>
       </Box>
 
-      {(paginationError) && (
+      {paginationError && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {String((paginationError as unknown as Record<string, unknown>)?.message || "An error occurred")}
+          {String(
+            (paginationError as unknown as Record<string, unknown>)?.message ||
+              "An error occurred",
+          )}
         </Alert>
       )}
 
@@ -236,4 +232,5 @@ export function RecordListView<T extends Record<string, unknown>>({
         </Alert>
       </Snackbar>
     </Box>
-  );}
+  );
+}

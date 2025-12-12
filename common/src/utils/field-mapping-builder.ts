@@ -24,4 +24,3 @@ export interface EntityMapping {
   endpoint: string; // API endpoint URL for this entity (e.g., "/api/business")
   displayName: string; // Display name for the entity (e.g., "Business")
 }
-

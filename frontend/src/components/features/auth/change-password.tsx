@@ -122,9 +122,7 @@ export const ChangePassword: React.FC = () => {
                 value={field.state.value}
                 onChange={(e) => {
                   field.handleChange(e.target.value);
-                  setPasswordStrength(
-                    checkPasswordStrength(e.target.value),
-                  );
+                  setPasswordStrength(checkPasswordStrength(e.target.value));
                 }}
                 onBlur={field.handleBlur}
                 error={!!field.state.meta.errors.length}
@@ -167,9 +165,7 @@ export const ChangePassword: React.FC = () => {
         {!passwordStrength.isValid && newPwdValue.length > 0 && (
           <FormAlert
             message={
-              <PasswordRequirements
-                feedback={passwordStrength.feedback}
-              />
+              <PasswordRequirements feedback={passwordStrength.feedback} />
             }
             sx={{ mb: 4 }}
           />

@@ -18,8 +18,6 @@ export class ProductUnitRepository {
     private productRepository: Repository<Product>,
   ) {}
 
-
-
   async findAllPaginated(
     businessId: string,
     query: UniversalPaginationQuery,
@@ -31,13 +29,17 @@ export class ProductUnitRepository {
 
     // Handle simple search if provided
     if (query.search) {
-      qb.andWhere(
-        "(unit.name ILIKE :search OR unit.symbol ILIKE :search)",
-        { search: `%${query.search}%` },
-      );
+      qb.andWhere("(unit.name ILIKE :search OR unit.symbol ILIKE :search)", {
+        search: `%${query.search}%`,
+      });
     }
 
-    return executePaginatedQuery(qb, query, PRODUCT_UNIT_MAPPING.fields, "unit");
+    return executePaginatedQuery(
+      qb,
+      query,
+      PRODUCT_UNIT_MAPPING.fields,
+      "unit",
+    );
   }
 
   async findById(id: string): Promise<ProductUnit | null> {

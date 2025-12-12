@@ -11,7 +11,10 @@ import {
   useUpdateBusiness,
 } from "@/queries/business";
 import type { BusinessResponse } from "@ps-design/schemas/business";
-import { BUSINESS_MAPPING, BUSINESS_CONSTRAINTS } from "@ps-design/constants/business";
+import {
+  BUSINESS_MAPPING,
+  BUSINESS_CONSTRAINTS,
+} from "@ps-design/constants/business";
 
 export const BusinessList: React.FC = () => {
   const createMutation = useCreateBusiness();

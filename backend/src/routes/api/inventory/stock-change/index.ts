@@ -20,7 +20,10 @@ import {
   UpdateStockChangeSchema,
   type UpdateStockChangeBody,
 } from "@ps-design/schemas/inventory/stock-change";
-import { UniversalPaginationQuerySchema, type UniversalPaginationQuery } from "@ps-design/schemas/pagination";
+import {
+  UniversalPaginationQuerySchema,
+  type UniversalPaginationQuery,
+} from "@ps-design/schemas/pagination";
 
 export default async function stockChangesRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();

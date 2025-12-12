@@ -1,14 +1,26 @@
-import { EntityMapping } from "../../../utils/field-mapping-builder";
+import type { EntityMapping } from "../../../utils/field-mapping-builder";
 
 /**
  * Complete mapping for Stock Level entity including fields, display names, and API endpoint
  */
 export const STOCK_LEVEL_MAPPING: EntityMapping = {
   fields: {
-    productName: { column: "product.name", type: "string", displayName: "Product" },
-    totalQuantity: { column: "level.quantity", type: "number", displayName: "Quantity" },
-    isDisabled: { column: "product.isDisabled", type: "boolean", displayName: "Disabled" },
+    productName: {
+      column: "product.name",
+      type: "string",
+      displayName: "Product",
+    },
+    totalQuantity: {
+      column: "level.quantity",
+      type: "number",
+      displayName: "Quantity",
+    },
+    isDisabled: {
+      column: "product.isDisabled",
+      type: "boolean",
+      displayName: "Disabled",
+    },
   },
   endpoint: "/inventory/stock-level",
-  displayName: "Stock Level"
+  displayName: "Stock Level",
 };

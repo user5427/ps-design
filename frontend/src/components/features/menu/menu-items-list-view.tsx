@@ -20,7 +20,8 @@ import type {
 import { MenuItemFormModal } from "./menu-item-form-modal";
 
 export const MenuItemsListView = () => {
-  const { items: _menuItems = [], refetch } = usePaginatedQuery(MENU_ITEM_MAPPING);
+  const { items: _menuItems = [], refetch } =
+    usePaginatedQuery(MENU_ITEM_MAPPING);
   const createMutation = useCreateMenuItem();
   const updateMutation = useUpdateMenuItem();
   const bulkDeleteMutation = useBulkDeleteMenuItems();
@@ -128,7 +129,9 @@ export const MenuItemsListView = () => {
   );
 
   const handleFormSubmit = useCallback(
-    async (data: CreateMenuItemBody | { id: string; data: UpdateMenuItemBody }) => {
+    async (
+      data: CreateMenuItemBody | { id: string; data: UpdateMenuItemBody },
+    ) => {
       if ("id" in data) {
         await updateMutation.mutateAsync(data);
       } else {

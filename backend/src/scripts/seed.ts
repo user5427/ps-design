@@ -44,7 +44,10 @@ async function main() {
 
     // Default password for initial users
     const defaultPassword = "Geras@123";
-    const passwordHash = await bcrypt.hash(defaultPassword, AUTH_CONSTANTS.BCRYPT_SALT_LENGTH);
+    const passwordHash = await bcrypt.hash(
+      defaultPassword,
+      AUTH_CONSTANTS.BCRYPT_SALT_LENGTH,
+    );
 
     // Seed Roles
     const roleNames = ["SUPER_ADMIN", "ADMIN", "USER"];

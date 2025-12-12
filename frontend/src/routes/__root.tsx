@@ -1,9 +1,6 @@
 import { Box } from "@mui/material";
 import type { QueryClient } from "@tanstack/react-query";
-import {
-  createRootRouteWithContext,
-  Outlet,
-} from "@tanstack/react-router";
+import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useRefreshToken } from "@/queries/auth";
 import { AppBar } from "@/components/layouts/app-bar/app-bar";
@@ -37,12 +34,17 @@ function RootComponent() {
         },
       });
     }
-  }, [store.isAuthInitialized, store.setAccessToken, store.setInitialized, refreshTokenMutation.mutate]);
+  }, [
+    store.isAuthInitialized,
+    store.setAccessToken,
+    store.setInitialized,
+    refreshTokenMutation.mutate,
+  ]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <AppBar {...AppBarData} />
-        <Outlet />
+      <Outlet />
     </Box>
   );
 }

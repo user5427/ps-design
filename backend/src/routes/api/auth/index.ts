@@ -19,7 +19,7 @@ import {
 
 export default async function authRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
-  
+
   server.post(
     "/login",
     {

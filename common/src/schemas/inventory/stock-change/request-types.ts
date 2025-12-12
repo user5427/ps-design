@@ -28,7 +28,8 @@ const BaseCreateStockChangeSchema = z
     if (exp <= today) {
       ctx.addIssue({
         code: "custom",
-        message: STOCK_CHANGE_CONSTRAINTS.EXPIRATION_DATE.MUST_BE_FUTURE_MESSAGE,
+        message:
+          STOCK_CHANGE_CONSTRAINTS.EXPIRATION_DATE.MUST_BE_FUTURE_MESSAGE,
         path: ["expirationDate"],
       });
     }
@@ -37,15 +38,24 @@ const BaseCreateStockChangeSchema = z
 export const CreateStockChangeSchema = z.discriminatedUnion("type", [
   BaseCreateStockChangeSchema.safeExtend({
     type: z.literal(STOCK_CHANGE_CONSTRAINTS.TYPE.SUPPLY),
-    quantity: z.number().positive(STOCK_CHANGE_CONSTRAINTS.QUANTITY.SUPPLY_MESSAGE),
+    quantity: z
+      .number()
+      .positive(STOCK_CHANGE_CONSTRAINTS.QUANTITY.SUPPLY_MESSAGE),
   }),
   BaseCreateStockChangeSchema.safeExtend({
     type: z.literal(STOCK_CHANGE_CONSTRAINTS.TYPE.WASTE),
-    quantity: z.number().negative(STOCK_CHANGE_CONSTRAINTS.QUANTITY.WASTE_MESSAGE),
+    quantity: z
+      .number()
+      .negative(STOCK_CHANGE_CONSTRAINTS.QUANTITY.WASTE_MESSAGE),
   }),
   BaseCreateStockChangeSchema.safeExtend({
     type: z.literal(STOCK_CHANGE_CONSTRAINTS.TYPE.ADJUSTMENT),
-    quantity: z.number().refine((val) => val !== 0, STOCK_CHANGE_CONSTRAINTS.QUANTITY.ADJUSTMENT_MESSAGE),
+    quantity: z
+      .number()
+      .refine(
+        (val) => val !== 0,
+        STOCK_CHANGE_CONSTRAINTS.QUANTITY.ADJUSTMENT_MESSAGE,
+      ),
   }),
 ]);
 

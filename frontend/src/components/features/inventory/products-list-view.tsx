@@ -10,7 +10,10 @@ import {
   useBulkDeleteProducts,
   useUpdateProduct,
 } from "@/queries/inventory/products";
-import { PRODUCT_MAPPING, PRODUCT_CONSTRAINTS } from "@ps-design/constants/inventory/product";
+import {
+  PRODUCT_MAPPING,
+  PRODUCT_CONSTRAINTS,
+} from "@ps-design/constants/inventory/product";
 import { PRODUCT_UNIT_MAPPING } from "@ps-design/constants/inventory/product-unit";
 import type { ProductResponse } from "@ps-design/schemas/inventory/product";
 
@@ -120,8 +123,12 @@ export const ProductsListView = () => {
       await updateMutation.mutateAsync({
         id,
         name: values.name ? String(values.name) : undefined,
-        description: values.description ? String(values.description) : undefined,
-        productUnitId: values.productUnitId ? String(values.productUnitId) : undefined,
+        description: values.description
+          ? String(values.description)
+          : undefined,
+        productUnitId: values.productUnitId
+          ? String(values.productUnitId)
+          : undefined,
         isDisabled: values.isDisabled as boolean | undefined,
       });
     },

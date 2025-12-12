@@ -17,14 +17,13 @@ export const Route = createFileRoute("/_protected")({
   component: () => <ProtectedComponent />,
 });
 
-
 function ProtectedComponent() {
   return (
     <Box>
       <Sidebar sidebarSections={sidebarSections} />
       <Layout>
-      <Outlet />
+        <Outlet />
       </Layout>
     </Box>
-  )
+  );
 }

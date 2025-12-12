@@ -7,7 +7,7 @@ export const LoginSchema = z.object({
     .string()
     .min(
       AUTH_CONSTRAINTS.PASSWORD.MIN_LENGTH,
-      AUTH_CONSTRAINTS.PASSWORD.MIN_LENGTH_MESSAGE
+      AUTH_CONSTRAINTS.PASSWORD.MIN_LENGTH_MESSAGE,
     ),
 });
 
@@ -16,13 +16,13 @@ export const ChangePasswordSchema = z.object({
     .string()
     .min(
       AUTH_CONSTRAINTS.PASSWORD.MIN_LENGTH,
-      AUTH_CONSTRAINTS.PASSWORD.MIN_LENGTH_MESSAGE
+      AUTH_CONSTRAINTS.PASSWORD.MIN_LENGTH_MESSAGE,
     ),
   newPassword: z
     .string()
     .min(
       AUTH_CONSTRAINTS.PASSWORD.MIN_LENGTH,
-      AUTH_CONSTRAINTS.PASSWORD.MIN_LENGTH_MESSAGE
+      AUTH_CONSTRAINTS.PASSWORD.MIN_LENGTH_MESSAGE,
     ),
 });
 

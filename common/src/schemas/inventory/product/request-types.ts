@@ -9,11 +9,11 @@ export const CreateProductSchema = z.object({
     .string()
     .min(
       PRODUCT_CONSTRAINTS.NAME.MIN_LENGTH,
-      PRODUCT_CONSTRAINTS.NAME.MIN_LENGTH_MESSAGE
+      PRODUCT_CONSTRAINTS.NAME.MIN_LENGTH_MESSAGE,
     )
     .max(
       PRODUCT_CONSTRAINTS.NAME.MAX_LENGTH,
-      PRODUCT_CONSTRAINTS.NAME.MAX_LENGTH_MESSAGE
+      PRODUCT_CONSTRAINTS.NAME.MAX_LENGTH_MESSAGE,
     ),
   description: z.string().optional(),
   productUnitId: uuid("Invalid product unit ID"),
@@ -24,11 +24,11 @@ export const UpdateProductSchema = z.object({
     .string()
     .min(
       PRODUCT_CONSTRAINTS.NAME.MIN_LENGTH,
-      PRODUCT_CONSTRAINTS.NAME.MIN_LENGTH_MESSAGE
+      PRODUCT_CONSTRAINTS.NAME.MIN_LENGTH_MESSAGE,
     )
     .max(
       PRODUCT_CONSTRAINTS.NAME.MAX_LENGTH,
-      PRODUCT_CONSTRAINTS.NAME.MAX_LENGTH_MESSAGE
+      PRODUCT_CONSTRAINTS.NAME.MAX_LENGTH_MESSAGE,
     )
     .optional(),
   description: z.string().optional(),

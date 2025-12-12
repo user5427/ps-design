@@ -30,12 +30,9 @@ interface DeleteConfirmationModalProps {
  * />
  * ```
  */
-export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
-  open,
-  onClose,
-  itemName,
-  onConfirm,
-}) => {
+export const DeleteConfirmationModal: React.FC<
+  DeleteConfirmationModalProps
+> = ({ open, onClose, itemName, onConfirm }) => {
   return (
     <FormModal
       open={open}
@@ -47,7 +44,8 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
     >
       {() => (
         <Typography>
-          Are you sure you want to delete this {itemName.toLowerCase()}? This action cannot be undone.
+          Are you sure you want to delete this {itemName.toLowerCase()}? This
+          action cannot be undone.
         </Typography>
       )}
     </FormModal>

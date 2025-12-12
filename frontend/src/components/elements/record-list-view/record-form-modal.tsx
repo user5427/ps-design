@@ -56,7 +56,7 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
           initialValue !== undefined
             ? initialValue
             : (field.defaultValue ?? "");
-        
+
         // For pagination fields, set up display value from nested object if available
         if (field.type === "pagination" && field.paginationMapping) {
           const displayValueKey = `${field.name}Display`;
@@ -67,11 +67,16 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
             const nestedObj = nestedValue as Record<string, unknown>;
             defaultValues[field.name] = nestedObj.id || "";
             // Build display value from first field or name
-            const firstField = Object.keys(field.paginationMapping.fields).find(key => key !== 'id');
-            const displayVal = firstField ? String(nestedObj[firstField] || "") : String(nestedObj.name || nestedObj.id || "");
+            const firstField = Object.keys(field.paginationMapping.fields).find(
+              (key) => key !== "id",
+            );
+            const displayVal = firstField
+              ? String(nestedObj[firstField] || "")
+              : String(nestedObj.name || nestedObj.id || "");
             defaultValues[displayValueKey] = displayVal;
           } else {
-            defaultValues[displayValueKey] = initialValues[displayValueKey] || "";
+            defaultValues[displayValueKey] =
+              initialValues[displayValueKey] || "";
           }
         }
       }
@@ -223,14 +228,16 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
 
       case "pagination": {
         if (!field.paginationMapping) {
-          console.error(`Pagination field "${field.name}" missing paginationMapping`);
+          console.error(
+            `Pagination field "${field.name}" missing paginationMapping`,
+          );
           return null;
         }
         // Store both the ID and display value
         // The ID is stored in field.name, display value in field.name + "Display"
         const displayValueKey = `${field.name}Display`;
         const displayVal = String(values[displayValueKey] || "");
-        
+
         return (
           <PaginationSelectField
             key={field.name}

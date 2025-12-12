@@ -20,7 +20,10 @@ import {
   type CreateProductUnitBody,
   PaginatedProductUnitResponseSchema,
 } from "@ps-design/schemas/inventory/product-unit";
-import { UniversalPaginationQuerySchema, type UniversalPaginationQuery } from "@ps-design/schemas/pagination";
+import {
+  UniversalPaginationQuerySchema,
+  type UniversalPaginationQuery,
+} from "@ps-design/schemas/pagination";
 import {
   BulkDeleteSchema,
   type BulkDeleteBody,

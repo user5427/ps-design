@@ -4,9 +4,7 @@ import type {
   StockLevelResponse,
   PaginatedStockLevelResponse,
 } from "@ps-design/schemas/inventory/stock-level";
-import {
-  StockLevelResponseSchema,
-} from "@ps-design/schemas/inventory/stock-level";
+import { StockLevelResponseSchema } from "@ps-design/schemas/inventory/stock-level";
 import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 function toStockLevelResponse(product: Product): StockLevelResponse {
@@ -28,12 +26,11 @@ export async function getAllStockLevelsPaginated(
   businessId: string,
   query: UniversalPaginationQuery,
 ): Promise<PaginatedStockLevelResponse> {
-  const result = await fastify.db.product.findAllPaginated(
-    businessId,
-    query,
-  );
+  const result = await fastify.db.product.findAllPaginated(businessId, query);
   return {
-    items: result.items.map((item: Product) => StockLevelResponseSchema.parse(toStockLevelResponse(item))),
+    items: result.items.map((item: Product) =>
+      StockLevelResponseSchema.parse(toStockLevelResponse(item)),
+    ),
     metadata: result.metadata,
   };
 }

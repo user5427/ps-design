@@ -15,8 +15,6 @@ export class ProductRepository {
     private productUnitRepository: Repository<ProductUnit>,
   ) {}
 
-
-
   async findAllPaginated(
     businessId: string,
     query: UniversalPaginationQuery,

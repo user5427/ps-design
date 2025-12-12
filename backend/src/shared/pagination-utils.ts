@@ -1,4 +1,9 @@
-import { FilterOperator, type PaginationMetadata, SortDirection, type UniversalPaginationQuery } from "@ps-design/schemas/pagination";
+import {
+  FilterOperator,
+  type PaginationMetadata,
+  SortDirection,
+  type UniversalPaginationQuery,
+} from "@ps-design/schemas/pagination";
 import type { FieldMapping } from "@ps-design/utils";
 import type { ObjectLiteral, SelectQueryBuilder } from "typeorm";
 
@@ -23,11 +28,13 @@ export function applyPagination<T extends ObjectLiteral>(
  */
 export function applyFilters<T extends ObjectLiteral>(
   query: SelectQueryBuilder<T>,
-  filters: Array<{
-    fieldName: string;
-    operator: FilterOperator;
-    value: unknown;
-  }> | undefined,
+  filters:
+    | Array<{
+        fieldName: string;
+        operator: FilterOperator;
+        value: unknown;
+      }>
+    | undefined,
   fieldMapping: FieldMapping,
   parameterPrefix: string = "filter",
 ): SelectQueryBuilder<T> {
@@ -157,8 +164,7 @@ export function applySorting<T extends ObjectLiteral>(
   }
 
   const column = mapping.column;
-  const direction =
-    sort.direction === SortDirection.DESC ? "DESC" : "ASC";
+  const direction = sort.direction === SortDirection.DESC ? "DESC" : "ASC";
 
   return query.orderBy(column, direction);
 }

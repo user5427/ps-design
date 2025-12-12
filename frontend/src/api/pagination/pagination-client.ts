@@ -44,10 +44,7 @@ export class PaginationClient {
    * @param query - Complete pagination query object
    * @returns Complete URL with query string
    */
-  private buildUrl(
-    endpoint: string,
-    query: UniversalPaginationQuery,
-  ): string {
+  private buildUrl(endpoint: string, query: UniversalPaginationQuery): string {
     const params = new URLSearchParams();
 
     // Add pagination parameters

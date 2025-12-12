@@ -12,8 +12,14 @@ import {
 import { FormModal } from "@/components/elements/form";
 import type { StockChangeResponse } from "@ps-design/schemas/inventory/stock-change";
 import { useCreateStockChange } from "@/queries/inventory/stock-change";
-import { SmartPaginationList, type SmartPaginationListRef } from "@/components/elements/pagination";
-import { STOCK_CHANGE_MAPPING, STOCK_CHANGE_CONSTRAINTS } from "@ps-design/constants/inventory/stock-change";
+import {
+  SmartPaginationList,
+  type SmartPaginationListRef,
+} from "@/components/elements/pagination";
+import {
+  STOCK_CHANGE_MAPPING,
+  STOCK_CHANGE_CONSTRAINTS,
+} from "@ps-design/constants/inventory/stock-change";
 import { PRODUCT_MAPPING } from "@ps-design/constants/inventory/product";
 
 export const StockChangesListView = () => {
@@ -30,7 +36,9 @@ export const StockChangesListView = () => {
   });
 
   const [productSelectOpen, setProductSelectOpen] = useState(false);
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    null,
+  );
   const [selectedProductLabel, setSelectedProductLabel] = useState<string>("");
 
   const typeOptions = [
@@ -48,7 +56,9 @@ export const StockChangesListView = () => {
       productId: selectedProductId,
       type: values.type as "SUPPLY" | "ADJUSTMENT" | "WASTE",
       quantity: Number(values.quantity),
-      expirationDate: values.expirationDate ? String(values.expirationDate) : undefined,
+      expirationDate: values.expirationDate
+        ? String(values.expirationDate)
+        : undefined,
     });
     setFormState({ isOpen: false, mode: "create" });
     setSelectedProductId(null);
@@ -74,26 +84,29 @@ export const StockChangesListView = () => {
 
   return (
     <Stack spacing={2}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Button variant="contained" onClick={openCreateForm}>
           Create {STOCK_CHANGE_MAPPING.displayName}
         </Button>
       </Box>
 
-      <SmartPaginationList
-        ref={listRef}
-        mapping={STOCK_CHANGE_MAPPING}
-      />
+      <SmartPaginationList ref={listRef} mapping={STOCK_CHANGE_MAPPING} />
 
       <FormModal
         open={formState.isOpen && formState.mode === "create"}
         onClose={handleCloseForm}
         title={`Create ${STOCK_CHANGE_MAPPING.displayName}`}
-        initialValues={{ 
+        initialValues={{
           productId: selectedProductLabel,
           type: STOCK_CHANGE_CONSTRAINTS.TYPE.SUPPLY,
           quantity: "",
-          expirationDate: ""
+          expirationDate: "",
         }}
         onSubmit={handleCreateSubmit}
       >
@@ -180,15 +193,24 @@ export const StockChangesListView = () => {
                   if (Number.isNaN(qty)) {
                     return "Quantity must be a number";
                   }
-                  
+
                   const type = form.getFieldValue("type");
-                  if (type === STOCK_CHANGE_CONSTRAINTS.TYPE.SUPPLY && qty <= 0) {
+                  if (
+                    type === STOCK_CHANGE_CONSTRAINTS.TYPE.SUPPLY &&
+                    qty <= 0
+                  ) {
                     return STOCK_CHANGE_CONSTRAINTS.QUANTITY.SUPPLY_MESSAGE;
                   }
-                  if (type === STOCK_CHANGE_CONSTRAINTS.TYPE.WASTE && qty >= 0) {
+                  if (
+                    type === STOCK_CHANGE_CONSTRAINTS.TYPE.WASTE &&
+                    qty >= 0
+                  ) {
                     return STOCK_CHANGE_CONSTRAINTS.QUANTITY.WASTE_MESSAGE;
                   }
-                  if (type === STOCK_CHANGE_CONSTRAINTS.TYPE.ADJUSTMENT && qty === 0) {
+                  if (
+                    type === STOCK_CHANGE_CONSTRAINTS.TYPE.ADJUSTMENT &&
+                    qty === 0
+                  ) {
                     return STOCK_CHANGE_CONSTRAINTS.QUANTITY.ADJUSTMENT_MESSAGE;
                   }
                   return undefined;
@@ -215,11 +237,11 @@ export const StockChangesListView = () => {
               validators={{
                 onChange: ({ value }: { value: unknown }) => {
                   if (!value) return undefined;
-                  
+
                   const selectedDate = new Date(String(value));
                   const today = new Date();
                   today.setHours(0, 0, 0, 0);
-                  
+
                   if (selectedDate <= today) {
                     return "Expiration date must be in the future";
                   }

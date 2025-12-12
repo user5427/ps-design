@@ -97,7 +97,10 @@ export async function changePassword(
     };
   }
 
-  const newHash = await bcrypt.hash(newPassword, AUTH_CONSTANTS.BCRYPT_SALT_LENGTH);
+  const newHash = await bcrypt.hash(
+    newPassword,
+    AUTH_CONSTANTS.BCRYPT_SALT_LENGTH,
+  );
 
   await fastify.db.user.update(userId, {
     passwordHash: newHash,

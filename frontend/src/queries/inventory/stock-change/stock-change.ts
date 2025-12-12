@@ -1,10 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  createStockChange,
-} from "@/api/inventory/stock-change";
-import type {
-  CreateStockChangeBody,
-} from "@ps-design/schemas/inventory/stock-change";
+import { createStockChange } from "@/api/inventory/stock-change";
+import type { CreateStockChangeBody } from "@ps-design/schemas/inventory/stock-change";
 
 export const STOCK_CHANGES_QUERY_KEY = ["stockChanges"];
 

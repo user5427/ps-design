@@ -6,9 +6,7 @@ import type {
   StockChangeResponse,
   PaginatedStockChangeResponse,
 } from "@ps-design/schemas/inventory/stock-change";
-import {
-  StockChangeResponseSchema,
-} from "@ps-design/schemas/inventory/stock-change";
+import { StockChangeResponseSchema } from "@ps-design/schemas/inventory/stock-change";
 import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 function toStockChangeResponse(change: StockChange): StockChangeResponse {
@@ -92,7 +90,9 @@ export async function getStockChangesPaginated(
     query,
   );
   return {
-    items: result.items.map((item: StockChange) => StockChangeResponseSchema.parse(toStockChangeResponse(item))),
+    items: result.items.map((item: StockChange) =>
+      StockChangeResponseSchema.parse(toStockChangeResponse(item)),
+    ),
     metadata: result.metadata,
   };
 }

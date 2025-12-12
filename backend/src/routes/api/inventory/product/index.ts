@@ -21,7 +21,10 @@ import {
   UpdateProductSchema,
   PaginatedProductResponseSchema,
 } from "@ps-design/schemas/inventory/product";
-import { UniversalPaginationQuerySchema, type UniversalPaginationQuery } from "@ps-design/schemas/pagination";
+import {
+  UniversalPaginationQuerySchema,
+  type UniversalPaginationQuery,
+} from "@ps-design/schemas/pagination";
 import {
   BulkDeleteSchema,
   type BulkDeleteBody,
@@ -190,7 +193,11 @@ export default async function productsRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        await bulkDeleteUnits(fastify, businessId, (request.body as BulkDeleteBody).ids);
+        await bulkDeleteUnits(
+          fastify,
+          businessId,
+          (request.body as BulkDeleteBody).ids,
+        );
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);

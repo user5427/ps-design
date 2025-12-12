@@ -1,3 +1,1 @@
-export {
-    useStockLevel,
-} from "./stock-level";
+export { useStockLevel } from "./stock-level";

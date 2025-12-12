@@ -24,7 +24,10 @@ import {
   BusinessResponseSchema,
   PaginatedBusinessResponseSchema,
 } from "@ps-design/schemas/business";
-import { UniversalPaginationQuerySchema, type UniversalPaginationQuery } from "@ps-design/schemas/pagination";
+import {
+  UniversalPaginationQuerySchema,
+  type UniversalPaginationQuery,
+} from "@ps-design/schemas/pagination";
 import {
   ErrorResponseSchema,
   SuccessResponseSchema,
@@ -53,10 +56,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
-        const result = await getBusinessesPaginated(
-          fastify,
-          request.query,
-        );
+        const result = await getBusinessesPaginated(fastify, request.query);
         return reply.send(result);
       } catch (error) {
         return handleServiceError(error, reply);

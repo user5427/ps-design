@@ -34,7 +34,12 @@ export class MenuItemCategoryRepository {
       });
     }
 
-    return executePaginatedQuery(qb, query, MENU_ITEM_CATEGORY_MAPPING.fields, "category");
+    return executePaginatedQuery(
+      qb,
+      query,
+      MENU_ITEM_CATEGORY_MAPPING.fields,
+      "category",
+    );
   }
 
   async findById(id: string): Promise<MenuItemCategory | null> {

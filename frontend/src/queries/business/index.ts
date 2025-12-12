@@ -1,6 +1,6 @@
 export {
-    useBusinessById,
-    useCreateBusiness,
-    useUpdateBusiness,
-    useDeleteBusiness,
+  useBusinessById,
+  useCreateBusiness,
+  useUpdateBusiness,
+  useDeleteBusiness,
 } from "./business";

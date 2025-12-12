@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { uuid } from "../shared/zod-utils";
-import {
-  createPaginatedSchema,
-  type PaginatedType,
-} from "../pagination";
+import { createPaginatedSchema, type PaginatedType } from "../pagination";
 
 export const BusinessResponseSchema = z.object({
   id: uuid(),

@@ -1,7 +1,5 @@
 import { apiClient } from "@/api/client";
-import type {
-  StockLevelResponse,
-} from "@ps-design/schemas/inventory/stock-level";
+import type { StockLevelResponse } from "@ps-design/schemas/inventory/stock-level";
 
 export async function getStockLevel(
   productId: string,

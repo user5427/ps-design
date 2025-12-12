@@ -31,7 +31,9 @@ export async function getAllUnitsPaginated(
     query,
   );
   return {
-    items: result.items.map((item) => ProductUnitResponseSchema.parse(toProductUnitResponse(item))),
+    items: result.items.map((item) =>
+      ProductUnitResponseSchema.parse(toProductUnitResponse(item)),
+    ),
     metadata: result.metadata,
   };
 }

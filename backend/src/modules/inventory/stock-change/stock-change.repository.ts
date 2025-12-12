@@ -21,8 +21,6 @@ export class StockChangeRepository {
     private dataSource: DataSource,
   ) {}
 
-
-
   async findAllPaginated(
     businessId: string,
     query: UniversalPaginationQuery,
@@ -42,7 +40,12 @@ export class StockChangeRepository {
       });
     }
 
-    return executePaginatedQuery(qb, query, STOCK_CHANGE_MAPPING.fields, "change");
+    return executePaginatedQuery(
+      qb,
+      query,
+      STOCK_CHANGE_MAPPING.fields,
+      "change",
+    );
   }
 
   async findById(id: string): Promise<StockChange | null> {

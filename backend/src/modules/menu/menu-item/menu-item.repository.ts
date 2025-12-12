@@ -129,7 +129,10 @@ export class MenuItemRepository {
       }
     });
 
-    const createdMenuItem = await this.findByIdAndBusinessId(savedId, data.businessId);
+    const createdMenuItem = await this.findByIdAndBusinessId(
+      savedId,
+      data.businessId,
+    );
     if (!createdMenuItem) {
       throw new Error("Failed to retrieve created menu item");
     }

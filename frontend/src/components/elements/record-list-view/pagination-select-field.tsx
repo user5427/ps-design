@@ -46,9 +46,9 @@ export const PaginationSelectField: React.FC<PaginationSelectFieldProps> = ({
   const handleSelect = (rowData: Record<string, unknown>) => {
     const id = String(rowData.id || "");
     // Build display value from the first non-id field
-    const firstField = Object.keys(mapping.fields).find(key => key !== 'id');
+    const firstField = Object.keys(mapping.fields).find((key) => key !== "id");
     const display = firstField ? String(rowData[firstField] || id) : id;
-    
+
     onChange(id, display);
     setDialogOpen(false);
   };
@@ -59,17 +59,17 @@ export const PaginationSelectField: React.FC<PaginationSelectFieldProps> = ({
 
   return (
     <Box>
-      <Typography 
-        variant="caption" 
-        sx={{ 
-          display: "block", 
+      <Typography
+        variant="caption"
+        sx={{
+          display: "block",
           mb: 0.5,
-          color: error ? "error.main" : "text.secondary"
+          color: error ? "error.main" : "text.secondary",
         }}
       >
         {label} {required && "*"}
       </Typography>
-      
+
       <TextField
         fullWidth
         value={displayValue}
@@ -80,21 +80,22 @@ export const PaginationSelectField: React.FC<PaginationSelectFieldProps> = ({
         onClick={() => !disabled && setDialogOpen(true)}
         InputProps={{
           readOnly: true,
-          endAdornment: value && !disabled ? (
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleClear();
-              }}
-            >
-              <ClearIcon fontSize="small" />
-            </IconButton>
-          ) : null,
+          endAdornment:
+            value && !disabled ? (
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClear();
+                }}
+              >
+                <ClearIcon fontSize="small" />
+              </IconButton>
+            ) : null,
         }}
         sx={{ cursor: disabled ? "default" : "pointer" }}
       />
-      
+
       <Button
         variant="outlined"
         size="small"
@@ -114,10 +115,7 @@ export const PaginationSelectField: React.FC<PaginationSelectFieldProps> = ({
         <DialogTitle>Select {mapping.displayName}</DialogTitle>
         <DialogContent>
           <Box sx={{ minHeight: 400, pt: 2 }}>
-            <SmartPaginationList
-              mapping={mapping}
-              onSelect={handleSelect}
-            />
+            <SmartPaginationList mapping={mapping} onSelect={handleSelect} />
           </Box>
         </DialogContent>
         <DialogActions>

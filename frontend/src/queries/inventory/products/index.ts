@@ -1,6 +1,6 @@
 export {
-    useProduct,
-    useCreateProduct,
-    useUpdateProduct,
-    useBulkDeleteProducts,
+  useProduct,
+  useCreateProduct,
+  useUpdateProduct,
+  useBulkDeleteProducts,
 } from "./products";

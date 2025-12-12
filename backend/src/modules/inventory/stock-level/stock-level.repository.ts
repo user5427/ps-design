@@ -9,8 +9,6 @@ import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 export class StockLevelRepository {
   constructor(private repository: Repository<StockLevel>) {}
 
-
-
   async findByProductId(productId: string): Promise<StockLevel | null> {
     return this.repository.findOne({
       where: { productId },
@@ -31,7 +29,12 @@ export class StockLevelRepository {
 
     qb.where("level.businessId = :businessId", { businessId });
 
-    return executePaginatedQuery(qb, query, STOCK_LEVEL_MAPPING.fields, "level");
+    return executePaginatedQuery(
+      qb,
+      query,
+      STOCK_LEVEL_MAPPING.fields,
+      "level",
+    );
   }
 
   async upsertSafe(data: ICreateStockLevel): Promise<StockLevel> {

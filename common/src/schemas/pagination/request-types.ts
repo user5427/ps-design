@@ -60,7 +60,7 @@ export type ColumnSelection = z.infer<typeof ColumnSelectionSchema>;
  * Universal pagination query schema
  * Used by backend to validate incoming request parameters
  * Used by frontend to structure query parameters before sending requests
- * 
+ *
  * This schema captures all pagination, filtering, sorting, and column selection needs
  */
 export const UniversalPaginationQuerySchema = z.object({

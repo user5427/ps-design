@@ -1,43 +1,43 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, useCallback, useMemo } from "react";
-import type {
-  UniversalPaginationQuery,
-} from "@ps-design/schemas/pagination";
+import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 import { SortDirection } from "@ps-design/schemas/pagination";
 import type { EntityMapping } from "@ps-design/utils";
 import { paginationClient } from "@/api/pagination";
 
 /**
  * Hook for handling paginated data fetching with full query support
- * 
+ *
  * Features:
  * - Automatic data fetching based on mapping endpoint
  * - Filter, sort, search, column selection, and pagination all supported
  * - Separates internal query state from external control (optional)
  * - Automatically validates response data
- * 
+ *
  * @param mapping - Entity mapping that defines endpoint and field configuration
  * @param initialQuery - Optional initial query state (defaults to page 1, limit 20)
  * @returns Object with data, metadata, loading state, error, and query management functions
- * 
+ *
  * @example
  * ```tsx
  * const { items, metadata, isLoading, error, query, setQuery } = usePaginatedQuery(PRODUCT_MAPPING);
- * 
+ *
  * // Update query
  * setQuery({ page: 2, limit: 50, search: "widget" });
  * ```
  */
-export function usePaginatedQuery<T extends Record<string, unknown> = Record<string, unknown>>(
-  mapping: EntityMapping,
-  initialQuery?: UniversalPaginationQuery,
-) {
+export function usePaginatedQuery<
+  T extends Record<string, unknown> = Record<string, unknown>,
+>(mapping: EntityMapping, initialQuery?: UniversalPaginationQuery) {
   // Default query: page 1, limit 20, no filters
-  const defaultQuery: UniversalPaginationQuery = useMemo(() => ({
-    page: 1,
-    limit: 20,
-    ...initialQuery,
-  }), [initialQuery]);
+  const defaultQuery: UniversalPaginationQuery = useMemo(
+    () => ({
+      page: 1,
+      limit: 20,
+      ...initialQuery,
+    }),
+    [initialQuery],
+  );
 
   const [query, setQuery] = useState<UniversalPaginationQuery>(defaultQuery);
 
@@ -103,7 +103,9 @@ export function usePaginatedQuery<T extends Record<string, unknown> = Record<str
    */
   const removeFilter = useCallback(
     (fieldName: string) => {
-      const filters = (query.filters || []).filter((f) => f.fieldName !== fieldName);
+      const filters = (query.filters || []).filter(
+        (f) => f.fieldName !== fieldName,
+      );
       setQuery({ ...query, filters, page: 1 });
     },
     [query],
