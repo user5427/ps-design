@@ -1,4 +1,4 @@
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, TextField, Typography } from "@mui/material";
 import type React from "react";
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
@@ -6,7 +6,6 @@ import {
   PasswordRequirements,
   PasswordStrengthIndicator,
 } from "@/components/elements/auth";
-import { FormAlert } from "@/components/elements/form";
 import { useChangePassword } from "@/queries/auth";
 import { checkPasswordStrength } from "@/utils/auth";
 import { getReadableError } from "@/utils/get-readable-error";
@@ -74,19 +73,18 @@ export const ChangePassword: React.FC = () => {
       </Typography>
 
       {changePasswordMutation.isError && (
-        <FormAlert
-          message={getReadableError(
+        <Alert severity="error">
+          {getReadableError(
             changePasswordMutation.error,
             "Failed to change password",
           )}
-        />
+        </Alert>
       )}
 
       {changePasswordMutation.isSuccess && (
-        <FormAlert
-          message="Password changed successfully!"
-          severity="success"
-        />
+        <Alert severity="success">
+          Password changed successfully!
+        </Alert>
       )}
 
       <form
@@ -162,20 +160,17 @@ export const ChangePassword: React.FC = () => {
                 margin="normal"
               />
               {field.state.value.length > 0 && !passwordsMatch && (
-                <FormAlert message="Passwords do not match" sx={{ mb: 4 }} />
+                <Alert severity="error" sx={{ mb: 4 }}>Passwords do not match</Alert>
               )}
             </>
           )}
         />
         {!passwordStrength.isValid && newPwdValue.length > 0 && (
-          <FormAlert
-            message={
-              <PasswordRequirements
-                feedback={passwordStrength.feedback}
-              />
-            }
-            sx={{ mb: 4 }}
-          />
+          <Alert sx={{ mb: 4 }}>
+            <PasswordRequirements
+              feedback={passwordStrength.feedback}
+            />
+          </Alert>
         )}
         <Button
           fullWidth

@@ -1,4 +1,4 @@
-export { FormBuilder } from "./form-builder";
+export { FormBuilder, createForm } from "./form-builder";
 export { FormElement, FormText, FormNumber, FormDate, FormDateTime, FormTextarea, FormSelect, FormAutocomplete, FormCheckbox } from "./form-elements";
 export type { FormBuilderProps } from "./form-builder";
 export type { ValidationRule } from "./validation";

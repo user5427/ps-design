@@ -1,75 +1,77 @@
-import {
-  RecordListView,
-  type FormFieldDefinition,
-  type ViewFieldDefinition,
-  ValidationRules,
-} from "@/components/elements/record-list-view";
+import type React from "react";
 import {
   useCreateMenuCategory,
   useBulkDeleteMenuCategories,
   useUpdateMenuCategory,
 } from "@/queries/menu";
 import { MENU_ITEM_CATEGORY_MAPPING } from "@ps-design/constants/menu/category";
-import type { MenuItemCategoryResponse as MenuItemCategory } from "@ps-design/schemas/menu/category";
+import { FormText } from "@/components/elements/form-builder";
+import { ListManager } from "@/components/elements/list-manager";
+
+// Define the form schema once
+const menuCategoryForm: (form: any) => React.ReactNode = (form) => (
+  <form.Field
+    name="name"
+    defaultValue=""
+    validators={{
+      onChange: ({ value }: { value: unknown }) => {
+        if (!value || String(value).trim().length === 0) {
+          return "Name is required";
+        }
+        if (String(value).length < 1) {
+          return "Name must be at least 1 character";
+        }
+        if (String(value).length > 50) {
+          return "Name must be at most 50 characters";
+        }
+        return undefined;
+      },
+    }}
+  >
+    {(field: any) => (
+      <FormText
+        fieldName="name"
+        label="Name"
+        value={field.state.value}
+        onChange={field.handleChange}
+        onBlur={field.handleBlur}
+        error={field.state.meta.errors.length > 0}
+        helperText={field.state.meta.errors[0] || ""}
+        type="text"
+        required
+      />
+    )}
+  </form.Field>
+);
 
 export const MenuCategoriesListView = () => {
   const createMutation = useCreateMenuCategory();
   const updateMutation = useUpdateMenuCategory();
   const bulkDeleteMutation = useBulkDeleteMenuCategories();
 
-  const createFormFields: FormFieldDefinition[] = [
-    {
-      name: "name",
-      label: "Name",
-      type: "text",
-      required: true,
-      validationRules: [
-        ValidationRules.minLength(1),
-        ValidationRules.maxLength(50),
-      ],
-    },
-  ];
-
-  const editFormFields: FormFieldDefinition[] = createFormFields;
-
-  const viewFields: ViewFieldDefinition[] = [
-    { name: "id", label: "ID" },
-    { name: "name", label: "Name" },
-    { name: "createdAt", label: "Created At" },
-    { name: "updatedAt", label: "Updated At" },
-  ];
-
-  const handleCreate = async (values: Partial<MenuItemCategory>) => {
-    await createMutation.mutateAsync({
-      name: String(values.name),
-    });
-  };
-
-  const handleEdit = async (id: string, values: Partial<MenuItemCategory>) => {
-    await updateMutation.mutateAsync({
-      id,
-      data: {
-        name: values.name,
-      },
-    });
-  };
-
-  const handleDelete = async (ids: string[]) => {
-    await bulkDeleteMutation.mutateAsync(ids);
-  };
-
   return (
-    <RecordListView<MenuItemCategory>
+    <ListManager
       mapping={MENU_ITEM_CATEGORY_MAPPING}
-      createFormFields={createFormFields}
-      editFormFields={editFormFields}
-      viewFields={viewFields}
-      onCreate={handleCreate}
-      onEdit={handleEdit}
-      onDelete={handleDelete}
+      createForm={menuCategoryForm}
+      editForm={menuCategoryForm}
+      onCreate={async (values) => {
+        await createMutation.mutateAsync({
+          name: String(values.name),
+        });
+      }}
+      onEdit={async (id, values) => {
+        await updateMutation.mutateAsync({
+          id,
+          data: {
+            name: String(values.name),
+          },
+        });
+      }}
+      onDelete={async (ids) => {
+        await bulkDeleteMutation.mutateAsync(ids);
+      }}
       createModalTitle="Create Menu Category"
       editModalTitle="Edit Menu Category"
-      viewModalTitle="View Menu Category"
     />
   );
 };

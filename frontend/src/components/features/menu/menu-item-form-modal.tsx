@@ -1,5 +1,6 @@
 import {
   Autocomplete,
+  Alert,
   Box,
   Button,
   Checkbox,
@@ -19,7 +20,6 @@ import {
 import { Add as AddIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import type React from "react";
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { FormAlert } from "@/components/elements/form";
 import { getReadableError } from "@/utils/get-readable-error";
 import type {
   CreateMenuItemBody,
@@ -877,7 +877,7 @@ export const MenuItemFormModal: React.FC<MenuItemFormModalProps> = (props) => {
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 1 }}>
             {status.submitError && (
-              <FormAlert message={status.submitError} severity="error" />
+              <Alert severity="error">{status.submitError}</Alert>
             )}
 
             <BasicInfoSection

@@ -1,10 +1,9 @@
-import { Button, TextField } from "@mui/material";
+import { Alert, Button, TextField } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
 import type React from "react";
 import { useEffect } from "react";
 import { useForm } from "@tanstack/react-form";
 import { AuthFormLayout } from "@/components/elements/auth";
-import { FormAlert } from "@/components/elements/form";
 import { URLS } from "@/constants/urls";
 import { useLogin } from "@/hooks/auth/auth-hooks";
 import { getReadableError } from "@/utils/get-readable-error";
@@ -40,12 +39,12 @@ export const Login: React.FC = () => {
   return (
     <AuthFormLayout title="Sign In">
       {loginMutation.isError && (
-        <FormAlert
-          message={getReadableError(
+        <Alert severity="error">
+          {getReadableError(
             loginMutation.error,
             "Incorrect credentials. Please try again.",
           )}
-        />
+        </Alert>
       )}
       <form
         onSubmit={(e) => {

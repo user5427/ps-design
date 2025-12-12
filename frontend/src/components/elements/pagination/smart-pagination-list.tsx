@@ -284,13 +284,7 @@ export const SmartPaginationList = forwardRef<SmartPaginationListRef, SmartPagin
         />
       </Stack>
 
-      {/* Error alert */}
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error.message || `Failed to load ${mapping.displayName}`}
-        </Alert>
-      )}
-      {messageManager && error && messageManager.addMessage(error.message, "error")}
+      {messageManager && error && messageManager.addMessage(error.message || `Failed to load ${mapping.displayName}`, "error")}
 
       {/* Data table */}
       <MaterialReactTable table={table} />
