@@ -141,7 +141,7 @@ export const SmartPaginationList = forwardRef<SmartPaginationListRef, SmartPagin
         ),
       },
     ];
-  }, [columns, onView, onEdit, onDelete]);
+  }, [columns, onView, onEdit, onDelete, onSelect]);
 
   // Handle search
   const handleSearch = (value: string) => {
@@ -156,7 +156,7 @@ export const SmartPaginationList = forwardRef<SmartPaginationListRef, SmartPagin
   };
 
   // Handle sorting change from table
-  const handleSortingChange = (updaterOrValue: any) => {
+  const handleSortingChange = (updaterOrValue: ((prev: typeof sorting) => typeof sorting) | typeof sorting) => {
     const newSorting = typeof updaterOrValue === "function" ? updaterOrValue(sorting) : updaterOrValue;
     setSorting(newSorting);
     const newQuery: UniversalPaginationQuery = {
@@ -174,12 +174,12 @@ export const SmartPaginationList = forwardRef<SmartPaginationListRef, SmartPagin
   };
 
   // Handle column filters change from table
-  const handleColumnFiltersChange = (updaterOrValue: any) => {
+  const handleColumnFiltersChange = (updaterOrValue: ((prev: typeof columnFilters) => typeof columnFilters) | typeof columnFilters) => {
     const newFilters = typeof updaterOrValue === "function" ? updaterOrValue(columnFilters) : updaterOrValue;
     setColumnFilters(newFilters);
     const newQuery: UniversalPaginationQuery = {
       ...query,
-      filters: newFilters.map((filter: any) => ({
+      filters: newFilters.map((filter: { id: string; value: unknown }) => ({
         fieldName: filter.id,
         operator: FilterOperator.LIKE,
         value: filter.value,

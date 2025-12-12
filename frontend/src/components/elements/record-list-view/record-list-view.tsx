@@ -83,7 +83,7 @@ export function RecordListView<T extends Record<string, unknown>>({
 
   const handleEdit = async (values: Record<string, unknown>) => {
     if (!editingRecord || !onEdit) return;
-    const id = String((editingRecord as any).id);
+    const id = String((editingRecord as Record<string, unknown>).id);
     await onEdit(id, values as Partial<T>);
     setSnackbar({
       open: true,
@@ -121,7 +121,7 @@ export function RecordListView<T extends Record<string, unknown>>({
   }, []);
 
   const openDeleteDialog = useCallback((record: Record<string, unknown>) => {
-    setDeletingIds([String((record as any).id)]);
+    setDeletingIds([String((record as Record<string, unknown>).id)]);
     setDeleteDialogOpen(true);
   }, []);
 
@@ -167,7 +167,7 @@ export function RecordListView<T extends Record<string, unknown>>({
 
       {(paginationError) && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {(paginationError as any)?.message || "An error occurred"}
+          {String((paginationError as unknown as Record<string, unknown>)?.message || "An error occurred")}
         </Alert>
       )}
 
