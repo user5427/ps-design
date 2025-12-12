@@ -1,24 +1,4 @@
-/**
- * FormDialog Component
- * 
- * Reusable wrapper that puts any FormBuilder component in a Dialog.
- * Handles all the dialog mechanics - you just provide the form ref and title.
- * 
- * @example
- * ```tsx
- * const createForm = createForm({ children, onSubmit, messageManager });
- * 
- * <FormDialog
- *   open={createOpen}
- *   title="Create Product"
- *   formRef={createForm.ref}
- *   submitLabel="Create"
- *   onClose={() => setCreateOpen(false)}
- * >
- *   <createForm.Component />
- * </FormDialog>
- * ```
- */
+
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
 import type React from "react";

@@ -1,24 +1,3 @@
-/**
- * FormCard Component
- * 
- * Reusable wrapper that renders a FormBuilder component in a card with submit button.
- * Good for inline forms (login, password change, etc) that don't need a modal dialog.
- * 
- * @example
- * ```tsx
- * const loginForm = createForm({ children: LoginFormContent, onSubmit, messageManager });
- * 
- * <FormCard
- *   title="Sign In"
- *   formRef={loginForm.ref}
- *   submitLabel="Login"
- *   sx={{ maxWidth: 400 }}
- * >
- *   <loginForm.Component />
- * </FormCard>
- * ```
- */
-
 import { Box, Button, Card, CardContent, CardHeader } from "@mui/material";
 import type React from "react";
 import type { FormHandle } from "../list-manager";

@@ -1,2 +1,2 @@
-export { MessageManager, useMessageManager } from "./message-manager";
-export type { Message, MessageManagerContextValue, MessageSeverity } from "./message-manager";
+export { MessageManager, useMessageManager, createMessageManager } from "./message-manager";
+export type { Message, MessageManagerContextValue, MessageSeverity, MessageManagerHandle } from "./message-manager";

@@ -1,14 +1,13 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { AuthFormLayout } from "@/components/elements/auth";
 import { URLS } from "@/constants/urls";
 import { useLogin } from "@/hooks/auth/auth-hooks";
 import { getReadableError } from "@/utils/get-readable-error";
 import { createForm } from "@/components/elements/form-builder";
-import { useMessageManager } from "@/components/elements/message-manager";
+import { createMessageManager } from "@/components/elements/message-manager";
 import { FormText } from "@/components/elements/form-builder";
 import { FormCard } from "@/components/elements/form-decorator";
-import type { FormHandle } from "@/components/elements/list-manager";
 
 const LoginFormContent = ({ form }: { form: any }) => (
   <>
@@ -74,7 +73,7 @@ const LoginFormContent = ({ form }: { form: any }) => (
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
-  const messageManager = useMessageManager();
+  const { ref: messageManager, Component: MessageDisplay } = createMessageManager();
   const loginMutation = useLogin();
 
   const { ref: formRef, Component: FormComponent } = createForm({
@@ -87,7 +86,7 @@ export const Login: React.FC = () => {
           password: String(values.password),
         });
       } catch (error) {
-        messageManager.addMessage("Login failed", "error", 3000);
+        messageManager.current?.error("Login failed", 3000);
       }
     },
   });
@@ -95,7 +94,7 @@ export const Login: React.FC = () => {
   useEffect(() => {
     if (loginMutation.isSuccess && loginMutation.data) {
       const { isPasswordResetRequired } = loginMutation.data;
-      messageManager.addMessage("Login successful", "success", 2000);
+      messageManager.current?.success("Login successful", 2000);
       setTimeout(() => {
         if (isPasswordResetRequired) {
           navigate({ to: URLS.CHANGE_PASSWORD });
@@ -112,21 +111,15 @@ export const Login: React.FC = () => {
         loginMutation.error,
         "Incorrect credentials. Please try again.",
       );
-      messageManager.addMessage(errorMessage, "error", 3000);
+      messageManager.current?.error(errorMessage, 3000);
     }
   }, [loginMutation.isError, loginMutation.error, messageManager]);
 
-  const formRefWrapper = useRef<FormHandle>({
-    setVisible: (visible) => {
-      formRef.current?.setVisible(visible);
-    },
-    submit: async () => await formRef.current?.submit(),
-  });
-
   return (
     <AuthFormLayout title="Sign In">
+      <MessageDisplay />
       <FormCard
-        formRef={formRefWrapper}
+        formRef={formRef}
         submitLabel="Login"
         onSuccess={() => {}}
       >

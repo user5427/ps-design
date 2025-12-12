@@ -1,5 +1,5 @@
 import { Alert } from "@mui/material";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   PasswordRequirements,
   PasswordStrengthIndicator,
@@ -8,10 +8,9 @@ import { useChangePassword } from "@/queries/auth";
 import { checkPasswordStrength } from "@/utils/auth";
 import { getReadableError } from "@/utils/get-readable-error";
 import { createForm } from "@/components/elements/form-builder";
-import { useMessageManager } from "@/components/elements/message-manager";
+import { createMessageManager } from "@/components/elements/message-manager";
 import { FormText } from "@/components/elements/form-builder";
 import { FormCard } from "@/components/elements/form-decorator";
-import type { FormHandle } from "@/components/elements/list-manager";
 
 const ChangePasswordFormContent = ({
   form,
@@ -137,8 +136,8 @@ export const ChangePassword = () => {
   const [passwordStrength, setPasswordStrength] = useState(
     checkPasswordStrength(""),
   );
+  const { ref: messageManager, Component: MessageDisplay } = createMessageManager();
   const changePasswordMutation = useChangePassword();
-  const messageManager = useMessageManager();
 
   const { ref: formRef, Component: FormComponent } = createForm({
     children: (props: any) => (
@@ -158,12 +157,12 @@ export const ChangePassword = () => {
       const confirmPassword = String(values.confirmPassword);
 
       if (newPassword !== confirmPassword) {
-        messageManager.addMessage("Passwords do not match", "error", 3000);
+        messageManager.current?.addMessage("Passwords do not match", "error", 3000);
         return;
       }
 
       if (!passwordStrength.isValid) {
-        messageManager.addMessage(
+        messageManager.current?.addMessage(
           "Password does not meet requirements",
           "error",
           3000,
@@ -176,29 +175,22 @@ export const ChangePassword = () => {
           currentPassword: String(values.currentPassword),
           newPassword: newPassword,
         });
-        messageManager.addMessage("Password changed successfully", "success", 3000);
+        messageManager.current?.addMessage("Password changed successfully", "success", 3000);
         formRef.current?.setVisible(false);
       } catch (error) {
         const errorMessage = getReadableError(
           error,
           "Failed to change password",
         );
-        messageManager.addMessage(errorMessage, "error", 3000);
+        messageManager.current?.addMessage(errorMessage, "error", 3000);
       }
     },
-  });
-
-  const formRefWrapper = useRef<FormHandle>({
-    setVisible: (visible) => {
-      formRef.current?.setVisible(visible);
-    },
-    submit: async () => await formRef.current?.submit(),
   });
 
   return (
     <FormCard
       title="Change Password"
-      formRef={formRefWrapper}
+      formRef={formRef}
       submitLabel="Change Password"
       onSuccess={() => {}}
       sx={{
@@ -207,6 +199,7 @@ export const ChangePassword = () => {
         margin: "0 auto",
       }}
     >
+      <MessageDisplay />
       <FormComponent />
     </FormCard>
   );

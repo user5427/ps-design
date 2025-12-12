@@ -8,6 +8,7 @@ import AddIcon from "@mui/icons-material/Add";
 import type React from "react";
 
 import type { EntityMapping } from "@ps-design/utils";
+import type { MessageManagerHandle } from "../message-manager";
 
 import { SmartPaginationList, type SmartPaginationListRef } from "../pagination";
 
@@ -30,8 +31,8 @@ export interface ListManagerProps {
   /** Reference to delete form component (must expose setVisible method) */
   deleteFormRef?: React.RefObject<FormHandle>;
 
-  /** MessageManager instance for showing notifications */
-  messageManager?: any;
+  /** MessageManager handle for showing notifications */
+  messageManager?: React.RefObject<MessageManagerHandle>;
 
   /** Callback when an operation completes successfully (for refetching list) */
   onSuccess?: () => void;
@@ -114,9 +115,6 @@ export const ListManager: React.FC<ListManagerProps> = ({
             mb: 3,
           }}
         >
-          <Typography variant="h4" component="h1">
-            {mapping.displayName}
-          </Typography>
           <Button
             variant="contained"
             startIcon={<AddIcon />}

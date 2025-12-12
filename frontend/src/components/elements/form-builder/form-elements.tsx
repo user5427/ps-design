@@ -42,6 +42,7 @@ export interface FormElementProps {
   fullWidth?: boolean;
   multiline?: boolean;
   rows?: number;
+  touched?: boolean;
 }
 
 /**
@@ -59,6 +60,7 @@ export const FormText: React.FC<FormElementProps> = ({
   disabled,
   fullWidth = true,
   type,
+  touched,
 }) => (
   <TextField
     label={label}
@@ -66,8 +68,8 @@ export const FormText: React.FC<FormElementProps> = ({
     value={value || ""}
     onChange={(e) => onChange(e.target.value)}
     onBlur={onBlur}
-    error={error}
-    helperText={helperText}
+    error={touched && error}
+    helperText={touched && helperText}
     required={required}
     placeholder={placeholder}
     disabled={disabled}
@@ -89,6 +91,7 @@ export const FormNumber: React.FC<FormElementProps> = ({
   placeholder,
   disabled,
   fullWidth = true,
+  touched,
 }) => (
   <TextField
     label={label}
@@ -96,8 +99,8 @@ export const FormNumber: React.FC<FormElementProps> = ({
     value={value || ""}
     onChange={(e) => onChange(Number(e.target.value))}
     onBlur={onBlur}
-    error={error}
-    helperText={helperText}
+    error={touched && error}
+    helperText={touched && helperText}
     required={required}
     placeholder={placeholder}
     disabled={disabled}
@@ -118,6 +121,7 @@ export const FormDate: React.FC<FormElementProps> = ({
   required,
   disabled,
   fullWidth = true,
+  touched,
 }) => (
   <TextField
     label={label}
@@ -125,8 +129,8 @@ export const FormDate: React.FC<FormElementProps> = ({
     value={value || ""}
     onChange={(e) => onChange(e.target.value)}
     onBlur={onBlur}
-    error={error}
-    helperText={helperText}
+    error={touched && error}
+    helperText={touched && helperText}
     required={required}
     disabled={disabled}
     fullWidth={fullWidth}
@@ -147,6 +151,7 @@ export const FormDateTime: React.FC<FormElementProps> = ({
   required,
   disabled,
   fullWidth = true,
+  touched,
 }) => (
   <TextField
     label={label}
@@ -154,8 +159,8 @@ export const FormDateTime: React.FC<FormElementProps> = ({
     value={value || ""}
     onChange={(e) => onChange(e.target.value)}
     onBlur={onBlur}
-    error={error}
-    helperText={helperText}
+    error={touched && error}
+    helperText={touched && helperText}
     required={required}
     disabled={disabled}
     fullWidth={fullWidth}
@@ -178,6 +183,7 @@ export const FormTextarea: React.FC<FormElementProps> = ({
   disabled,
   fullWidth = true,
   rows = 4,
+  touched,
 }) => (
   <TextField
     label={label}
@@ -186,8 +192,8 @@ export const FormTextarea: React.FC<FormElementProps> = ({
     value={value || ""}
     onChange={(e) => onChange(e.target.value)}
     onBlur={onBlur}
-    error={error}
-    helperText={helperText}
+    error={touched && error}
+    helperText={touched && helperText}
     required={required}
     placeholder={placeholder}
     disabled={disabled}
@@ -209,6 +215,7 @@ export const FormSelect: React.FC<FormElementProps> = ({
   disabled,
   fullWidth = true,
   options = [],
+  touched,
 }) => (
   <Box>
     <Select
@@ -216,7 +223,7 @@ export const FormSelect: React.FC<FormElementProps> = ({
       value={value || ""}
       onChange={(e) => onChange(e.target.value)}
       onBlur={onBlur}
-      error={error}
+      error={touched && error}
       required={required}
       disabled={disabled}
       fullWidth={fullWidth}
@@ -227,7 +234,7 @@ export const FormSelect: React.FC<FormElementProps> = ({
         </MenuItem>
       ))}
     </Select>
-    {helperText && <Box sx={{ color: "error.main", fontSize: "0.75rem", mt: 0.5 }}>{helperText}</Box>}
+    {touched && helperText && <Box sx={{ color: "error.main", fontSize: "0.75rem", mt: 0.5 }}>{helperText}</Box>}
   </Box>
 );
 
@@ -246,6 +253,7 @@ export const FormAutocomplete: React.FC<FormElementProps> = ({
   disabled,
   fullWidth = true,
   options = [],
+  touched,
 }) => (
   <Autocomplete
     options={options}
@@ -262,8 +270,8 @@ export const FormAutocomplete: React.FC<FormElementProps> = ({
         {...params}
         label={label}
         placeholder={placeholder}
-        error={error}
-        helperText={helperText}
+        error={touched && error}
+        helperText={touched && helperText}
         required={required}
       />
     )}

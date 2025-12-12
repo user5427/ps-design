@@ -23,7 +23,7 @@ import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 import { SortDirection, FilterOperator } from "@ps-design/schemas/pagination";
 
 import { usePaginatedQuery } from "@/queries/pagination";
-import { useMessageManager } from "../message-manager";
+import type { MessageManagerHandle } from "../message-manager";
 import { SmartPaginationTableRow } from "./smart-pagination-table-row";
 
 export interface SmartPaginationListRef {
@@ -49,8 +49,8 @@ export interface SmartPaginationListProps {
   /** External query state for pagination (optional) */
   query?: UniversalPaginationQuery;
 
-  /** Message manager for displaying errors */
-  messageManager?: ReturnType<typeof useMessageManager>;
+  /** Message manager handle for displaying errors */
+  messageManager?: React.RefObject<MessageManagerHandle>;
 }
 
 export const SmartPaginationList = forwardRef<SmartPaginationListRef, SmartPaginationListProps>(
@@ -283,7 +283,7 @@ export const SmartPaginationList = forwardRef<SmartPaginationListRef, SmartPagin
         />
       </Stack>
 
-      {messageManager && error && messageManager.addMessage(error.message || `Failed to load ${mapping.displayName}`, "error")}
+      {messageManager?.current && error && messageManager.current.error(error.message || `Failed to load ${mapping.displayName}`, 5000)}
 
       {/* Data table */}
       <MaterialReactTable table={table} />
