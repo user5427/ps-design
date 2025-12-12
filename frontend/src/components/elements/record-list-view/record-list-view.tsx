@@ -1,44 +1,49 @@
 import AddIcon from "@mui/icons-material/Add";
-import { Alert, Box, Button, Snackbar, Typography } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import {
+  Alert,
+  Box,
+  Button,
+  IconButton,
+  Snackbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  type MRT_RowSelectionState,
+} from "material-react-table";
 import { useMemo, useState, useCallback } from "react";
-import type { EntityMapping } from "@ps-design/utils";
-
 import { DeleteConfirmDialog } from "./delete-confirm-dialog";
 import { RecordFormModal } from "./record-form-modal";
 import { ViewRecordModal } from "./view-record-modal";
-import { SmartPaginationList } from "@/components/elements/pagination";
-import { usePaginatedQuery } from "@/queries/pagination";
 import type { RecordListViewProps, ViewFieldDefinition } from "./types";
 
-/**
- * @deprecated Use SmartPaginationList with mapping constants instead.
- * This component now wraps SmartPagination visualization with RecordListView CRUD logic.
- * Pass `mapping` instead of `columns` and `data`.
- */
 export function RecordListView<T extends Record<string, unknown>>({
-  mapping,
+  title,
+  columns,
+  data,
+  isLoading = false,
+  error,
   createFormFields = [],
   editFormFields = [],
   onCreate,
   onEdit,
   onDelete,
+  idKey = "id" as keyof T,
   onSuccess,
   viewFields,
+  hasViewAction = true,
+  getRowId,
+  renderCustomCreateModal,
+  renderCustomEditModal,
   createModalTitle,
   editModalTitle,
   viewModalTitle,
-  // DEPRECATED PROPS - kept for backwards compatibility but ignored
-  title: _title,
-  columns: _columns,
-  data: _data,
-  isLoading: _isLoading,
-  error: _error,
-  idKey: _idKey,
-  hasViewAction: _hasViewAction,
-  getRowId: _getRowId,
-  renderCustomCreateModal: _renderCustomCreateModal,
-  renderCustomEditModal: _renderCustomEditModal,
-}: RecordListViewProps<T> & { mapping: EntityMapping }) {
+}: RecordListViewProps<T>) {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -47,18 +52,18 @@ export function RecordListView<T extends Record<string, unknown>>({
   const [viewingRecord, setViewingRecord] = useState<T | null>(null);
   const [deletingIds, setDeletingIds] = useState<string[]>([]);
 
+  const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
+
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
 
-  // Use pagination hook
-  const {
-    isLoading: _paginationLoading,
-    error: paginationError,
-    refetch,
-  } = usePaginatedQuery(mapping);
+  // Compute selected row IDs
+  const selectedIds = useMemo(() => {
+    return Object.keys(rowSelection).filter((key) => rowSelection[key]);
+  }, [rowSelection]);
 
   // Action handlers
   const handleCreate = async (values: Record<string, unknown>) => {
@@ -69,14 +74,14 @@ export function RecordListView<T extends Record<string, unknown>>({
       message: "Record created successfully",
       severity: "success",
     });
-    setCreateModalOpen(false);
-    await refetch();
     onSuccess?.();
   };
 
   const handleEdit = async (values: Record<string, unknown>) => {
     if (!editingRecord || !onEdit) return;
-    const id = String((editingRecord as Record<string, unknown>).id);
+    const id = getRowId
+      ? getRowId(editingRecord)
+      : String(editingRecord[idKey]);
     await onEdit(id, values as Partial<T>);
     setSnackbar({
       open: true,
@@ -84,8 +89,6 @@ export function RecordListView<T extends Record<string, unknown>>({
       severity: "success",
     });
     setEditingRecord(null);
-    setEditModalOpen(false);
-    await refetch();
     onSuccess?.();
   };
 
@@ -97,25 +100,19 @@ export function RecordListView<T extends Record<string, unknown>>({
       message: `${deletingIds.length > 1 ? "Records" : "Record"} deleted successfully`,
       severity: "success",
     });
+    setRowSelection({});
     setDeletingIds([]);
-    setDeleteDialogOpen(false);
-    await refetch();
     onSuccess?.();
   };
 
-  const openEditModal = useCallback((record: Record<string, unknown>) => {
-    setEditingRecord(record as T);
+  const openEditModal = useCallback((record: T) => {
+    setEditingRecord(record);
     setEditModalOpen(true);
   }, []);
 
-  const openViewModal = useCallback((record: Record<string, unknown>) => {
-    setViewingRecord(record as T);
+  const openViewModal = useCallback((record: T) => {
+    setViewingRecord(record);
     setViewModalOpen(true);
-  }, []);
-
-  const openDeleteDialog = useCallback((record: Record<string, unknown>) => {
-    setDeletingIds([String((record as Record<string, unknown>).id)]);
-    setDeleteDialogOpen(true);
   }, []);
 
   // Generate view fields from edit fields if not provided
@@ -135,6 +132,89 @@ export function RecordListView<T extends Record<string, unknown>>({
     }));
   }, [viewFields, editFormFields]);
 
+  const openDeleteDialog = useCallback((ids: string[]) => {
+    setDeletingIds(ids);
+    setDeleteDialogOpen(true);
+  }, []);
+
+  const tableColumns = useMemo(() => {
+    return [
+      ...columns,
+      {
+        id: "actions",
+        header: "Actions",
+        size: 100,
+        enableSorting: false,
+        enableColumnFilter: false,
+        Cell: ({ row }: { row: { original: T } }) => (
+          <Box sx={{ display: "flex", gap: 0.5 }}>
+            {hasViewAction && (
+              <Tooltip title="View">
+                <IconButton
+                  size="small"
+                  onClick={() => openViewModal(row.original)}
+                >
+                  <VisibilityIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+            {onEdit && (
+              <Tooltip title="Edit">
+                <IconButton
+                  size="small"
+                  onClick={() => openEditModal(row.original)}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+            {onDelete && (
+              <Tooltip title="Delete">
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={() =>
+                    openDeleteDialog([String(row.original[idKey])])
+                  }
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
+        ),
+      },
+    ];
+  }, [
+    columns,
+    hasViewAction,
+    onEdit,
+    onDelete,
+    idKey,
+    openEditModal,
+    openViewModal,
+    openDeleteDialog,
+  ]);
+
+  const table = useMaterialReactTable({
+    columns: tableColumns,
+    data,
+    enableRowSelection: !!onDelete,
+    enableColumnResizing: true,
+    enableGlobalFilter: true,
+    enableStickyHeader: true,
+    layoutMode: "grid",
+    state: {
+      isLoading,
+      rowSelection,
+    },
+    onRowSelectionChange: setRowSelection,
+    getRowId: (row) => (getRowId ? getRowId(row) : String(row[idKey])),
+    muiTableContainerProps: {
+      sx: { maxHeight: "calc(100vh - 300px)" },
+    },
+  });
+
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
       <Box
@@ -146,55 +226,97 @@ export function RecordListView<T extends Record<string, unknown>>({
         }}
       >
         <Typography variant="h4" component="h1">
-          {mapping?.displayName || _title}
+          {title}
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setCreateModalOpen(true)}
-          disabled={!onCreate}
-        >
-          New
-        </Button>
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <Button
+            variant="outlined"
+            color="error"
+            startIcon={<DeleteIcon />}
+            onClick={() => openDeleteDialog(selectedIds)}
+            disabled={selectedIds.length === 0 || !onDelete}
+          >
+            Delete{selectedIds.length > 0 ? ` (${selectedIds.length})` : ""}
+          </Button>
+
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setCreateModalOpen(true)}
+            disabled={!onCreate}
+          >
+            New
+          </Button>
+        </Box>
       </Box>
 
-      {paginationError && (
+      {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {String(
-            (paginationError as unknown as Record<string, unknown>)?.message ||
-              "An error occurred",
-          )}
+          {error.message}
         </Alert>
       )}
 
-      <SmartPaginationList
-        mapping={mapping}
-        onEdit={openEditModal}
-        onDelete={openDeleteDialog}
-        onView={openViewModal}
-      />
+      <MaterialReactTable table={table} />
 
-      <RecordFormModal
-        open={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
-        title={createModalTitle || `Create`}
-        fields={createFormFields}
-        onSubmit={handleCreate}
-        submitLabel="Create"
-      />
+      {renderCustomCreateModal ? (
+        renderCustomCreateModal({
+          open: createModalOpen,
+          onClose: () => setCreateModalOpen(false),
+          initialData: null,
+          onSuccess: () => {
+            setCreateModalOpen(false);
+            setSnackbar({
+              open: true,
+              message: "Record created successfully",
+              severity: "success",
+            });
+            onSuccess?.();
+          },
+        })
+      ) : (
+        <RecordFormModal
+          open={createModalOpen}
+          onClose={() => setCreateModalOpen(false)}
+          title={createModalTitle || `Create`}
+          fields={createFormFields}
+          onSubmit={handleCreate}
+          submitLabel="Create"
+        />
+      )}
 
-      <RecordFormModal
-        open={editModalOpen}
-        onClose={() => {
-          setEditModalOpen(false);
-          setEditingRecord(null);
-        }}
-        title={editModalTitle || `Edit`}
-        fields={editFormFields}
-        initialValues={editingRecord as Record<string, unknown> | undefined}
-        onSubmit={handleEdit}
-        submitLabel="Save"
-      />
+      {renderCustomEditModal ? (
+        renderCustomEditModal({
+          open: editModalOpen,
+          onClose: () => {
+            setEditModalOpen(false);
+            setEditingRecord(null);
+          },
+          initialData: editingRecord,
+          onSuccess: () => {
+            setEditModalOpen(false);
+            setEditingRecord(null);
+            setSnackbar({
+              open: true,
+              message: "Record updated successfully",
+              severity: "success",
+            });
+            onSuccess?.();
+          },
+        })
+      ) : (
+        <RecordFormModal
+          open={editModalOpen}
+          onClose={() => {
+            setEditModalOpen(false);
+            setEditingRecord(null);
+          }}
+          title={editModalTitle || `Edit`}
+          fields={editFormFields}
+          initialValues={editingRecord as Record<string, unknown> | undefined}
+          onSubmit={handleEdit}
+          submitLabel="Save"
+        />
+      )}
 
       <ViewRecordModal
         open={viewModalOpen}

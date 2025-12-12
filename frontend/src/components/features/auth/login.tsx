@@ -1,30 +1,19 @@
-import { Button, TextField } from "@mui/material";
+import { Button } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
 import type React from "react";
-import { useEffect } from "react";
-import { useForm } from "@tanstack/react-form";
+import { useEffect, useState } from "react";
 import { AuthFormLayout } from "@/components/elements/auth";
-import { FormAlert } from "@/components/elements/form";
+import { FormAlert, FormField } from "@/components/elements/form";
 import { URLS } from "@/constants/urls";
 import { useLogin } from "@/hooks/auth/auth-hooks";
 import { getReadableError } from "@/utils/get-readable-error";
 
 export const Login: React.FC = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [validationError, setValidationError] = useState("");
   const navigate = useNavigate();
   const loginMutation = useLogin();
-
-  const form = useForm({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-    onSubmit: async ({ value }) => {
-      loginMutation.mutate({
-        email: value.email,
-        password: value.password,
-      });
-    },
-  });
 
   useEffect(() => {
     if (loginMutation.isSuccess && loginMutation.data) {
@@ -37,9 +26,22 @@ export const Login: React.FC = () => {
     }
   }, [loginMutation.isSuccess, loginMutation.data, navigate]);
 
+  const handleLogin = () => {
+    if (!email || !password) {
+      setValidationError("Please enter both email and password");
+      return;
+    }
+    setValidationError("");
+    loginMutation.mutate({ email, password });
+  };
+
+  const isLoading = loginMutation.isPending;
+  const hasError = loginMutation.isError;
+
   return (
     <AuthFormLayout title="Sign In">
-      {loginMutation.isError && (
+      {validationError && <FormAlert message={validationError} />}
+      {hasError && (
         <FormAlert
           message={getReadableError(
             loginMutation.error,
@@ -47,57 +49,33 @@ export const Login: React.FC = () => {
           )}
         />
       )}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          form.handleSubmit();
-        }}
+      <FormField
+        label="Email"
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Enter your email"
+        disabled={isLoading}
+      />
+      <FormField
+        label="Password"
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Enter your password"
+        disabled={isLoading}
+        sx={{ mb: 4 }}
+      />
+      <Button
+        fullWidth
+        variant="contained"
+        size="large"
+        onClick={handleLogin}
+        disabled={isLoading || !email || !password}
+        sx={{ mb: 2 }}
       >
-        <form.Field name="email">
-          {(field: any) => (
-            <TextField
-              fullWidth
-              label="Email"
-              type="email"
-              value={field.state.value}
-              onChange={(e) => field.handleChange(e.target.value)}
-              onBlur={field.handleBlur}
-              error={!!field.state.meta.errors.length}
-              helperText={field.state.meta.errors[0]}
-              placeholder="Enter your email"
-              disabled={loginMutation.isPending}
-              margin="normal"
-            />
-          )}
-        </form.Field>
-        <form.Field name="password">
-          {(field: any) => (
-            <TextField
-              fullWidth
-              label="Password"
-              type="password"
-              value={field.state.value}
-              onChange={(e) => field.handleChange(e.target.value)}
-              onBlur={field.handleBlur}
-              error={!!field.state.meta.errors.length}
-              helperText={field.state.meta.errors[0]}
-              placeholder="Enter your password"
-              disabled={loginMutation.isPending}
-              margin="normal"
-            />
-          )}
-        </form.Field>
-        <Button
-          fullWidth
-          variant="contained"
-          size="large"
-          type="submit"
-          disabled={loginMutation.isPending}
-          sx={{ mb: 2, mt: 2 }}
-        >
-          {loginMutation.isPending ? "Logging in..." : "Login"}
-        </Button>
-      </form>
+        {isLoading ? "Logging in..." : "Login"}
+      </Button>
     </AuthFormLayout>
   );
 };

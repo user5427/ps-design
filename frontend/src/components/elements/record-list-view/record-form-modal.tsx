@@ -20,7 +20,6 @@ import { useState } from "react";
 import { FormAlert } from "@/components/elements/form";
 import type { FormFieldDefinition } from "./types";
 import { getReadableError } from "@/utils/get-readable-error";
-import { PaginationSelectField } from "./pagination-select-field";
 
 interface RecordFormModalProps {
   open: boolean;
@@ -56,29 +55,6 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
           initialValue !== undefined
             ? initialValue
             : (field.defaultValue ?? "");
-
-        // For pagination fields, set up display value from nested object if available
-        if (field.type === "pagination" && field.paginationMapping) {
-          const displayValueKey = `${field.name}Display`;
-          // Check if the initialValue is an object with nested data (e.g., productUnit)
-          const nestedValue = initialValues[field.name];
-          if (nestedValue && typeof nestedValue === "object") {
-            // Extract ID and display value from nested object
-            const nestedObj = nestedValue as Record<string, unknown>;
-            defaultValues[field.name] = nestedObj.id || "";
-            // Build display value from first field or name
-            const firstField = Object.keys(field.paginationMapping.fields).find(
-              (key) => key !== "id",
-            );
-            const displayVal = firstField
-              ? String(nestedObj[firstField] || "")
-              : String(nestedObj.name || nestedObj.id || "");
-            defaultValues[displayValueKey] = displayVal;
-          } else {
-            defaultValues[displayValueKey] =
-              initialValues[displayValueKey] || "";
-          }
-        }
       }
       setValues(defaultValues);
       setErrors({});
@@ -225,37 +201,6 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
             label={field.label}
           />
         );
-
-      case "pagination": {
-        if (!field.paginationMapping) {
-          console.error(
-            `Pagination field "${field.name}" missing paginationMapping`,
-          );
-          return null;
-        }
-        // Store both the ID and display value
-        // The ID is stored in field.name, display value in field.name + "Display"
-        const displayValueKey = `${field.name}Display`;
-        const displayVal = String(values[displayValueKey] || "");
-
-        return (
-          <PaginationSelectField
-            key={field.name}
-            label={field.label}
-            value={String(value)}
-            displayValue={displayVal}
-            onChange={(id, display) => {
-              handleChange(field.name, id);
-              handleChange(displayValueKey, display);
-            }}
-            mapping={field.paginationMapping}
-            required={field.required}
-            error={error}
-            disabled={isSubmitting}
-            placeholder={field.placeholder}
-          />
-        );
-      }
 
       case "textarea":
         return (

@@ -15,7 +15,7 @@ import {
 import {
   ErrorResponseSchema,
   SuccessResponseSchema,
-} from "@ps-design/schemas/shared/response-messages";
+} from "@ps-design/schemas/shared/response-types";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();

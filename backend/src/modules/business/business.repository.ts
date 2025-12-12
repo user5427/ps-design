@@ -1,35 +1,51 @@
 import { IsNull, type Repository } from "typeorm";
 import { ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
-import { executePaginatedQuery } from "@/shared/pagination-utils";
-import { BUSINESS_MAPPING } from "@ps-design/constants/business";
+import type { IPaginatedResult } from "@/shared/pagination";
 import type { Business } from "./business.entity";
 import type { ICreateBusiness, IUpdateBusiness } from "./business.types";
-import type { PaginatedResult } from "@ps-design/schemas/pagination";
-import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export class BusinessRepository {
   constructor(private repository: Repository<Business>) {}
 
-  async findAllPaginated(
-    query: UniversalPaginationQuery,
-  ): Promise<PaginatedResult<Business>> {
-    const qb = this.repository.createQueryBuilder("business");
-    qb.where("business.deletedAt IS NULL");
+  async findAll(): Promise<Business[]> {
+    return this.repository.find({
+      where: { deletedAt: IsNull() },
+      order: { name: "ASC" },
+    });
+  }
 
-    // Handle simple search if provided (searches all text fields)
-    if (query.search) {
-      qb.andWhere("business.name ILIKE :search", {
-        search: `%${query.search}%`,
+  async findAllPaginated(
+    page: number,
+    limit: number,
+    search?: string,
+  ): Promise<IPaginatedResult<Business>> {
+    const query = this.repository.createQueryBuilder("business");
+
+    query.where("business.deletedAt IS NULL");
+
+    if (search) {
+      query.andWhere("business.name ILIKE :search", {
+        search: `%${search}%`,
       });
     }
 
-    return executePaginatedQuery(
-      qb,
-      query,
-      BUSINESS_MAPPING.fields,
-      "business",
-    );
+    query.orderBy("business.updatedAt", "DESC");
+    query.addOrderBy("business.createdAt", "DESC");
+
+    const skip = (page - 1) * limit;
+    query.skip(skip).take(limit);
+
+    const [items, total] = await query.getManyAndCount();
+    const pages = Math.ceil(total / limit);
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      pages,
+    };
   }
 
   async findById(id: string): Promise<Business | null> {
