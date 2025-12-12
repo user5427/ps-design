@@ -7,7 +7,7 @@ const EmployeeSchema = z.object({
   email: z.string(),
 });
 
-const ServiceCategorySchema = z.object({
+const CategorySchema = z.object({
   id: uuid(),
   name: z.string(),
 });
@@ -18,7 +18,7 @@ const ServiceDefinitionSchema = z.object({
   description: z.string().nullable(),
   price: z.number(),
   duration: z.number(),
-  category: ServiceCategorySchema.nullable().optional(),
+  category: CategorySchema.nullable().optional(),
 });
 
 export const StaffServiceResponseSchema = z.object({

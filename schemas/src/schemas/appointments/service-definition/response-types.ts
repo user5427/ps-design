@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { datetime, uuid } from "../../shared/zod-utils";
 
-const ServiceCategorySchema = z.object({
+const CategorySchema = z.object({
   id: uuid(),
   name: z.string(),
 });
@@ -13,7 +13,7 @@ export const ServiceDefinitionResponseSchema = z.object({
   price: z.number(),
   duration: z.number(),
   isDisabled: z.boolean(),
-  category: ServiceCategorySchema.nullable().optional(),
+  category: CategorySchema.nullable().optional(),
   createdAt: datetime(),
   updatedAt: datetime(),
 });

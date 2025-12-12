@@ -29,7 +29,10 @@ export const CreateServiceDefinitionSchema = z.object({
     .max(MAX_DESCRIPTION_LENGTH, MAX_DESCRIPTION_MESSAGE)
     .nullable()
     .optional(),
-  price: z.number().int("Price must be an integer (cents)").min(MIN_PRICE, MIN_PRICE_MESSAGE),
+  price: z
+    .number()
+    .int("Price must be an integer (cents)")
+    .min(MIN_PRICE, MIN_PRICE_MESSAGE),
   duration: z
     .number()
     .int()
@@ -50,7 +53,11 @@ export const UpdateServiceDefinitionSchema = z.object({
     .max(MAX_DESCRIPTION_LENGTH, MAX_DESCRIPTION_MESSAGE)
     .nullable()
     .optional(),
-  price: z.number().int("Price must be an integer (cents)").min(MIN_PRICE, MIN_PRICE_MESSAGE).optional(),
+  price: z
+    .number()
+    .int("Price must be an integer (cents)")
+    .min(MIN_PRICE, MIN_PRICE_MESSAGE)
+    .optional(),
   duration: z
     .number()
     .int()

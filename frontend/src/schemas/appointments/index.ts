@@ -1,11 +1,5 @@
 // Re-export all appointment types from the shared schemas package
 export type {
-  ServiceCategoryResponse,
-  CreateServiceCategoryBody,
-  UpdateServiceCategoryBody,
-} from "@ps-design/schemas/appointments/service-category";
-
-export type {
   ServiceDefinitionResponse,
   CreateServiceDefinitionBody,
   UpdateServiceDefinitionBody,
@@ -33,13 +27,6 @@ export type {
 } from "@ps-design/schemas/appointments/appointment";
 
 // Type aliases for convenience
-export type ServiceCategory =
-  import("@ps-design/schemas/appointments/service-category").ServiceCategoryResponse;
-export type CreateServiceCategory =
-  import("@ps-design/schemas/appointments/service-category").CreateServiceCategoryBody;
-export type UpdateServiceCategory =
-  import("@ps-design/schemas/appointments/service-category").UpdateServiceCategoryBody;
-
 export type ServiceDefinition =
   import("@ps-design/schemas/appointments/service-definition").ServiceDefinitionResponse;
 export type CreateServiceDefinition =

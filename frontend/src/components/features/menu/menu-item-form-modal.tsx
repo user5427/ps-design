@@ -22,12 +22,8 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { FormAlert } from "@/components/elements/form";
 import { getReadableError } from "@/utils/get-readable-error";
 import { centsToEuros, eurosToCents } from "@/utils/price";
-import type {
-  CreateMenuItem,
-  MenuItemCategory,
-  MenuItem,
-  UpdateMenuItem,
-} from "@/schemas/menu";
+import type { CreateMenuItem, MenuItem, UpdateMenuItem } from "@/schemas/menu";
+import type { Category } from "@/schemas/category";
 import type { Product } from "@/schemas/inventory";
 
 interface BaseProductRecipe {
@@ -49,7 +45,7 @@ interface MenuItemFormModalProps {
   onClose: () => void;
   mode: "create" | "edit";
   initialData?: MenuItem | null;
-  categories: MenuItemCategory[];
+  categories: Category[];
   products: Product[];
   onSubmit: (
     data: CreateMenuItem | { id: string; data: UpdateMenuItem },
@@ -325,7 +321,7 @@ const BasicInfoSection: React.FC<{
   basePrice: number | "";
   categoryId: string | null;
   isDisabled: boolean;
-  categories: MenuItemCategory[];
+  categories: Category[];
   errors: Record<string, string>;
   isSubmitting: boolean;
   onNameChange: (val: string) => void;

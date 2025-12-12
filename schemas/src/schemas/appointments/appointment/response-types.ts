@@ -2,7 +2,7 @@ import { z } from "zod";
 import { datetime, uuid } from "../../shared/zod-utils";
 import { AppointmentStatusEnum } from "./shared";
 
-const ServiceCategorySchema = z.object({
+const CategorySchema = z.object({
   id: uuid(),
   name: z.string(),
 });
@@ -11,7 +11,7 @@ const ServiceDefinitionSchema = z.object({
   id: uuid(),
   name: z.string(),
   description: z.string().nullable(),
-  category: ServiceCategorySchema.nullable().optional(),
+  category: CategorySchema.nullable().optional(),
   duration: z.number(),
   price: z.number(), // cents
 });
