@@ -105,7 +105,8 @@ export const AppointmentsListView = () => {
         accessorKey: "service.serviceDefinition.duration",
         header: "Duration",
         size: 100,
-        Cell: ({ row }) => `${row.original.service?.serviceDefinition?.duration || 0} min`,
+        Cell: ({ row }) =>
+          `${row.original.service?.serviceDefinition?.duration || 0} min`,
       },
       {
         accessorKey: "status",

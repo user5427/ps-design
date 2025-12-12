@@ -190,9 +190,7 @@ export const ServiceDefinitionsListView = () => {
         description: values.description,
         price: values.price !== undefined ? Number(values.price) : undefined,
         duration:
-          values.duration !== undefined
-            ? Number(values.duration)
-            : undefined,
+          values.duration !== undefined ? Number(values.duration) : undefined,
         categoryId: (values as { categoryId?: string }).categoryId,
         isDisabled: values.isDisabled,
       },
