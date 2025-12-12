@@ -4,6 +4,7 @@ import {
   getAvailabilityByUserId,
   bulkSetAvailability,
   getAvailableTimeSlots,
+  getAvailabilityBlocks,
 } from "./service";
 import { getBusinessId } from "@/shared/auth-utils";
 import { handleServiceError } from "@/shared/error-handler";
@@ -14,6 +15,8 @@ import {
   type UserIdForAvailabilityParams,
   GetAvailableTimeSlotsQuerySchema,
   type GetAvailableTimeSlotsQuery,
+  GetAvailabilityBlocksQuerySchema,
+  type GetAvailabilityBlocksQuery,
 } from "@ps-design/schemas/appointments/availability";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
@@ -109,6 +112,39 @@ export default async function availabilityRoutes(fastify: FastifyInstance) {
 
       try {
         const result = await getAvailableTimeSlots(
+          fastify,
+          businessId,
+          request.query,
+        );
+        return reply.send(result);
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
+
+  server.get<{ Querystring: GetAvailabilityBlocksQuery }>(
+    "/blocks",
+    {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.APPOINTMENTS_READ),
+      ],
+      schema: {
+        querystring: GetAvailabilityBlocksQuerySchema,
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Querystring: GetAvailabilityBlocksQuery;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
+
+      try {
+        const result = await getAvailabilityBlocks(
           fastify,
           businessId,
           request.query,

@@ -8,11 +8,15 @@ import {
   Stack,
   TextField,
   Box,
+  Alert,
+  Chip,
 } from "@mui/material";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import {
+  CalendarMonth as CalendarIcon,
+  AccessTime as TimeIcon,
+} from "@mui/icons-material";
 import dayjs, { type Dayjs } from "dayjs";
 import { AvailabilityTimetable } from "./availability-timetable";
-import type { TimeSlot } from "@ps-design/schemas/appointments/availability";
 
 interface CreateAppointmentModalProps {
   open: boolean;
@@ -49,7 +53,9 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
-  const [startTime, setStartTime] = useState<Dayjs | null>(dayjs());
+  const [startTime, setStartTime] = useState<Dayjs | null>(null);
+  const [endTime, setEndTime] = useState<Dayjs | null>(null);
+  const [employeeName, setEmployeeName] = useState("");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -61,11 +67,19 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
   );
   const duration = selectedServiceDef?.baseDuration || 30;
 
-  const handleSlotClick = (slot: TimeSlot) => {
-    setStartTime(dayjs(slot.startTime));
+  const handleSlotClick = (data: {
+    startTime: string;
+    endTime: string;
+    employeeId: string;
+    employeeName: string;
+    staffServiceId: string;
+  }) => {
+    setStartTime(dayjs(data.startTime));
+    setEndTime(dayjs(data.endTime));
+    setEmployeeName(data.employeeName);
     // Set the staff service from the clicked slot
-    if (slot.staffServiceId) {
-      setServiceId(slot.staffServiceId);
+    if (data.staffServiceId) {
+      setServiceId(data.staffServiceId);
     }
   };
 
@@ -96,9 +110,29 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     setCustomerName("");
     setCustomerPhone("");
     setCustomerEmail("");
-    setStartTime(dayjs());
+    setStartTime(null);
+    setEndTime(null);
+    setEmployeeName("");
     setNotes("");
     onClose();
+  };
+
+  // Format time period display
+  const getTimePeriodDisplay = () => {
+    if (!startTime || !endTime) return null;
+
+    const startDate = startTime.format("YYYY-MM-DD");
+    const endDate = endTime.format("YYYY-MM-DD");
+    const startTimeStr = startTime.format("HH:mm");
+    const endTimeStr = endTime.format("HH:mm");
+
+    // Check if it's overnight (different dates)
+    if (startDate !== endDate) {
+      return `${startTime.format("YYYY-MM-DD HH:mm")} - ${endTime.format("YYYY-MM-DD HH:mm")}`;
+    }
+
+    // Same day
+    return `${startDate} ${startTimeStr} - ${endTimeStr}`;
   };
 
   return (
@@ -113,17 +147,44 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
           {/* Left Column - Form */}
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Stack spacing={2}>
-              <TextField
-                label="Staff Service"
-                value={selectedService?.label || ""}
-                placeholder="Select a time slot to choose staff service"
-                fullWidth
-                required
-                InputProps={{
-                  readOnly: true,
-                }}
-                helperText="This will be set when you click on an available time slot"
-              />
+              {/* Selected Time Period Display */}
+              {startTime && endTime && (
+                <Alert severity="info" icon={<CalendarIcon />}>
+                  <Stack spacing={0.5}>
+                    <Box sx={{ fontWeight: 600 }}>Selected Appointment</Box>
+                    {selectedService && (
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        Service:{" "}
+                        <Chip
+                          label={selectedService.label}
+                          size="small"
+                          color="primary"
+                        />
+                      </Box>
+                    )}
+                    {employeeName && (
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        Employee: <Chip label={employeeName} size="small" />
+                      </Box>
+                    )}
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <TimeIcon fontSize="small" />
+                      {getTimePeriodDisplay()}
+                    </Box>
+                  </Stack>
+                </Alert>
+              )}
+
+              {!startTime && (
+                <Alert severity="warning">
+                  Please select an available time slot from the timetable on the
+                  right
+                </Alert>
+              )}
 
               <TextField
                 label="Customer Name"
@@ -146,18 +207,6 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                 value={customerEmail}
                 onChange={(e) => setCustomerEmail(e.target.value)}
                 fullWidth
-              />
-
-              <DateTimePicker
-                label="Start Time"
-                value={startTime}
-                onChange={(newValue) => setStartTime(newValue)}
-                slotProps={{
-                  textField: {
-                    required: true,
-                    fullWidth: true,
-                  },
-                }}
               />
 
               <TextField

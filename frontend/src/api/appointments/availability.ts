@@ -4,6 +4,8 @@ import type {
   AvailabilityResponse,
   GetAvailableTimeSlotsQuery,
   AvailableTimeSlotsResponse,
+  GetAvailabilityBlocksQuery,
+  AvailabilityBlocksResponse,
 } from "@ps-design/schemas/appointments/availability";
 
 export async function getAvailabilityByUserId(
@@ -37,6 +39,23 @@ export async function getAvailableTimeSlots(
 
   const response = await apiClient.get<AvailableTimeSlotsResponse>(
     `/appointments/availability/timeslots?${params.toString()}`,
+  );
+  return response.data;
+}
+
+export async function getAvailabilityBlocks(
+  query: GetAvailabilityBlocksQuery,
+): Promise<AvailabilityBlocksResponse> {
+  const params = new URLSearchParams();
+  if (query.staffServiceId)
+    params.append("staffServiceId", query.staffServiceId);
+  if (query.serviceDefinitionId)
+    params.append("serviceDefinitionId", query.serviceDefinitionId);
+  if (query.employeeId) params.append("employeeId", query.employeeId);
+  params.append("date", query.date);
+
+  const response = await apiClient.get<AvailabilityBlocksResponse>(
+    `/appointments/availability/blocks?${params.toString()}`,
   );
   return response.data;
 }

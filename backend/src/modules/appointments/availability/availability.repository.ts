@@ -411,4 +411,197 @@ export class AvailabilityRepository {
 
     return slots.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
   }
+
+  /**
+   * Get availability blocks showing continuous free/occupied periods
+   * This allows flexible appointment scheduling within free blocks
+   */
+  async getAvailabilityBlocks(params: {
+    businessId: string;
+    date: Date;
+    employeeId?: string;
+    staffServiceId?: string;
+    serviceDefinitionId?: string;
+  }): Promise<
+    Array<{
+      startTime: Date;
+      endTime: Date;
+      type: "FREE" | "OCCUPIED";
+      employeeId: string;
+      employeeName: string;
+      staffServiceId: string | null;
+      appointmentId: string | null;
+    }>
+  > {
+    const blocks: Array<{
+      startTime: Date;
+      endTime: Date;
+      type: "FREE" | "OCCUPIED";
+      employeeId: string;
+      employeeName: string;
+      staffServiceId: string | null;
+      appointmentId: string | null;
+    }> = [];
+
+    // Get relevant employees and their staff services based on filters
+    let employeeStaffServiceMap: Map<string, string> = new Map();
+
+    if (params.employeeId) {
+      employeeStaffServiceMap.set(
+        params.employeeId,
+        params.staffServiceId || "",
+      );
+    } else if (params.staffServiceId) {
+      const staffService = await this.dataSource
+        .getRepository("StaffService")
+        .findOne({
+          where: { id: params.staffServiceId, businessId: params.businessId },
+          relations: ["employee"],
+        });
+      if (staffService) {
+        employeeStaffServiceMap.set(staffService.employeeId, staffService.id);
+      }
+    } else if (params.serviceDefinitionId) {
+      const staffServices = await this.dataSource
+        .getRepository("StaffService")
+        .find({
+          where: {
+            serviceDefinitionId: params.serviceDefinitionId,
+            businessId: params.businessId,
+            isDisabled: false,
+            deletedAt: IsNull(),
+          },
+          relations: ["employee"],
+        });
+      staffServices.forEach((ss: any) => {
+        employeeStaffServiceMap.set(ss.employeeId, ss.id);
+      });
+    }
+
+    if (employeeStaffServiceMap.size === 0) {
+      return blocks;
+    }
+
+    const employeeIds = Array.from(employeeStaffServiceMap.keys());
+    const dayOfWeek = this.dateToDayOfWeek(params.date);
+
+    // For each employee, generate blocks based on availability and appointments
+    for (const employeeId of employeeIds) {
+      const availabilities = await this.findByUserId(
+        employeeId,
+        params.businessId,
+      );
+      const employee = await this.userRepository.findOne({
+        where: { id: employeeId },
+        select: ["id", "name"],
+      });
+
+      if (!employee) continue;
+
+      const dayAvailabilities = availabilities.filter(
+        (av) => av.dayOfWeek === dayOfWeek,
+      );
+
+      // Get appointments for this employee on this date
+      const startOfDay = new Date(params.date);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(params.date);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      const appointments = await this.dataSource
+        .getRepository("Appointment")
+        .createQueryBuilder("appointment")
+        .leftJoinAndSelect("appointment.service", "service")
+        .leftJoinAndSelect("service.serviceDefinition", "serviceDefinition")
+        .where("service.employeeId = :employeeId", { employeeId })
+        .andWhere("appointment.businessId = :businessId", {
+          businessId: params.businessId,
+        })
+        .andWhere("appointment.startTime >= :startOfDay", { startOfDay })
+        .andWhere("appointment.startTime <= :endOfDay", { endOfDay })
+        .andWhere("appointment.status != :cancelled", {
+          cancelled: "CANCELLED",
+        })
+        .getMany();
+
+      // Process each availability window
+      for (const av of dayAvailabilities) {
+        const [startHour, startMin] = av.startTime.split(":").map(Number);
+        const [endHour, endMin] = av.endTime.split(":").map(Number);
+
+        const windowStart = new Date(params.date);
+        windowStart.setHours(startHour, startMin, 0, 0);
+
+        const windowEnd = new Date(params.date);
+        if (av.isOvernight) {
+          windowEnd.setHours(23, 59, 59, 999);
+        } else {
+          windowEnd.setHours(endHour, endMin, 0, 0);
+        }
+
+        // Get appointments within this window, sorted by start time
+        const windowAppointments = appointments
+          .filter((appt: any) => {
+            const apptStart = new Date(appt.startTime);
+            return apptStart >= windowStart && apptStart < windowEnd;
+          })
+          .sort(
+            (a: any, b: any) =>
+              new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
+          );
+
+        let currentTime = windowStart;
+
+        // Create blocks: free periods between appointments and occupied periods for appointments
+        for (const appt of windowAppointments) {
+          const apptStart = new Date(appt.startTime);
+          const apptEnd = new Date(
+            apptStart.getTime() +
+              appt.service.serviceDefinition.baseDuration * 60 * 1000,
+          );
+
+          // Add free block before appointment if there's a gap
+          if (currentTime < apptStart) {
+            blocks.push({
+              startTime: currentTime,
+              endTime: apptStart,
+              type: "FREE",
+              employeeId: employee.id,
+              employeeName: employee.name,
+              staffServiceId: employeeStaffServiceMap.get(employeeId) || null,
+              appointmentId: null,
+            });
+          }
+
+          // Add occupied block for the appointment
+          blocks.push({
+            startTime: apptStart,
+            endTime: apptEnd,
+            type: "OCCUPIED",
+            employeeId: employee.id,
+            employeeName: employee.name,
+            staffServiceId: employeeStaffServiceMap.get(employeeId) || null,
+            appointmentId: appt.id,
+          });
+
+          currentTime = apptEnd;
+        }
+
+        // Add final free block if there's time remaining in the window
+        if (currentTime < windowEnd) {
+          blocks.push({
+            startTime: currentTime,
+            endTime: windowEnd,
+            type: "FREE",
+            employeeId: employee.id,
+            employeeName: employee.name,
+            staffServiceId: employeeStaffServiceMap.get(employeeId) || null,
+            appointmentId: null,
+          });
+        }
+      }
+    }
+
+    return blocks.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+  }
 }

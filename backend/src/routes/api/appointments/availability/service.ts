@@ -5,6 +5,9 @@ import type {
   GetAvailableTimeSlotsQuery,
   AvailableTimeSlotsResponse,
   TimeSlot,
+  GetAvailabilityBlocksQuery,
+  AvailabilityBlocksResponse,
+  AvailabilityBlock,
 } from "@ps-design/schemas/appointments/availability";
 import type { Availability } from "@/modules/appointments/availability/availability.entity";
 
@@ -78,5 +81,36 @@ export async function getAvailableTimeSlots(
   return {
     date: date.toISOString(),
     slots: timeSlots,
+  };
+}
+
+export async function getAvailabilityBlocks(
+  fastify: FastifyInstance,
+  businessId: string,
+  query: GetAvailabilityBlocksQuery,
+): Promise<AvailabilityBlocksResponse> {
+  const date = new Date(query.date);
+
+  const blocks = await fastify.db.availability.getAvailabilityBlocks({
+    businessId,
+    date,
+    employeeId: query.employeeId,
+    staffServiceId: query.staffServiceId,
+    serviceDefinitionId: query.serviceDefinitionId,
+  });
+
+  const availabilityBlocks: AvailabilityBlock[] = blocks.map((block) => ({
+    startTime: block.startTime.toISOString(),
+    endTime: block.endTime.toISOString(),
+    type: block.type,
+    employeeId: block.employeeId,
+    employeeName: block.employeeName,
+    staffServiceId: block.staffServiceId,
+    appointmentId: block.appointmentId,
+  }));
+
+  return {
+    date: date.toISOString(),
+    blocks: availabilityBlocks,
   };
 }

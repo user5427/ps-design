@@ -14,23 +14,36 @@ import {
   MenuItem,
   IconButton,
   Tooltip,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
   Refresh as RefreshIcon,
+  AccessTime as AccessTimeIcon,
 } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs, { type Dayjs } from "dayjs";
-import { useAvailableTimeSlots } from "@/hooks/appointments";
-import type { TimeSlot } from "@ps-design/schemas/appointments/availability";
+import { useAvailabilityBlocks } from "@/hooks/appointments";
+import type { AvailabilityBlock } from "@ps-design/schemas/appointments/availability";
 
 interface AvailabilityTimetableProps {
   staffServiceId?: string;
   serviceDefinitionId?: string;
   employeeId?: string;
   durationMinutes?: number;
-  onSlotClick?: (slot: TimeSlot) => void;
+  onSlotClick?: (data: {
+    startTime: string;
+    endTime: string;
+    employeeId: string;
+    employeeName: string;
+    staffServiceId: string;
+  }) => void;
   serviceDefinitionOptions?: Array<{
     label: string;
     value: string;
@@ -49,41 +62,80 @@ export const AvailabilityTimetable: React.FC<AvailabilityTimetableProps> = ({
   onServiceDefinitionChange,
 }) => {
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
-  const [groupBy, setGroupBy] = useState<"time" | "employee">("time");
+  const [groupBy, setGroupBy] = useState<"time" | "employee">("employee");
+  const [timePickerOpen, setTimePickerOpen] = useState(false);
+  const [selectedBlock, setSelectedBlock] = useState<AvailabilityBlock | null>(
+    null,
+  );
+  const [selectedTime, setSelectedTime] = useState<Dayjs | null>(null);
 
-  const { data, isLoading, error, refetch } = useAvailableTimeSlots({
+  const { data, isLoading, error, refetch } = useAvailabilityBlocks({
     staffServiceId,
     serviceDefinitionId,
     employeeId,
     date: selectedDate.toISOString(),
-    durationMinutes,
   });
 
-  const groupedSlots = useMemo(() => {
-    if (!data?.slots) return {};
+  const groupedBlocks = useMemo(() => {
+    if (!data?.blocks) return {};
 
-    if (groupBy === "time") {
-      return data.slots.reduce(
-        (acc, slot) => {
-          const timeKey = dayjs(slot.startTime).format("HH:mm");
-          if (!acc[timeKey]) acc[timeKey] = [];
-          acc[timeKey].push(slot);
+    if (groupBy === "employee") {
+      return data.blocks.reduce(
+        (acc, block) => {
+          const employeeKey = block.employeeName;
+          if (!acc[employeeKey]) acc[employeeKey] = [];
+          acc[employeeKey].push(block);
           return acc;
         },
-        {} as Record<string, TimeSlot[]>,
+        {} as Record<string, AvailabilityBlock[]>,
       );
     } else {
-      return data.slots.reduce(
-        (acc, slot) => {
-          const employeeKey = slot.employeeName;
-          if (!acc[employeeKey]) acc[employeeKey] = [];
-          acc[employeeKey].push(slot);
+      // Group by time range
+      return data.blocks.reduce(
+        (acc, block) => {
+          const timeKey = `${dayjs(block.startTime).format("HH:mm")} - ${dayjs(block.endTime).format("HH:mm")}`;
+          if (!acc[timeKey]) acc[timeKey] = [];
+          acc[timeKey].push(block);
           return acc;
         },
-        {} as Record<string, TimeSlot[]>,
+        {} as Record<string, AvailabilityBlock[]>,
       );
     }
-  }, [data?.slots, groupBy]);
+  }, [data?.blocks, groupBy]);
+
+  const handleBlockClick = (block: AvailabilityBlock) => {
+    if (block.type === "FREE") {
+      setSelectedBlock(block);
+      setSelectedTime(dayjs(block.startTime));
+      setTimePickerOpen(true);
+    }
+  };
+
+  const handleTimeSelect = () => {
+    if (!selectedBlock || !selectedTime || !durationMinutes) return;
+
+    const startTime = selectedTime;
+    const endTime = startTime.add(durationMinutes, "minute");
+    const blockEnd = dayjs(selectedBlock.endTime);
+
+    // Validate time is within the block
+    if (startTime < dayjs(selectedBlock.startTime) || endTime > blockEnd) {
+      alert("Selected time is outside the available block");
+      return;
+    }
+
+    onSlotClick?.({
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+      employeeId: selectedBlock.employeeId,
+      employeeName: selectedBlock.employeeName,
+      staffServiceId: selectedBlock.staffServiceId || "",
+    });
+
+    setTimePickerOpen(false);
+    setSelectedBlock(null);
+    setSelectedTime(null);
+  };
 
   const handlePreviousDay = () => {
     setSelectedDate((prev) => prev.subtract(1, "day"));
@@ -116,7 +168,7 @@ export const AvailabilityTimetable: React.FC<AvailabilityTimetableProps> = ({
             alignItems="center"
             justifyContent="space-between"
           >
-            <Typography variant="h6">Available Time Slots</Typography>
+            <Typography variant="h6">Available Time Blocks</Typography>
 
             <Stack direction="row" spacing={2} alignItems="center">
               {serviceDefinitionOptions.length > 0 && (
@@ -150,8 +202,8 @@ export const AvailabilityTimetable: React.FC<AvailabilityTimetableProps> = ({
                     setGroupBy(e.target.value as "time" | "employee")
                   }
                 >
-                  <MenuItem value="time">Time</MenuItem>
                   <MenuItem value="employee">Employee</MenuItem>
+                  <MenuItem value="time">Time</MenuItem>
                 </Select>
               </FormControl>
 
@@ -210,100 +262,115 @@ export const AvailabilityTimetable: React.FC<AvailabilityTimetableProps> = ({
             </Box>
           )}
 
-          {/* Timetable */}
-          {!isLoading && data && (
-            <>
-              {Object.keys(groupedSlots).length === 0 ? (
-                <Alert severity="info">
-                  No availability found for the selected date and filters.
-                </Alert>
-              ) : (
-                <Box
-                  sx={{
-                    maxHeight: 400,
-                    overflowY: "auto",
-                    pr: 1,
-                  }}
-                >
-                  <Stack spacing={2}>
-                    {Object.entries(groupedSlots).map(([key, slots]) => (
-                      <Box key={key}>
-                        <Typography
-                          variant="subtitle2"
-                          sx={{ mb: 1, fontWeight: 600 }}
-                        >
-                          {groupBy === "time" ? key : key}
-                        </Typography>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexWrap: "wrap",
-                            gap: 1,
-                          }}
-                        >
-                          {slots.map((slot, idx) => {
-                            const startTime = dayjs(slot.startTime);
-                            const endTime = dayjs(slot.endTime);
-                            const timeLabel = `${startTime.format("HH:mm")} - ${endTime.format("HH:mm")}`;
+          {/* Timetable - Blocks View */}
+          {!isLoading &&
+            data &&
+            (Object.keys(groupedBlocks).length === 0 ? (
+              <Alert severity="info">
+                No availability found for the selected date and filters.
+              </Alert>
+            ) : (
+              <Box
+                sx={{
+                  maxHeight: 500,
+                  overflowY: "auto",
+                  pr: 1,
+                }}
+              >
+                <Stack spacing={3}>
+                  {Object.entries(groupedBlocks).map(([key, blocks]) => (
+                    <Box key={key}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{ mb: 1.5, fontWeight: 600 }}
+                      >
+                        {key}
+                      </Typography>
+                      <Stack spacing={1}>
+                        {blocks.map((block) => {
+                          const startTime = dayjs(block.startTime);
+                          const endTime = dayjs(block.endTime);
+                          const timeLabel = `${startTime.format("HH:mm")} - ${endTime.format("HH:mm")}`;
+                          const isFree = block.type === "FREE";
 
-                            return (
-                              <Chip
-                                key={idx}
-                                label={
-                                  groupBy === "time"
-                                    ? slot.employeeName
-                                    : timeLabel
-                                }
-                                color={slot.isAvailable ? "success" : "default"}
-                                variant={
-                                  slot.isAvailable ? "filled" : "outlined"
-                                }
-                                onClick={
-                                  slot.isAvailable && onSlotClick
-                                    ? () => onSlotClick(slot)
-                                    : undefined
-                                }
-                                clickable={slot.isAvailable}
-                                sx={{
-                                  minWidth: 120,
-                                  justifyContent: "space-between",
-                                  cursor: slot.isAvailable
-                                    ? "pointer"
-                                    : "not-allowed",
-                                  opacity: slot.isAvailable ? 1 : 0.6,
-                                }}
-                                deleteIcon={
-                                  !slot.isAvailable ? (
-                                    <Box
-                                      component="span"
-                                      sx={{
-                                        fontSize: "0.75rem",
-                                        color: "text.secondary",
-                                      }}
+                          return (
+                            <Box
+                              key={block.startTime + block.employeeId}
+                              onClick={() => handleBlockClick(block)}
+                              sx={{
+                                p: 2,
+                                border: 1,
+                                borderColor: isFree
+                                  ? "success.main"
+                                  : "grey.300",
+                                borderRadius: 1,
+                                bgcolor: isFree ? "success.50" : "grey.100",
+                                cursor: isFree ? "pointer" : "default",
+                                transition: "all 0.2s",
+                                "&:hover": isFree
+                                  ? {
+                                      bgcolor: "success.100",
+                                      boxShadow: 1,
+                                    }
+                                  : {},
+                              }}
+                            >
+                              <Stack
+                                direction="row"
+                                justifyContent="space-between"
+                                alignItems="center"
+                              >
+                                <Stack
+                                  direction="row"
+                                  spacing={1}
+                                  alignItems="center"
+                                >
+                                  <AccessTimeIcon
+                                    fontSize="small"
+                                    color={isFree ? "success" : "disabled"}
+                                  />
+                                  <Typography variant="body1" fontWeight={500}>
+                                    {timeLabel}
+                                  </Typography>
+                                  {groupBy === "time" && (
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
                                     >
-                                      Booked
-                                    </Box>
-                                  ) : undefined
-                                }
-                                onDelete={
-                                  !slot.isAvailable ? () => {} : undefined
-                                }
-                              />
-                            );
-                          })}
-                        </Box>
-                      </Box>
-                    ))}
-                  </Stack>
-                </Box>
-              )}
-            </>
-          )}
+                                      • {block.employeeName}
+                                    </Typography>
+                                  )}
+                                </Stack>
+                                <Chip
+                                  label={isFree ? "Available" : "Occupied"}
+                                  color={isFree ? "success" : "default"}
+                                  size="small"
+                                  variant={isFree ? "filled" : "outlined"}
+                                />
+                              </Stack>
+                              {isFree && (
+                                <Typography
+                                  variant="caption"
+                                  color="text.secondary"
+                                  sx={{ mt: 0.5, display: "block" }}
+                                >
+                                  Click to select a specific time
+                                </Typography>
+                              )}
+                            </Box>
+                          );
+                        })}
+                      </Stack>
+                    </Box>
+                  ))}
+                </Stack>
+              </Box>
+            ))}
 
           {/* Legend */}
           <Stack direction="row" spacing={2} justifyContent="center">
             <Chip
-              label="Available"
+              label="Available - Click to select time"
               color="success"
               size="small"
               variant="filled"
@@ -312,6 +379,61 @@ export const AvailabilityTimetable: React.FC<AvailabilityTimetableProps> = ({
           </Stack>
         </Stack>
       </CardContent>
+
+      {/* Time Picker Dialog */}
+      <Dialog open={timePickerOpen} onClose={() => setTimePickerOpen(false)}>
+        <DialogTitle>Select Appointment Time</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1, minWidth: 300 }}>
+            {selectedBlock && (
+              <Alert severity="info">
+                Available: {dayjs(selectedBlock.startTime).format("HH:mm")} -{" "}
+                {dayjs(selectedBlock.endTime).format("HH:mm")}
+                <br />
+                Duration: {durationMinutes} minutes
+              </Alert>
+            )}
+            <TimePicker
+              label="Start Time"
+              value={selectedTime}
+              onChange={setSelectedTime}
+              minTime={
+                selectedBlock ? dayjs(selectedBlock.startTime) : undefined
+              }
+              maxTime={
+                selectedBlock
+                  ? dayjs(selectedBlock.endTime).subtract(
+                      durationMinutes,
+                      "minute",
+                    )
+                  : undefined
+              }
+              minutesStep={5}
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                },
+              }}
+            />
+            {selectedTime && (
+              <Typography variant="body2" color="text.secondary">
+                Appointment: {selectedTime.format("HH:mm")} -{" "}
+                {selectedTime.add(durationMinutes, "minute").format("HH:mm")}
+              </Typography>
+            )}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setTimePickerOpen(false)}>Cancel</Button>
+          <Button
+            onClick={handleTimeSelect}
+            variant="contained"
+            disabled={!selectedTime}
+          >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 };

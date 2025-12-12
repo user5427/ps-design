@@ -3,10 +3,12 @@ import {
   getAvailabilityByUserId,
   bulkSetAvailability,
   getAvailableTimeSlots,
+  getAvailabilityBlocks,
 } from "@/api/appointments";
 import type {
   BulkSetAvailabilityBody,
   GetAvailableTimeSlotsQuery,
+  GetAvailabilityBlocksQuery,
 } from "@ps-design/schemas/appointments/availability";
 
 export const availabilityKeys = {
@@ -14,6 +16,8 @@ export const availabilityKeys = {
   user: (userId: string) => [...availabilityKeys.all, "user", userId] as const,
   timeSlots: (query: GetAvailableTimeSlotsQuery) =>
     [...availabilityKeys.all, "timeSlots", query] as const,
+  blocks: (query: GetAvailabilityBlocksQuery) =>
+    [...availabilityKeys.all, "blocks", query] as const,
 };
 
 export function useUserAvailability(userId: string | undefined) {
@@ -47,6 +51,18 @@ export function useAvailableTimeSlots(query: GetAvailableTimeSlotsQuery) {
   return useQuery({
     queryKey: availabilityKeys.timeSlots(query),
     queryFn: () => getAvailableTimeSlots(query),
+    enabled:
+      !!query.date &&
+      (!!query.staffServiceId ||
+        !!query.serviceDefinitionId ||
+        !!query.employeeId),
+  });
+}
+
+export function useAvailabilityBlocks(query: GetAvailabilityBlocksQuery) {
+  return useQuery({
+    queryKey: availabilityKeys.blocks(query),
+    queryFn: () => getAvailabilityBlocks(query),
     enabled:
       !!query.date &&
       (!!query.staffServiceId ||

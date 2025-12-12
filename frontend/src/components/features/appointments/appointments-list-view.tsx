@@ -44,7 +44,7 @@ export const AppointmentsListView = () => {
       staffServices
         .filter((ss) => !ss.isDisabled)
         .map((ss) => ({
-          label: `${ss.employee.name} - ${ss.serviceDefinition.name} (${ss.serviceDefinition.price.toFixed(2)}€)`,
+          label: `${ss.serviceDefinition.name} (${ss.serviceDefinition.price.toFixed(2)}€)`,
           value: ss.id,
           baseDuration: ss.serviceDefinition.baseDuration,
         })),
