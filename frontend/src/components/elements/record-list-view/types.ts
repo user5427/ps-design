@@ -1,5 +1,6 @@
 import type { MRT_ColumnDef } from "material-react-table";
 import type React from "react";
+import type { EntityMapping } from "@ps-design/utils";
 
 export type FieldType =
   | "text"
@@ -11,7 +12,8 @@ export type FieldType =
   | "date"
   | "datetime"
   | "textarea"
-  | "checkbox";
+  | "checkbox"
+  | "pagination";
 
 export interface SelectOption {
   value: string;
@@ -30,6 +32,7 @@ export interface FormFieldDefinition {
   required?: boolean;
   placeholder?: string;
   options?: SelectOption[]; // For select/autocomplete fields
+  paginationMapping?: EntityMapping; // For pagination fields
   validationRules?: ValidationRule[];
   defaultValue?: unknown;
   /** Whether field is read-only in view mode */
