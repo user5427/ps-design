@@ -16,6 +16,7 @@ import { useCategories } from "@/hooks/category-hooks";
 import { useProducts } from "@/hooks/inventory";
 import type { MenuItem, CreateMenuItem, UpdateMenuItem } from "@/schemas/menu";
 import { MenuItemFormModal } from "./menu-item-form-modal";
+import { formatPrice } from "@/utils/price";
 
 export const MenuItemsListView = () => {
   const { data: menuItems = [], isLoading, error, refetch } = useMenuItems();
@@ -36,7 +37,7 @@ export const MenuItemsListView = () => {
         accessorKey: "basePrice",
         header: "Base Price",
         size: 100,
-        Cell: ({ cell }) => `${cell.getValue<number>().toFixed(2)}€`,
+        Cell: ({ cell }) => formatPrice(cell.getValue<number>()),
       },
       {
         accessorKey: "category",
@@ -79,7 +80,7 @@ export const MenuItemsListView = () => {
       {
         name: "basePrice",
         label: "Base Price",
-        render: (value) => `${(value as number).toFixed(2)}€`,
+        render: (value) => formatPrice(value as number),
       },
       {
         name: "category",
@@ -148,9 +149,10 @@ export const MenuItemsListView = () => {
                   : v.isAvailable
                     ? " (Available)"
                     : " (Unavailable)";
+                const priceSign = v.priceAdjustment >= 0 ? "+" : "";
                 return (
                   <div key={`${v.name}-${v.type}-${index}`}>
-                    {`${v.name} (${v.type}) ${v.priceAdjustment >= 0 ? "+" : ""} ${v.priceAdjustment.toFixed(2)}€${addonText}${statusText}`}
+                    {`${v.name} (${v.type}) ${priceSign}${formatPrice(v.priceAdjustment)}${addonText}${statusText}`}
                   </div>
                 );
               })}

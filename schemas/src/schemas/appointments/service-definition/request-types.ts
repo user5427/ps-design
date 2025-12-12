@@ -4,14 +4,14 @@ import { uuid } from "../../shared/zod-utils";
 const MIN_NAME_LENGTH = 1;
 const MAX_NAME_LENGTH = 100;
 const MAX_DESCRIPTION_LENGTH = 1000;
-const MIN_PRICE = 0;
+const MIN_PRICE = 0; // 0 cents
 const MIN_DURATION = 1; // At least 1 minute
 const MAX_DURATION = 480; // Max 8 hours
 
 const MIN_NAME_MESSAGE = `Name must be at least ${MIN_NAME_LENGTH} character`;
 const MAX_NAME_MESSAGE = `Name must be at most ${MAX_NAME_LENGTH} characters`;
 const MAX_DESCRIPTION_MESSAGE = `Description must be at most ${MAX_DESCRIPTION_LENGTH} characters`;
-const MIN_PRICE_MESSAGE = `Price must be at least ${MIN_PRICE}`;
+const MIN_PRICE_MESSAGE = `Price must be at least ${MIN_PRICE} cents`;
 const MIN_DURATION_MESSAGE = `Duration must be at least ${MIN_DURATION} minute`;
 const MAX_DURATION_MESSAGE = `Duration must be at most ${MAX_DURATION} minutes`;
 
@@ -29,7 +29,7 @@ export const CreateServiceDefinitionSchema = z.object({
     .max(MAX_DESCRIPTION_LENGTH, MAX_DESCRIPTION_MESSAGE)
     .nullable()
     .optional(),
-  price: z.number().min(MIN_PRICE, MIN_PRICE_MESSAGE),
+  price: z.number().int("Price must be an integer (cents)").min(MIN_PRICE, MIN_PRICE_MESSAGE),
   duration: z
     .number()
     .int()
@@ -50,7 +50,7 @@ export const UpdateServiceDefinitionSchema = z.object({
     .max(MAX_DESCRIPTION_LENGTH, MAX_DESCRIPTION_MESSAGE)
     .nullable()
     .optional(),
-  price: z.number().min(MIN_PRICE, MIN_PRICE_MESSAGE).optional(),
+  price: z.number().int("Price must be an integer (cents)").min(MIN_PRICE, MIN_PRICE_MESSAGE).optional(),
   duration: z
     .number()
     .int()

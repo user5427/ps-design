@@ -11,7 +11,6 @@ import {
   Unique,
   UpdateDateColumn,
 } from "typeorm";
-import { decimalTransformer } from "@/shared/decimal-transformer";
 import type { Business } from "@/modules/business/business.entity";
 import type { Category } from "@/modules/category/category.entity";
 import type { StaffService } from "@/modules/appointments/staff-service/staff-service.entity";
@@ -28,12 +27,8 @@ export class ServiceDefinition {
   @Column({ type: "text", nullable: true })
   description: string | null;
 
-  @Column({
-    type: "decimal",
-    precision: 10,
-    scale: 2,
-    transformer: decimalTransformer,
-  })
+  /** Price in cents */
+  @Column({ type: "int" })
   price: number;
 
   @Column({ type: "int" })

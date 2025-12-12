@@ -20,6 +20,7 @@ import { CreateAppointmentModal } from "./create-appointment-modal";
 import { PayModal } from "./pay-modal";
 import { CancelAppointmentDialog } from "./cancel-appointment-dialog";
 import { AppointmentRowActions } from "./appointment-row-actions";
+import { formatPrice } from "@/utils/price";
 import dayjs from "dayjs";
 
 const STATUS_COLORS: Record<
@@ -87,7 +88,7 @@ export const AppointmentsListView = () => {
       staffServices
         .filter((ss) => !ss.isDisabled)
         .map((ss) => ({
-          label: `${ss.serviceDefinition.name} (${ss.serviceDefinition.price.toFixed(2)}€)`,
+          label: `${ss.serviceDefinition.name} (${formatPrice(ss.serviceDefinition.price)})`,
           value: ss.id,
           duration: ss.serviceDefinition.duration,
         })),

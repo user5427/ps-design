@@ -21,6 +21,7 @@ import type React from "react";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { FormAlert } from "@/components/elements/form";
 import { getReadableError } from "@/utils/get-readable-error";
+import { centsToEuros, eurosToCents } from "@/utils/price";
 import type {
   CreateMenuItem,
   MenuItemCategory,
@@ -96,7 +97,8 @@ const useMenuItemForm = ({
   const reset = useCallback(() => {
     if (mode === "edit" && initialData) {
       setBaseName(initialData.baseName);
-      setBasePrice(initialData.basePrice);
+      // Convert cents to euros for display
+      setBasePrice(centsToEuros(initialData.basePrice));
       setCategoryId(initialData.category?.id || null);
       setIsDisabled(initialData.isDisabled);
       setBaseProducts(
@@ -112,7 +114,8 @@ const useMenuItemForm = ({
           id: v.id,
           name: v.name,
           type: v.type,
-          priceAdjustment: v.priceAdjustment,
+          // Convert cents to euros for display
+          priceAdjustment: centsToEuros(v.priceAdjustment),
           isDisabled: v.isDisabled,
           addonProducts:
             v.addonProducts?.map((ap) => ({
@@ -183,7 +186,8 @@ const useMenuItemForm = ({
           ...(v.id ? { id: v.id } : {}),
           name: v.name.trim(),
           type: v.type.trim(),
-          priceAdjustment: v.priceAdjustment,
+          // Convert euros to cents for API
+          priceAdjustment: eurosToCents(v.priceAdjustment),
           isDisabled: v.isDisabled,
           addonProducts: v.addonProducts.filter(
             (ap) => ap.productId && ap.quantity > 0,
@@ -192,7 +196,8 @@ const useMenuItemForm = ({
 
       const commonData = {
         baseName: baseName.trim(),
-        basePrice: Number(basePrice),
+        // Convert euros to cents for API
+        basePrice: eurosToCents(Number(basePrice)),
         categoryId: categoryId || null,
         isDisabled,
         baseProducts: validBaseProducts,

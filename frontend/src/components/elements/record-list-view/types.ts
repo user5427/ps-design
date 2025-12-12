@@ -34,6 +34,10 @@ export interface FormFieldDefinition {
   defaultValue?: unknown;
   /** Whether field is read-only in view mode */
   viewOnly?: boolean;
+  /** Transform value when loading into edit form (e.g., cents -> euros) */
+  transformForEdit?: (value: unknown) => unknown;
+  /** Transform value when submitting form (e.g., euros -> cents) */
+  transformForSubmit?: (value: unknown) => unknown;
 }
 
 export interface ViewFieldDefinition {

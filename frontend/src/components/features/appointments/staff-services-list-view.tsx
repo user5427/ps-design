@@ -16,6 +16,7 @@ import { useServiceDefinitions } from "@/hooks/appointments";
 import { useAuthUser } from "@/hooks/auth";
 import { useBusinessUsers } from "@/hooks/business";
 import type { StaffService } from "@/schemas/appointments";
+import { formatPrice } from "@/utils/price";
 
 export const StaffServicesListView = () => {
   const { data: user } = useAuthUser();
@@ -78,7 +79,7 @@ export const StaffServicesListView = () => {
         header: "Price",
         size: 100,
         Cell: ({ row }) =>
-          `${row.original.serviceDefinition?.price?.toFixed(2) || "0.00"}€`,
+          formatPrice(row.original.serviceDefinition?.price ?? 0),
       },
       {
         accessorKey: "serviceDefinition.duration",

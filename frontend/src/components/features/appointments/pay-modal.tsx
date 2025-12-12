@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import PaymentIcon from "@mui/icons-material/Payment";
 import type { Appointment } from "@/schemas/appointments";
+import { formatPrice } from "@/utils/price";
 import dayjs from "dayjs";
 
 interface PayModalProps {
@@ -43,7 +44,7 @@ export const PayModal: React.FC<PayModalProps> = ({
   const startTimeLabel = dayjs(appointment.startTime).format(
     "YYYY-MM-DD HH:mm",
   );
-  const totalLabel = `€${price.toFixed(2)}`;
+  const totalLabel = formatPrice(price);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>

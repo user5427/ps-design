@@ -15,6 +15,7 @@ import {
 import { useCategories } from "@/hooks/category-hooks";
 import type { ServiceDefinition } from "@/schemas/appointments";
 import { Chip } from "@mui/material";
+import { formatPrice, centsToEuros, eurosToCents } from "@/utils/price";
 
 export const ServiceDefinitionsListView = () => {
   const {
@@ -66,7 +67,7 @@ export const ServiceDefinitionsListView = () => {
         accessorKey: "price",
         header: "Price",
         size: 100,
-        Cell: ({ cell }) => `${cell.getValue<number>().toFixed(2)}€`,
+        Cell: ({ cell }) => formatPrice(cell.getValue<number>()),
       },
       {
         accessorKey: "duration",
@@ -125,6 +126,8 @@ export const ServiceDefinitionsListView = () => {
       type: "number",
       required: true,
       validationRules: [ValidationRules.min(0)],
+      transformForEdit: (value) => centsToEuros(value as number),
+      transformForSubmit: (value) => eurosToCents(value as number),
     },
     {
       name: "duration",
@@ -158,7 +161,7 @@ export const ServiceDefinitionsListView = () => {
     {
       name: "price",
       label: "Price",
-      render: (value) => `${(value as number).toFixed(2)}€`,
+      render: (value) => formatPrice(value as number),
     },
     {
       name: "duration",
