@@ -37,13 +37,20 @@ export function RecordListView<T extends Record<string, unknown>>({
   onSuccess,
   viewFields,
   hasViewAction = true,
+  hasEditAction,
+  hasDeleteAction,
   getRowId,
   renderCustomCreateModal,
   renderCustomEditModal,
   createModalTitle,
   editModalTitle,
   viewModalTitle,
+  renderRowActions,
+  enableMultiRowSelection,
 }: RecordListViewProps<T>) {
+  // Compute whether to show actions - defaults to true when handler is provided
+  const showEditAction = hasEditAction ?? !!onEdit;
+  const showDeleteAction = hasDeleteAction ?? !!onDelete;
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -143,7 +150,7 @@ export function RecordListView<T extends Record<string, unknown>>({
       {
         id: "actions",
         header: "Actions",
-        size: 100,
+        size: renderRowActions ? 180 : 100,
         enableSorting: false,
         enableColumnFilter: false,
         Cell: ({ row }: { row: { original: T } }) => (
@@ -158,7 +165,7 @@ export function RecordListView<T extends Record<string, unknown>>({
                 </IconButton>
               </Tooltip>
             )}
-            {onEdit && (
+            {showEditAction && (
               <Tooltip title="Edit">
                 <IconButton
                   size="small"
@@ -168,7 +175,7 @@ export function RecordListView<T extends Record<string, unknown>>({
                 </IconButton>
               </Tooltip>
             )}
-            {onDelete && (
+            {showDeleteAction && (
               <Tooltip title="Delete">
                 <IconButton
                   size="small"
@@ -181,6 +188,12 @@ export function RecordListView<T extends Record<string, unknown>>({
                 </IconButton>
               </Tooltip>
             )}
+            {renderRowActions?.({
+              row: row.original,
+              openViewModal,
+              openEditModal,
+              openDeleteDialog,
+            })}
           </Box>
         ),
       },
@@ -188,18 +201,19 @@ export function RecordListView<T extends Record<string, unknown>>({
   }, [
     columns,
     hasViewAction,
-    onEdit,
-    onDelete,
+    showEditAction,
+    showDeleteAction,
     idKey,
     openEditModal,
     openViewModal,
     openDeleteDialog,
+    renderRowActions,
   ]);
 
   const table = useMaterialReactTable({
     columns: tableColumns,
     data,
-    enableRowSelection: !!onDelete,
+    enableRowSelection: enableMultiRowSelection ?? !!onDelete,
     enableColumnResizing: true,
     enableGlobalFilter: true,
     enableStickyHeader: true,

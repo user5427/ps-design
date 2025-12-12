@@ -55,6 +55,20 @@ export interface CustomFormModalProps<T> {
   onSuccess: () => void;
 }
 
+/**
+ * Context passed to renderRowActions for custom action buttons
+ */
+export interface RowActionsContext<T> {
+  /** The record for this row */
+  row: T;
+  /** Open the view modal for this record */
+  openViewModal: (record: T) => void;
+  /** Open the edit modal for this record */
+  openEditModal: (record: T) => void;
+  /** Open the delete dialog for this record */
+  openDeleteDialog: (ids: string[]) => void;
+}
+
 export interface RecordListViewProps<T extends Record<string, unknown>> {
   /** Page title displayed in the header */
   title: string;
@@ -84,6 +98,10 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
   viewFields?: ViewFieldDefinition[];
   /** Whether to show view action (default: true) */
   hasViewAction?: boolean;
+  /** Whether to show edit action (default: true when onEdit is provided) */
+  hasEditAction?: boolean;
+  /** Whether to show delete action (default: true when onDelete is provided) */
+  hasDeleteAction?: boolean;
   /** Custom function to get row ID */
   getRowId?: (row: T) => string;
   /** Optional title for create modal (defaults to 'Create') */
@@ -102,4 +120,14 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
    * Use this for complex forms that need nested structures, dynamic fields, etc.
    */
   renderCustomEditModal?: (props: CustomFormModalProps<T>) => React.ReactNode;
+  /**
+   * Render additional custom action buttons for each row.
+   * These will be appended after the default view/edit/delete actions.
+   * Use the context to access modal controls and the row data.
+   */
+  renderRowActions?: (context: RowActionsContext<T>) => React.ReactNode;
+  /**
+   * Whether to enable multi-row selection for bulk delete (default: true when onDelete is provided)
+   */
+  enableMultiRowSelection?: boolean;
 }
