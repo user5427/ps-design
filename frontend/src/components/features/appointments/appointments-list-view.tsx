@@ -1,19 +1,6 @@
 import type { MRT_ColumnDef } from "material-react-table";
 import { useMemo, useState, useCallback } from "react";
-import {
-  Chip,
-  IconButton,
-  Tooltip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
-} from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import CancelIcon from "@mui/icons-material/Cancel";
-import PaymentIcon from "@mui/icons-material/Payment";
+import { Chip } from "@mui/material";
 import {
   RecordListView,
   type FormFieldDefinition,
@@ -31,6 +18,8 @@ import { useStaffServices } from "@/hooks/appointments";
 import type { Appointment, AppointmentStatus } from "@/schemas/appointments";
 import { CreateAppointmentModal } from "./create-appointment-modal";
 import { PayModal } from "./pay-modal";
+import { CancelAppointmentDialog } from "./cancel-appointment-dialog";
+import { AppointmentRowActions } from "./appointment-row-actions";
 import dayjs from "dayjs";
 
 const STATUS_COLORS: Record<
@@ -41,6 +30,14 @@ const STATUS_COLORS: Record<
   CANCELLED: "error",
   PAID: "success",
 };
+
+const AppointmentStatusChip = ({ status }: { status: AppointmentStatus }) => (
+  <Chip
+    label={status}
+    color={STATUS_COLORS[status] || "default"}
+    size="small"
+  />
+);
 
 export const AppointmentsListView = () => {
   const {
@@ -54,37 +51,35 @@ export const AppointmentsListView = () => {
   const updateMutation = useUpdateAppointment();
   const updateStatusMutation = useUpdateAppointmentStatus();
 
-  const [payModalOpen, setPayModalOpen] = useState(false);
-  const [cancelModalOpen, setCancelModalOpen] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] =
+  const [payAppointment, setPayAppointment] = useState<Appointment | null>(
+    null,
+  );
+  const [cancelAppointment, setCancelAppointment] =
     useState<Appointment | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
 
-  const handleCancelAppointment = useCallback(async () => {
-    if (!selectedAppointment) return;
+  const handleConfirmCancel = useCallback(async () => {
+    if (!cancelAppointment) return;
 
     setIsCancelling(true);
     try {
       await updateStatusMutation.mutateAsync({
-        id: selectedAppointment.id,
+        id: cancelAppointment.id,
         status: "CANCELLED",
       });
       refetch();
-      setCancelModalOpen(false);
-      setSelectedAppointment(null);
+      setCancelAppointment(null);
     } finally {
       setIsCancelling(false);
     }
-  }, [updateStatusMutation, refetch, selectedAppointment]);
+  }, [updateStatusMutation, refetch, cancelAppointment]);
 
   const handleOpenCancelModal = useCallback((appointment: Appointment) => {
-    setSelectedAppointment(appointment);
-    setCancelModalOpen(true);
+    setCancelAppointment(appointment);
   }, []);
 
   const handleOpenPayModal = useCallback((appointment: Appointment) => {
-    setSelectedAppointment(appointment);
-    setPayModalOpen(true);
+    setPayAppointment(appointment);
   }, []);
 
   const staffServiceOptions = useMemo(
@@ -161,13 +156,7 @@ export const AppointmentsListView = () => {
         size: 120,
         Cell: ({ cell }) => {
           const status = cell.getValue<AppointmentStatus>();
-          return (
-            <Chip
-              label={status}
-              color={STATUS_COLORS[status] || "default"}
-              size="small"
-            />
-          );
+          return <AppointmentStatusChip status={status} />;
         },
       },
     ],
@@ -176,36 +165,13 @@ export const AppointmentsListView = () => {
 
   const renderRowActions = useCallback(
     ({ row, openEditModal }: RowActionsContext<Appointment>) => {
-      const isReserved = row.status === "RESERVED";
-
-      if (!isReserved) return null;
-
       return (
-        <>
-          <Tooltip title="Edit">
-            <IconButton size="small" onClick={() => openEditModal(row)}>
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Cancel Appointment">
-            <IconButton
-              size="small"
-              color="error"
-              onClick={() => handleOpenCancelModal(row)}
-            >
-              <CancelIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Pay">
-            <IconButton
-              size="small"
-              color="primary"
-              onClick={() => handleOpenPayModal(row)}
-            >
-              <PaymentIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </>
+        <AppointmentRowActions
+          appointment={row}
+          openEditModal={openEditModal}
+          onCancel={() => handleOpenCancelModal(row)}
+          onPay={() => handleOpenPayModal(row)}
+        />
       );
     },
     [handleOpenCancelModal, handleOpenPayModal],
@@ -347,65 +313,19 @@ export const AppointmentsListView = () => {
         )}
       />
 
-      {/* Pay Modal */}
       <PayModal
-        open={payModalOpen}
-        onClose={() => {
-          setPayModalOpen(false);
-          setSelectedAppointment(null);
-        }}
-        appointment={selectedAppointment}
+        open={!!payAppointment}
+        onClose={() => setPayAppointment(null)}
+        appointment={payAppointment}
       />
 
-      {/* Cancel Confirmation Dialog */}
-      <Dialog
-        open={cancelModalOpen}
-        onClose={() => {
-          setCancelModalOpen(false);
-          setSelectedAppointment(null);
-        }}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle>Cancel Appointment</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to cancel this appointment for{" "}
-            <strong>{selectedAppointment?.customerName}</strong>?
-            {selectedAppointment?.startTime && (
-              <>
-                {" "}
-                Scheduled for{" "}
-                <strong>
-                  {dayjs(selectedAppointment.startTime).format(
-                    "YYYY-MM-DD HH:mm",
-                  )}
-                </strong>
-                .
-              </>
-            )}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              setCancelModalOpen(false);
-              setSelectedAppointment(null);
-            }}
-            disabled={isCancelling}
-          >
-            No, Keep It
-          </Button>
-          <Button
-            onClick={handleCancelAppointment}
-            color="error"
-            variant="contained"
-            disabled={isCancelling}
-          >
-            {isCancelling ? "Cancelling..." : "Yes, Cancel Appointment"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <CancelAppointmentDialog
+        open={!!cancelAppointment}
+        appointment={cancelAppointment}
+        isLoading={isCancelling}
+        onCancel={() => setCancelAppointment(null)}
+        onConfirm={handleConfirmCancel}
+      />
     </>
   );
 };

@@ -6,6 +6,7 @@ import {
   Button,
   Typography,
   Box,
+  Stack,
 } from "@mui/material";
 import PaymentIcon from "@mui/icons-material/Payment";
 import type { Appointment } from "@/schemas/appointments";
@@ -17,6 +18,19 @@ interface PayModalProps {
   appointment: Appointment | null;
 }
 
+const PayModalTitle = () => (
+  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+    <PaymentIcon color="primary" />
+    Payment
+  </Box>
+);
+
+const DetailRow = ({ label, value }: { label: string; value: string }) => (
+  <Typography>
+    <strong>{label}:</strong> {value}
+  </Typography>
+);
+
 export const PayModal: React.FC<PayModalProps> = ({
   open,
   onClose,
@@ -24,38 +38,30 @@ export const PayModal: React.FC<PayModalProps> = ({
 }) => {
   if (!appointment) return null;
 
-  const price = appointment.service?.serviceDefinition?.price || 0;
-  const serviceName = appointment.service?.serviceDefinition?.name || "Service";
+  const price = appointment.service?.serviceDefinition?.price ?? 0;
+  const serviceName = appointment.service?.serviceDefinition?.name ?? "Service";
+  const startTimeLabel = dayjs(appointment.startTime).format(
+    "YYYY-MM-DD HH:mm",
+  );
+  const totalLabel = `€${price.toFixed(2)}`;
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <PaymentIcon color="primary" />
-          Payment
-        </Box>
+        <PayModalTitle />
       </DialogTitle>
       <DialogContent>
-        <Box sx={{ py: 2 }}>
-          <Typography variant="h6" gutterBottom>
-            Appointment Details
+        <Stack sx={{ py: 2 }} spacing={2}>
+          <Typography variant="h6">Appointment Details</Typography>
+          <Stack spacing={1}>
+            <DetailRow label="Customer" value={appointment.customerName} />
+            <DetailRow label="Service" value={serviceName} />
+            <DetailRow label="Date" value={startTimeLabel} />
+          </Stack>
+          <Typography variant="h5" color="primary">
+            Total: {totalLabel}
           </Typography>
-          <Box sx={{ display: "grid", gap: 1, mt: 2 }}>
-            <Typography>
-              <strong>Customer:</strong> {appointment.customerName}
-            </Typography>
-            <Typography>
-              <strong>Service:</strong> {serviceName}
-            </Typography>
-            <Typography>
-              <strong>Date:</strong>{" "}
-              {dayjs(appointment.startTime).format("YYYY-MM-DD HH:mm")}
-            </Typography>
-            <Typography variant="h5" color="primary" sx={{ mt: 2 }}>
-              Total: €{price.toFixed(2)}
-            </Typography>
-          </Box>
-        </Box>
+        </Stack>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
