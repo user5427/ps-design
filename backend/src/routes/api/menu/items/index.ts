@@ -4,7 +4,7 @@ import httpStatus from "http-status";
 import {
   bulkDeleteMenuItems,
   createMenuItem,
-  getAllMenuItems,
+  getAllMenuItemsPaginated,
   getMenuItemById,
   updateMenuItem,
 } from "./service";
@@ -17,11 +17,16 @@ import {
   type MenuItemIdParams,
   type UpdateMenuItemBody,
   UpdateMenuItemSchema,
+  PaginatedMenuItemResponseSchema,
 } from "@ps-design/schemas/menu/items";
 import {
   BulkDeleteSchema,
   type BulkDeleteBody,
 } from "@ps-design/schemas/shared";
+import {
+  UniversalPaginationQuerySchema,
+  type UniversalPaginationQuery,
+} from "@ps-design/schemas/pagination";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
 
@@ -29,16 +34,31 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope } = createScopeMiddleware(fastify);
 
-  server.get(
+  server.get<{ Querystring: UniversalPaginationQuery }>(
     "/",
     {
       onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
+      schema: {
+        querystring: UniversalPaginationQuerySchema,
+        response: {
+          200: PaginatedMenuItemResponseSchema,
+        },
+      },
     },
-    async (request: FastifyRequest, reply: FastifyReply) => {
+    async (
+      request: FastifyRequest<{
+        Querystring: UniversalPaginationQuery;
+      }>,
+      reply: FastifyReply,
+    ) => {
       const businessId = getBusinessId(request, reply);
       if (!businessId) return;
 
-      const menuItems = await getAllMenuItems(fastify, businessId);
+      const menuItems = await getAllMenuItemsPaginated(
+        fastify,
+        businessId,
+        request.query,
+      );
       return reply.send(menuItems);
     },
   );

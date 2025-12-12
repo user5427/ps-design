@@ -1,12 +1,8 @@
 import { Box } from "@mui/material";
 import type { QueryClient } from "@tanstack/react-query";
-import {
-  createRootRouteWithContext,
-  Outlet,
-  useLocation,
-} from "@tanstack/react-router";
-import { refreshToken } from "@/api/auth";
-import { MainLayout, PublicLayout } from "@/components/layouts";
+import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { useRefreshToken } from "@/queries/auth";
 import { AppBar } from "@/components/layouts/app-bar/app-bar";
 import { AppBarData } from "@/constants/app-bar";
 import { useAuthStore } from "@/store/auth";
@@ -16,37 +12,39 @@ interface RouterContext {
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-  beforeLoad: async () => {
-    const store = useAuthStore.getState();
-
-    // Only attempt refresh token on first load
-    if (!store.isAuthInitialized()) {
-      try {
-        const { accessToken } = await refreshToken();
-        store.setAccessToken(accessToken);
-      } catch {
-        store.setAccessToken(null);
-      } finally {
-        store.setInitialized(true);
-      }
-    }
-  },
   component: RootComponent,
 });
 
 function RootComponent() {
-  const location = useLocation();
-  const isPublicRoute = ["/", "/auth/login", "/auth/change-password"].includes(
-    location.pathname,
-  );
-  const Layout = isPublicRoute ? PublicLayout : MainLayout;
+  const store = useAuthStore();
+  const refreshTokenMutation = useRefreshToken();
+
+  useEffect(() => {
+    // Only attempt refresh token on first load
+    if (!store.isAuthInitialized()) {
+      refreshTokenMutation.mutate(undefined, {
+        onSuccess: (data) => {
+          store.setAccessToken(data.accessToken);
+          store.setInitialized(true);
+        },
+        onError: (error) => {
+          console.error("Failed to refresh token:", error);
+          store.setAccessToken(null);
+          store.setInitialized(true);
+        },
+      });
+    }
+  }, [
+    store.isAuthInitialized,
+    store.setAccessToken,
+    store.setInitialized,
+    refreshTokenMutation.mutate,
+  ]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <AppBar {...AppBarData} />
-      <Layout>
-        <Outlet />
-      </Layout>
+      <Outlet />
     </Box>
   );
 }
