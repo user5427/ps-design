@@ -5,7 +5,10 @@ import type {
   MenuItemResponse,
   MenuItemVariationResponse,
   ProductRecipeResponse,
+  PaginatedMenuItemResponse,
 } from "@ps-design/schemas/menu/items";
+import { MenuItemResponseSchema } from "@ps-design/schemas/menu/items";
+import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 import type { MenuItem } from "@/modules/menu/menu-item/menu-item.entity";
 import type { MenuItemVariation } from "@/modules/menu/menu-item-variation/menu-item-variation.entity";
 import type { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product/menu-item-base-product.entity";
@@ -164,6 +167,21 @@ export async function getAllMenuItems(
   const menuItems = await fastify.db.menuItem.findAllByBusinessId(businessId);
   const stockMap = await getStockMap(fastify, menuItems, businessId);
   return menuItems.map((item) => toMenuItemResponse(item, stockMap));
+}
+
+export async function getAllMenuItemsPaginated(
+  fastify: FastifyInstance,
+  businessId: string,
+  query: UniversalPaginationQuery,
+): Promise<PaginatedMenuItemResponse> {
+  const result = await fastify.db.menuItem.findAllPaginated(businessId, query);
+  const stockMap = await getStockMap(fastify, result.items, businessId);
+  return {
+    items: result.items.map((item: MenuItem) =>
+      MenuItemResponseSchema.parse(toMenuItemResponse(item, stockMap)),
+    ),
+    metadata: result.metadata,
+  };
 }
 
 export async function createMenuItem(

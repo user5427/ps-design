@@ -11,8 +11,8 @@ import {
   useBulkDeleteMenuCategories,
   useMenuCategories,
   useUpdateMenuCategory,
-} from "@/hooks/menu";
-import type { MenuItemCategory } from "@/schemas/menu";
+} from "@/queries/menu";
+import type { MenuItemCategory } from "@ps-design/schemas/menu";
 
 export const MenuCategoriesListView = () => {
   const {

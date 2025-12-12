@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { datetime, uuid } from "../../shared/zod-utils";
 import { MenuItemVariationTypeSchema } from "../shared";
+import { createPaginatedSchema, type PaginatedType } from "../../pagination";
 
 const ProductRecipeResponseSchema = z.object({
   id: uuid(),
@@ -57,3 +58,15 @@ export type MenuItemVariationResponse = z.infer<
   typeof MenuItemVariationResponseSchema
 >;
 export type ProductRecipeResponse = z.infer<typeof ProductRecipeResponseSchema>;
+
+/**
+ * Paginated menu item list response
+ */
+export const PaginatedMenuItemResponseSchema = createPaginatedSchema(
+  MenuItemResponseSchema,
+  "PaginatedMenuItemResponse",
+);
+
+export type PaginatedMenuItemResponse = PaginatedType<
+  typeof MenuItemResponseSchema
+>;

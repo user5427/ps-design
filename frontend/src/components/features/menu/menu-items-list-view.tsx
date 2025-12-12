@@ -11,10 +11,10 @@ import {
   useBulkDeleteMenuItems,
   useMenuItems,
   useUpdateMenuItem,
-} from "@/hooks/menu";
-import { useMenuCategories } from "@/hooks/menu";
-import { useProducts } from "@/hooks/inventory";
-import type { MenuItem, CreateMenuItem, UpdateMenuItem } from "@/schemas/menu";
+} from "@/queries/menu";
+import { useMenuCategories } from "@/queries/menu";
+import { useProducts } from "@/queries/inventory/products";
+import type { MenuItem, CreateMenuItem, UpdateMenuItem } from "@ps-design/schemas/menu";
 import { MenuItemFormModal } from "./menu-item-form-modal";
 
 export const MenuItemsListView = () => {
