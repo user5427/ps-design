@@ -1,13 +1,9 @@
 import { IsNull, type Repository } from "typeorm";
 import { BadRequestError, ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
-import { executePaginatedQuery } from "@/shared/pagination-utils";
-import { PRODUCT_MAPPING } from "@ps-design/constants/inventory/product";
 import type { ProductUnit } from "@/modules/inventory/product-unit/product-unit.entity";
 import type { Product } from "./product.entity";
 import type { ICreateProduct, IUpdateProduct } from "./product.types";
-import type { PaginatedResult } from "@ps-design/schemas/pagination";
-import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export class ProductRepository {
   constructor(
@@ -15,26 +11,12 @@ export class ProductRepository {
     private productUnitRepository: Repository<ProductUnit>,
   ) {}
 
-  async findAllPaginated(
-    businessId: string,
-    query: UniversalPaginationQuery,
-  ): Promise<PaginatedResult<Product>> {
-    const qb = this.repository.createQueryBuilder("product");
-
-    qb.leftJoinAndSelect("product.productUnit", "productUnit");
-    qb.leftJoinAndSelect("product.stockLevel", "stockLevel");
-
-    qb.where("product.businessId = :businessId", { businessId });
-    qb.andWhere("product.deletedAt IS NULL");
-
-    // Handle simple search if provided
-    if (query.search) {
-      qb.andWhere("product.name ILIKE :search", {
-        search: `%${query.search}%`,
-      });
-    }
-
-    return executePaginatedQuery(qb, query, PRODUCT_MAPPING.fields, "product");
+  async findAllByBusinessId(businessId: string): Promise<Product[]> {
+    return this.repository.find({
+      where: { businessId, deletedAt: IsNull() },
+      relations: ["productUnit", "stockLevel"],
+      order: { name: "ASC" },
+    });
   }
 
   async findById(id: string): Promise<Product | null> {
@@ -93,11 +75,7 @@ export class ProductRepository {
     try {
       const product = this.repository.create(data);
       const saved = await this.repository.save(product);
-      const createdProduct = await this.findById(saved.id);
-      if (!createdProduct) {
-        throw new Error("Failed to retrieve created product");
-      }
-      return createdProduct;
+      return (await this.findById(saved.id))!;
     } catch (error) {
       if (isUniqueConstraintError(error)) {
         throw new ConflictError("Product with this name already exists");

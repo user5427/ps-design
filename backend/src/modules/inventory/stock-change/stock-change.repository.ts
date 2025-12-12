@@ -5,14 +5,10 @@ import {
   type Repository,
 } from "typeorm";
 import { BadRequestError, NotFoundError } from "@/shared/errors";
-import { executePaginatedQuery } from "@/shared/pagination-utils";
-import { STOCK_CHANGE_MAPPING } from "@ps-design/constants/inventory/stock-change";
 import type { Product } from "@/modules/inventory/product/product.entity";
 import { StockLevel } from "@/modules/inventory/stock-level/stock-level.entity";
 import { StockChange } from "./stock-change.entity";
 import type { ICreateStockChange, StockChangeType } from "./stock-change.types";
-import type { PaginatedResult } from "@ps-design/schemas/pagination";
-import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export class StockChangeRepository {
   constructor(
@@ -21,31 +17,22 @@ export class StockChangeRepository {
     private dataSource: DataSource,
   ) {}
 
-  async findAllPaginated(
+  async findAllByBusinessId(
     businessId: string,
-    query: UniversalPaginationQuery,
-  ): Promise<PaginatedResult<StockChange>> {
-    const qb = this.repository.createQueryBuilder("change");
-
-    qb.leftJoinAndSelect("change.product", "product");
-    qb.leftJoinAndSelect("product.productUnit", "productUnit");
-
-    qb.where("change.businessId = :businessId", { businessId });
-    qb.andWhere("change.deletedAt IS NULL");
-
-    // Handle simple search if provided
-    if (query.search) {
-      qb.andWhere("product.name ILIKE :search", {
-        search: `%${query.search}%`,
-      });
+    productId?: string,
+  ): Promise<StockChange[]> {
+    const where: FindOptionsWhere<StockChange> = {
+      businessId,
+      deletedAt: IsNull(),
+    };
+    if (productId) {
+      where.productId = productId;
     }
-
-    return executePaginatedQuery(
-      qb,
-      query,
-      STOCK_CHANGE_MAPPING.fields,
-      "change",
-    );
+    return this.repository.find({
+      where,
+      relations: ["product", "product.productUnit"],
+      order: { createdAt: "DESC" },
+    });
   }
 
   async findById(id: string): Promise<StockChange | null> {

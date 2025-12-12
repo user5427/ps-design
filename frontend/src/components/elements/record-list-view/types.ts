@@ -1,6 +1,5 @@
 import type { MRT_ColumnDef } from "material-react-table";
 import type React from "react";
-import type { EntityMapping } from "@ps-design/utils";
 
 export type FieldType =
   | "text"
@@ -12,8 +11,7 @@ export type FieldType =
   | "date"
   | "datetime"
   | "textarea"
-  | "checkbox"
-  | "pagination";
+  | "checkbox";
 
 export interface SelectOption {
   value: string;
@@ -32,7 +30,6 @@ export interface FormFieldDefinition {
   required?: boolean;
   placeholder?: string;
   options?: SelectOption[]; // For select/autocomplete fields
-  paginationMapping?: EntityMapping; // For pagination fields
   validationRules?: ValidationRule[];
   defaultValue?: unknown;
   /** Whether field is read-only in view mode */
@@ -59,15 +56,15 @@ export interface CustomFormModalProps<T> {
 }
 
 export interface RecordListViewProps<T extends Record<string, unknown>> {
-  /** @deprecated Use `mapping` instead. Page title displayed in the header */
-  title?: string;
-  /** @deprecated Use `mapping` instead. MRT column definitions */
-  columns?: MRT_ColumnDef<T>[];
-  /** @deprecated Use `mapping` instead. Array of records to display */
-  data?: T[];
-  /** @deprecated Use `mapping` instead. Loading state for the data */
+  /** Page title displayed in the header */
+  title: string;
+  /** MRT column definitions */
+  columns: MRT_ColumnDef<T>[];
+  /** Array of records to display */
+  data: T[];
+  /** Loading state for the data */
   isLoading?: boolean;
-  /** @deprecated Use `mapping` instead. Error state for the data */
+  /** Error state for the data */
   error?: Error | null;
   /** Form field definitions for create modal */
   createFormFields?: FormFieldDefinition[];
@@ -79,15 +76,15 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
   onEdit?: (id: string, values: Partial<T>) => Promise<void>;
   /** Callback for deleting record(s)  */
   onDelete?: (ids: string[]) => Promise<void>;
-  /** @deprecated Automatically determined from response data */
+  /** Unique identifier key for records (default: 'id') */
   idKey?: keyof T;
   /** Callback after successful create/edit/delete for refetching */
   onSuccess?: () => void;
   /** Field definitions for view modal (if not provided, uses editFormFields) */
   viewFields?: ViewFieldDefinition[];
-  /** @deprecated No longer used, view is always shown */
+  /** Whether to show view action (default: true) */
   hasViewAction?: boolean;
-  /** @deprecated Automatically determined from response data */
+  /** Custom function to get row ID */
   getRowId?: (row: T) => string;
   /** Optional title for create modal (defaults to 'Create') */
   createModalTitle?: string;
@@ -95,8 +92,14 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
   editModalTitle?: string;
   /** Optional title for view modal (defaults to 'View') */
   viewModalTitle?: string;
-  /** @deprecated Custom modals no longer supported */
+  /**
+   * When provided, this replaces the default RecordFormModal for creating records.
+   * Use this for complex forms that need nested structures, dynamic fields, etc.
+   */
   renderCustomCreateModal?: (props: CustomFormModalProps<T>) => React.ReactNode;
-  /** @deprecated Custom modals no longer supported */
+  /**
+   * When provided, this replaces the default RecordFormModal for editing records.
+   * Use this for complex forms that need nested structures, dynamic fields, etc.
+   */
   renderCustomEditModal?: (props: CustomFormModalProps<T>) => React.ReactNode;
 }

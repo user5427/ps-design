@@ -7,10 +7,6 @@ import {
 } from "typeorm";
 import { BadRequestError, ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
-import { executePaginatedQuery } from "@/shared/pagination-utils";
-import { MENU_ITEM_MAPPING } from "@ps-design/constants/menu/items";
-import type { PaginatedResult } from "@ps-design/schemas/pagination";
-import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 import type { Product } from "@/modules/inventory/product/product.entity";
 import type { StockLevel } from "@/modules/inventory/stock-level/stock-level.entity";
 import type { MenuItemCategory } from "@/modules/menu/menu-item-category/menu-item-category.entity";
@@ -48,32 +44,12 @@ export class MenuItemRepository {
     private stockLevelRepository: Repository<StockLevel>,
   ) {}
 
-  async findAllPaginated(
-    businessId: string,
-    query: UniversalPaginationQuery,
-  ): Promise<PaginatedResult<MenuItem>> {
-    const qb = this.repository.createQueryBuilder("item");
-
-    qb.leftJoinAndSelect("item.category", "category");
-    qb.leftJoinAndSelect("item.baseProducts", "baseProducts");
-    qb.leftJoinAndSelect("baseProducts.product", "baseProduct");
-    qb.leftJoinAndSelect("baseProduct.productUnit", "baseProductUnit");
-    qb.leftJoinAndSelect("item.variations", "variations");
-    qb.leftJoinAndSelect("variations.addonProducts", "addonProducts");
-    qb.leftJoinAndSelect("addonProducts.product", "addonProduct");
-    qb.leftJoinAndSelect("addonProduct.productUnit", "addonProductUnit");
-
-    qb.where("item.businessId = :businessId", { businessId });
-    qb.andWhere("item.deletedAt IS NULL");
-
-    // Handle simple search if provided
-    if (query.search) {
-      qb.andWhere("item.baseName ILIKE :search", {
-        search: `%${query.search}%`,
-      });
-    }
-
-    return executePaginatedQuery(qb, query, MENU_ITEM_MAPPING.fields, "item");
+  async findAllByBusinessId(businessId: string): Promise<MenuItem[]> {
+    return this.repository.find({
+      where: { businessId, deletedAt: IsNull() },
+      relations: MENU_ITEM_RELATIONS,
+      order: { baseName: "ASC" },
+    });
   }
 
   async findById(id: string): Promise<MenuItem | null> {
@@ -129,14 +105,7 @@ export class MenuItemRepository {
       }
     });
 
-    const createdMenuItem = await this.findByIdAndBusinessId(
-      savedId,
-      data.businessId,
-    );
-    if (!createdMenuItem) {
-      throw new Error("Failed to retrieve created menu item");
-    }
-    return createdMenuItem;
+    return (await this.findByIdAndBusinessId(savedId, data.businessId))!;
   }
 
   async update(
@@ -144,7 +113,7 @@ export class MenuItemRepository {
     businessId: string,
     data: IUpdateMenuItem,
   ): Promise<MenuItem> {
-    const _menuItem = await this.getById(id, businessId);
+    const menuItem = await this.getById(id, businessId);
     const { baseProducts, variations, removeVariationIds, ...updateData } =
       data;
 
@@ -194,11 +163,7 @@ export class MenuItemRepository {
       }
     });
 
-    const updatedMenuItem = await this.findByIdAndBusinessId(id, businessId);
-    if (!updatedMenuItem) {
-      throw new Error("Failed to retrieve updated menu item");
-    }
-    return updatedMenuItem;
+    return (await this.findByIdAndBusinessId(id, businessId))!;
   }
 
   private async validateRelations(
