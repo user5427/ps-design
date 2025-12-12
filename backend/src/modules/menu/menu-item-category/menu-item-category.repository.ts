@@ -9,7 +9,7 @@ import type {
   ICreateMenuItemCategory,
   IUpdateMenuItemCategory,
 } from "./menu-item-category.types";
-import { PaginatedResult } from "@ps-design/schemas/pagination";
+import type { PaginatedResult } from "@ps-design/schemas/pagination";
 import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export class MenuItemCategoryRepository {

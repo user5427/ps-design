@@ -37,7 +37,7 @@ function RootComponent() {
         },
       });
     }
-  }, []);
+  }, [store.isAuthInitialized, store.setAccessToken, store.setInitialized, refreshTokenMutation.mutate]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>

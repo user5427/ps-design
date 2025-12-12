@@ -6,7 +6,7 @@ import { PRODUCT_MAPPING } from "@ps-design/constants/inventory/product";
 import type { ProductUnit } from "@/modules/inventory/product-unit/product-unit.entity";
 import type { Product } from "./product.entity";
 import type { ICreateProduct, IUpdateProduct } from "./product.types";
-import { PaginatedResult } from "@ps-design/schemas/pagination";
+import type { PaginatedResult } from "@ps-design/schemas/pagination";
 import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export class ProductRepository {
@@ -95,7 +95,11 @@ export class ProductRepository {
     try {
       const product = this.repository.create(data);
       const saved = await this.repository.save(product);
-      return (await this.findById(saved.id))!;
+      const createdProduct = await this.findById(saved.id);
+      if (!createdProduct) {
+        throw new Error("Failed to retrieve created product");
+      }
+      return createdProduct;
     } catch (error) {
       if (isUniqueConstraintError(error)) {
         throw new ConflictError("Product with this name already exists");

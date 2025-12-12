@@ -5,7 +5,7 @@ import { executePaginatedQuery } from "@/shared/pagination-utils";
 import { BUSINESS_MAPPING } from "@ps-design/constants/business";
 import type { Business } from "./business.entity";
 import type { ICreateBusiness, IUpdateBusiness } from "./business.types";
-import { PaginatedResult } from "@ps-design/schemas/pagination";
+import type { PaginatedResult } from "@ps-design/schemas/pagination";
 import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export class BusinessRepository {

@@ -9,7 +9,7 @@ import type {
   ICreateProductUnit,
   IUpdateProductUnit,
 } from "./product-unit.types";
-import { PaginatedResult } from "@ps-design/schemas/pagination";
+import type { PaginatedResult } from "@ps-design/schemas/pagination";
 import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export class ProductUnitRepository {

@@ -1,4 +1,4 @@
-import { FilterOperator, PaginationMetadata, SortDirection, UniversalPaginationQuery } from "@ps-design/schemas/pagination";
+import { FilterOperator, type PaginationMetadata, SortDirection, type UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 import type { FieldMapping } from "@ps-design/utils";
 import type { ObjectLiteral, SelectQueryBuilder } from "typeorm";
 

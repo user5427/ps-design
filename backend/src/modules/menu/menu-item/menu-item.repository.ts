@@ -9,7 +9,7 @@ import { BadRequestError, ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
 import { executePaginatedQuery } from "@/shared/pagination-utils";
 import { MENU_ITEM_MAPPING } from "@ps-design/constants/menu/items";
-import { PaginatedResult } from "@ps-design/schemas/pagination";
+import type { PaginatedResult } from "@ps-design/schemas/pagination";
 import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 import type { Product } from "@/modules/inventory/product/product.entity";
 import type { StockLevel } from "@/modules/inventory/stock-level/stock-level.entity";
@@ -129,7 +129,11 @@ export class MenuItemRepository {
       }
     });
 
-    return (await this.findByIdAndBusinessId(savedId, data.businessId))!;
+    const createdMenuItem = await this.findByIdAndBusinessId(savedId, data.businessId);
+    if (!createdMenuItem) {
+      throw new Error("Failed to retrieve created menu item");
+    }
+    return createdMenuItem;
   }
 
   async update(
@@ -137,7 +141,7 @@ export class MenuItemRepository {
     businessId: string,
     data: IUpdateMenuItem,
   ): Promise<MenuItem> {
-    const menuItem = await this.getById(id, businessId);
+    const _menuItem = await this.getById(id, businessId);
     const { baseProducts, variations, removeVariationIds, ...updateData } =
       data;
 
@@ -187,7 +191,11 @@ export class MenuItemRepository {
       }
     });
 
-    return (await this.findByIdAndBusinessId(id, businessId))!;
+    const updatedMenuItem = await this.findByIdAndBusinessId(id, businessId);
+    if (!updatedMenuItem) {
+      throw new Error("Failed to retrieve updated menu item");
+    }
+    return updatedMenuItem;
   }
 
   private async validateRelations(

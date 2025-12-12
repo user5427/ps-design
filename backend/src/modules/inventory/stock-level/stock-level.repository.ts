@@ -3,7 +3,7 @@ import { executePaginatedQuery } from "@/shared/pagination-utils";
 import { STOCK_LEVEL_MAPPING } from "@ps-design/constants/inventory/stock-level";
 import { StockLevel } from "./stock-level.entity";
 import type { ICreateStockLevel } from "./stock-level.types";
-import { PaginatedResult } from "@ps-design/schemas/pagination";
+import type { PaginatedResult } from "@ps-design/schemas/pagination";
 import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export class StockLevelRepository {

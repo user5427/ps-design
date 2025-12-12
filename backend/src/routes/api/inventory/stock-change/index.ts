@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
-import { z } from "zod";
+import type { z } from "zod";
 import {
   createStockChange,
   getStockChangesPaginated,

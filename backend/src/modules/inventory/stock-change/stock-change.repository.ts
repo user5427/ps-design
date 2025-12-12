@@ -11,7 +11,7 @@ import type { Product } from "@/modules/inventory/product/product.entity";
 import { StockLevel } from "@/modules/inventory/stock-level/stock-level.entity";
 import { StockChange } from "./stock-change.entity";
 import type { ICreateStockChange, StockChangeType } from "./stock-change.types";
-import { PaginatedResult } from "@ps-design/schemas/pagination";
+import type { PaginatedResult } from "@ps-design/schemas/pagination";
 import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export class StockChangeRepository {
