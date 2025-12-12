@@ -56,15 +56,15 @@ export interface CustomFormModalProps<T> {
 }
 
 export interface RecordListViewProps<T extends Record<string, unknown>> {
-  /** Page title displayed in the header */
-  title: string;
-  /** MRT column definitions */
-  columns: MRT_ColumnDef<T>[];
-  /** Array of records to display */
-  data: T[];
-  /** Loading state for the data */
+  /** @deprecated Use `mapping` instead. Page title displayed in the header */
+  title?: string;
+  /** @deprecated Use `mapping` instead. MRT column definitions */
+  columns?: MRT_ColumnDef<T>[];
+  /** @deprecated Use `mapping` instead. Array of records to display */
+  data?: T[];
+  /** @deprecated Use `mapping` instead. Loading state for the data */
   isLoading?: boolean;
-  /** Error state for the data */
+  /** @deprecated Use `mapping` instead. Error state for the data */
   error?: Error | null;
   /** Form field definitions for create modal */
   createFormFields?: FormFieldDefinition[];
@@ -76,15 +76,15 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
   onEdit?: (id: string, values: Partial<T>) => Promise<void>;
   /** Callback for deleting record(s)  */
   onDelete?: (ids: string[]) => Promise<void>;
-  /** Unique identifier key for records (default: 'id') */
+  /** @deprecated Automatically determined from response data */
   idKey?: keyof T;
   /** Callback after successful create/edit/delete for refetching */
   onSuccess?: () => void;
   /** Field definitions for view modal (if not provided, uses editFormFields) */
   viewFields?: ViewFieldDefinition[];
-  /** Whether to show view action (default: true) */
+  /** @deprecated No longer used, view is always shown */
   hasViewAction?: boolean;
-  /** Custom function to get row ID */
+  /** @deprecated Automatically determined from response data */
   getRowId?: (row: T) => string;
   /** Optional title for create modal (defaults to 'Create') */
   createModalTitle?: string;
@@ -92,14 +92,8 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
   editModalTitle?: string;
   /** Optional title for view modal (defaults to 'View') */
   viewModalTitle?: string;
-  /**
-   * When provided, this replaces the default RecordFormModal for creating records.
-   * Use this for complex forms that need nested structures, dynamic fields, etc.
-   */
+  /** @deprecated Custom modals no longer supported */
   renderCustomCreateModal?: (props: CustomFormModalProps<T>) => React.ReactNode;
-  /**
-   * When provided, this replaces the default RecordFormModal for editing records.
-   * Use this for complex forms that need nested structures, dynamic fields, etc.
-   */
+  /** @deprecated Custom modals no longer supported */
   renderCustomEditModal?: (props: CustomFormModalProps<T>) => React.ReactNode;
 }

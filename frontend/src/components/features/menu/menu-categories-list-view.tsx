@@ -1,5 +1,3 @@
-import type { MRT_ColumnDef } from "material-react-table";
-import { useMemo } from "react";
 import {
   RecordListView,
   type FormFieldDefinition,
@@ -9,41 +7,15 @@ import {
 import {
   useCreateMenuCategory,
   useBulkDeleteMenuCategories,
-  useMenuCategories,
   useUpdateMenuCategory,
 } from "@/queries/menu";
-import type { MenuItemCategory } from "@ps-design/schemas/menu";
+import { MENU_ITEM_CATEGORY_MAPPING } from "@ps-design/constants/menu/category";
+import type { MenuItemCategoryResponse as MenuItemCategory } from "@ps-design/schemas/menu/category";
 
 export const MenuCategoriesListView = () => {
-  const {
-    data: categories = [],
-    isLoading,
-    error,
-    refetch,
-  } = useMenuCategories();
   const createMutation = useCreateMenuCategory();
   const updateMutation = useUpdateMenuCategory();
   const bulkDeleteMutation = useBulkDeleteMenuCategories();
-
-  const columns = useMemo<MRT_ColumnDef<MenuItemCategory>[]>(
-    () => [
-      {
-        accessorKey: "name",
-        header: "Name",
-        size: 200,
-      },
-      {
-        accessorKey: "createdAt",
-        header: "Created",
-        size: 150,
-        Cell: ({ cell }) => {
-          const value = cell.getValue<string>();
-          return value ? new Date(value).toLocaleDateString() : "";
-        },
-      },
-    ],
-    [],
-  );
 
   const createFormFields: FormFieldDefinition[] = [
     {
@@ -88,18 +60,13 @@ export const MenuCategoriesListView = () => {
 
   return (
     <RecordListView<MenuItemCategory>
-      title="Menu Categories"
-      columns={columns}
-      data={categories}
-      isLoading={isLoading}
-      error={error}
+      mapping={MENU_ITEM_CATEGORY_MAPPING}
       createFormFields={createFormFields}
       editFormFields={editFormFields}
       viewFields={viewFields}
       onCreate={handleCreate}
       onEdit={handleEdit}
       onDelete={handleDelete}
-      onSuccess={() => refetch()}
       createModalTitle="Create Menu Category"
       editModalTitle="Edit Menu Category"
       viewModalTitle="View Menu Category"
