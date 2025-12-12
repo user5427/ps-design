@@ -18,8 +18,6 @@ import {
   type AppointmentIdParams,
   type UpdateAppointmentBody,
   UpdateAppointmentSchema,
-  AppointmentFilterSchema,
-  type AppointmentFilterQuery,
   AppointmentStatusEnum,
 } from "@ps-design/schemas/appointments/appointment";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
@@ -42,19 +40,13 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
         fastify.authenticate,
         requireScope(ScopeNames.APPOINTMENTS_READ),
       ],
-      schema: {
-        querystring: AppointmentFilterSchema,
-      },
+      schema: {},
     },
     async (request, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);
       if (!businessId) return;
 
-      const appointments = await getAllAppointments(
-        fastify,
-        businessId,
-        request.query as AppointmentFilterQuery,
-      );
+      const appointments = await getAllAppointments(fastify, businessId);
       return reply.send(appointments);
     },
   );

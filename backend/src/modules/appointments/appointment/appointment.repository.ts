@@ -6,7 +6,6 @@ import type { Appointment, AppointmentStatus } from "./appointment.entity";
 import type {
   ICreateAppointment,
   IUpdateAppointment,
-  IAppointmentFilter,
 } from "./appointment.types";
 
 const APPOINTMENT_RELATIONS = [
@@ -24,49 +23,15 @@ export class AppointmentRepository {
     private availabilityRepository: AvailabilityRepository,
   ) {}
 
-  async findAllByBusinessId(
-    businessId: string,
-    filter?: IAppointmentFilter,
-  ): Promise<Appointment[]> {
+  async findAllByBusinessId(businessId: string): Promise<Appointment[]> {
     const queryBuilder = this.repository
       .createQueryBuilder("appointment")
       .leftJoinAndSelect("appointment.service", "service")
       .leftJoinAndSelect("service.employee", "employee")
       .leftJoinAndSelect("service.serviceDefinition", "serviceDefinition")
       .leftJoinAndSelect("serviceDefinition.category", "category")
-      .where("appointment.businessId = :businessId", { businessId });
-
-    if (filter?.serviceId) {
-      queryBuilder.andWhere("appointment.serviceId = :serviceId", {
-        serviceId: filter.serviceId,
-      });
-    }
-
-    if (filter?.employeeId) {
-      queryBuilder.andWhere("service.employeeId = :employeeId", {
-        employeeId: filter.employeeId,
-      });
-    }
-
-    if (filter?.status && filter.status.length > 0) {
-      queryBuilder.andWhere("appointment.status IN (:...status)", {
-        status: filter.status,
-      });
-    }
-
-    if (filter?.startTimeFrom) {
-      queryBuilder.andWhere("appointment.startTime >= :startTimeFrom", {
-        startTimeFrom: filter.startTimeFrom,
-      });
-    }
-
-    if (filter?.startTimeTo) {
-      queryBuilder.andWhere("appointment.startTime <= :startTimeTo", {
-        startTimeTo: filter.startTimeTo,
-      });
-    }
-
-    queryBuilder.orderBy("appointment.startTime", "DESC");
+      .where("appointment.businessId = :businessId", { businessId })
+      .orderBy("appointment.startTime", "DESC");
 
     return queryBuilder.getMany();
   }

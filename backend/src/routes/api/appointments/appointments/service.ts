@@ -47,25 +47,9 @@ function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
 export async function getAllAppointments(
   fastify: FastifyInstance,
   businessId: string,
-  filter?: AppointmentFilterQuery,
 ): Promise<AppointmentResponse[]> {
-  const appointments = await fastify.db.appointment.findAllByBusinessId(
-    businessId,
-    filter
-      ? {
-          serviceId: filter.serviceId,
-          employeeId: filter.eployeeId, // Note: typo in schema
-          status:
-            filter.status as unknown as import("@/modules/appointments/appointment/appointment.entity").AppointmentStatus[],
-          startTimeFrom: filter.startTimeFrom
-            ? new Date(filter.startTimeFrom)
-            : undefined,
-          startTimeTo: filter.startTimeTo
-            ? new Date(filter.startTimeTo)
-            : undefined,
-        }
-      : undefined,
-  );
+  const appointments =
+    await fastify.db.appointment.findAllByBusinessId(businessId);
   return appointments.map(toAppointmentResponse);
 }
 

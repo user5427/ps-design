@@ -6,40 +6,10 @@ import type {
   AppointmentStatus,
 } from "@ps-design/schemas/appointments/appointment";
 
-export interface AppointmentFilters {
-  serviceId?: string;
-  employeeId?: string;
-  status?: AppointmentStatus[];
-  startTimeFrom?: string;
-  startTimeTo?: string;
-}
-
-export async function getAppointments(
-  filters?: AppointmentFilters,
-): Promise<AppointmentResponse[]> {
-  const params = new URLSearchParams();
-
-  if (filters?.serviceId) {
-    params.set("serviceId", filters.serviceId);
-  }
-  if (filters?.employeeId) {
-    params.set("eployeeId", filters.employeeId); // Note: typo matches schema
-  }
-  if (filters?.status && filters.status.length > 0) {
-    for (const s of filters.status) {
-      params.append("status", s);
-    }
-  }
-  if (filters?.startTimeFrom) {
-    params.set("startTimeFrom", filters.startTimeFrom);
-  }
-  if (filters?.startTimeTo) {
-    params.set("startTimeTo", filters.startTimeTo);
-  }
-
-  const queryString = params.toString();
-  const url = `/appointments/appointments/${queryString ? `?${queryString}` : ""}`;
-  const response = await apiClient.get<AppointmentResponse[]>(url);
+export async function getAppointments(): Promise<AppointmentResponse[]> {
+  const response = await apiClient.get<AppointmentResponse[]>(
+    "/appointments/appointments/",
+  );
   return response.data;
 }
 

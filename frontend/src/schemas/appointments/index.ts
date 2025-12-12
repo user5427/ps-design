@@ -22,7 +22,6 @@ export type {
   AppointmentResponse,
   CreateAppointmentBody,
   UpdateAppointmentBody,
-  AppointmentFilterQuery,
   AppointmentStatus,
 } from "@ps-design/schemas/appointments/appointment";
 

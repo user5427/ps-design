@@ -5,7 +5,6 @@ import {
   getAppointments,
   updateAppointment,
   updateAppointmentStatus,
-  type AppointmentFilters,
 } from "@/api/appointments";
 import type {
   CreateAppointmentBody,
@@ -15,14 +14,13 @@ import type {
 
 export const appointmentKeys = {
   all: ["appointments", "appointments"] as const,
-  list: (filters?: AppointmentFilters) =>
-    [...appointmentKeys.all, filters] as const,
+  list: () => [...appointmentKeys.all] as const,
 };
 
-export function useAppointments(filters?: AppointmentFilters) {
+export function useAppointments() {
   return useQuery({
-    queryKey: appointmentKeys.list(filters),
-    queryFn: () => getAppointments(filters),
+    queryKey: appointmentKeys.list(),
+    queryFn: () => getAppointments(),
   });
 }
 
