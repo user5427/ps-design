@@ -15,8 +15,11 @@ import {
   CalendarMonth as CalendarIcon,
   AccessTime as TimeIcon,
 } from "@mui/icons-material";
-import dayjs, { type Dayjs } from "dayjs";
-import { AvailabilityTimetable } from "./availability-timetable";
+import dayjs from "dayjs";
+import {
+  AvailabilityTimetable,
+  type AppointmentTimeSelection,
+} from "./availability-timetable";
 
 interface CreateAppointmentModalProps {
   open: boolean;
@@ -48,54 +51,41 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
   staffServiceOptions,
   serviceDefinitionOptions,
 }) => {
-  const [serviceId, setServiceId] = useState("");
   const [serviceDefinitionId, setServiceDefinitionId] = useState("");
+  const [selection, setSelection] = useState<AppointmentTimeSelection | null>(
+    null,
+  );
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
-  const [startTime, setStartTime] = useState<Dayjs | null>(null);
-  const [endTime, setEndTime] = useState<Dayjs | null>(null);
-  const [employeeName, setEmployeeName] = useState("");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedService = staffServiceOptions.find(
-    (s) => s.value === serviceId,
+    (s) => s.value === (selection?.staffServiceId || ""),
   );
   const selectedServiceDef = serviceDefinitionOptions.find(
     (s) => s.value === serviceDefinitionId,
   );
   const duration = selectedServiceDef?.baseDuration || 30;
 
-  const handleSlotClick = (data: {
-    startTime: string;
-    endTime: string;
-    employeeId: string;
-    employeeName: string;
-    staffServiceId: string;
-  }) => {
-    setStartTime(dayjs(data.startTime));
-    setEndTime(dayjs(data.endTime));
-    setEmployeeName(data.employeeName);
-    // Set the staff service from the clicked slot
-    if (data.staffServiceId) {
-      setServiceId(data.staffServiceId);
-    }
+  const handleSlotClick = (data: AppointmentTimeSelection) => {
+    setSelection(data);
   };
 
   const handleSubmit = async () => {
-    if (!serviceId || !customerName || !startTime) {
+    if (!selection || !customerName) {
       return;
     }
 
     setIsSubmitting(true);
     try {
       await onCreate({
-        serviceId,
+        serviceId: selection.staffServiceId,
         customerName,
         customerPhone: customerPhone || undefined,
         customerEmail: customerEmail || undefined,
-        startTime: startTime.toISOString(),
+        startTime: selection.startTime,
         notes: notes || undefined,
       });
       handleClose();
@@ -105,21 +95,21 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
   };
 
   const handleClose = () => {
-    setServiceId("");
     setServiceDefinitionId("");
+    setSelection(null);
     setCustomerName("");
     setCustomerPhone("");
     setCustomerEmail("");
-    setStartTime(null);
-    setEndTime(null);
-    setEmployeeName("");
     setNotes("");
     onClose();
   };
 
   // Format time period display
   const getTimePeriodDisplay = () => {
-    if (!startTime || !endTime) return null;
+    if (!selection) return null;
+
+    const startTime = dayjs(selection.startTime);
+    const endTime = dayjs(selection.endTime);
 
     const startDate = startTime.format("YYYY-MM-DD");
     const endDate = endTime.format("YYYY-MM-DD");
@@ -148,7 +138,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Stack spacing={2}>
               {/* Selected Time Period Display */}
-              {startTime && endTime && (
+              {selection && (
                 <Alert severity="info" icon={<CalendarIcon />}>
                   <Stack spacing={0.5}>
                     <Box sx={{ fontWeight: 600 }}>Selected Appointment</Box>
@@ -164,11 +154,12 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                         />
                       </Box>
                     )}
-                    {employeeName && (
+                    {selection.employeeName && (
                       <Box
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
-                        Employee: <Chip label={employeeName} size="small" />
+                        Employee:{" "}
+                        <Chip label={selection.employeeName} size="small" />
                       </Box>
                     )}
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -179,7 +170,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                 </Alert>
               )}
 
-              {!startTime && (
+              {!selection && (
                 <Alert severity="warning">
                   Please select an available time slot from the timetable on the
                   right
@@ -239,7 +230,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
         <Button
           onClick={handleSubmit}
           variant="contained"
-          disabled={!serviceId || !customerName || !startTime || isSubmitting}
+          disabled={!selection || !customerName || isSubmitting}
         >
           {isSubmitting ? "Creating..." : "Create"}
         </Button>

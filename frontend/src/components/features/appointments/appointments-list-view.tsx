@@ -126,51 +126,6 @@ export const AppointmentsListView = () => {
     [],
   );
 
-  const createFormFields: FormFieldDefinition[] = [
-    {
-      name: "serviceId",
-      label: "Staff Service",
-      type: "select",
-      required: true,
-      options: staffServiceOptions,
-    },
-    {
-      name: "customerName",
-      label: "Customer Name",
-      type: "text",
-      required: true,
-      validationRules: [
-        ValidationRules.minLength(1),
-        ValidationRules.maxLength(100),
-      ],
-    },
-    {
-      name: "customerPhone",
-      label: "Customer Phone",
-      type: "text",
-      required: false,
-    },
-    {
-      name: "customerEmail",
-      label: "Customer Email",
-      type: "email",
-      required: false,
-    },
-    {
-      name: "startTime",
-      label: "Start Time",
-      type: "datetime",
-      required: true,
-    },
-    {
-      name: "notes",
-      label: "Notes",
-      type: "textarea",
-      required: false,
-      validationRules: [ValidationRules.maxLength(1000)],
-    },
-  ];
-
   const editFormFields: FormFieldDefinition[] = [
     {
       name: "customerName",
@@ -212,7 +167,7 @@ export const AppointmentsListView = () => {
     { name: "service.serviceDefinition.name", label: "Service" },
     { name: "service.serviceDefinition.category.name", label: "Category" },
     {
-      name: "service.price",
+      name: "service.serviceDefinition.price",
       label: "Price",
       render: (value) => `${(value as number).toFixed(2)}€`,
     },
@@ -283,7 +238,6 @@ export const AppointmentsListView = () => {
       data={appointments}
       isLoading={isLoading}
       error={error}
-      createFormFields={createFormFields}
       editFormFields={editFormFields}
       viewFields={viewFields}
       onCreate={handleCreate}
