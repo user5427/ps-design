@@ -1,6 +1,4 @@
-import { Chip } from "@mui/material";
-import type { MRT_ColumnDef } from "material-react-table";
-import { useMemo } from "react";
+import { useCallback } from "react";
 import {
   RecordListView,
   type FormFieldDefinition,
@@ -10,71 +8,16 @@ import {
 import {
   useCreateProduct,
   useBulkDeleteProducts,
-  useProductUnits,
-  useProducts,
   useUpdateProduct,
-} from "@/hooks/inventory";
-import type { Product } from "@/schemas/inventory";
+} from "@/queries/inventory/products";
+import { PRODUCT_MAPPING, PRODUCT_CONSTRAINTS } from "@ps-design/constants/inventory/product";
+import { PRODUCT_UNIT_MAPPING } from "@ps-design/constants/inventory/product-unit";
+import type { ProductResponse } from "@ps-design/schemas/inventory/product";
 
 export const ProductsListView = () => {
-  const { data: products = [], isLoading, error, refetch } = useProducts();
-  const { data: units = [] } = useProductUnits();
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
   const bulkDeleteMutation = useBulkDeleteProducts();
-
-  const columns = useMemo<MRT_ColumnDef<Product>[]>(
-    () => [
-      {
-        accessorKey: "name",
-        header: "Name",
-        size: 150,
-      },
-      {
-        accessorKey: "description",
-        header: "Description",
-        size: 250,
-        Cell: ({ cell }) => cell.getValue<string>() || "-",
-      },
-      {
-        accessorKey: "productUnit.name",
-        header: "Unit",
-        size: 120,
-        Cell: ({ row }) => row.original.productUnit.name,
-      },
-      {
-        accessorKey: "isDisabled",
-        header: "Status",
-        size: 150,
-        Cell: ({ cell }) => (
-          <Chip
-            label={cell.getValue<boolean>() ? "Disabled" : "Active"}
-            color={cell.getValue<boolean>() ? "default" : "success"}
-            size="small"
-          />
-        ),
-      },
-      {
-        accessorKey: "createdAt",
-        header: "Created",
-        size: 150,
-        Cell: ({ cell }) => {
-          const value = cell.getValue<string>();
-          return value ? new Date(value).toLocaleDateString() : "-";
-        },
-      },
-    ],
-    [],
-  );
-
-  const unitOptions = useMemo(
-    () =>
-      units.map((unit) => ({
-        value: unit.id,
-        label: unit.name + (unit.symbol ? ` (${unit.symbol})` : ""),
-      })),
-    [units],
-  );
 
   const createFormFields: FormFieldDefinition[] = [
     {
@@ -83,31 +26,62 @@ export const ProductsListView = () => {
       type: "text",
       required: true,
       validationRules: [
-        ValidationRules.minLength(1),
-        ValidationRules.maxLength(100),
+        ValidationRules.minLength(PRODUCT_CONSTRAINTS.NAME.MIN_LENGTH),
+        ValidationRules.maxLength(PRODUCT_CONSTRAINTS.NAME.MAX_LENGTH),
       ],
     },
     {
       name: "description",
       label: "Description",
       type: "textarea",
+      required: false,
+      validationRules: [
+        ValidationRules.maxLength(PRODUCT_CONSTRAINTS.DESCRIPTION.MAX_LENGTH),
+      ],
     },
     {
       name: "productUnitId",
-      label: "Unit",
-      type: "autocomplete",
+      label: "Product Unit",
+      type: "pagination",
       required: true,
-      options: unitOptions,
-      placeholder: "Search units...",
+      paginationMapping: PRODUCT_UNIT_MAPPING,
+      placeholder: "Select a product unit",
     },
   ];
 
   const editFormFields: FormFieldDefinition[] = [
-    ...createFormFields,
+    {
+      name: "name",
+      label: "Name",
+      type: "text",
+      required: true,
+      validationRules: [
+        ValidationRules.minLength(PRODUCT_CONSTRAINTS.NAME.MIN_LENGTH),
+        ValidationRules.maxLength(PRODUCT_CONSTRAINTS.NAME.MAX_LENGTH),
+      ],
+    },
+    {
+      name: "description",
+      label: "Description",
+      type: "textarea",
+      required: false,
+      validationRules: [
+        ValidationRules.maxLength(PRODUCT_CONSTRAINTS.DESCRIPTION.MAX_LENGTH),
+      ],
+    },
+    {
+      name: "productUnitId",
+      label: "Product Unit",
+      type: "pagination",
+      required: true,
+      paginationMapping: PRODUCT_UNIT_MAPPING,
+      placeholder: "Select a product unit",
+    },
     {
       name: "isDisabled",
       label: "Disabled",
       type: "checkbox",
+      required: false,
     },
   ];
 
@@ -117,57 +91,59 @@ export const ProductsListView = () => {
     { name: "description", label: "Description" },
     {
       name: "productUnit",
-      label: "Unit",
+      label: "Product Unit",
       render: (value) => {
-        const unit = value as { name: string; symbol?: string | null };
-        return unit
-          ? `${unit.name}${unit.symbol ? ` (${unit.symbol})` : ""}`
-          : "-";
+        const unit = value as { name: string; symbol?: string } | null;
+        if (!unit) return "-";
+        return unit.symbol ? `${unit.name} (${unit.symbol})` : unit.name;
       },
     },
-    { name: "isDisabled", label: "Disabled" },
+    {
+      name: "isDisabled",
+      label: "Disabled",
+      render: (value) => (value ? "Yes" : "No"),
+    },
     { name: "createdAt", label: "Created At" },
     { name: "updatedAt", label: "Updated At" },
   ];
 
-  const handleCreate = async (values: Partial<Product>) => {
+  const handleCreate = async (values: Record<string, unknown>) => {
     await createMutation.mutateAsync({
       name: String(values.name),
-      description: values.description || undefined,
+      description: values.description ? String(values.description) : undefined,
       productUnitId: String(values.productUnitId),
     });
   };
 
-  const handleEdit = async (id: string, values: Partial<Product>) => {
-    await updateMutation.mutateAsync({
-      id,
-      data: {
-        name: values.name,
-        description: values.description || undefined,
-        productUnitId: values.productUnitId,
-        isDisabled: values.isDisabled,
-      },
-    });
-  };
+  const handleEdit = useCallback(
+    async (id: string, values: Record<string, unknown>) => {
+      await updateMutation.mutateAsync({
+        id,
+        name: values.name ? String(values.name) : undefined,
+        description: values.description ? String(values.description) : undefined,
+        productUnitId: values.productUnitId ? String(values.productUnitId) : undefined,
+        isDisabled: values.isDisabled as boolean | undefined,
+      });
+    },
+    [updateMutation],
+  );
 
-  const handleDelete = async (ids: string[]) => {
-    await bulkDeleteMutation.mutateAsync(ids);
-  };
+  const handleDelete = useCallback(
+    async (ids: string[]) => {
+      await bulkDeleteMutation.mutateAsync(ids);
+    },
+    [bulkDeleteMutation],
+  );
 
   return (
-    <RecordListView<Product>
-      title="Products"
-      columns={columns}
-      data={products}
-      isLoading={isLoading}
-      error={error}
+    <RecordListView<ProductResponse>
+      mapping={PRODUCT_MAPPING}
       createFormFields={createFormFields}
       editFormFields={editFormFields}
       viewFields={viewFields}
       onCreate={handleCreate}
       onEdit={handleEdit}
       onDelete={handleDelete}
-      onSuccess={() => refetch()}
       createModalTitle="Create Product"
       editModalTitle="Edit Product"
       viewModalTitle="View Product"

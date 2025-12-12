@@ -7,6 +7,10 @@ import {
 } from "typeorm";
 import { BadRequestError, ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
+import { executePaginatedQuery } from "@/shared/pagination-utils";
+import { MENU_ITEM_MAPPING } from "@ps-design/constants/menu/items";
+import { PaginatedResult } from "@ps-design/schemas/pagination";
+import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 import type { Product } from "@/modules/inventory/product/product.entity";
 import type { StockLevel } from "@/modules/inventory/stock-level/stock-level.entity";
 import type { MenuItemCategory } from "@/modules/menu/menu-item-category/menu-item-category.entity";
@@ -44,12 +48,32 @@ export class MenuItemRepository {
     private stockLevelRepository: Repository<StockLevel>,
   ) {}
 
-  async findAllByBusinessId(businessId: string): Promise<MenuItem[]> {
-    return this.repository.find({
-      where: { businessId, deletedAt: IsNull() },
-      relations: MENU_ITEM_RELATIONS,
-      order: { baseName: "ASC" },
-    });
+  async findAllPaginated(
+    businessId: string,
+    query: UniversalPaginationQuery,
+  ): Promise<PaginatedResult<MenuItem>> {
+    const qb = this.repository.createQueryBuilder("item");
+
+    qb.leftJoinAndSelect("item.category", "category");
+    qb.leftJoinAndSelect("item.baseProducts", "baseProducts");
+    qb.leftJoinAndSelect("baseProducts.product", "baseProduct");
+    qb.leftJoinAndSelect("baseProduct.productUnit", "baseProductUnit");
+    qb.leftJoinAndSelect("item.variations", "variations");
+    qb.leftJoinAndSelect("variations.addonProducts", "addonProducts");
+    qb.leftJoinAndSelect("addonProducts.product", "addonProduct");
+    qb.leftJoinAndSelect("addonProduct.productUnit", "addonProductUnit");
+
+    qb.where("item.businessId = :businessId", { businessId });
+    qb.andWhere("item.deletedAt IS NULL");
+
+    // Handle simple search if provided
+    if (query.search) {
+      qb.andWhere("item.baseName ILIKE :search", {
+        search: `%${query.search}%`,
+      });
+    }
+
+    return executePaginatedQuery(qb, query, MENU_ITEM_MAPPING.fields, "item");
   }
 
   async findById(id: string): Promise<MenuItem | null> {

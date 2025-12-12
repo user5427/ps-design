@@ -1,12 +1,16 @@
 import { In, IsNull, type Repository } from "typeorm";
 import { ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
+import { executePaginatedQuery } from "@/shared/pagination-utils";
+import { MENU_ITEM_CATEGORY_MAPPING } from "@ps-design/constants/menu/category";
 import type { MenuItem } from "@/modules/menu/menu-item/menu-item.entity";
 import type { MenuItemCategory } from "./menu-item-category.entity";
 import type {
   ICreateMenuItemCategory,
   IUpdateMenuItemCategory,
 } from "./menu-item-category.types";
+import { PaginatedResult } from "@ps-design/schemas/pagination";
+import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export class MenuItemCategoryRepository {
   constructor(
@@ -14,11 +18,23 @@ export class MenuItemCategoryRepository {
     private menuItemRepository: Repository<MenuItem>,
   ) {}
 
-  async findAllByBusinessId(businessId: string): Promise<MenuItemCategory[]> {
-    return this.repository.find({
-      where: { businessId, deletedAt: IsNull() },
-      order: { name: "ASC" },
-    });
+  async findAllPaginated(
+    businessId: string,
+    query: UniversalPaginationQuery,
+  ): Promise<PaginatedResult<MenuItemCategory>> {
+    const qb = this.repository.createQueryBuilder("category");
+
+    qb.where("category.businessId = :businessId", { businessId });
+    qb.andWhere("category.deletedAt IS NULL");
+
+    // Handle simple search if provided
+    if (query.search) {
+      qb.andWhere("category.name ILIKE :search", {
+        search: `%${query.search}%`,
+      });
+    }
+
+    return executePaginatedQuery(qb, query, MENU_ITEM_CATEGORY_MAPPING.fields, "category");
   }
 
   async findById(id: string): Promise<MenuItemCategory | null> {
