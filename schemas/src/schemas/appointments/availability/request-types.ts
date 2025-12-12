@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { uuid } from "../../shared/zod-utils";
+import { datetime, uuid } from "../../shared/zod-utils";
 import { DayOfWeekSchema, TimeStringSchema } from "./shared";
 
 const timeToMinutes = (timeStr: string): number => {
@@ -110,6 +110,28 @@ export const BulkSetAvailabilitySchema = z.object({
       }
     }),
 });
+
+export const GetAvailableTimeSlotsQuerySchema = z.object({
+  staffServiceId: uuid().optional(),
+  serviceDefinitionId: uuid().optional(),
+  employeeId: uuid().optional(),
+  date: datetime(),
+  durationMinutes: z.coerce.number().int().min(1).max(480),
+});
+
+export const GetAvailabilityBlocksQuerySchema = z.object({
+  staffServiceId: uuid().optional(),
+  serviceDefinitionId: uuid().optional(),
+  employeeId: uuid().optional(),
+  date: datetime(),
+});
+
+export type GetAvailableTimeSlotsQuery = z.infer<
+  typeof GetAvailableTimeSlotsQuerySchema
+>;
+export type GetAvailabilityBlocksQuery = z.infer<
+  typeof GetAvailabilityBlocksQuerySchema
+>;
 
 export type CreateAvailabilityBody = z.infer<typeof CreateAvailabilitySchema>;
 export type BulkSetAvailabilityBody = z.infer<typeof BulkSetAvailabilitySchema>;

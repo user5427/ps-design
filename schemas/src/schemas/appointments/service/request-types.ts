@@ -10,7 +10,7 @@ export const CreateServiceSchema = z.object({
 });
 
 export const UpdateServiceSchema = z.object({
-  isDisabled: z.boolean().optional(),
+  isDisabled: z.boolean(),
 });
 
 export type CreateServiceBody = z.infer<typeof CreateServiceSchema>;

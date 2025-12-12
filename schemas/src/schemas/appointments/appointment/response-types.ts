@@ -12,6 +12,8 @@ const ServiceDefinitionSchema = z.object({
   name: z.string(),
   description: z.string().nullable(),
   category: ServiceCategorySchema.nullable().optional(),
+  duration: z.number(),
+  price: z.number(), // cents
 });
 
 const EmployeeSchema = z.object({
@@ -22,8 +24,6 @@ const EmployeeSchema = z.object({
 
 const ServiceSchema = z.object({
   id: uuid(),
-  price: z.number(),
-  baseDuration: z.number(),
   employee: EmployeeSchema,
   serviceDefinition: ServiceDefinitionSchema,
 });

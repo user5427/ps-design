@@ -30,7 +30,7 @@ export const CreateServiceDefinitionSchema = z.object({
     .nullable()
     .optional(),
   price: z.number().min(MIN_PRICE, MIN_PRICE_MESSAGE),
-  baseDuration: z
+  duration: z
     .number()
     .int()
     .min(MIN_DURATION, MIN_DURATION_MESSAGE)
@@ -51,7 +51,7 @@ export const UpdateServiceDefinitionSchema = z.object({
     .nullable()
     .optional(),
   price: z.number().min(MIN_PRICE, MIN_PRICE_MESSAGE).optional(),
-  baseDuration: z
+  duration: z
     .number()
     .int()
     .min(MIN_DURATION, MIN_DURATION_MESSAGE)

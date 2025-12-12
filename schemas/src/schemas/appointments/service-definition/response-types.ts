@@ -11,7 +11,7 @@ export const ServiceDefinitionResponseSchema = z.object({
   name: z.string(),
   description: z.string().nullable(),
   price: z.number(),
-  baseDuration: z.number(),
+  duration: z.number(),
   isDisabled: z.boolean(),
   category: ServiceCategorySchema.nullable().optional(),
   createdAt: datetime(),

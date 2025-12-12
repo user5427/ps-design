@@ -20,8 +20,7 @@ export const UpdateServiceCategorySchema = z.object({
   name: z
     .string()
     .min(MIN_NAME_LENGTH, MIN_NAME_MESSAGE)
-    .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE)
-    .optional(),
+    .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE),
 });
 
 export type CreateServiceCategoryBody = z.infer<
