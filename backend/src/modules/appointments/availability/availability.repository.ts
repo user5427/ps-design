@@ -274,7 +274,7 @@ export class AvailabilityRepository {
     }> = [];
 
     // Get relevant employees and their staff services based on filters
-    let employeeStaffServiceMap: Map<string, string> = new Map();
+    const employeeStaffServiceMap: Map<string, string> = new Map();
 
     if (params.employeeId) {
       employeeStaffServiceMap.set(
@@ -444,7 +444,7 @@ export class AvailabilityRepository {
     }> = [];
 
     // Get relevant employees and their staff services based on filters
-    let employeeStaffServiceMap: Map<string, string> = new Map();
+    const employeeStaffServiceMap: Map<string, string> = new Map();
 
     if (params.employeeId) {
       employeeStaffServiceMap.set(

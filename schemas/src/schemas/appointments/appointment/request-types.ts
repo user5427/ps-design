@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { uuid, datetime } from "../../shared/zod-utils";
-import { AppointmentStatusEnum } from "./shared";
+import type { AppointmentStatusEnum } from "./shared";
 
 const MIN_NAME_LENGTH = 1;
 const MAX_NAME_LENGTH = 100;

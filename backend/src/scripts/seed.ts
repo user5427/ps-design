@@ -106,7 +106,7 @@ async function main() {
           ScopeNames.MENU_WRITE,
           ScopeNames.APPOINTMENTS_READ,
           ScopeNames.APPOINTMENTS_WRITE,
-          ScopeNames.APPOINTMENTS_DELETE
+          ScopeNames.APPOINTMENTS_DELETE,
         ],
       },
       {
