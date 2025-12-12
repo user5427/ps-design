@@ -10,11 +10,12 @@ import type React from "react";
 import type { EntityMapping } from "@ps-design/utils";
 
 import { SmartPaginationList, type SmartPaginationListRef } from "../pagination";
-import { useMessageManager, MessageManager } from "../message-manager";
+import type { MessageManager } from "../message-manager";
 
-/** Form component must expose a ref with setVisible method */
+/** Form component must expose a ref with setVisible method and submit method */
 export interface FormHandle {
   setVisible: (visible: boolean, record?: Record<string, unknown>) => void;
+  submit: () => Promise<void>;
 }
 
 export interface ListManagerProps {
@@ -29,6 +30,9 @@ export interface ListManagerProps {
 
   /** Reference to delete form component (must expose setVisible method) */
   deleteFormRef?: React.RefObject<FormHandle>;
+
+  /** MessageManager instance for showing notifications */
+  messageManager?: any;
 
   /** Callback when an operation completes successfully (for refetching list) */
   onSuccess?: () => void;
@@ -47,25 +51,24 @@ export interface ListManagerProps {
  * - Refetching after operations
  * 
  * Forms handle all their own logic (API calls, validation, submission).
- * ListManager just manages visibility.
+ * ListManager just manages visibility and passes messageManager reference.
  * 
  * @example
  * ```tsx
- * const createFormRef = useRef<FormHandle>(null);
- * const editFormRef = useRef<FormHandle>(null);
- * const deleteFormRef = useRef<FormHandle>(null);
+ * const messageManager = createMessageManager();
+ * const createForm = createForm({ children, onSubmit, messageManager });
+ * const editForm = createForm({ children, onSubmit, messageManager });
  * 
  * return (
  *   <>
  *     <ListManager
  *       mapping={productMapping}
- *       createFormRef={createFormRef}
- *       editFormRef={editFormRef}
- *       deleteFormRef={deleteFormRef}
+ *       createFormRef={createForm.ref}
+ *       editFormRef={editForm.ref}
+ *       messageManager={messageManager}
  *     />
- *     <ProductCreateForm ref={createFormRef} />
- *     <ProductEditForm ref={editFormRef} />
- *     <ProductDeleteForm ref={deleteFormRef} />
+ *     <createForm.Component />
+ *     <editForm.Component />
  *   </>
  * );
  * ```
@@ -75,11 +78,10 @@ export const ListManager: React.FC<ListManagerProps> = ({
   createFormRef,
   editFormRef,
   deleteFormRef,
-  onSuccess,
+  messageManager,
   renderHeader,
 }) => {
   const paginationListRef = useRef<SmartPaginationListRef>(null);
-  const messageManager = useMessageManager();
 
   const openCreateForm = useCallback(() => {
     createFormRef.current?.setVisible(true);
@@ -100,42 +102,40 @@ export const ListManager: React.FC<ListManagerProps> = ({
   );
 
   return (
-    <MessageManager>
-      <Box sx={{ width: "100%", height: "100%" }}>
-        {/* Header - with optional custom render */}
-        {renderHeader ? (
-          renderHeader({ onOpenCreate: openCreateForm })
-        ) : (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 3,
-            }}
+    <Box sx={{ width: "100%", height: "100%" }}>
+      {/* Header - with optional custom render */}
+      {renderHeader ? (
+        renderHeader({ onOpenCreate: openCreateForm })
+      ) : (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
+          <Typography variant="h4" component="h1">
+            {mapping.displayName}
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={openCreateForm}
           >
-            <Typography variant="h4" component="h1">
-              {mapping.displayName}
-            </Typography>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={openCreateForm}
-            >
-              New
-            </Button>
-          </Box>
-        )}
+            New
+          </Button>
+        </Box>
+      )}
 
-        {/* Pagination List */}
-        <SmartPaginationList
-          ref={paginationListRef}
-          mapping={mapping}
-          onEdit={openEditForm}
-          onDelete={openDeleteForm}
-          messageManager={messageManager}
-        />
-      </Box>
-    </MessageManager>
+      {/* Pagination List */}
+      <SmartPaginationList
+        ref={paginationListRef}
+        mapping={mapping}
+        onEdit={openEditForm}
+        onDelete={openDeleteForm}
+        messageManager={messageManager}
+      />
+    </Box>
   );
 };
