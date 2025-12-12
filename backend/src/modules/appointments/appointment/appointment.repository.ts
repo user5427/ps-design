@@ -103,35 +103,28 @@ export class AppointmentRepository {
         businessId: data.businessId,
         deletedAt: IsNull(),
       },
+      relations: ["serviceDefinition"],
     });
 
     if (!staffService) {
       throw new BadRequestError("Invalid service");
     }
 
-    if (data.blockDuration < staffService.baseDuration) {
-      throw new BadRequestError(
-        `Block duration must be at least ${staffService.baseDuration} minutes`,
-      );
-    }
+    const duration = staffService.serviceDefinition.baseDuration;
 
     // Check employee availability
     const isAvailable = await this.availabilityRepository.isEmployeeAvailable(
       staffService.employeeId,
       data.businessId,
       data.startTime,
-      data.blockDuration,
+      duration,
     );
 
     if (!isAvailable) {
       throw new BadRequestError("Employee is not available at this time");
     }
 
-    await this.checkForOverlap(
-      data.serviceId,
-      data.startTime,
-      data.blockDuration,
-    );
+    await this.checkForOverlap(data.serviceId, data.startTime, duration);
 
     return await this.dataSource.transaction(async (manager) => {
       const appointment = manager.create(this.repository.target, {
@@ -139,7 +132,6 @@ export class AppointmentRepository {
         customerPhone: data.customerPhone ?? null,
         customerEmail: data.customerEmail ?? null,
         startTime: data.startTime,
-        blockDuration: data.blockDuration,
         notes: data.notes ?? null,
         status: "RESERVED" as AppointmentStatus,
         businessId: data.businessId,
@@ -165,16 +157,16 @@ export class AppointmentRepository {
       throw new BadRequestError("Cannot update closed appointment");
     }
 
-    if (data.startTime !== undefined || data.blockDuration !== undefined) {
-      const newStartTime = data.startTime ?? appointment.startTime;
-      const newDuration = data.blockDuration ?? appointment.blockDuration;
+    if (data.startTime !== undefined) {
+      const newStartTime = data.startTime;
+      const duration = appointment.service.serviceDefinition.baseDuration;
 
       // Check employee availability for the new time
       const isAvailable = await this.availabilityRepository.isEmployeeAvailable(
         appointment.service.employeeId,
         businessId,
         newStartTime,
-        newDuration,
+        duration,
       );
 
       if (!isAvailable) {
@@ -184,7 +176,7 @@ export class AppointmentRepository {
       await this.checkForOverlap(
         appointment.serviceId,
         newStartTime,
-        newDuration,
+        duration,
         id,
       );
     }
@@ -220,6 +212,8 @@ export class AppointmentRepository {
 
     const queryBuilder = this.repository
       .createQueryBuilder("appointment")
+      .leftJoinAndSelect("appointment.service", "service")
+      .leftJoinAndSelect("service.serviceDefinition", "serviceDefinition")
       .where("appointment.serviceId = :serviceId", { serviceId })
       .andWhere("appointment.status != :cancelledStatus", {
         cancelledStatus: "CANCELLED",
@@ -227,7 +221,7 @@ export class AppointmentRepository {
       .andWhere(
         `(
           (appointment.startTime < :endTime AND 
-           appointment.startTime + (appointment.blockDuration * interval '1 minute') > :startTime)
+           appointment.startTime + (serviceDefinition.baseDuration * interval '1 minute') > :startTime)
         )`,
         { startTime, endTime },
       );

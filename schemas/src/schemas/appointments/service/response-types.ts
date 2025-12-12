@@ -16,13 +16,13 @@ const ServiceDefinitionSchema = z.object({
   id: uuid(),
   name: z.string(),
   description: z.string().nullable(),
+  price: z.number(),
+  baseDuration: z.number(),
   category: ServiceCategorySchema.nullable().optional(),
 });
 
 export const StaffServiceResponseSchema = z.object({
   id: uuid(),
-  price: z.number(),
-  baseDuration: z.number(),
   isDisabled: z.boolean(),
   employee: EmployeeSchema,
   serviceDefinition: ServiceDefinitionSchema,

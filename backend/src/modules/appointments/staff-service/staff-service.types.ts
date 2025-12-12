@@ -1,7 +1,5 @@
 export interface IStaffService {
   id: string;
-  price: number;
-  baseDuration: number;
   isDisabled: boolean;
   businessId: string;
   employeeId: string;
@@ -12,8 +10,6 @@ export interface IStaffService {
 }
 
 export interface ICreateStaffService {
-  price: number;
-  baseDuration: number;
   isDisabled?: boolean;
   businessId: string;
   employeeId: string;
@@ -21,7 +17,5 @@ export interface ICreateStaffService {
 }
 
 export interface IUpdateStaffService {
-  price?: number;
-  baseDuration?: number;
   isDisabled?: boolean;
 }

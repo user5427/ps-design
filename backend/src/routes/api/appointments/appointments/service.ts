@@ -15,13 +15,12 @@ function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
     customerPhone: appointment.customerPhone,
     customerEmail: appointment.customerEmail,
     startTime: appointment.startTime.toISOString(),
-    blockDuration: appointment.blockDuration,
     status: appointment.status as AppointmentStatus,
     notes: appointment.notes,
     service: {
       id: appointment.service.id,
-      price: appointment.service.price,
-      baseDuration: appointment.service.baseDuration,
+      price: appointment.service.serviceDefinition.price,
+      baseDuration: appointment.service.serviceDefinition.baseDuration,
       employee: {
         id: appointment.service.employee.id,
         name: appointment.service.employee.name,
@@ -81,7 +80,6 @@ export async function createAppointment(
     customerPhone: input.customerPhone,
     customerEmail: input.customerEmail,
     startTime: new Date(input.startTime),
-    blockDuration: input.blockDuration,
     notes: input.notes,
     serviceId: input.serviceId,
     businessId,
@@ -112,7 +110,6 @@ export async function updateAppointment(
     customerPhone: input.customerPhone,
     customerEmail: input.customerEmail,
     startTime: input.startTime ? new Date(input.startTime) : undefined,
-    blockDuration: input.blockDuration,
     notes: input.notes,
   });
 }

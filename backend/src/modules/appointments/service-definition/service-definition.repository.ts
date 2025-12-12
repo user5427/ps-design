@@ -67,6 +67,8 @@ export class ServiceDefinitionRepository {
       const definition = this.repository.create({
         name: data.name,
         description: data.description ?? null,
+        price: data.price,
+        baseDuration: data.baseDuration,
         isDisabled: data.isDisabled ?? false,
         businessId: data.businessId,
         categoryId: data.categoryId ?? null,

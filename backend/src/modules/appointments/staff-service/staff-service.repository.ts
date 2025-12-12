@@ -84,8 +84,6 @@ export class StaffServiceRepository {
 
     try {
       const staffService = this.repository.create({
-        price: data.price,
-        baseDuration: data.baseDuration,
         isDisabled: data.isDisabled ?? false,
         businessId: data.businessId,
         employeeId: data.employeeId,

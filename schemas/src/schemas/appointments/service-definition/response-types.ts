@@ -10,6 +10,8 @@ export const ServiceDefinitionResponseSchema = z.object({
   id: uuid(),
   name: z.string(),
   description: z.string().nullable(),
+  price: z.number(),
+  baseDuration: z.number(),
   isDisabled: z.boolean(),
   category: ServiceCategorySchema.nullable().optional(),
   createdAt: datetime(),

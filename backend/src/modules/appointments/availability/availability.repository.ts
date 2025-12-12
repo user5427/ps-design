@@ -241,4 +241,170 @@ export class AvailabilityRepository {
     const minutes = date.getMinutes().toString().padStart(2, "0");
     return `${hours}:${minutes}`;
   }
+
+  /**
+   * Generate time slots for a specific date, showing availability and appointments
+   */
+  async getAvailableTimeSlots(params: {
+    businessId: string;
+    date: Date;
+    employeeId?: string;
+    staffServiceId?: string;
+    serviceDefinitionId?: string;
+    durationMinutes?: number;
+  }): Promise<
+    Array<{
+      startTime: Date;
+      endTime: Date;
+      isAvailable: boolean;
+      employeeId: string;
+      employeeName: string;
+      staffServiceId: string | null;
+      appointmentId: string | null;
+    }>
+  > {
+    const slots: Array<{
+      startTime: Date;
+      endTime: Date;
+      isAvailable: boolean;
+      employeeId: string;
+      employeeName: string;
+      staffServiceId: string | null;
+      appointmentId: string | null;
+    }> = [];
+
+    // Get relevant employees and their staff services based on filters
+    let employeeStaffServiceMap: Map<string, string> = new Map();
+
+    if (params.employeeId) {
+      employeeStaffServiceMap.set(params.employeeId, params.staffServiceId || "");
+    } else if (params.staffServiceId) {
+      const staffService = await this.dataSource
+        .getRepository("StaffService")
+        .findOne({
+          where: { id: params.staffServiceId, businessId: params.businessId },
+          relations: ["employee"],
+        });
+      if (staffService) {
+        employeeStaffServiceMap.set(staffService.employeeId, staffService.id);
+      }
+    } else if (params.serviceDefinitionId) {
+      const staffServices = await this.dataSource
+        .getRepository("StaffService")
+        .find({
+          where: {
+            serviceDefinitionId: params.serviceDefinitionId,
+            businessId: params.businessId,
+            isDisabled: false,
+            deletedAt: IsNull(),
+          },
+          relations: ["employee"],
+        });
+      staffServices.forEach((ss: any) => {
+        employeeStaffServiceMap.set(ss.employeeId, ss.id);
+      });
+    }
+
+    if (employeeStaffServiceMap.size === 0) {
+      return slots;
+    }
+
+    const employeeIds = Array.from(employeeStaffServiceMap.keys());
+
+    const slotDuration = params.durationMinutes || 30;
+    const dayOfWeek = this.dateToDayOfWeek(params.date);
+
+    // For each employee, generate time slots based on their availability
+    for (const employeeId of employeeIds) {
+      const availabilities = await this.findByUserId(
+        employeeId,
+        params.businessId,
+      );
+      const employee = await this.userRepository.findOne({
+        where: { id: employeeId },
+        select: ["id", "name"],
+      });
+
+      if (!employee) continue;
+
+      const dayAvailabilities = availabilities.filter(
+        (av) => av.dayOfWeek === dayOfWeek,
+      );
+
+      // Get appointments for this employee on this date
+      const startOfDay = new Date(params.date);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(params.date);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      const appointments = await this.dataSource
+        .getRepository("Appointment")
+        .createQueryBuilder("appointment")
+        .leftJoinAndSelect("appointment.service", "service")
+        .leftJoinAndSelect("service.serviceDefinition", "serviceDefinition")
+        .where("service.employeeId = :employeeId", { employeeId })
+        .andWhere("appointment.businessId = :businessId", {
+          businessId: params.businessId,
+        })
+        .andWhere("appointment.startTime >= :startOfDay", { startOfDay })
+        .andWhere("appointment.startTime <= :endOfDay", { endOfDay })
+        .andWhere("appointment.status != :cancelled", {
+          cancelled: "CANCELLED",
+        })
+        .getMany();
+
+      // Generate slots for each availability window
+      for (const av of dayAvailabilities) {
+        const [startHour, startMin] = av.startTime.split(":").map(Number);
+        const [endHour, endMin] = av.endTime.split(":").map(Number);
+
+        let currentTime = new Date(params.date);
+        currentTime.setHours(startHour, startMin, 0, 0);
+
+        const endTime = new Date(params.date);
+        if (av.isOvernight) {
+          // For overnight slots, continue until end of day
+          endTime.setHours(23, 59, 59, 999);
+        } else {
+          endTime.setHours(endHour, endMin, 0, 0);
+        }
+
+        while (currentTime < endTime) {
+          const slotStart = new Date(currentTime);
+          const slotEnd = new Date(
+            currentTime.getTime() + slotDuration * 60 * 1000,
+          );
+
+          if (slotEnd > endTime) break;
+
+          // Check if this slot overlaps with any appointment
+          const overlappingAppointment = appointments.find((appt: any) => {
+            const apptStart = new Date(appt.startTime);
+            const apptEnd = new Date(
+              apptStart.getTime() + appt.service.serviceDefinition.baseDuration * 60 * 1000,
+            );
+            return slotStart < apptEnd && slotEnd > apptStart;
+          });
+
+          slots.push({
+            startTime: slotStart,
+            endTime: slotEnd,
+            isAvailable: !overlappingAppointment,
+            employeeId: employee.id,
+            employeeName: employee.name,
+            staffServiceId: employeeStaffServiceMap.get(employeeId) || null,
+            appointmentId: overlappingAppointment
+              ? overlappingAppointment.id
+              : null,
+          });
+
+          currentTime = new Date(
+            currentTime.getTime() + slotDuration * 60 * 1000,
+          );
+        }
+      }
+    }
+
+    return slots.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+  }
 }

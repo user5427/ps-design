@@ -11,8 +11,6 @@ function toStaffServiceResponse(
 ): StaffServiceResponse {
   return {
     id: staffService.id,
-    price: staffService.price,
-    baseDuration: staffService.baseDuration,
     isDisabled: staffService.isDisabled,
     employee: {
       id: staffService.employee.id,
@@ -23,6 +21,8 @@ function toStaffServiceResponse(
       id: staffService.serviceDefinition.id,
       name: staffService.serviceDefinition.name,
       description: staffService.serviceDefinition.description,
+      price: staffService.serviceDefinition.price,
+      baseDuration: staffService.serviceDefinition.baseDuration,
       category: staffService.serviceDefinition.category
         ? {
             id: staffService.serviceDefinition.category.id,
@@ -50,8 +50,6 @@ export async function createStaffService(
   input: CreateServiceBody,
 ): Promise<void> {
   await fastify.db.staffService.create({
-    price: input.price,
-    baseDuration: input.baseDuration,
     isDisabled: input.isDisabled,
     employeeId: input.employeeId,
     serviceDefinitionId: input.serviceDefinitionId,

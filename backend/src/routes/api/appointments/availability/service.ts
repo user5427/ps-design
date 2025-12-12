@@ -2,6 +2,9 @@ import type { FastifyInstance } from "fastify";
 import type {
   BulkSetAvailabilityBody,
   AvailabilityResponse,
+  GetAvailableTimeSlotsQuery,
+  AvailableTimeSlotsResponse,
+  TimeSlot,
 } from "@ps-design/schemas/appointments/availability";
 import type { Availability } from "@/modules/appointments/availability/availability.entity";
 
@@ -44,4 +47,36 @@ export async function bulkSetAvailability(
     businessId,
     availabilities: input.availabilities,
   });
+}
+
+export async function getAvailableTimeSlots(
+  fastify: FastifyInstance,
+  businessId: string,
+  query: GetAvailableTimeSlotsQuery,
+): Promise<AvailableTimeSlotsResponse> {
+  const date = new Date(query.date);
+
+  const slots = await fastify.db.availability.getAvailableTimeSlots({
+    businessId,
+    date,
+    employeeId: query.employeeId,
+    staffServiceId: query.staffServiceId,
+    serviceDefinitionId: query.serviceDefinitionId,
+    durationMinutes: query.durationMinutes || 30,
+  });
+
+  const timeSlots: TimeSlot[] = slots.map((slot) => ({
+    startTime: slot.startTime.toISOString(),
+    endTime: slot.endTime.toISOString(),
+    isAvailable: slot.isAvailable,
+    appointmentId: slot.appointmentId,
+    employeeId: slot.employeeId,
+    employeeName: slot.employeeName,
+    staffServiceId: slot.staffServiceId,
+  }));
+
+  return {
+    date: date.toISOString(),
+    slots: timeSlots,
+  };
 }

@@ -13,6 +13,8 @@ function toDefinitionResponse(
     id: definition.id,
     name: definition.name,
     description: definition.description,
+    price: definition.price,
+    baseDuration: definition.baseDuration,
     isDisabled: definition.isDisabled,
     category: definition.category
       ? {
@@ -45,6 +47,8 @@ export async function createServiceDefinition(
   await fastify.db.serviceDefinition.create({
     name: input.name,
     description: input.description,
+    price: input.price,
+    baseDuration: input.baseDuration,
     isDisabled: input.isDisabled,
     categoryId: input.categoryId,
     businessId,

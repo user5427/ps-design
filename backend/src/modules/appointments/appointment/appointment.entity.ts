@@ -33,9 +33,6 @@ export class Appointment {
   @Index()
   startTime: Date;
 
-  @Column({ type: "int" })
-  blockDuration: number; // in minutes
-
   @Column({ type: "varchar", default: "RESERVED" })
   status: AppointmentStatus;
 

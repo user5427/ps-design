@@ -5,7 +5,6 @@ import {
   RecordListView,
   type FormFieldDefinition,
   type ViewFieldDefinition,
-  ValidationRules,
 } from "@/components/elements/record-list-view";
 import {
   useCreateStaffService,
@@ -75,15 +74,16 @@ export const StaffServicesListView = () => {
         Cell: ({ row }) => row.original.serviceDefinition?.category?.name || "",
       },
       {
-        accessorKey: "price",
+        accessorKey: "serviceDefinition.price",
         header: "Price",
         size: 100,
-        Cell: ({ cell }) => `${cell.getValue<number>().toFixed(2)}€`,
+        Cell: ({ row }) => `${row.original.serviceDefinition?.price?.toFixed(2) || "0.00"}€`,
       },
       {
-        accessorKey: "baseDuration",
+        accessorKey: "serviceDefinition.baseDuration",
         header: "Duration (min)",
         size: 100,
+        Cell: ({ row }) => row.original.serviceDefinition?.baseDuration || 0,
       },
       {
         accessorKey: "isDisabled",
@@ -121,20 +121,6 @@ export const StaffServicesListView = () => {
       options: serviceDefinitionOptions,
     },
     {
-      name: "price",
-      label: "Price (€)",
-      type: "number",
-      required: true,
-      validationRules: [ValidationRules.min(0)],
-    },
-    {
-      name: "baseDuration",
-      label: "Duration (minutes)",
-      type: "number",
-      required: true,
-      validationRules: [ValidationRules.min(1), ValidationRules.max(480)],
-    },
-    {
       name: "isDisabled",
       label: "Disabled",
       type: "checkbox",
@@ -144,20 +130,6 @@ export const StaffServicesListView = () => {
   ];
 
   const editFormFields: FormFieldDefinition[] = [
-    {
-      name: "price",
-      label: "Price (€)",
-      type: "number",
-      required: true,
-      validationRules: [ValidationRules.min(0)],
-    },
-    {
-      name: "baseDuration",
-      label: "Duration (minutes)",
-      type: "number",
-      required: true,
-      validationRules: [ValidationRules.min(1), ValidationRules.max(480)],
-    },
     {
       name: "isDisabled",
       label: "Disabled",
@@ -173,14 +145,14 @@ export const StaffServicesListView = () => {
     { name: "serviceDefinition.name", label: "Service" },
     { name: "serviceDefinition.category.name", label: "Category" },
     {
-      name: "price",
+      name: "serviceDefinition.price",
       label: "Price",
-      render: (value) => `${(value as number).toFixed(2)}€`,
+      render: (value) => `${(value as number)?.toFixed(2) || "0.00"}€`,
     },
     {
-      name: "baseDuration",
+      name: "serviceDefinition.baseDuration",
       label: "Duration",
-      render: (value) => `${value} minutes`,
+      render: (value) => `${value || 0} minutes`,
     },
     {
       name: "isDisabled",
@@ -196,8 +168,6 @@ export const StaffServicesListView = () => {
       employeeId: (values as { employeeId?: string }).employeeId || "",
       serviceDefinitionId:
         (values as { serviceDefinitionId?: string }).serviceDefinitionId || "",
-      price: Number(values.price) || 0,
-      baseDuration: Number(values.baseDuration) || 30,
       isDisabled: values.isDisabled || false,
     });
   };
@@ -206,11 +176,6 @@ export const StaffServicesListView = () => {
     await updateMutation.mutateAsync({
       id,
       data: {
-        price: values.price !== undefined ? Number(values.price) : undefined,
-        baseDuration:
-          values.baseDuration !== undefined
-            ? Number(values.baseDuration)
-            : undefined,
         isDisabled: values.isDisabled,
       },
     });

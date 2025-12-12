@@ -6,7 +6,6 @@ export interface IAppointment {
   customerPhone: string | null;
   customerEmail: string | null;
   startTime: Date;
-  blockDuration: number;
   status: AppointmentStatus;
   notes: string | null;
   businessId: string;
@@ -22,7 +21,6 @@ export interface ICreateAppointment {
   customerPhone?: string | null;
   customerEmail?: string | null;
   startTime: Date;
-  blockDuration: number;
   notes?: string | null;
   businessId: string;
   serviceId: string;
@@ -34,7 +32,6 @@ export interface IUpdateAppointment {
   customerPhone?: string | null;
   customerEmail?: string | null;
   startTime?: Date;
-  blockDuration?: number;
   notes?: string | null;
 }
 

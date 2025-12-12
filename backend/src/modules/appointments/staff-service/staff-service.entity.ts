@@ -8,29 +8,19 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   type Relation,
+  Unique,
   UpdateDateColumn,
 } from "typeorm";
-import { decimalTransformer } from "@/shared/decimal-transformer";
 import type { Business } from "@/modules/business/business.entity";
 import type { User } from "@/modules/user/user.entity";
 import type { ServiceDefinition } from "@/modules/appointments/service-definition/service-definition.entity";
 import type { Appointment } from "@/modules/appointments/appointment/appointment.entity";
 
 @Entity("StaffService")
+@Unique(["businessId", "employeeId", "serviceDefinitionId"])
 export class StaffService {
   @PrimaryGeneratedColumn("uuid")
   id: string;
-
-  @Column({
-    type: "decimal",
-    precision: 10,
-    scale: 2,
-    transformer: decimalTransformer,
-  })
-  price: number;
-
-  @Column({ type: "int" })
-  baseDuration: number; // in minutes
 
   @Column({ type: "boolean", default: false })
   isDisabled: boolean;

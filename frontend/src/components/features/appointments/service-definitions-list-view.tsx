@@ -47,7 +47,7 @@ export const ServiceDefinitionsListView = () => {
       {
         accessorKey: "description",
         header: "Description",
-        size: 300,
+        size: 250,
         Cell: ({ cell }) => {
           const value = cell.getValue<string | null>();
           return value?.slice(0, 100) || "";
@@ -56,11 +56,22 @@ export const ServiceDefinitionsListView = () => {
       {
         accessorKey: "category",
         header: "Category",
-        size: 150,
+        size: 120,
         Cell: ({ row }) => {
           const category = row.original.category;
           return category ? category.name : "";
         },
+      },
+      {
+        accessorKey: "price",
+        header: "Price",
+        size: 100,
+        Cell: ({ cell }) => `${cell.getValue<number>().toFixed(2)}€`,
+      },
+      {
+        accessorKey: "baseDuration",
+        header: "Duration (min)",
+        size: 100,
       },
       {
         accessorKey: "isDisabled",
@@ -109,6 +120,20 @@ export const ServiceDefinitionsListView = () => {
       validationRules: [ValidationRules.maxLength(1000)],
     },
     {
+      name: "price",
+      label: "Price (€)",
+      type: "number",
+      required: true,
+      validationRules: [ValidationRules.min(0)],
+    },
+    {
+      name: "baseDuration",
+      label: "Duration (minutes)",
+      type: "number",
+      required: true,
+      validationRules: [ValidationRules.min(1), ValidationRules.max(480)],
+    },
+    {
       name: "categoryId",
       label: "Category",
       type: "select",
@@ -130,6 +155,16 @@ export const ServiceDefinitionsListView = () => {
     { name: "id", label: "ID" },
     { name: "name", label: "Name" },
     { name: "description", label: "Description" },
+    {
+      name: "price",
+      label: "Price",
+      render: (value) => `${(value as number).toFixed(2)}€`,
+    },
+    {
+      name: "baseDuration",
+      label: "Duration",
+      render: (value) => `${value} minutes`,
+    },
     { name: "category.name", label: "Category" },
     { name: "isDisabled", label: "Disabled" },
     { name: "createdAt", label: "Created At" },
@@ -140,6 +175,8 @@ export const ServiceDefinitionsListView = () => {
     await createMutation.mutateAsync({
       name: String(values.name),
       description: values.description || null,
+      price: Number(values.price) || 0,
+      baseDuration: Number(values.baseDuration) || 30,
       categoryId: (values as { categoryId?: string }).categoryId || null,
       isDisabled: values.isDisabled || false,
     });
@@ -154,6 +191,11 @@ export const ServiceDefinitionsListView = () => {
       data: {
         name: values.name,
         description: values.description,
+        price: values.price !== undefined ? Number(values.price) : undefined,
+        baseDuration:
+          values.baseDuration !== undefined
+            ? Number(values.baseDuration)
+            : undefined,
         categoryId: (values as { categoryId?: string }).categoryId,
         isDisabled: values.isDisabled,
       },

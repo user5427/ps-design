@@ -2,6 +2,8 @@ export interface IServiceDefinition {
   id: string;
   name: string;
   description: string | null;
+  price: number;
+  baseDuration: number;
   isDisabled: boolean;
   businessId: string;
   categoryId: string | null;
@@ -13,6 +15,8 @@ export interface IServiceDefinition {
 export interface ICreateServiceDefinition {
   name: string;
   description?: string | null;
+  price: number;
+  baseDuration: number;
   isDisabled?: boolean;
   businessId: string;
   categoryId?: string | null;
@@ -21,6 +25,8 @@ export interface ICreateServiceDefinition {
 export interface IUpdateServiceDefinition {
   name?: string;
   description?: string | null;
+  price?: number;
+  baseDuration?: number;
   isDisabled?: boolean;
   categoryId?: string | null;
 }

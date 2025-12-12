@@ -15,8 +15,12 @@ import {
 } from "@/hooks/appointments";
 import { useStaffServices } from "@/hooks/appointments";
 import type { Appointment, AppointmentStatus } from "@/schemas/appointments";
+import { CreateAppointmentModal } from "./create-appointment-modal";
 
-const STATUS_COLORS: Record<AppointmentStatus, "default" | "primary" | "success" | "error" | "warning"> = {
+const STATUS_COLORS: Record<
+  AppointmentStatus,
+  "default" | "primary" | "success" | "error" | "warning"
+> = {
   RESERVED: "primary",
   COMPLETED: "success",
   CANCELLED: "error",
@@ -40,11 +44,34 @@ export const AppointmentsListView = () => {
       staffServices
         .filter((ss) => !ss.isDisabled)
         .map((ss) => ({
-          label: `${ss.employee.name} - ${ss.serviceDefinition.name} (${ss.price.toFixed(2)}€)`,
+          label: `${ss.employee.name} - ${ss.serviceDefinition.name} (${ss.serviceDefinition.price.toFixed(2)}€)`,
           value: ss.id,
+          baseDuration: ss.serviceDefinition.baseDuration,
         })),
     [staffServices],
   );
+
+  const serviceDefinitionOptions = useMemo(() => {
+    // Group staff services by service definition and get the first duration for each
+    const serviceDefMap = new Map<
+      string,
+      { label: string; value: string; baseDuration: number }
+    >();
+    
+    staffServices
+      .filter((ss) => !ss.isDisabled)
+      .forEach((ss) => {
+        if (!serviceDefMap.has(ss.serviceDefinition.id)) {
+          serviceDefMap.set(ss.serviceDefinition.id, {
+            label: ss.serviceDefinition.name,
+            value: ss.serviceDefinition.id,
+            baseDuration: ss.serviceDefinition.baseDuration,
+          });
+        }
+      });
+    
+    return Array.from(serviceDefMap.values());
+  }, [staffServices]);
 
   const columns = useMemo<MRT_ColumnDef<Appointment>[]>(
     () => [
@@ -75,10 +102,10 @@ export const AppointmentsListView = () => {
         },
       },
       {
-        accessorKey: "blockDuration",
+        accessorKey: "service.baseDuration",
         header: "Duration",
         size: 100,
-        Cell: ({ cell }) => `${cell.getValue<number>()} min`,
+        Cell: ({ row }) => `${row.original.service?.baseDuration || 0} min`,
       },
       {
         accessorKey: "status",
@@ -136,13 +163,6 @@ export const AppointmentsListView = () => {
       required: true,
     },
     {
-      name: "blockDuration",
-      label: "Duration (minutes)",
-      type: "number",
-      required: true,
-      validationRules: [ValidationRules.min(1), ValidationRules.max(480)],
-    },
-    {
       name: "notes",
       label: "Notes",
       type: "textarea",
@@ -181,13 +201,6 @@ export const AppointmentsListView = () => {
       required: false,
     },
     {
-      name: "blockDuration",
-      label: "Duration (minutes)",
-      type: "number",
-      required: false,
-      validationRules: [ValidationRules.min(1), ValidationRules.max(480)],
-    },
-    {
       name: "notes",
       label: "Notes",
       type: "textarea",
@@ -216,7 +229,7 @@ export const AppointmentsListView = () => {
         value ? new Date(value as string).toLocaleString() : "-",
     },
     {
-      name: "blockDuration",
+      name: "service.baseDuration",
       label: "Duration",
       render: (value) => `${value} minutes`,
     },
@@ -233,7 +246,6 @@ export const AppointmentsListView = () => {
       customerPhone?: string;
       customerEmail?: string;
       startTime?: string;
-      blockDuration?: number;
       notes?: string;
     };
 
@@ -243,7 +255,6 @@ export const AppointmentsListView = () => {
       customerPhone: data.customerPhone || null,
       customerEmail: data.customerEmail || null,
       startTime: data.startTime || new Date().toISOString(),
-      blockDuration: Number(data.blockDuration) || 30,
       notes: data.notes || null,
     });
   };
@@ -254,7 +265,6 @@ export const AppointmentsListView = () => {
       customerPhone?: string;
       customerEmail?: string;
       startTime?: string;
-      blockDuration?: number;
       notes?: string;
     };
 
@@ -265,10 +275,6 @@ export const AppointmentsListView = () => {
         customerPhone: data.customerPhone,
         customerEmail: data.customerEmail,
         startTime: data.startTime,
-        blockDuration:
-          data.blockDuration !== undefined
-            ? Number(data.blockDuration)
-            : undefined,
         notes: data.notes,
       },
     });
@@ -295,6 +301,18 @@ export const AppointmentsListView = () => {
       createModalTitle="Create Appointment"
       editModalTitle="Edit Appointment"
       viewModalTitle="View Appointment"
+      renderCustomCreateModal={({ open, onClose, onSuccess }) => (
+        <CreateAppointmentModal
+          open={open}
+          onClose={onClose}
+          onCreate={async (values) => {
+            await handleCreate(values);
+            onSuccess();
+          }}
+          staffServiceOptions={staffServiceOptions}
+          serviceDefinitionOptions={serviceDefinitionOptions}
+        />
+      )}
     />
   );
 };

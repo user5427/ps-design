@@ -1,6 +1,10 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { getAvailabilityByUserId, bulkSetAvailability } from "./service";
+import {
+  getAvailabilityByUserId,
+  bulkSetAvailability,
+  getAvailableTimeSlots,
+} from "./service";
 import { getBusinessId } from "@/shared/auth-utils";
 import { handleServiceError } from "@/shared/error-handler";
 import {
@@ -8,6 +12,8 @@ import {
   BulkSetAvailabilitySchema,
   UserIdForAvailabilityParam,
   type UserIdForAvailabilityParams,
+  GetAvailableTimeSlotsQuerySchema,
+  type GetAvailableTimeSlotsQuery,
 } from "@ps-design/schemas/appointments/availability";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
@@ -81,6 +87,39 @@ export default async function availabilityRoutes(fastify: FastifyInstance) {
       try {
         await bulkSetAvailability(fastify, businessId, userId, request.body);
         return reply.send();
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
+
+  server.get<{ Querystring: GetAvailableTimeSlotsQuery }>(
+    "/timeslots",
+    {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.APPOINTMENTS_READ),
+      ],
+      schema: {
+        querystring: GetAvailableTimeSlotsQuerySchema,
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Querystring: GetAvailableTimeSlotsQuery;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
+
+      try {
+        const result = await getAvailableTimeSlots(
+          fastify,
+          businessId,
+          request.query,
+        );
+        return reply.send(result);
       } catch (error) {
         return handleServiceError(error, reply);
       }

@@ -2,12 +2,18 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getAvailabilityByUserId,
   bulkSetAvailability,
+  getAvailableTimeSlots,
 } from "@/api/appointments";
-import type { BulkSetAvailabilityBody } from "@ps-design/schemas/appointments/availability";
+import type {
+  BulkSetAvailabilityBody,
+  GetAvailableTimeSlotsQuery,
+} from "@ps-design/schemas/appointments/availability";
 
 export const availabilityKeys = {
   all: ["availability"] as const,
   user: (userId: string) => [...availabilityKeys.all, "user", userId] as const,
+  timeSlots: (query: GetAvailableTimeSlotsQuery) =>
+    [...availabilityKeys.all, "timeSlots", query] as const,
 };
 
 export function useUserAvailability(userId: string | undefined) {
@@ -34,5 +40,17 @@ export function useUpdateAvailability() {
         queryKey: availabilityKeys.user(userId),
       });
     },
+  });
+}
+
+export function useAvailableTimeSlots(query: GetAvailableTimeSlotsQuery) {
+  return useQuery({
+    queryKey: availabilityKeys.timeSlots(query),
+    queryFn: () => getAvailableTimeSlots(query),
+    enabled:
+      !!query.date &&
+      (!!query.staffServiceId ||
+        !!query.serviceDefinitionId ||
+        !!query.employeeId),
   });
 }

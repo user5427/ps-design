@@ -20,7 +20,6 @@ const EmployeeSchema = z.object({
   email: z.string(),
 });
 
-
 const ServiceSchema = z.object({
   id: uuid(),
   price: z.number(),
@@ -35,7 +34,6 @@ export const AppointmentResponseSchema = z.object({
   customerPhone: z.string().nullable(),
   customerEmail: z.string().nullable(),
   startTime: datetime(),
-  blockDuration: z.number(),
   status: AppointmentStatusEnum,
   notes: z.string().nullable(),
   service: ServiceSchema,
