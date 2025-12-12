@@ -22,12 +22,12 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { FormAlert } from "@/components/elements/form";
 import { getReadableError } from "@/utils/get-readable-error";
 import type {
-  CreateMenuItem,
+  CreateMenuItemBody,
   MenuItemCategory,
   MenuItem,
-  UpdateMenuItem,
-} from "@/schemas/menu";
-import type { Product } from "@/schemas/inventory";
+  UpdateMenuItemBody,
+} from "@ps-design/schemas/menu";
+import type { ProductResponse } from "@ps-design/schemas/inventory/product";
 
 interface BaseProductRecipe {
   productId: string;
@@ -49,9 +49,9 @@ interface MenuItemFormModalProps {
   mode: "create" | "edit";
   initialData?: MenuItem | null;
   categories: MenuItemCategory[];
-  products: Product[];
+  products: ProductResponse[];
   onSubmit: (
-    data: CreateMenuItem | { id: string; data: UpdateMenuItem },
+    data: CreateMenuItemBody | { id: string; data: UpdateMenuItemBody },
   ) => Promise<void>;
   onSuccess?: () => void;
 }
@@ -199,7 +199,7 @@ const useMenuItemForm = ({
       };
 
       if (mode === "create") {
-        await onSubmit(commonData as CreateMenuItem);
+        await onSubmit(commonData as CreateMenuItemBody);
       } else if (initialData) {
         await onSubmit({
           id: initialData.id,
@@ -207,7 +207,7 @@ const useMenuItemForm = ({
             ...commonData,
             removeVariationIds:
               removedVariationIds.length > 0 ? removedVariationIds : undefined,
-          } as UpdateMenuItem,
+          } as UpdateMenuItemBody,
         });
       }
 
@@ -404,7 +404,7 @@ const BasicInfoSection: React.FC<{
 
 const BaseProductsSection: React.FC<{
   baseProducts: BaseProductRecipe[];
-  products: Product[];
+  products: ProductResponse[];
   errors: Record<string, string>;
   isSubmitting: boolean;
   onAdd: () => void;
@@ -456,7 +456,7 @@ const BaseProductsSection: React.FC<{
           onClick={onAdd}
           disabled={isSubmitting}
         >
-          Add Product
+          Add ProductResponse
         </Button>
       </Stack>
       {errors.baseProducts && (
@@ -498,7 +498,7 @@ const BaseProductsSection: React.FC<{
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="Product"
+                      label="ProductResponse"
                       placeholder="Select product..."
                       required
                     />
@@ -551,7 +551,7 @@ const BaseProductsSection: React.FC<{
 
 const VariationsSection: React.FC<{
   variations: VariationFormData[];
-  products: Product[];
+  products: ProductResponse[];
   errors: Record<string, string>;
   isSubmitting: boolean;
   onAdd: () => void;
@@ -792,7 +792,7 @@ const VariationsSection: React.FC<{
                               renderInput={(params) => (
                                 <TextField
                                   {...params}
-                                  label="Product"
+                                  label="ProductResponse"
                                   size="small"
                                 />
                               )}

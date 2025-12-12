@@ -17,8 +17,7 @@ import {
   type ChangePasswordBody,
   type LoginBody,
 } from "@ps-design/schemas/auth";
-
-const SALT_LENGTH = 10;
+import { AUTH_CONSTANTS } from "@/constants/auth.constants";
 
 export async function login(
   fastify: FastifyInstance,
@@ -98,7 +97,10 @@ export async function changePassword(
     };
   }
 
-  const newHash = await bcrypt.hash(newPassword, SALT_LENGTH);
+  const newHash = await bcrypt.hash(
+    newPassword,
+    AUTH_CONSTANTS.BCRYPT_SALT_LENGTH,
+  );
 
   await fastify.db.user.update(userId, {
     passwordHash: newHash,

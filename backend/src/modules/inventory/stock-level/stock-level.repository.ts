@@ -1,6 +1,10 @@
 import type { Repository } from "typeorm";
+import { executePaginatedQuery } from "@/shared/pagination-utils";
+import { STOCK_LEVEL_MAPPING } from "@ps-design/constants/inventory/stock-level";
 import { StockLevel } from "./stock-level.entity";
 import type { ICreateStockLevel } from "./stock-level.types";
+import type { PaginatedResult } from "@ps-design/schemas/pagination";
+import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export class StockLevelRepository {
   constructor(private repository: Repository<StockLevel>) {}
@@ -15,6 +19,22 @@ export class StockLevelRepository {
     return this.repository.find({
       where: { businessId },
     });
+  }
+
+  async findAllPaginated(
+    businessId: string,
+    query: UniversalPaginationQuery,
+  ): Promise<PaginatedResult<StockLevel>> {
+    const qb = this.repository.createQueryBuilder("level");
+
+    qb.where("level.businessId = :businessId", { businessId });
+
+    return executePaginatedQuery(
+      qb,
+      query,
+      STOCK_LEVEL_MAPPING.fields,
+      "level",
+    );
   }
 
   async upsertSafe(data: ICreateStockLevel): Promise<StockLevel> {

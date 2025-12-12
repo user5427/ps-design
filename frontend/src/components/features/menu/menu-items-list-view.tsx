@@ -1,5 +1,4 @@
-import { Chip, Stack } from "@mui/material";
-import type { MRT_ColumnDef } from "material-react-table";
+import { Stack } from "@mui/material";
 import { useMemo, useCallback } from "react";
 import {
   RecordListView,
@@ -9,68 +8,23 @@ import {
 import {
   useCreateMenuItem,
   useBulkDeleteMenuItems,
-  useMenuItems,
   useUpdateMenuItem,
-} from "@/hooks/menu";
-import { useMenuCategories } from "@/hooks/menu";
-import { useProducts } from "@/hooks/inventory";
-import type { MenuItem, CreateMenuItem, UpdateMenuItem } from "@/schemas/menu";
+} from "@/queries/menu";
+import { usePaginatedQuery } from "@/queries/pagination";
+import { MENU_ITEM_MAPPING } from "@ps-design/constants/menu/items";
+import type {
+  MenuItemResponse as MenuItem,
+  CreateMenuItemBody,
+  UpdateMenuItemBody,
+} from "@ps-design/schemas/menu/items";
 import { MenuItemFormModal } from "./menu-item-form-modal";
 
 export const MenuItemsListView = () => {
-  const { data: menuItems = [], isLoading, error, refetch } = useMenuItems();
-  const { data: categories = [] } = useMenuCategories();
-  const { data: products = [] } = useProducts();
+  const { items: _menuItems = [], refetch } =
+    usePaginatedQuery(MENU_ITEM_MAPPING);
   const createMutation = useCreateMenuItem();
   const updateMutation = useUpdateMenuItem();
   const bulkDeleteMutation = useBulkDeleteMenuItems();
-
-  const columns = useMemo<MRT_ColumnDef<MenuItem>[]>(
-    () => [
-      {
-        accessorKey: "baseName",
-        header: "Name",
-        size: 180,
-      },
-      {
-        accessorKey: "basePrice",
-        header: "Base Price",
-        size: 100,
-        Cell: ({ cell }) => `${cell.getValue<number>().toFixed(2)}€`,
-      },
-      {
-        accessorKey: "category",
-        header: "Category",
-        size: 150,
-        Cell: ({ row }) => row.original.category?.name || "",
-      },
-      {
-        accessorKey: "isAvailable",
-        header: "Available",
-        size: 100,
-        Cell: ({ cell }) => (
-          <Chip
-            label={cell.getValue<boolean>() ? "Yes" : "No"}
-            color={cell.getValue<boolean>() ? "success" : "default"}
-            size="small"
-          />
-        ),
-      },
-      {
-        accessorKey: "isDisabled",
-        header: "Status",
-        size: 100,
-        Cell: ({ cell }) => (
-          <Chip
-            label={cell.getValue<boolean>() ? "Disabled" : "Active"}
-            color={cell.getValue<boolean>() ? "default" : "success"}
-            size="small"
-          />
-        ),
-      },
-    ],
-    [],
-  );
 
   const viewFields: ViewFieldDefinition[] = useMemo(
     () => [
@@ -175,26 +129,26 @@ export const MenuItemsListView = () => {
   );
 
   const handleFormSubmit = useCallback(
-    async (data: CreateMenuItem | { id: string; data: UpdateMenuItem }) => {
+    async (
+      data: CreateMenuItemBody | { id: string; data: UpdateMenuItemBody },
+    ) => {
       if ("id" in data) {
         await updateMutation.mutateAsync(data);
       } else {
         await createMutation.mutateAsync(data);
       }
+      await refetch();
     },
-    [createMutation, updateMutation],
+    [createMutation, updateMutation, refetch],
   );
 
   const handleDelete = useCallback(
     async (ids: string[]) => {
       await bulkDeleteMutation.mutateAsync(ids);
+      await refetch();
     },
-    [bulkDeleteMutation],
+    [bulkDeleteMutation, refetch],
   );
-
-  const handleSuccess = useCallback(() => {
-    refetch();
-  }, [refetch]);
 
   const renderCustomCreateModal = useCallback(
     (props: CustomFormModalProps<MenuItem>) => (
@@ -203,13 +157,16 @@ export const MenuItemsListView = () => {
         onClose={props.onClose}
         mode="create"
         initialData={null}
-        categories={categories}
-        products={products}
+        categories={[]}
+        products={[]}
         onSubmit={handleFormSubmit}
-        onSuccess={props.onSuccess}
+        onSuccess={async () => {
+          props.onSuccess();
+          await refetch();
+        }}
       />
     ),
-    [categories, products, handleFormSubmit],
+    [handleFormSubmit, refetch],
   );
 
   const renderCustomEditModal = useCallback(
@@ -219,28 +176,26 @@ export const MenuItemsListView = () => {
         onClose={props.onClose}
         mode="edit"
         initialData={props.initialData}
-        categories={categories}
-        products={products}
+        categories={[]}
+        products={[]}
         onSubmit={handleFormSubmit}
-        onSuccess={props.onSuccess}
+        onSuccess={async () => {
+          props.onSuccess();
+          await refetch();
+        }}
       />
     ),
-    [categories, products, handleFormSubmit],
+    [handleFormSubmit, refetch],
   );
 
   return (
     <RecordListView<MenuItem>
-      title="Menu Items"
-      columns={columns}
-      data={menuItems}
-      isLoading={isLoading}
-      error={error}
+      mapping={MENU_ITEM_MAPPING}
       viewFields={viewFields}
       onDelete={handleDelete}
-      onSuccess={handleSuccess}
       renderCustomCreateModal={renderCustomCreateModal}
       renderCustomEditModal={renderCustomEditModal}
-      // need to pass onCreate/onEdit to enable these actions
+      // These are needed to enable create/edit actions
       onCreate={async () => {}}
       onEdit={async () => {}}
       viewModalTitle="View Menu Item"

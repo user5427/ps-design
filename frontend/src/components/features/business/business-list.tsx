@@ -1,5 +1,4 @@
-import type { MRT_ColumnDef } from "material-react-table";
-import { useMemo, useCallback } from "react";
+import { useCallback } from "react";
 import {
   RecordListView,
   type FormFieldDefinition,
@@ -7,39 +6,20 @@ import {
   ValidationRules,
 } from "@/components/elements/record-list-view";
 import {
-  useBusinessesPaginated,
   useDeleteBusiness,
   useCreateBusiness,
+  useUpdateBusiness,
 } from "@/queries/business";
-import { apiClient } from "@/api/client";
 import type { BusinessResponse } from "@ps-design/schemas/business";
-import { useQueryClient } from "@tanstack/react-query";
+import {
+  BUSINESS_MAPPING,
+  BUSINESS_CONSTRAINTS,
+} from "@ps-design/constants/business";
 
 export const BusinessList: React.FC = () => {
-  const { data, isLoading, error, refetch } = useBusinessesPaginated(
-    1,
-    100,
-    undefined,
-  );
-  const queryClient = useQueryClient();
   const createMutation = useCreateBusiness();
+  const updateMutation = useUpdateBusiness();
   const deleteMutation = useDeleteBusiness();
-
-  const columns = useMemo<MRT_ColumnDef<BusinessResponse>[]>(
-    () => [
-      {
-        accessorKey: "name",
-        header: "Name",
-        size: 200,
-      },
-      {
-        accessorKey: "id",
-        header: "ID",
-        size: 200,
-      },
-    ],
-    [],
-  );
 
   const createFormFields: FormFieldDefinition[] = [
     {
@@ -48,8 +28,8 @@ export const BusinessList: React.FC = () => {
       type: "text",
       required: true,
       validationRules: [
-        ValidationRules.minLength(1),
-        ValidationRules.maxLength(100),
+        ValidationRules.minLength(BUSINESS_CONSTRAINTS.NAME.MIN_LENGTH),
+        ValidationRules.maxLength(BUSINESS_CONSTRAINTS.NAME.MAX_LENGTH),
       ],
     },
   ];
@@ -61,8 +41,8 @@ export const BusinessList: React.FC = () => {
       type: "text",
       required: true,
       validationRules: [
-        ValidationRules.minLength(1),
-        ValidationRules.maxLength(100),
+        ValidationRules.minLength(BUSINESS_CONSTRAINTS.NAME.MIN_LENGTH),
+        ValidationRules.maxLength(BUSINESS_CONSTRAINTS.NAME.MAX_LENGTH),
       ],
     },
   ];
@@ -82,12 +62,12 @@ export const BusinessList: React.FC = () => {
 
   const handleEdit = useCallback(
     async (id: string, values: Partial<BusinessResponse>) => {
-      await apiClient.put(`/business/${id}`, {
+      await updateMutation.mutateAsync({
+        id,
         name: String(values.name),
       });
-      queryClient.invalidateQueries({ queryKey: ["business"] });
     },
-    [queryClient],
+    [updateMutation],
   );
 
   const handleDelete = async (ids: string[]) => {
@@ -96,22 +76,15 @@ export const BusinessList: React.FC = () => {
     }
   };
 
-  const businessData = data?.items || [];
-
   return (
     <RecordListView<BusinessResponse>
-      title="Businesses"
-      columns={columns}
-      data={businessData}
-      isLoading={isLoading}
-      error={error}
+      mapping={BUSINESS_MAPPING}
       createFormFields={createFormFields}
       editFormFields={editFormFields}
       viewFields={viewFields}
       onCreate={handleCreate}
       onEdit={handleEdit}
       onDelete={handleDelete}
-      onSuccess={() => refetch()}
       createModalTitle="Create Business"
       editModalTitle="Edit Business"
       viewModalTitle="View Business"

@@ -4,7 +4,7 @@ import httpStatus from "http-status";
 import {
   bulkDeleteCategories,
   createCategory,
-  getAllCategories,
+  getAllCategoriesPaginated,
   getCategoryById,
   updateCategory,
 } from "./service";
@@ -17,11 +17,16 @@ import {
   type CategoryIdParams,
   type UpdateMenuItemCategoryBody,
   UpdateMenuItemCategorySchema,
+  PaginatedMenuItemCategoryResponseSchema,
 } from "@ps-design/schemas/menu/category";
 import {
   BulkDeleteSchema,
   type BulkDeleteBody,
 } from "@ps-design/schemas/shared";
+import {
+  UniversalPaginationQuerySchema,
+  type UniversalPaginationQuery,
+} from "@ps-design/schemas/pagination";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
 
@@ -29,16 +34,31 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope } = createScopeMiddleware(fastify);
 
-  server.get(
+  server.get<{ Querystring: UniversalPaginationQuery }>(
     "/",
     {
       onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
+      schema: {
+        querystring: UniversalPaginationQuerySchema,
+        response: {
+          200: PaginatedMenuItemCategoryResponseSchema,
+        },
+      },
     },
-    async (request: FastifyRequest, reply: FastifyReply) => {
+    async (
+      request: FastifyRequest<{
+        Querystring: UniversalPaginationQuery;
+      }>,
+      reply: FastifyReply,
+    ) => {
       const businessId = getBusinessId(request, reply);
       if (!businessId) return;
 
-      const categories = await getAllCategories(fastify, businessId);
+      const categories = await getAllCategoriesPaginated(
+        fastify,
+        businessId,
+        request.query,
+      );
       return reply.send(categories);
     },
   );
