@@ -35,6 +35,17 @@ export const sidebarSections: Section[] = [
     ],
   },
   {
+    label: "Admin",
+    icon: <SettingsIcon />,
+    children: [
+      {
+        label: "Manage Users",
+        icon: <ViewListIcon />,
+        path: URLS.ADMIN_USERS,
+      },
+    ],
+  },
+  {
     label: "Inventory",
     icon: <Inventory2Icon />,
     children: [

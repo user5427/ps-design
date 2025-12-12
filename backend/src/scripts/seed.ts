@@ -28,6 +28,19 @@ async function main() {
   const roleScopeRepo = dataSource.getRepository(RoleScope);
 
   try {
+    // Create or reuse system business for superadmin
+    const systemBusinessName = "System";
+    let systemBusiness = await businessRepo.findOne({
+      where: { name: systemBusinessName },
+    });
+    if (!systemBusiness) {
+      systemBusiness = businessRepo.create({ name: systemBusinessName });
+      systemBusiness = await businessRepo.save(systemBusiness);
+      console.log(`Created system business: ${systemBusiness.name}`);
+    } else {
+      console.log(`Using existing system business: ${systemBusiness.name}`);
+    }
+
     // Create or reuse a default business
     const businessName = "Default Business";
     let business = await businessRepo.findOne({
@@ -46,22 +59,60 @@ async function main() {
     const passwordHash = await bcrypt.hash(defaultPassword, 10);
 
     // Seed Roles
-    const roleNames = ["SUPER_ADMIN", "ADMIN", "USER"];
+    const roleConfigs: Array<{
+      name: string;
+      businessId: string;
+      isSystemRole: boolean;
+      isDeletable: boolean;
+    }> = [
+      {
+        name: "SUPERADMIN",
+        businessId: systemBusiness.id,
+        isSystemRole: true,
+        isDeletable: false,
+      },
+      {
+        name: "OWNER",
+        businessId: business.id,
+        isSystemRole: true,
+        isDeletable: false,
+      },
+      {
+        name: "ADMIN",
+        businessId: business.id,
+        isSystemRole: false,
+        isDeletable: true,
+      },
+      {
+        name: "USER",
+        businessId: business.id,
+        isSystemRole: false,
+        isDeletable: true,
+      },
+    ];
+
     const roles = new Map<string, Role>();
 
-    for (const roleName of roleNames) {
-      let role = await roleRepo.findOne({ where: { name: roleName } });
+    for (const config of roleConfigs) {
+      let role = await roleRepo.findOne({
+        where: { name: config.name, businessId: config.businessId },
+      });
       if (!role) {
         role = roleRepo.create({
-          name: roleName,
-          description: `${roleName} role with appropriate permissions`,
+          name: config.name,
+          description: `${config.name} role with appropriate permissions`,
+          businessId: config.businessId,
+          isSystemRole: config.isSystemRole,
+          isDeletable: config.isDeletable,
         });
         role = await roleRepo.save(role);
-        console.log(`Created role: ${role.name}`);
+        console.log(
+          `Created role: ${role.name} for business ${config.businessId}`,
+        );
       } else {
         console.log(`Role already exists: ${role.name}`);
       }
-      roles.set(roleName, role);
+      roles.set(config.name, role);
     }
 
     // Seed Scopes
@@ -90,8 +141,28 @@ async function main() {
       scopes: string[];
     }> = [
       {
-        roleName: "SUPER_ADMIN",
-        scopes: Object.values(ScopeNames), // All scopes
+        roleName: "SUPERADMIN",
+        scopes: [ScopeNames.SUPERADMIN], // Superadmin scope
+      },
+      {
+        roleName: "OWNER",
+        scopes: [
+          ScopeNames.OWNER,
+          ScopeNames.USER_READ,
+          ScopeNames.USER_WRITE,
+          ScopeNames.USER_DELETE,
+          ScopeNames.ROLE_READ,
+          ScopeNames.ROLE_WRITE,
+          ScopeNames.ROLE_DELETE,
+          ScopeNames.INVENTORY_READ,
+          ScopeNames.INVENTORY_WRITE,
+          ScopeNames.INVENTORY_DELETE,
+          ScopeNames.MENU_READ,
+          ScopeNames.MENU_WRITE,
+          ScopeNames.MENU_DELETE,
+          ScopeNames.BUSINESS_READ,
+          ScopeNames.BUSINESS_WRITE,
+        ],
       },
       {
         roleName: "ADMIN",
@@ -99,7 +170,6 @@ async function main() {
           ScopeNames.INVENTORY_READ,
           ScopeNames.INVENTORY_WRITE,
           ScopeNames.USER_READ,
-          ScopeNames.USER_WRITE,
           ScopeNames.BUSINESS_READ,
           ScopeNames.MENU_DELETE,
           ScopeNames.MENU_READ,
@@ -145,8 +215,15 @@ async function main() {
       {
         email: "superadmin@demo.local",
         name: "SupAdminas",
-        roleNames: ["SUPER_ADMIN"],
-        businessId: null,
+        roleNames: ["SUPERADMIN"],
+        businessId: systemBusiness.id,
+        isPasswordResetRequired: true,
+      },
+      {
+        email: "owner@demo.local",
+        name: "Business Owner",
+        roleNames: ["OWNER"],
+        businessId: business.id,
         isPasswordResetRequired: true,
       },
       {

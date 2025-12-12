@@ -8,6 +8,10 @@ export const URLS = {
   BUSINESS_LIST: "/businesses",
   BUSINESS_CREATE: "/businesses/create",
   BUSINESS_EDIT: (businessId: string) => `/businesses/${businessId}/edit`,
+  BUSINESS_ROLES: (businessId: string) => `/businesses/${businessId}/roles`,
+  BUSINESS_USERS: (businessId: string) => `/businesses/${businessId}/users`,
+  // Admin
+  ADMIN_USERS: "/admin/users",
   // Inventory
   INVENTORY_UNITS: "/inventory/units",
   INVENTORY_PRODUCTS: "/inventory/products",

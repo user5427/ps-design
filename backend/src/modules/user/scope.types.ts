@@ -1,5 +1,7 @@
 // Scope definitions - defined in application code, stored in database as ScopeEntity
 export enum ScopeNames {
+  SUPERADMIN = "SUPERADMIN",
+  OWNER = "OWNER",
   INVENTORY_READ = "INVENTORY_READ",
   INVENTORY_WRITE = "INVENTORY_WRITE",
   INVENTORY_DELETE = "INVENTORY_DELETE",
@@ -9,6 +11,9 @@ export enum ScopeNames {
   USER_READ = "USER_READ",
   USER_WRITE = "USER_WRITE",
   USER_DELETE = "USER_DELETE",
+  ROLE_READ = "ROLE_READ",
+  ROLE_WRITE = "ROLE_WRITE",
+  ROLE_DELETE = "ROLE_DELETE",
   BUSINESS_READ = "BUSINESS_READ",
   BUSINESS_WRITE = "BUSINESS_WRITE",
   BUSINESS_DELETE = "BUSINESS_DELETE",
@@ -20,6 +25,14 @@ export const SCOPE_CONFIG: Record<
   ScopeNames,
   { name: ScopeNames; description: string }
 > = {
+  [ScopeNames.SUPERADMIN]: {
+    name: ScopeNames.SUPERADMIN,
+    description: "Super administrator with full system access",
+  },
+  [ScopeNames.OWNER]: {
+    name: ScopeNames.OWNER,
+    description: "Business owner with full business access",
+  },
   [ScopeNames.INVENTORY_READ]: {
     name: ScopeNames.INVENTORY_READ,
     description: "Read inventory data",
@@ -55,6 +68,18 @@ export const SCOPE_CONFIG: Record<
   [ScopeNames.USER_DELETE]: {
     name: ScopeNames.USER_DELETE,
     description: "Delete user data",
+  },
+  [ScopeNames.ROLE_READ]: {
+    name: ScopeNames.ROLE_READ,
+    description: "Read role data",
+  },
+  [ScopeNames.ROLE_WRITE]: {
+    name: ScopeNames.ROLE_WRITE,
+    description: "Create and update roles",
+  },
+  [ScopeNames.ROLE_DELETE]: {
+    name: ScopeNames.ROLE_DELETE,
+    description: "Delete roles",
   },
   [ScopeNames.BUSINESS_READ]: {
     name: ScopeNames.BUSINESS_READ,
