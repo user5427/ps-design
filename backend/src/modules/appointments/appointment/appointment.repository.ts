@@ -157,30 +157,6 @@ export class AppointmentRepository {
       throw new BadRequestError("Cannot update closed appointment");
     }
 
-    if (data.startTime !== undefined) {
-      const newStartTime = data.startTime;
-      const duration = appointment.service.serviceDefinition.baseDuration;
-
-      // Check employee availability for the new time
-      const isAvailable = await this.availabilityRepository.isEmployeeAvailable(
-        appointment.service.employeeId,
-        businessId,
-        newStartTime,
-        duration,
-      );
-
-      if (!isAvailable) {
-        throw new BadRequestError("Employee is not available at this time");
-      }
-
-      await this.checkForOverlap(
-        appointment.serviceId,
-        newStartTime,
-        duration,
-        id,
-      );
-    }
-
     this.repository.update(id, data);
   }
 

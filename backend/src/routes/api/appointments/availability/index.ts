@@ -25,10 +25,7 @@ export default async function availabilityRoutes(fastify: FastifyInstance) {
   server.get<{ Params: UserIdForAvailabilityParams }>(
     "/user/:userId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_READ),
-      ],
+      onRequest: [fastify.authenticate],
       schema: {
         params: UserIdForAvailabilityParam,
       },
@@ -63,10 +60,7 @@ export default async function availabilityRoutes(fastify: FastifyInstance) {
   }>(
     "/user/:userId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
-      ],
+      onRequest: [fastify.authenticate],
       schema: {
         params: UserIdForAvailabilityParam,
         body: BulkSetAvailabilitySchema,

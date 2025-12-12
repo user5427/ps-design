@@ -277,7 +277,10 @@ export class AvailabilityRepository {
     let employeeStaffServiceMap: Map<string, string> = new Map();
 
     if (params.employeeId) {
-      employeeStaffServiceMap.set(params.employeeId, params.staffServiceId || "");
+      employeeStaffServiceMap.set(
+        params.employeeId,
+        params.staffServiceId || "",
+      );
     } else if (params.staffServiceId) {
       const staffService = await this.dataSource
         .getRepository("StaffService")
@@ -381,7 +384,8 @@ export class AvailabilityRepository {
           const overlappingAppointment = appointments.find((appt: any) => {
             const apptStart = new Date(appt.startTime);
             const apptEnd = new Date(
-              apptStart.getTime() + appt.service.serviceDefinition.baseDuration * 60 * 1000,
+              apptStart.getTime() +
+                appt.service.serviceDefinition.baseDuration * 60 * 1000,
             );
             return slotStart < apptEnd && slotEnd > apptStart;
           });

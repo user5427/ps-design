@@ -57,7 +57,7 @@ export const AppointmentsListView = () => {
       string,
       { label: string; value: string; baseDuration: number }
     >();
-    
+
     staffServices
       .filter((ss) => !ss.isDisabled)
       .forEach((ss) => {
@@ -69,7 +69,7 @@ export const AppointmentsListView = () => {
           });
         }
       });
-    
+
     return Array.from(serviceDefMap.values());
   }, [staffServices]);
 
@@ -195,12 +195,6 @@ export const AppointmentsListView = () => {
       required: false,
     },
     {
-      name: "startTime",
-      label: "Start Time",
-      type: "datetime",
-      required: false,
-    },
-    {
       name: "notes",
       label: "Notes",
       type: "textarea",
@@ -264,7 +258,6 @@ export const AppointmentsListView = () => {
       customerName?: string;
       customerPhone?: string;
       customerEmail?: string;
-      startTime?: string;
       notes?: string;
     };
 
@@ -274,7 +267,6 @@ export const AppointmentsListView = () => {
         customerName: data.customerName,
         customerPhone: data.customerPhone,
         customerEmail: data.customerEmail,
-        startTime: data.startTime,
         notes: data.notes,
       },
     });

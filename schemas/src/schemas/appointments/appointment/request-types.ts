@@ -35,7 +35,6 @@ export const UpdateAppointmentSchema = z.object({
     .optional(),
   customerPhone: z.string().nullable().optional(),
   customerEmail: z.email().nullable().optional(),
-  startTime: datetime().optional(),
   notes: z
     .string()
     .max(

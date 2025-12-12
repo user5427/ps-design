@@ -182,10 +182,7 @@ export const ServiceDefinitionsListView = () => {
     });
   };
 
-  const handleEdit = async (
-    id: string,
-    values: Partial<ServiceDefinition>,
-  ) => {
+  const handleEdit = async (id: string, values: Partial<ServiceDefinition>) => {
     await updateMutation.mutateAsync({
       id,
       data: {

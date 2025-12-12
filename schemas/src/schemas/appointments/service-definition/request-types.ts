@@ -15,7 +15,9 @@ const MIN_PRICE_MESSAGE = `Price must be at least ${MIN_PRICE}`;
 const MIN_DURATION_MESSAGE = `Duration must be at least ${MIN_DURATION} minute`;
 const MAX_DURATION_MESSAGE = `Duration must be at most ${MAX_DURATION} minutes`;
 
-export const ServiceDefinitionIdParam = z.object({ serviceDefinitionId: uuid() });
+export const ServiceDefinitionIdParam = z.object({
+  serviceDefinitionId: uuid(),
+});
 
 export const CreateServiceDefinitionSchema = z.object({
   name: z
@@ -65,4 +67,6 @@ export type CreateServiceDefinitionBody = z.infer<
 export type UpdateServiceDefinitionBody = z.infer<
   typeof UpdateServiceDefinitionSchema
 >;
-export type ServiceDefinitionIdParams = z.infer<typeof ServiceDefinitionIdParam>;
+export type ServiceDefinitionIdParams = z.infer<
+  typeof ServiceDefinitionIdParam
+>;

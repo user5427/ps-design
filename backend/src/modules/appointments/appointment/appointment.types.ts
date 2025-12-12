@@ -31,7 +31,6 @@ export interface IUpdateAppointment {
   customerName?: string;
   customerPhone?: string | null;
   customerEmail?: string | null;
-  startTime?: Date;
   notes?: string | null;
 }
 

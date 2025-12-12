@@ -77,7 +77,8 @@ export const StaffServicesListView = () => {
         accessorKey: "serviceDefinition.price",
         header: "Price",
         size: 100,
-        Cell: ({ row }) => `${row.original.serviceDefinition?.price?.toFixed(2) || "0.00"}€`,
+        Cell: ({ row }) =>
+          `${row.original.serviceDefinition?.price?.toFixed(2) || "0.00"}€`,
       },
       {
         accessorKey: "serviceDefinition.baseDuration",

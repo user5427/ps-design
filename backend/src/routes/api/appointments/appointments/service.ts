@@ -109,7 +109,6 @@ export async function updateAppointment(
     customerName: input.customerName,
     customerPhone: input.customerPhone,
     customerEmail: input.customerEmail,
-    startTime: input.startTime ? new Date(input.startTime) : undefined,
     notes: input.notes,
   });
 }
