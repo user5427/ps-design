@@ -6,68 +6,67 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Alert,
 } from "@mui/material";
 import type React from "react";
 import { useEffect, useState, useRef } from "react";
 import { useForm } from "@tanstack/react-form";
-import { FormAlert } from "./form-alert";
+import { useMessageManager } from "../message-manager";
 
-interface FormModalProps {
+export interface FormBuilderProps {
   /** Whether the modal is open */
   open: boolean;
   /** Callback when modal should close */
   onClose: () => void;
   /** Title of the modal */
   title: string;
-  /** Form content as children (receives form instance) */
-  children: (form: any) => React.ReactNode;
+  /** Form content - build it however you want */
+  children: React.ReactNode;
   /** Callback when form is submitted */
   onSubmit: (values: Record<string, unknown>) => Promise<void>;
   /** Label for the submit button */
   submitLabel?: string;
   /** Initial form values */
   initialValues?: Record<string, unknown>;
+  /** Custom message manager (optional) */
+  messageManager?: ReturnType<typeof useMessageManager>;
 }
 
 /**
- * Flexible form modal component using TanStack Form
- *
- * Provides full control over form fields, validation, and layout.
- *
+ * FormBuilder Component
+ * 
+ * Simple form modal wrapper that consolidates fields and handles submission.
+ * Takes any form content as children - you build the form however you want.
+ * 
+ * Features:
+ * - Modal dialog management
+ * - TanStack Form integration
+ * - Submission handling
+ * - Error display
+ * - Loading state
+ * - MessageManager integration
+ * 
  * @example
  * ```tsx
- * <FormModal
+ * const formContent = (form) => (
+ *   <form.Field name="email">
+ *     {(field) => <FormText label="Email" ... />}
+ *   </form.Field>
+ * );
+ * 
+ * <FormBuilder
  *   open={open}
  *   onClose={() => setOpen(false)}
  *   title="Create Product"
- *   initialValues={{ name: "", price: 0 }}
  *   onSubmit={async (values) => {
  *     await api.post("/products", values);
  *   }}
  * >
- *   {(form) => (
- *     <>
- *       <form.Field
- *         name="name"
- *         children={(field) => (
- *           <TextField
- *             label="Name"
- *             fullWidth
- *             value={field.state.value}
- *             onChange={(e) => field.handleChange(e.target.value)}
- *             onBlur={field.handleBlur}
- *             error={!!field.state.meta.errors.length}
- *             helperText={field.state.meta.errors[0]}
- *           />
- *         )}
- *       />
- *       <Box sx={{ my: 2, p: 2 }}>Custom decoration or elements</Box>
- *     </>
- *   )}
- * </FormModal>
+ *   {formContent}
+ * </FormBuilder>
  * ```
  */
-export const FormModal: React.FC<FormModalProps> = ({
+export const FormBuilder: React.FC<FormBuilderProps> = ({
   open,
   onClose,
   title,
@@ -75,6 +74,7 @@ export const FormModal: React.FC<FormModalProps> = ({
   onSubmit,
   submitLabel = "Save",
   initialValues = {},
+  messageManager,
 }) => {
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const wasOpenRef = useRef(false);
@@ -85,11 +85,17 @@ export const FormModal: React.FC<FormModalProps> = ({
       try {
         setSubmissionError(null);
         await onSubmit(value);
+        if (messageManager) {
+          messageManager.addMessage("Form submitted successfully", "success", 3000);
+        }
         onClose();
       } catch (error) {
-        // Capture error message for display
-        const errorMessage = error instanceof Error ? error.message : "An error occurred while submitting the form";
+        const errorMessage =
+          error instanceof Error ? error.message : "An error occurred while submitting the form";
         setSubmissionError(errorMessage);
+        if (messageManager) {
+          messageManager.addMessage(errorMessage, "error");
+        }
       }
     },
   });
@@ -105,7 +111,7 @@ export const FormModal: React.FC<FormModalProps> = ({
     }
   }, [open, form]);
 
-  // Update specific field values when initialValues change (for syncing unit selection)
+  // Update specific field values when initialValues change
   useEffect(() => {
     if (open && initialValues) {
       Object.entries(initialValues).forEach(([key, value]) => {
@@ -129,20 +135,14 @@ export const FormModal: React.FC<FormModalProps> = ({
         <DialogTitle>{title}</DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            {submissionError && (
-              <FormAlert message={submissionError} severity="error" />
-            )}
+            {submissionError && <Alert severity="error">{submissionError}</Alert>}
             {form.state.submissionAttempts > 0 &&
               form.state.isSubmitting === false &&
               Object.keys(form.state.fieldMeta).some(
                 (fieldName) => form.state.fieldMeta[fieldName]?.errors?.length
-              ) && (
-                <FormAlert
-                  message="Form has errors. Please check all fields."
-                  severity="error"
-                />
-              )}
-            {children(form)}
+              ) && <Alert severity="error">Form has errors. Please check all fields.</Alert>}
+
+            {typeof children === "function" ? (children as Function)(form) : children}
           </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
