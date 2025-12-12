@@ -36,16 +36,16 @@ jobs:
       - name: Run Biome lint with auto-fix on frontend
         run: biome lint --write frontend/src
 
-      - name: Run Biome formatter on common
-        run: biome format --write common/src
+      - name: Run Biome formatter on schemas
+        run: biome format --write schemas/src
 
-      - name: Run Biome lint with auto-fix on common
-        run: biome lint --write common/src
+      - name: Run Biome lint with auto-fix on schemas
+        run: biome lint --write schemas/src
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Apply Biome linting and formatting"
-          file_pattern: backend/src frontend/src common/src
+          file_pattern: backend/src frontend/src schemas/src
           push_options: "--force-with-lease"
           skip_fetch: false
           skip_dirty_check: false
@@ -56,5 +56,5 @@ jobs:
       - name: Validate lint on frontend
         run: biome lint frontend/src
 
-      - name: Validate lint on common
-        run: biome lint common/src
+      - name: Validate lint on schemas
+        run: biome lint schemas/src

@@ -1,16 +1,12 @@
 import { IsNull, type Repository } from "typeorm";
 import { ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
-import { executePaginatedQuery } from "@/shared/pagination-utils";
-import { PRODUCT_UNIT_MAPPING } from "@ps-design/constants/inventory/product-unit";
 import type { Product } from "@/modules/inventory/product/product.entity";
 import type { ProductUnit } from "./product-unit.entity";
 import type {
   ICreateProductUnit,
   IUpdateProductUnit,
 } from "./product-unit.types";
-import type { PaginatedResult } from "@ps-design/schemas/pagination";
-import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export class ProductUnitRepository {
   constructor(
@@ -18,28 +14,11 @@ export class ProductUnitRepository {
     private productRepository: Repository<Product>,
   ) {}
 
-  async findAllPaginated(
-    businessId: string,
-    query: UniversalPaginationQuery,
-  ): Promise<PaginatedResult<ProductUnit>> {
-    const qb = this.repository.createQueryBuilder("unit");
-
-    qb.where("unit.businessId = :businessId", { businessId });
-    qb.andWhere("unit.deletedAt IS NULL");
-
-    // Handle simple search if provided
-    if (query.search) {
-      qb.andWhere("(unit.name ILIKE :search OR unit.symbol ILIKE :search)", {
-        search: `%${query.search}%`,
-      });
-    }
-
-    return executePaginatedQuery(
-      qb,
-      query,
-      PRODUCT_UNIT_MAPPING.fields,
-      "unit",
-    );
+  async findAllByBusinessId(businessId: string): Promise<ProductUnit[]> {
+    return this.repository.find({
+      where: { businessId, deletedAt: IsNull() },
+      order: { name: "ASC" },
+    });
   }
 
   async findById(id: string): Promise<ProductUnit | null> {

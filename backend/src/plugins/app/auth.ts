@@ -34,7 +34,7 @@ export default fp(async function authGuard(fastify: FastifyInstance) {
         }
 
         request.authUser = user;
-      } catch (_err) {
+      } catch (err) {
         return reply.code(HttpStatus.UNAUTHORIZED).send();
       }
     },

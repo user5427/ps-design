@@ -66,7 +66,7 @@ export const SCOPE_CONFIG: Record<
   },
   [ScopeNames.BUSINESS_DELETE]: {
     name: ScopeNames.BUSINESS_DELETE,
-    description: "Delete business",
+    description: "Delete business data",
   },
   [ScopeNames.BUSINESS_CREATE]: {
     name: ScopeNames.BUSINESS_CREATE,

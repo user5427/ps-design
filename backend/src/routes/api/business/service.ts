@@ -6,16 +6,24 @@ import type {
   PaginatedBusinessResponse,
 } from "@ps-design/schemas/business";
 import { BusinessResponseSchema } from "@ps-design/schemas/business";
-import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export async function getBusinessesPaginated(
   fastify: FastifyInstance,
-  query: UniversalPaginationQuery,
+  page: number,
+  limit: number,
+  search?: string,
 ): Promise<PaginatedBusinessResponse> {
-  const result = await fastify.db.business.findAllPaginated(query);
+  const result = await fastify.db.business.findAllPaginated(
+    page,
+    limit,
+    search,
+  );
   return {
     items: result.items.map((item) => BusinessResponseSchema.parse(item)),
-    metadata: result.metadata,
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+    pages: result.pages,
   };
 }
 

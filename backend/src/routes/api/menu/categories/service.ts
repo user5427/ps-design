@@ -3,10 +3,7 @@ import type {
   CreateMenuItemCategoryBody,
   UpdateMenuItemCategoryBody,
   MenuItemCategoryResponse,
-  PaginatedMenuItemCategoryResponse,
 } from "@ps-design/schemas/menu/category";
-import { MenuItemCategoryResponseSchema } from "@ps-design/schemas/menu/category";
-import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 import type { MenuItemCategory } from "@/modules/menu/menu-item-category/menu-item-category.entity";
 
 function toCategoryResponse(
@@ -22,21 +19,13 @@ function toCategoryResponse(
   };
 }
 
-export async function getAllCategoriesPaginated(
+export async function getAllCategories(
   fastify: FastifyInstance,
   businessId: string,
-  query: UniversalPaginationQuery,
-): Promise<PaginatedMenuItemCategoryResponse> {
-  const result = await fastify.db.menuItemCategory.findAllPaginated(
-    businessId,
-    query,
-  );
-  return {
-    items: result.items.map((item: MenuItemCategory) =>
-      MenuItemCategoryResponseSchema.parse(toCategoryResponse(item)),
-    ),
-    metadata: result.metadata,
-  };
+): Promise<MenuItemCategoryResponse[]> {
+  const categories =
+    await fastify.db.menuItemCategory.findAllByBusinessId(businessId);
+  return categories.map(toCategoryResponse);
 }
 
 export async function createCategory(
