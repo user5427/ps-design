@@ -11,7 +11,6 @@ import {
   Unique,
   UpdateDateColumn,
 } from "typeorm";
-import { decimalTransformer } from "@/shared/decimal-transformer";
 import type { MenuItem } from "@/modules/menu/menu-item/menu-item.entity";
 import type { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product/menu-item-variation-product.entity";
 import type { MenuItemVariationType } from "./menu-item-variation.types";
@@ -28,13 +27,8 @@ export class MenuItemVariation {
   @Column({ type: "varchar", length: 50 })
   type: MenuItemVariationType;
 
-  @Column({
-    type: "decimal",
-    precision: 10,
-    scale: 2,
-    transformer: decimalTransformer,
-    default: 0,
-  })
+  /** Price adjustment in cents */
+  @Column({ type: "int", default: 0 })
   priceAdjustment: number;
 
   @Column({ type: "boolean", default: false })

@@ -7,6 +7,8 @@ import ReactDOM from "react-dom/client";
 import { theme } from "./lib/mui-theme";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 // Create QueryClient
 const queryClient = new QueryClient({
@@ -43,12 +45,14 @@ if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <RouterProvider router={router} />
-        </ThemeProvider>
-      </QueryClientProvider>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <RouterProvider router={router} />
+          </ThemeProvider>
+        </QueryClientProvider>
+      </LocalizationProvider>
     </StrictMode>,
   );
 }
