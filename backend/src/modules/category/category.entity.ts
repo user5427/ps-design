@@ -12,11 +12,12 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import type { Business } from "@/modules/business/business.entity";
+import type { MenuItem } from "@/modules/menu/menu-item/menu-item.entity";
 import type { ServiceDefinition } from "@/modules/appointments/service-definition/service-definition.entity";
 
-@Entity("ServiceCategory")
+@Entity("Category")
 @Unique(["businessId", "name"])
-export class ServiceCategory {
+export class Category {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
@@ -27,9 +28,12 @@ export class ServiceCategory {
   @Index()
   businessId: string;
 
-  @ManyToOne("Business", "serviceCategories", { onDelete: "CASCADE" })
+  @ManyToOne("Business", "categories", { onDelete: "CASCADE" })
   @JoinColumn({ name: "businessId" })
   business: Relation<Business>;
+
+  @OneToMany("MenuItem", "category")
+  menuItems: Relation<MenuItem[]>;
 
   @OneToMany("ServiceDefinition", "category")
   serviceDefinitions: Relation<ServiceDefinition[]>;

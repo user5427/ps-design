@@ -12,14 +12,14 @@ import {
   useMenuItems,
   useUpdateMenuItem,
 } from "@/hooks/menu";
-import { useMenuCategories } from "@/hooks/menu";
+import { useCategories } from "@/hooks/category-hooks";
 import { useProducts } from "@/hooks/inventory";
 import type { MenuItem, CreateMenuItem, UpdateMenuItem } from "@/schemas/menu";
 import { MenuItemFormModal } from "./menu-item-form-modal";
 
 export const MenuItemsListView = () => {
   const { data: menuItems = [], isLoading, error, refetch } = useMenuItems();
-  const { data: categories = [] } = useMenuCategories();
+  const { data: categories = [] } = useCategories();
   const { data: products = [] } = useProducts();
   const createMutation = useCreateMenuItem();
   const updateMutation = useUpdateMenuItem();

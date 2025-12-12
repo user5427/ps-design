@@ -3,6 +3,7 @@ import fp from "fastify-plugin";
 import type { DataSource } from "typeorm";
 import { createDataSource } from "@/database/data-source";
 import { Business, BusinessRepository } from "@/modules/business";
+import { Category, CategoryRepository } from "@/modules/category";
 import { Product, ProductRepository } from "@/modules/inventory/product";
 import {
   ProductUnit,
@@ -29,18 +30,10 @@ import {
   RoleScope,
   RoleScopeRepository,
 } from "@/modules/user";
-import {
-  MenuItemCategory,
-  MenuItemCategoryRepository,
-} from "@/modules/menu/menu-item-category";
 import { MenuItem, MenuItemRepository } from "@/modules/menu/menu-item";
 import { MenuItemVariation } from "@/modules/menu/menu-item-variation";
 import { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product";
 import { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product";
-import {
-  ServiceCategory,
-  ServiceCategoryRepository,
-} from "@/modules/appointments/service-category";
 import {
   ServiceDefinition,
   ServiceDefinitionRepository,
@@ -71,9 +64,8 @@ export interface Services {
   product: ProductRepository;
   stockLevel: StockLevelRepository;
   stockChange: StockChangeRepository;
-  menuItemCategory: MenuItemCategoryRepository;
+  category: CategoryRepository;
   menuItem: MenuItemRepository;
-  serviceCategory: ServiceCategoryRepository;
   serviceDefinition: ServiceDefinitionRepository;
   staffService: StaffServiceRepository;
   availability: AvailabilityRepository;
@@ -129,27 +121,24 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
       dataSource.getRepository(Product),
       dataSource,
     ),
-    menuItemCategory: new MenuItemCategoryRepository(
-      dataSource.getRepository(MenuItemCategory),
+    category: new CategoryRepository(
+      dataSource.getRepository(Category),
       dataSource.getRepository(MenuItem),
+      dataSource.getRepository(ServiceDefinition),
     ),
     menuItem: new MenuItemRepository(
       dataSource,
       dataSource.getRepository(MenuItem),
-      dataSource.getRepository(MenuItemCategory),
+      dataSource.getRepository(Category),
       dataSource.getRepository(MenuItemVariation),
       dataSource.getRepository(MenuItemBaseProduct),
       dataSource.getRepository(MenuItemVariationProduct),
       dataSource.getRepository(Product),
       dataSource.getRepository(StockLevel),
     ),
-    serviceCategory: new ServiceCategoryRepository(
-      dataSource.getRepository(ServiceCategory),
-      dataSource.getRepository(ServiceDefinition),
-    ),
     serviceDefinition: new ServiceDefinitionRepository(
       dataSource.getRepository(ServiceDefinition),
-      dataSource.getRepository(ServiceCategory),
+      dataSource.getRepository(Category),
       dataSource.getRepository(StaffService),
     ),
     staffService: new StaffServiceRepository(

@@ -1,7 +1,7 @@
 import { In, IsNull, type Repository } from "typeorm";
 import { BadRequestError, ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
-import type { ServiceCategory } from "@/modules/appointments/service-category/service-category.entity";
+import type { Category } from "@/modules/category/category.entity";
 import type { StaffService } from "@/modules/appointments/staff-service/staff-service.entity";
 import type { ServiceDefinition } from "./service-definition.entity";
 import type {
@@ -14,7 +14,7 @@ const SERVICE_DEFINITION_RELATIONS = ["category"];
 export class ServiceDefinitionRepository {
   constructor(
     private repository: Repository<ServiceDefinition>,
-    private categoryRepository: Repository<ServiceCategory>,
+    private categoryRepository: Repository<Category>,
     private staffServiceRepository: Repository<StaffService>,
   ) {}
 

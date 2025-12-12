@@ -2,22 +2,22 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
 import {
-  bulkDeleteServiceCategories,
-  createServiceCategory,
-  getAllServiceCategories,
-  getServiceCategoryById,
-  updateServiceCategory,
+  bulkDeleteCategories,
+  createCategory,
+  getAllCategories,
+  getCategoryById,
+  updateCategory,
 } from "./service";
 import { getBusinessId } from "@/shared/auth-utils";
 import { handleServiceError } from "@/shared/error-handler";
 import {
-  type CreateServiceCategoryBody,
-  CreateServiceCategorySchema,
-  ServiceCategoryIdParam,
-  type ServiceCategoryIdParams,
-  type UpdateServiceCategoryBody,
-  UpdateServiceCategorySchema,
-} from "@ps-design/schemas/appointments/service-category";
+  type CreateCategoryBody,
+  CreateCategorySchema,
+  CategoryIdParam,
+  type CategoryIdParams,
+  type UpdateCategoryBody,
+  UpdateCategorySchema,
+} from "@ps-design/schemas/category";
 import {
   BulkDeleteSchema,
   type BulkDeleteBody,
@@ -25,43 +25,35 @@ import {
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
 
-export default async function serviceCategoriesRoutes(
-  fastify: FastifyInstance,
-) {
+export default async function categoriesRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope } = createScopeMiddleware(fastify);
 
   server.get(
     "/",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_READ),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);
       if (!businessId) return;
 
-      const categories = await getAllServiceCategories(fastify, businessId);
+      const categories = await getAllCategories(fastify, businessId);
       return reply.send(categories);
     },
   );
 
-  server.post<{ Body: CreateServiceCategoryBody }>(
+  server.post<{ Body: CreateCategoryBody }>(
     "/",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_WRITE)],
       schema: {
-        body: CreateServiceCategorySchema,
+        body: CreateCategorySchema,
       },
     },
     async (
       request: FastifyRequest<{
-        Body: CreateServiceCategoryBody;
+        Body: CreateCategoryBody;
       }>,
       reply: FastifyReply,
     ) => {
@@ -69,28 +61,29 @@ export default async function serviceCategoriesRoutes(
       if (!businessId) return;
 
       try {
-        await createServiceCategory(fastify, businessId, request.body);
-        return reply.code(httpStatus.CREATED).send();
+        const category = await createCategory(
+          fastify,
+          businessId,
+          request.body,
+        );
+        return reply.code(httpStatus.CREATED).send(category);
       } catch (error) {
         return handleServiceError(error, reply);
       }
     },
   );
 
-  server.get<{ Params: ServiceCategoryIdParams }>(
+  server.get<{ Params: CategoryIdParams }>(
     "/:categoryId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_READ),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
       schema: {
-        params: ServiceCategoryIdParam,
+        params: CategoryIdParam,
       },
     },
     async (
       request: FastifyRequest<{
-        Params: ServiceCategoryIdParams;
+        Params: CategoryIdParams;
       }>,
       reply: FastifyReply,
     ) => {
@@ -100,11 +93,7 @@ export default async function serviceCategoriesRoutes(
       const { categoryId } = request.params;
 
       try {
-        const category = await getServiceCategoryById(
-          fastify,
-          businessId,
-          categoryId,
-        );
+        const category = await getCategoryById(fastify, businessId, categoryId);
         return reply.send(category);
       } catch (error) {
         return handleServiceError(error, reply);
@@ -112,25 +101,19 @@ export default async function serviceCategoriesRoutes(
     },
   );
 
-  server.put<{
-    Params: ServiceCategoryIdParams;
-    Body: UpdateServiceCategoryBody;
-  }>(
+  server.put<{ Params: CategoryIdParams; Body: UpdateCategoryBody }>(
     "/:categoryId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_WRITE)],
       schema: {
-        params: ServiceCategoryIdParam,
-        body: UpdateServiceCategorySchema,
+        params: CategoryIdParam,
+        body: UpdateCategorySchema,
       },
     },
     async (
       request: FastifyRequest<{
-        Params: ServiceCategoryIdParams;
-        Body: UpdateServiceCategoryBody;
+        Params: CategoryIdParams;
+        Body: UpdateCategoryBody;
       }>,
       reply: FastifyReply,
     ) => {
@@ -140,13 +123,13 @@ export default async function serviceCategoriesRoutes(
       const { categoryId } = request.params;
 
       try {
-        await updateServiceCategory(
+        const updated = await updateCategory(
           fastify,
           businessId,
           categoryId,
           request.body,
         );
-        return reply.send();
+        return reply.send(updated);
       } catch (error) {
         return handleServiceError(error, reply);
       }
@@ -156,10 +139,7 @@ export default async function serviceCategoriesRoutes(
   server.post<{ Body: BulkDeleteBody }>(
     "/bulk-delete",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_DELETE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_DELETE)],
       schema: {
         body: BulkDeleteSchema,
       },
@@ -174,11 +154,7 @@ export default async function serviceCategoriesRoutes(
       if (!businessId) return;
 
       try {
-        await bulkDeleteServiceCategories(
-          fastify,
-          businessId,
-          request.body.ids,
-        );
+        await bulkDeleteCategories(fastify, businessId, request.body.ids);
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);

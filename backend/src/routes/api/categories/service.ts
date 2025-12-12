@@ -1,14 +1,12 @@
 import type { FastifyInstance } from "fastify";
 import type {
-  CreateMenuItemCategoryBody,
-  UpdateMenuItemCategoryBody,
-  MenuItemCategoryResponse,
-} from "@ps-design/schemas/menu/category";
-import type { MenuItemCategory } from "@/modules/menu/menu-item-category/menu-item-category.entity";
+  CreateCategoryBody,
+  UpdateCategoryBody,
+  CategoryResponse,
+} from "@ps-design/schemas/category";
+import type { Category } from "@/modules/category/category.entity";
 
-function toCategoryResponse(
-  category: MenuItemCategory,
-): MenuItemCategoryResponse {
+function toCategoryResponse(category: Category): CategoryResponse {
   return {
     id: category.id,
     name: category.name,
@@ -22,20 +20,19 @@ function toCategoryResponse(
 export async function getAllCategories(
   fastify: FastifyInstance,
   businessId: string,
-): Promise<MenuItemCategoryResponse[]> {
-  const categories =
-    await fastify.db.menuItemCategory.findAllByBusinessId(businessId);
+): Promise<CategoryResponse[]> {
+  const categories = await fastify.db.category.findAllByBusinessId(businessId);
   return categories.map(toCategoryResponse);
 }
 
 export async function createCategory(
   fastify: FastifyInstance,
   businessId: string,
-  input: CreateMenuItemCategoryBody,
-): Promise<MenuItemCategoryResponse> {
+  input: CreateCategoryBody,
+): Promise<CategoryResponse> {
   const { name } = input;
 
-  const category = await fastify.db.menuItemCategory.create({
+  const category = await fastify.db.category.create({
     name,
     businessId,
   });
@@ -47,11 +44,8 @@ export async function getCategoryById(
   fastify: FastifyInstance,
   businessId: string,
   categoryId: string,
-): Promise<MenuItemCategoryResponse> {
-  const category = await fastify.db.menuItemCategory.getById(
-    categoryId,
-    businessId,
-  );
+): Promise<CategoryResponse> {
+  const category = await fastify.db.category.getById(categoryId, businessId);
   return toCategoryResponse(category);
 }
 
@@ -59,14 +53,14 @@ export async function updateCategory(
   fastify: FastifyInstance,
   businessId: string,
   categoryId: string,
-  input: UpdateMenuItemCategoryBody,
-): Promise<MenuItemCategoryResponse> {
-  const updated = await fastify.db.menuItemCategory.update(
+  input: UpdateCategoryBody,
+): Promise<CategoryResponse> {
+  const category = await fastify.db.category.update(
     categoryId,
     businessId,
     input,
   );
-  return toCategoryResponse(updated);
+  return toCategoryResponse(category);
 }
 
 export async function bulkDeleteCategories(
@@ -74,5 +68,5 @@ export async function bulkDeleteCategories(
   businessId: string,
   ids: string[],
 ): Promise<void> {
-  await fastify.db.menuItemCategory.bulkDelete(ids, businessId);
+  await fastify.db.category.bulkDelete(ids, businessId);
 }

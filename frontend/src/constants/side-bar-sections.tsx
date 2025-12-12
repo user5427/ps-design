@@ -63,14 +63,14 @@ export const sidebarSections: Section[] = [
     ],
   },
   {
+    label: "Categories",
+    icon: <CategoryIcon />,
+    path: URLS.CATEGORIES,
+  },
+  {
     label: "Menu",
     icon: <MenuBookIcon />,
     children: [
-      {
-        label: "Categories",
-        icon: <CategoryIcon />,
-        path: URLS.MENU_CATEGORIES,
-      },
       {
         label: "Items",
         icon: <RestaurantMenuIcon />,
@@ -86,11 +86,6 @@ export const sidebarSections: Section[] = [
         label: "Appointments",
         icon: <EventIcon />,
         path: URLS.APPOINTMENTS_LIST,
-      },
-      {
-        label: "Service Categories",
-        icon: <CategoryIcon />,
-        path: URLS.APPOINTMENTS_SERVICE_CATEGORIES,
       },
       {
         label: "Services",

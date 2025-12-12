@@ -13,7 +13,7 @@ import {
 } from "typeorm";
 import { decimalTransformer } from "@/shared/decimal-transformer";
 import type { Business } from "@/modules/business/business.entity";
-import type { ServiceCategory } from "@/modules/appointments/service-category/service-category.entity";
+import type { Category } from "@/modules/category/category.entity";
 import type { StaffService } from "@/modules/appointments/staff-service/staff-service.entity";
 
 @Entity("ServiceDefinition")
@@ -54,12 +54,12 @@ export class ServiceDefinition {
   @Index()
   categoryId: string | null;
 
-  @ManyToOne("ServiceCategory", "serviceDefinitions", {
+  @ManyToOne("Category", "serviceDefinitions", {
     nullable: true,
     onDelete: "SET NULL",
   })
   @JoinColumn({ name: "categoryId" })
-  category: Relation<ServiceCategory> | null;
+  category: Relation<Category> | null;
 
   @OneToMany("StaffService", "serviceDefinition")
   staffServices: Relation<StaffService[]>;

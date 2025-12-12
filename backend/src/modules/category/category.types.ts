@@ -1,4 +1,4 @@
-export interface IMenuItemCategory {
+export interface ICategory {
   id: string;
   name: string;
   businessId: string;
@@ -7,11 +7,11 @@ export interface IMenuItemCategory {
   updatedAt: Date;
 }
 
-export interface ICreateMenuItemCategory {
+export interface ICreateCategory {
   name: string;
   businessId: string;
 }
 
-export interface IUpdateMenuItemCategory {
+export interface IUpdateCategory {
   name?: string;
 }

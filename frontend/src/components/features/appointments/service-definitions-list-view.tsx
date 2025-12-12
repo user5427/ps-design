@@ -12,7 +12,7 @@ import {
   useServiceDefinitions,
   useUpdateServiceDefinition,
 } from "@/hooks/appointments";
-import { useServiceCategories } from "@/hooks/appointments";
+import { useCategories } from "@/hooks/category-hooks";
 import type { ServiceDefinition } from "@/schemas/appointments";
 import { Chip } from "@mui/material";
 
@@ -23,7 +23,7 @@ export const ServiceDefinitionsListView = () => {
     error,
     refetch,
   } = useServiceDefinitions();
-  const { data: categories = [] } = useServiceCategories();
+  const { data: categories = [] } = useCategories();
   const createMutation = useCreateServiceDefinition();
   const updateMutation = useUpdateServiceDefinition();
   const bulkDeleteMutation = useBulkDeleteServiceDefinitions();

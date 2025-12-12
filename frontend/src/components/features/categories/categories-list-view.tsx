@@ -7,25 +7,20 @@ import {
   ValidationRules,
 } from "@/components/elements/record-list-view";
 import {
-  useCreateMenuCategory,
-  useBulkDeleteMenuCategories,
-  useMenuCategories,
-  useUpdateMenuCategory,
-} from "@/hooks/menu";
-import type { MenuItemCategory } from "@/schemas/menu";
+  useCategories,
+  useCreateCategory,
+  useUpdateCategory,
+  useBulkDeleteCategories,
+} from "@/hooks/category-hooks";
+import type { Category } from "@/schemas/category";
 
-export const MenuCategoriesListView = () => {
-  const {
-    data: categories = [],
-    isLoading,
-    error,
-    refetch,
-  } = useMenuCategories();
-  const createMutation = useCreateMenuCategory();
-  const updateMutation = useUpdateMenuCategory();
-  const bulkDeleteMutation = useBulkDeleteMenuCategories();
+export const CategoriesListView = () => {
+  const { data: categories = [], isLoading, error, refetch } = useCategories();
+  const createMutation = useCreateCategory();
+  const updateMutation = useUpdateCategory();
+  const bulkDeleteMutation = useBulkDeleteCategories();
 
-  const columns = useMemo<MRT_ColumnDef<MenuItemCategory>[]>(
+  const columns = useMemo<MRT_ColumnDef<Category>[]>(
     () => [
       {
         accessorKey: "name",
@@ -53,7 +48,7 @@ export const MenuCategoriesListView = () => {
       required: true,
       validationRules: [
         ValidationRules.minLength(1),
-        ValidationRules.maxLength(50),
+        ValidationRules.maxLength(100),
       ],
     },
   ];
@@ -67,13 +62,13 @@ export const MenuCategoriesListView = () => {
     { name: "updatedAt", label: "Updated At" },
   ];
 
-  const handleCreate = async (values: Partial<MenuItemCategory>) => {
+  const handleCreate = async (values: Partial<Category>) => {
     await createMutation.mutateAsync({
       name: String(values.name),
     });
   };
 
-  const handleEdit = async (id: string, values: Partial<MenuItemCategory>) => {
+  const handleEdit = async (id: string, values: Partial<Category>) => {
     await updateMutation.mutateAsync({
       id,
       data: {
@@ -87,8 +82,8 @@ export const MenuCategoriesListView = () => {
   };
 
   return (
-    <RecordListView<MenuItemCategory>
-      title="Menu Categories"
+    <RecordListView<Category>
+      title="Categories"
       columns={columns}
       data={categories}
       isLoading={isLoading}
@@ -100,9 +95,9 @@ export const MenuCategoriesListView = () => {
       onEdit={handleEdit}
       onDelete={handleDelete}
       onSuccess={() => refetch()}
-      createModalTitle="Create Menu Category"
-      editModalTitle="Edit Menu Category"
-      viewModalTitle="View Menu Category"
+      createModalTitle="Create Category"
+      editModalTitle="Edit Category"
+      viewModalTitle="View Category"
     />
   );
 };

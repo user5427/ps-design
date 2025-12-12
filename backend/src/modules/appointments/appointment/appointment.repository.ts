@@ -222,8 +222,7 @@ export class AppointmentRepository {
     newStatus: AppointmentStatus,
   ): void {
     const validTransitions: Record<AppointmentStatus, AppointmentStatus[]> = {
-      RESERVED: ["COMPLETED", "CANCELLED", "PAID"],
-      COMPLETED: ["PAID"],
+      RESERVED: ["CANCELLED", "PAID"],
       CANCELLED: [],
       PAID: [],
     };

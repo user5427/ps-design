@@ -1,8 +1,4 @@
 export {
-  ServiceCategory,
-  ServiceCategoryRepository,
-} from "./service-category";
-export {
   ServiceDefinition,
   ServiceDefinitionRepository,
 } from "./service-definition";
