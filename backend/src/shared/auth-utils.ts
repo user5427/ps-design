@@ -22,6 +22,18 @@ export function getBusinessId(
   return user.businessId;
 }
 
+export function getUserId(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): string | null {
+  const user = request.authUser;
+  if (!user) {
+    reply.code(httpStatus.UNAUTHORIZED).send({ message: "Unauthorized" });
+    return null;
+  }
+  return user.id;
+}
+
 export function hashToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
 }

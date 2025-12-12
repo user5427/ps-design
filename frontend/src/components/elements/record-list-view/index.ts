@@ -10,5 +10,6 @@ export type {
   SelectOption,
   ValidationRule,
   CustomFormModalProps,
+  RowActionsContext,
 } from "./types";
 export * from "./validation-rules";
