@@ -4,7 +4,6 @@ import httpStatus from "http-status";
 import {
   bulkDeleteMenuItems,
   createMenuItem,
-  getAllMenuItems,
   getAllMenuItemsPaginated,
   getMenuItemById,
   updateMenuItem,

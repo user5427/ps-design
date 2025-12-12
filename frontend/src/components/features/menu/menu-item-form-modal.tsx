@@ -22,11 +22,11 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { FormAlert } from "@/components/elements/form";
 import { getReadableError } from "@/utils/get-readable-error";
 import type {
-  CreateMenuItem,
+  CreateMenuItemBody,
   MenuItemCategory,
   MenuItem,
-  UpdateMenuItem,
-} from "@/schemas/menu";
+  UpdateMenuItemBody,
+} from "@ps-design/schemas/menu";
 import type { ProductResponse } from "@ps-design/schemas/inventory/product";
 
 interface BaseProductRecipe {
@@ -51,7 +51,7 @@ interface MenuItemFormModalProps {
   categories: MenuItemCategory[];
   products: ProductResponse[];
   onSubmit: (
-    data: CreateMenuItem | { id: string; data: UpdateMenuItem },
+    data: CreateMenuItemBody | { id: string; data: UpdateMenuItemBody },
   ) => Promise<void>;
   onSuccess?: () => void;
 }
@@ -199,7 +199,7 @@ const useMenuItemForm = ({
       };
 
       if (mode === "create") {
-        await onSubmit(commonData as CreateMenuItem);
+        await onSubmit(commonData as CreateMenuItemBody);
       } else if (initialData) {
         await onSubmit({
           id: initialData.id,
@@ -207,7 +207,7 @@ const useMenuItemForm = ({
             ...commonData,
             removeVariationIds:
               removedVariationIds.length > 0 ? removedVariationIds : undefined,
-          } as UpdateMenuItem,
+          } as UpdateMenuItemBody,
         });
       }
 

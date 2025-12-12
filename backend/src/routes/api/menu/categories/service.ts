@@ -22,15 +22,6 @@ function toCategoryResponse(
   };
 }
 
-export async function getAllCategories(
-  fastify: FastifyInstance,
-  businessId: string,
-): Promise<MenuItemCategoryResponse[]> {
-  const categories =
-    await fastify.db.menuItemCategory.findAllByBusinessId(businessId);
-  return categories.map(toCategoryResponse);
-}
-
 export async function getAllCategoriesPaginated(
   fastify: FastifyInstance,
   businessId: string,

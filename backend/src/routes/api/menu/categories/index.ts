@@ -4,7 +4,6 @@ import httpStatus from "http-status";
 import {
   bulkDeleteCategories,
   createCategory,
-  getAllCategories,
   getAllCategoriesPaginated,
   getCategoryById,
   updateCategory,

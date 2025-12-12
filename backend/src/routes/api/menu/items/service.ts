@@ -160,15 +160,6 @@ async function getStockMap(
   );
 }
 
-export async function getAllMenuItems(
-  fastify: FastifyInstance,
-  businessId: string,
-): Promise<MenuItemResponse[]> {
-  const menuItems = await fastify.db.menuItem.findAllByBusinessId(businessId);
-  const stockMap = await getStockMap(fastify, menuItems, businessId);
-  return menuItems.map((item) => toMenuItemResponse(item, stockMap));
-}
-
 export async function getAllMenuItemsPaginated(
   fastify: FastifyInstance,
   businessId: string,

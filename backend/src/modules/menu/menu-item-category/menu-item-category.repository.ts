@@ -18,13 +18,6 @@ export class MenuItemCategoryRepository {
     private menuItemRepository: Repository<MenuItem>,
   ) {}
 
-  async findAllByBusinessId(businessId: string): Promise<MenuItemCategory[]> {
-    return this.repository.find({
-      where: { businessId, deletedAt: IsNull() },
-      order: { name: "ASC" },
-    });
-  }
-
   async findAllPaginated(
     businessId: string,
     query: UniversalPaginationQuery,

@@ -48,14 +48,6 @@ export class MenuItemRepository {
     private stockLevelRepository: Repository<StockLevel>,
   ) {}
 
-  async findAllByBusinessId(businessId: string): Promise<MenuItem[]> {
-    return this.repository.find({
-      where: { businessId, deletedAt: IsNull() },
-      relations: MENU_ITEM_RELATIONS,
-      order: { baseName: "ASC" },
-    });
-  }
-
   async findAllPaginated(
     businessId: string,
     query: UniversalPaginationQuery,
