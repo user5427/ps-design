@@ -1,7 +1,5 @@
-import { Alert, Box, Button, TextField, Typography } from "@mui/material";
-import type React from "react";
-import { useState } from "react";
-import { useForm } from "@tanstack/react-form";
+import { Alert } from "@mui/material";
+import { useRef, useState } from "react";
 import {
   PasswordRequirements,
   PasswordStrengthIndicator,
@@ -9,185 +7,207 @@ import {
 import { useChangePassword } from "@/queries/auth";
 import { checkPasswordStrength } from "@/utils/auth";
 import { getReadableError } from "@/utils/get-readable-error";
+import { createForm } from "@/components/elements/form-builder";
+import { useMessageManager } from "@/components/elements/message-manager";
+import { FormText } from "@/components/elements/form-builder";
+import { FormCard } from "@/components/elements/form-decorator";
+import type { FormHandle } from "@/components/elements/list-manager";
 
-export const ChangePassword: React.FC = () => {
+const ChangePasswordFormContent = ({
+  form,
+  passwordStrength,
+  setPasswordStrength,
+  passwordsMatch,
+}: {
+  form: any;
+  passwordStrength: any;
+  setPasswordStrength: any;
+  passwordsMatch: boolean;
+}) => {
+  const newPwdValue = form.getFieldValue("newPassword");
+
+  return (
+    <>
+      <form.Field
+        name="currentPassword"
+        defaultValue=""
+        validators={{
+          onChange: ({ value }: any) => {
+            if (!value || String(value).trim().length === 0) {
+              return "Current password is required";
+            }
+            return undefined;
+          },
+        }}
+      >
+        {(field: any) => (
+          <FormText
+            fieldName="currentPassword"
+            label="Current Password"
+            value={field.state.value}
+            onChange={field.handleChange}
+            onBlur={field.handleBlur}
+            error={field.state.meta.errors.length > 0}
+            helperText={field.state.meta.errors[0] || ""}
+            type="password"
+            required
+          />
+        )}
+      </form.Field>
+
+      <form.Field
+        name="newPassword"
+        defaultValue=""
+        validators={{
+          onChange: ({ value }: any) => {
+            if (!value || String(value).trim().length === 0) {
+              return "New password is required";
+            }
+            return undefined;
+          },
+        }}
+      >
+        {(field: any) => (
+          <>
+            <FormText
+              fieldName="newPassword"
+              label="New Password"
+              value={field.state.value}
+              onChange={(value: any) => {
+                field.handleChange(value);
+                setPasswordStrength(checkPasswordStrength(String(value)));
+              }}
+              onBlur={field.handleBlur}
+              error={field.state.meta.errors.length > 0}
+              helperText={field.state.meta.errors[0] || ""}
+              type="password"
+              required
+            />
+            {field.state.value.length > 0 && (
+              <PasswordStrengthIndicator
+                score={passwordStrength.score}
+                feedback={passwordStrength.feedback}
+              />
+            )}
+          </>
+        )}
+      </form.Field>
+
+      <form.Field
+        name="confirmPassword"
+        defaultValue=""
+        validators={{
+          onChange: ({ value }: any) => {
+            if (!value || String(value).trim().length === 0) {
+              return "Please confirm your password";
+            }
+            return undefined;
+          },
+        }}
+      >
+        {(field: any) => (
+          <>
+            <FormText
+              fieldName="confirmPassword"
+              label="Confirm Password"
+              value={field.state.value}
+              onChange={field.handleChange}
+              onBlur={field.handleBlur}
+              error={field.state.meta.errors.length > 0 || (!passwordsMatch && field.state.value.length > 0)}
+              helperText={
+                field.state.meta.errors[0] || (!passwordsMatch && field.state.value.length > 0 ? "Passwords do not match" : "")
+              }
+              type="password"
+              required
+            />
+          </>
+        )}
+      </form.Field>
+
+      {!passwordStrength.isValid && newPwdValue.length > 0 && (
+        <Alert sx={{ mb: 2, mt: 2 }}>
+          <PasswordRequirements feedback={passwordStrength.feedback} />
+        </Alert>
+      )}
+    </>
+  );
+};
+
+export const ChangePassword = () => {
   const [passwordStrength, setPasswordStrength] = useState(
     checkPasswordStrength(""),
   );
   const changePasswordMutation = useChangePassword();
+  const messageManager = useMessageManager();
 
-  const form = useForm({
-    defaultValues: {
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    },
-    onSubmit: async ({ value }) => {
-      if (value.newPassword !== value.confirmPassword) {
+  const { ref: formRef, Component: FormComponent } = createForm({
+    children: (props: any) => (
+      <ChangePasswordFormContent
+        {...props}
+        passwordStrength={passwordStrength}
+        setPasswordStrength={setPasswordStrength}
+        passwordsMatch={
+          props.form.getFieldValue("newPassword") ===
+          props.form.getFieldValue("confirmPassword")
+        }
+      />
+    ),
+    messageManager,
+    onSubmit: async (values) => {
+      const newPassword = String(values.newPassword);
+      const confirmPassword = String(values.confirmPassword);
+
+      if (newPassword !== confirmPassword) {
+        messageManager.addMessage("Passwords do not match", "error", 3000);
         return;
       }
+
       if (!passwordStrength.isValid) {
+        messageManager.addMessage(
+          "Password does not meet requirements",
+          "error",
+          3000,
+        );
         return;
       }
-      changePasswordMutation.mutate(
-        {
-          currentPassword: value.currentPassword,
-          newPassword: value.newPassword,
-        },
-        {
-          onSuccess: () => {
-            form.reset();
-            setPasswordStrength(checkPasswordStrength(""));
-          },
-        },
-      );
+
+      try {
+        await changePasswordMutation.mutateAsync({
+          currentPassword: String(values.currentPassword),
+          newPassword: newPassword,
+        });
+        messageManager.addMessage("Password changed successfully", "success", 3000);
+        formRef.current?.setVisible(false);
+      } catch (error) {
+        const errorMessage = getReadableError(
+          error,
+          "Failed to change password",
+        );
+        messageManager.addMessage(errorMessage, "error", 3000);
+      }
     },
   });
 
-  const confirmPwdValue = form.getFieldValue("confirmPassword");
-  const newPwdValue = form.getFieldValue("newPassword");
-  const passwordsMatch =
-    newPwdValue === confirmPwdValue && newPwdValue.length > 0;
-  const isFormValid =
-    form.getFieldValue("currentPassword").length > 0 &&
-    newPwdValue.length > 0 &&
-    confirmPwdValue.length > 0 &&
-    passwordsMatch &&
-    passwordStrength.isValid;
+  const formRefWrapper = useRef<FormHandle>({
+    setVisible: (visible) => {
+      formRef.current?.setVisible(visible);
+    },
+    submit: async () => await formRef.current?.submit(),
+  });
 
   return (
-    <Box
+    <FormCard
+      title="Change Password"
+      formRef={formRefWrapper}
+      submitLabel="Change Password"
+      onSuccess={() => {}}
       sx={{
         width: "100%",
         maxWidth: "360px",
         margin: "0 auto",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        px: 3,
-        py: 3,
       }}
     >
-      <Typography variant="h4" sx={{ mb: 4, textAlign: "center" }}>
-        Change Password
-      </Typography>
-
-      {changePasswordMutation.isError && (
-        <Alert severity="error">
-          {getReadableError(
-            changePasswordMutation.error,
-            "Failed to change password",
-          )}
-        </Alert>
-      )}
-
-      {changePasswordMutation.isSuccess && (
-        <Alert severity="success">
-          Password changed successfully!
-        </Alert>
-      )}
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          form.handleSubmit();
-        }}
-      >
-        <form.Field
-          name="currentPassword"
-          children={(field: any) => (
-            <TextField
-              fullWidth
-              label="Current Password"
-              type="password"
-              value={field.state.value}
-              onChange={(e) => field.handleChange(e.target.value)}
-              onBlur={field.handleBlur}
-              error={!!field.state.meta.errors.length}
-              helperText={field.state.meta.errors[0]}
-              placeholder="Enter your current password"
-              disabled={changePasswordMutation.isPending}
-              margin="normal"
-            />
-          )}
-        />
-        <form.Field
-          name="newPassword"
-          children={(field: any) => (
-            <>
-              <TextField
-                fullWidth
-                label="New Password"
-                type="password"
-                value={field.state.value}
-                onChange={(e) => {
-                  field.handleChange(e.target.value);
-                  setPasswordStrength(
-                    checkPasswordStrength(e.target.value),
-                  );
-                }}
-                onBlur={field.handleBlur}
-                error={!!field.state.meta.errors.length}
-                helperText={field.state.meta.errors[0]}
-                placeholder="Enter your new password"
-                disabled={changePasswordMutation.isPending}
-                margin="normal"
-              />
-              {field.state.value.length > 0 && (
-                <PasswordStrengthIndicator
-                  score={passwordStrength.score}
-                  feedback={passwordStrength.feedback}
-                />
-              )}
-            </>
-          )}
-        />
-        <form.Field
-          name="confirmPassword"
-          children={(field: any) => (
-            <>
-              <TextField
-                fullWidth
-                label="Confirm Password"
-                type="password"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                onBlur={field.handleBlur}
-                error={!!field.state.meta.errors.length}
-                helperText={field.state.meta.errors[0]}
-                placeholder="Confirm your new password"
-                disabled={changePasswordMutation.isPending}
-                margin="normal"
-              />
-              {field.state.value.length > 0 && !passwordsMatch && (
-                <Alert severity="error" sx={{ mb: 4 }}>Passwords do not match</Alert>
-              )}
-            </>
-          )}
-        />
-        {!passwordStrength.isValid && newPwdValue.length > 0 && (
-          <Alert sx={{ mb: 4 }}>
-            <PasswordRequirements
-              feedback={passwordStrength.feedback}
-            />
-          </Alert>
-        )}
-        <Button
-          fullWidth
-          variant="contained"
-          size="large"
-          type="submit"
-          disabled={!isFormValid || changePasswordMutation.isPending}
-          sx={{
-            opacity: isFormValid ? 1 : 0.5,
-            mt: 2,
-          }}
-        >
-          {changePasswordMutation.isPending
-            ? "Changing Password..."
-            : "Change Password"}
-        </Button>
-      </form>
-    </Box>
+      <FormComponent />
+    </FormCard>
   );
 };

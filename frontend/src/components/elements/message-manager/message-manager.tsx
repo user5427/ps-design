@@ -1,6 +1,6 @@
 import { Alert, Snackbar, Box } from "@mui/material";
 import type React from "react";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 
 export type MessageSeverity = "error" | "warning" | "info" | "success";
 
@@ -47,6 +47,7 @@ export const MessageManager: React.FC<{ children: React.ReactNode }> = ({ childr
 
       return id;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -57,6 +58,10 @@ export const MessageManager: React.FC<{ children: React.ReactNode }> = ({ childr
   const clearMessages = useCallback(() => {
     setMessages([]);
   }, []);
+
+  // Expose functions through a ref (used by hook)
+  const messageManagerFunctions = useRef({ addMessage, removeMessage, clearMessages });
+  messageManagerFunctions.current = { addMessage, removeMessage, clearMessages };
 
   return (
     <Box sx={{ position: "relative" }}>

@@ -22,7 +22,7 @@
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
 import type React from "react";
-import type { FormHandle } from "./list-manager";
+import type { FormHandle } from "../list-manager";
 
 export interface FormDialogProps {
   /** Whether the dialog is open */

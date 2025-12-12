@@ -1,5 +1,4 @@
-import { useState } from "react";
-import type React from "react";
+import { useState, useRef } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -9,20 +8,29 @@ import {
 } from "@mui/material";
 import { useCreateStockChange } from "@/queries/inventory/stock-change";
 import { SmartPaginationList } from "@/components/elements/pagination";
-import { STOCK_CHANGE_MAPPING, STOCK_CHANGE_CONSTRAINTS } from "@ps-design/constants/inventory/stock-change";
+import { STOCK_CHANGE_MAPPING } from "@ps-design/constants/inventory/stock-change";
 import { PRODUCT_MAPPING } from "@ps-design/constants/inventory/product";
 import { FormNumber, FormSelect } from "@/components/elements/form-builder";
-import { ListManager } from "@/components/elements/list-manager";
+import { ListManager, type FormHandle } from "@/components/elements/list-manager";
+import { FormDialog } from "@/components/elements/form-decorator";
+import { createForm } from "@/components/elements/form-builder";
+import { useMessageManager } from "@/components/elements/message-manager";
 
 const typeOptions = [
-  { id: "SUPPLY", label: "Supply" },
-  { id: "ADJUSTMENT", label: "Adjustment" },
-  { id: "WASTE", label: "Waste" },
+  { value: "SUPPLY", label: "Supply" },
+  { value: "ADJUSTMENT", label: "Adjustment" },
+  { value: "WASTE", label: "Waste" },
 ];
 
-// Form generator function
-const createStockChangeForm = (selectedProductLabel: string, onOpenProductSelect: () => void): ((form: any) => React.ReactNode) => (
-  (form: any) => (
+export const StockChangesListView = () => {
+  const messageManager = useMessageManager();
+  const createMutation = useCreateStockChange();
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedProductLabel, setSelectedProductLabel] = useState<string>("");
+  const [productSelectOpen, setProductSelectOpen] = useState(false);
+
+  // Reusable form fields for create
+  const StockChangeFormContent = ({ form }: { form: any }) => (
     <>
       <form.Field
         name="type"
@@ -59,9 +67,6 @@ const createStockChangeForm = (selectedProductLabel: string, onOpenProductSelect
           onChange: ({ value }: { value: unknown }) => {
             if (value === 0 || !value) return "Quantity is required";
             if (Number(value) <= 0) return "Quantity must be greater than 0";
-            if (Number(value) > STOCK_CHANGE_CONSTRAINTS.QUANTITY.MAX_VALUE) {
-              return STOCK_CHANGE_CONSTRAINTS.QUANTITY.MAX_VALUE_MESSAGE;
-            }
             return undefined;
           },
         }}
@@ -83,21 +88,49 @@ const createStockChangeForm = (selectedProductLabel: string, onOpenProductSelect
 
       <Button
         variant="outlined"
-        onClick={onOpenProductSelect}
+        onClick={() => setProductSelectOpen(true)}
         fullWidth
         sx={{ mt: 1 }}
       >
         Select Product {selectedProductLabel && `(${selectedProductLabel})`}
       </Button>
     </>
-  )
-);
+  );
 
-export const StockChangesListView = () => {
-  const createMutation = useCreateStockChange();
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  const [selectedProductLabel, setSelectedProductLabel] = useState<string>("");
-  const [productSelectOpen, setProductSelectOpen] = useState(false);
+  const { ref: createFormRef, Component: CreateFormComponent } = createForm({
+    children: StockChangeFormContent,
+    messageManager,
+    onSubmit: async (values) => {
+      if (!selectedProductId) {
+        messageManager.addMessage("Please select a product", "error", 3000);
+        return;
+      }
+      try {
+        await createMutation.mutateAsync({
+          productId: selectedProductId,
+          type: String(values.type) as "SUPPLY" | "ADJUSTMENT" | "WASTE",
+          quantity: Number(values.quantity),
+          expirationDate: values.expirationDate ? String(values.expirationDate) : undefined,
+        });
+        messageManager.addMessage("Stock change created successfully", "success", 3000);
+        setSelectedProductId(null);
+        setSelectedProductLabel("");
+      } catch (error) {
+        messageManager.addMessage("Failed to create stock change", "error", 3000);
+      }
+    },
+  });
+
+  const [createOpen, setCreateOpen] = useState(false);
+
+  // Wrapper refs to manage dialog visibility alongside form visibility
+  const wrappedCreateFormRef = useRef<FormHandle>({
+    setVisible: (visible, record?) => {
+      setCreateOpen(visible);
+      createFormRef.current?.setVisible(visible, record);
+    },
+    submit: async () => await createFormRef.current?.submit(),
+  });
 
   const handleSelectProduct = (rowData: Record<string, unknown>) => {
     const productData = rowData as any;
@@ -110,22 +143,20 @@ export const StockChangesListView = () => {
     <>
       <ListManager
         mapping={STOCK_CHANGE_MAPPING}
-        createForm={createStockChangeForm(selectedProductLabel, () => setProductSelectOpen(true))}
-        onCreate={async (values) => {
-          if (!selectedProductId) {
-            throw new Error("Please select a product");
-          }
-          await createMutation.mutateAsync({
-            productId: selectedProductId,
-            type: String(values.type) as "SUPPLY" | "ADJUSTMENT" | "WASTE",
-            quantity: Number(values.quantity),
-            expirationDate: values.expirationDate ? String(values.expirationDate) : undefined,
-          });
-          setSelectedProductId(null);
-          setSelectedProductLabel("");
-        }}
-        createModalTitle="Create Stock Change"
+        createFormRef={wrappedCreateFormRef}
+        editFormRef={wrappedCreateFormRef}
+        messageManager={messageManager}
       />
+
+      <FormDialog
+        open={createOpen}
+        title="Create Stock Change"
+        formRef={wrappedCreateFormRef}
+        submitLabel="Create"
+        onClose={() => setCreateOpen(false)}
+      >
+        <CreateFormComponent />
+      </FormDialog>
 
       <Dialog
         open={productSelectOpen}

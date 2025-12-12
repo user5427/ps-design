@@ -10,7 +10,6 @@ import type React from "react";
 import type { EntityMapping } from "@ps-design/utils";
 
 import { SmartPaginationList, type SmartPaginationListRef } from "../pagination";
-import type { MessageManager } from "../message-manager";
 
 /** Form component must expose a ref with setVisible method and submit method */
 export interface FormHandle {

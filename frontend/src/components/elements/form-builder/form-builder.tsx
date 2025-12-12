@@ -117,7 +117,7 @@ export const FormBuilder = forwardRef<FormHandle, FormBuilderProps>(
               (fieldName) => form.state.fieldMeta[fieldName]?.errors?.length
             ) && <Alert severity="error">Form has errors. Please check all fields.</Alert>}
 
-          {children(form)}
+          {typeof children === 'function' ? children({ form }) : children}
         </Box>
       </form>
     );

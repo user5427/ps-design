@@ -1,15 +1,17 @@
-import type React from "react";
+import { useState, useRef } from "react";
 import {
   useCreateMenuCategory,
-  useBulkDeleteMenuCategories,
   useUpdateMenuCategory,
 } from "@/queries/menu";
 import { MENU_ITEM_CATEGORY_MAPPING } from "@ps-design/constants/menu/category";
 import { FormText } from "@/components/elements/form-builder";
-import { ListManager } from "@/components/elements/list-manager";
+import { ListManager, type FormHandle } from "@/components/elements/list-manager";
+import { FormDialog } from "@/components/elements/form-decorator";
+import { createForm } from "@/components/elements/form-builder";
+import { useMessageManager } from "@/components/elements/message-manager";
 
-// Define the form schema once
-const menuCategoryForm: (form: any) => React.ReactNode = (form) => (
+// Reusable form fields for create and edit
+const MenuCategoryFormContent = ({ form }: { form: any }) => (
   <form.Field
     name="name"
     defaultValue=""
@@ -45,33 +47,92 @@ const menuCategoryForm: (form: any) => React.ReactNode = (form) => (
 );
 
 export const MenuCategoriesListView = () => {
+  const messageManager = useMessageManager();
   const createMutation = useCreateMenuCategory();
   const updateMutation = useUpdateMenuCategory();
-  const bulkDeleteMutation = useBulkDeleteMenuCategories();
 
-  return (
-    <ListManager
-      mapping={MENU_ITEM_CATEGORY_MAPPING}
-      createForm={menuCategoryForm}
-      editForm={menuCategoryForm}
-      onCreate={async (values) => {
+  const { ref: createFormRef, Component: CreateFormComponent } = createForm({
+    children: MenuCategoryFormContent,
+    messageManager,
+    onSubmit: async (values) => {
+      try {
         await createMutation.mutateAsync({
           name: String(values.name),
         });
-      }}
-      onEdit={async (id, values) => {
+        messageManager.addMessage("Menu category created successfully", "success", 3000);
+      } catch (error) {
+        messageManager.addMessage("Failed to create menu category", "error", 3000);
+      }
+    },
+  });
+
+  const { ref: editFormRef, Component: EditFormComponent } = createForm({
+    children: MenuCategoryFormContent,
+    messageManager,
+    onSubmit: async (values, record: any) => {
+      if (!record?.id) return;
+      try {
         await updateMutation.mutateAsync({
-          id,
+          id: String(record.id),
           data: {
             name: String(values.name),
           },
         });
-      }}
-      onDelete={async (ids) => {
-        await bulkDeleteMutation.mutateAsync(ids);
-      }}
-      createModalTitle="Create Menu Category"
-      editModalTitle="Edit Menu Category"
-    />
+        messageManager.addMessage("Menu category updated successfully", "success", 3000);
+      } catch (error) {
+        messageManager.addMessage("Failed to update menu category", "error", 3000);
+      }
+    },
+  });
+
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+
+  // Wrapper refs to manage dialog visibility alongside form visibility
+  const wrappedCreateFormRef = useRef<FormHandle>({
+    setVisible: (visible, record?) => {
+      setCreateOpen(visible);
+      createFormRef.current?.setVisible(visible, record);
+    },
+    submit: async () => await createFormRef.current?.submit(),
+  });
+
+  const wrappedEditFormRef = useRef<FormHandle>({
+    setVisible: (visible, record?) => {
+      setEditOpen(visible);
+      editFormRef.current?.setVisible(visible, record);
+    },
+    submit: async () => await editFormRef.current?.submit(),
+  });
+
+  return (
+    <>
+      <ListManager
+        mapping={MENU_ITEM_CATEGORY_MAPPING}
+        createFormRef={wrappedCreateFormRef}
+        editFormRef={wrappedEditFormRef}
+        messageManager={messageManager}
+      />
+
+      <FormDialog
+        open={createOpen}
+        title="Create Menu Category"
+        formRef={wrappedCreateFormRef}
+        submitLabel="Create"
+        onClose={() => setCreateOpen(false)}
+      >
+        <CreateFormComponent />
+      </FormDialog>
+
+      <FormDialog
+        open={editOpen}
+        title="Edit Menu Category"
+        formRef={wrappedEditFormRef}
+        submitLabel="Update"
+        onClose={() => setEditOpen(false)}
+      >
+        <EditFormComponent />
+      </FormDialog>
+    </>
   );
 };
