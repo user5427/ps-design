@@ -16,6 +16,7 @@ import {
 import { useStaffServices } from "@/hooks/appointments";
 import type { Appointment, AppointmentStatus } from "@/schemas/appointments";
 import { CreateAppointmentModal } from "./create-appointment-modal";
+import dayjs from "dayjs";
 
 const STATUS_COLORS: Record<
   AppointmentStatus,
@@ -98,7 +99,7 @@ export const AppointmentsListView = () => {
         size: 180,
         Cell: ({ cell }) => {
           const value = cell.getValue<string>();
-          return value ? new Date(value).toLocaleString() : "";
+          return value ? dayjs(value).format("YYYY-MM-DD HH:mm") : "";
         },
       },
       {
@@ -176,7 +177,7 @@ export const AppointmentsListView = () => {
       name: "startTime",
       label: "Start Time",
       render: (value) =>
-        value ? new Date(value as string).toLocaleString() : "-",
+        value ? dayjs(value as string).format("YYYY-MM-DD HH:mm") : "-",
     },
     {
       name: "service.serviceDefinition.duration",

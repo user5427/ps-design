@@ -440,6 +440,7 @@ export const AvailabilityTimetable: React.FC<AvailabilityTimetableProps> = ({
                 setSelectedTime(value);
                 setTimePickerError(null);
               }}
+              ampm={false}
               minTime={
                 selectedBlock ? dayjs(selectedBlock.startTime) : undefined
               }
