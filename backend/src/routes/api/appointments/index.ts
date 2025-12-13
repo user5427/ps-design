@@ -9,6 +9,7 @@ import {
   getAppointmentById,
   updateAppointment,
   updateAppointmentStatus,
+  initiatePayment,
   payAppointment,
   refundAppointment,
 } from "./service";
@@ -27,6 +28,10 @@ import {
   RefundAppointmentSchema,
   type RefundAppointmentBody,
 } from "@ps-design/schemas/appointments/appointment";
+import {
+  InitiatePaymentSchema,
+  type InitiatePaymentBody,
+} from "@ps-design/schemas/payments";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
 import { AuditActionType } from "@/modules/audit";
@@ -216,6 +221,44 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
           (request.body as StatusUpdateBody).status,
         );
         return reply.send();
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
+
+  // Initiate Stripe payment - creates PaymentIntent
+  const InitiatePaymentBodySchema = InitiatePaymentSchema.omit({
+    appointmentId: true,
+  });
+  type InitiatePaymentBodyType = Omit<InitiatePaymentBody, "appointmentId">;
+
+  server.post<{ Params: AppointmentIdParams; Body: InitiatePaymentBodyType }>(
+    "/:appointmentId/pay/initiate",
+    {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+      ],
+      schema: {
+        params: AppointmentIdParam,
+        body: InitiatePaymentBodySchema,
+      },
+    },
+    async (request, reply: FastifyReply) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
+
+      const { appointmentId } = request.params;
+
+      try {
+        const result = await initiatePayment(
+          fastify,
+          businessId,
+          appointmentId,
+          request.body,
+        );
+        return reply.send(result);
       } catch (error) {
         return handleServiceError(error, reply);
       }

@@ -63,6 +63,9 @@ export class AppointmentPayment {
   @Column({ type: "text", nullable: true })
   refundReason: string | null;
 
+  @Column({ type: "varchar", nullable: true })
+  externalPaymentId: string | null;
+
   @Column({ type: "uuid" })
   @Index({ unique: true })
   appointmentId: string;
@@ -86,7 +89,7 @@ export class AppointmentPayment {
   @JoinColumn({ name: "paidById" })
   paidBy: Relation<User>;
 
-  @OneToMany("PaymentLineItem", "payment", { cascade: true })
+  @OneToMany("AppointmentPaymentLineItem", "payment", { cascade: true })
   lineItems: Relation<PaymentLineItem[]>;
 
   @CreateDateColumn()

@@ -12,7 +12,7 @@ import type { AppointmentPayment } from "./appointment-payment.entity";
 
 export type LineItemType = "SERVICE" | "TIP" | "DISCOUNT" | "TAX";
 
-@Entity("PaymentLineItem")
+@Entity("AppointmentPaymentLineItem")
 export class PaymentLineItem {
   @PrimaryGeneratedColumn("uuid")
   id: string;
