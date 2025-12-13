@@ -1,5 +1,9 @@
 import type { FastifyInstance } from "fastify";
-import { BadRequestError, NotFoundError, ForbiddenError } from "@/shared/errors";
+import {
+  BadRequestError,
+  NotFoundError,
+  ForbiddenError,
+} from "@/shared/errors";
 import { ScopeNames, SCOPE_CONFIG } from "@/modules/user/scope.types";
 import type { IAuthUser } from "@/modules/user/user.types";
 

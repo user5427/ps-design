@@ -290,7 +290,10 @@ const useMenuItemForm = ({
       handleRemoveVariation: (i: number) => {
         const removedVariation = variations[i];
         if (removedVariation.id !== undefined) {
-          setRemovedVariationIds((prev) => [...prev, removedVariation.id as string]);
+          setRemovedVariationIds((prev) => [
+            ...prev,
+            removedVariation.id as string,
+          ]);
         }
         setVariations(variations.filter((_, idx) => idx !== i));
       },

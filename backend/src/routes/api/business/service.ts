@@ -21,20 +21,20 @@ export async function getBusinessesPaginated(
     limit,
     search,
   );
-  
+
   let items = result.items;
-  
+
   // If user is not superadmin, filter to only show their business
   if (authUser?.businessId) {
     const userScopes = await fastify.db.role.getUserScopesFromRoles(
       authUser.roleIds,
     );
-    
+
     if (!userScopes.includes(ScopeNames.SUPERADMIN)) {
       items = items.filter((item) => item.id === authUser.businessId);
     }
   }
-  
+
   return {
     items: items.map((item) => BusinessResponseSchema.parse(item)),
     total: items.length,
@@ -50,7 +50,7 @@ export async function createBusiness(
 ): Promise<BusinessResponse> {
   const { name } = input;
   const business = await fastify.db.business.create({ name });
-  
+
   // Create default OWNER role for the new business
   const ownerRole = await fastify.db.role.create({
     name: "OWNER",
@@ -59,7 +59,7 @@ export async function createBusiness(
     isSystemRole: true,
     isDeletable: false,
   });
-  
+
   // Assign owner scopes to the role
   const ownerScopes = [
     "OWNER",
@@ -81,11 +81,11 @@ export async function createBusiness(
     "APPOINTMENTS_WRITE",
     "APPOINTMENTS_DELETE",
   ];
-  
+
   for (const scopeName of ownerScopes) {
     await fastify.db.roleScope.assignScope(ownerRole.id, scopeName as any);
   }
-  
+
   return BusinessResponseSchema.parse(business);
 }
 

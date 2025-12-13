@@ -105,7 +105,7 @@ export class MenuItemRepository {
       }
     });
 
-    let sth = await this.findByIdAndBusinessId(savedId, data.businessId);
+    const sth = await this.findByIdAndBusinessId(savedId, data.businessId);
     if (!sth) {
       throw new NotFoundError("Menu item not found after creation");
     }
@@ -168,7 +168,7 @@ export class MenuItemRepository {
       }
     });
 
-    let sth = await this.findByIdAndBusinessId(id, businessId);
+    const sth = await this.findByIdAndBusinessId(id, businessId);
     if (!sth) {
       throw new NotFoundError("Menu item not found after update");
     }

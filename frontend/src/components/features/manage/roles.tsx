@@ -10,17 +10,17 @@ import type { BusinessResponse } from "@ps-design/schemas/business";
 import { RoleManager } from "./role-manager";
 
 export function ManageRoles() {
-  const [selectedBusiness, setSelectedBusiness] = useState<BusinessResponse | null>(
-    null
-  );
+  const [selectedBusiness, setSelectedBusiness] =
+    useState<BusinessResponse | null>(null);
   const [showBusinessModal, setShowBusinessModal] = useState(false);
 
   // Fetch all businesses for the picker
-  const { data: businessData, isLoading: businessesLoading, error: businessError, refetch: refetchBusinesses } = useBusinessesPaginated(
-    1,
-    100,
-    undefined,
-  );
+  const {
+    data: businessData,
+    isLoading: businessesLoading,
+    error: businessError,
+    refetch: refetchBusinesses,
+  } = useBusinessesPaginated(1, 100, undefined);
   const businesses = businessData?.items || [];
 
   const businessColumns = useMemo<MRT_ColumnDef<BusinessResponse>[]>(
@@ -88,4 +88,3 @@ export function ManageRoles() {
     </>
   );
 }
-

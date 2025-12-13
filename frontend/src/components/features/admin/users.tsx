@@ -32,7 +32,11 @@ export function AdminUsersManagement() {
   const { data: currentUser } = useAuthUser();
 
   // Fetch all users in the system
-  const { data: users = [], isLoading: usersLoading, error } = useQuery<User[]>({
+  const {
+    data: users = [],
+    isLoading: usersLoading,
+    error,
+  } = useQuery<User[]>({
     queryKey: ["users"],
     queryFn: async () => {
       const response = await apiClient.get("/users");
@@ -56,7 +60,8 @@ export function AdminUsersManagement() {
         accessorKey: "createdAt",
         header: "Created At",
         size: 150,
-        Cell: ({ cell }) => new Date(cell.getValue() as string).toLocaleDateString(),
+        Cell: ({ cell }) =>
+          new Date(cell.getValue() as string).toLocaleDateString(),
       },
     ],
     [],
@@ -106,7 +111,7 @@ export function AdminUsersManagement() {
       renderCustomField: ({ value, onChange, error, disabled }) => {
         const passwordValue = String(value || "");
         const strength = checkPasswordStrength(passwordValue);
-        
+
         return (
           <Box>
             <TextField
@@ -137,7 +142,10 @@ export function AdminUsersManagement() {
       label: "Business",
       type: "select",
       required: true,
-      options: businesses.map((b: { id: string; name: string }) => ({ value: b.id, label: b.name })),
+      options: businesses.map((b: { id: string; name: string }) => ({
+        value: b.id,
+        label: b.name,
+      })),
     },
     {
       name: "isOwner",
@@ -201,7 +209,7 @@ export function AdminUsersManagement() {
   const handleDelete = async (ids: string[]) => {
     // Prevent deleting yourself
     const canDelete = ids.filter((id) => id !== currentUser?.id);
-    
+
     if (canDelete.length === 0) {
       throw new Error("You cannot delete your own account");
     }

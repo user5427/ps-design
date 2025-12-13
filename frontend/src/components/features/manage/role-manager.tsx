@@ -32,13 +32,21 @@ interface RoleManagerProps {
   onClose?: () => void;
 }
 
-export function RoleManager({ businessId, open = true, onClose }: RoleManagerProps) {
+export function RoleManager({
+  businessId,
+  open = true,
+  onClose,
+}: RoleManagerProps) {
   const queryClient = useQueryClient();
-  
-  const { data: rolesData = [], isLoading: rolesLoading, error } = useRoles(businessId);
+
+  const {
+    data: rolesData = [],
+    isLoading: rolesLoading,
+    error,
+  } = useRoles(businessId);
   const createMutation = useCreateRole();
   const deleteMutation = useDeleteRole();
-  
+
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showCreateRoleModal, setShowCreateRoleModal] = useState(false);
   const [showEditRoleModal, setShowEditRoleModal] = useState(false);
@@ -141,12 +149,12 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
         description: editRoleDescription || undefined,
       };
       await apiClient.patch(`/roles/${selectedRole.id}`, updateData);
-      
+
       // Update scopes separately
       await apiClient.post(`/roles/${selectedRole.id}/scopes`, {
         scopes: editScopes,
       });
-      
+
       setShowEditRoleModal(false);
       setSelectedRole(null);
       setEditRoleName("");
@@ -175,7 +183,7 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
       const user = users.find((u) => u.id === userId);
       const existingRoleIds = user?.roles.map((r) => r.id) || [];
       const newRoleIds = [...new Set([...existingRoleIds, selectedRole.id])];
-      
+
       await apiClient.post(`/users/${userId}/roles`, {
         roleIds: newRoleIds,
       });
@@ -189,8 +197,9 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     } catch (error: unknown) {
       const message =
-        error instanceof Error && 'response' in error
-          ? (error as { response?: { data?: { message?: string } } }).response?.data?.message || "Failed to assign role"
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message || "Failed to assign role"
           : "Failed to assign role";
       setSnackbar({
         open: true,
@@ -213,8 +222,9 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     } catch (error: unknown) {
       const message =
-        error instanceof Error && 'response' in error
-          ? (error as { response?: { data?: { message?: string } } }).response?.data?.message || "Failed to remove role"
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message || "Failed to remove role"
           : "Failed to remove role";
       setSnackbar({
         open: true,
@@ -240,10 +250,10 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
           {rolesLoading ? (
             <CircularProgress />
           ) : (
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
-              {error && (
-                <Alert severity="error">Failed to load roles</Alert>
-              )}
+            <Box
+              sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}
+            >
+              {error && <Alert severity="error">Failed to load roles</Alert>}
               <Button
                 variant="contained"
                 color="primary"
@@ -314,22 +324,26 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => {
-            onClose?.();
-          }}>Close</Button>
+          <Button
+            onClick={() => {
+              onClose?.();
+            }}
+          >
+            Close
+          </Button>
         </DialogActions>
       </Dialog>
 
       {/* Create Role Dialog */}
-      <Dialog 
-        open={showCreateRoleModal} 
+      <Dialog
+        open={showCreateRoleModal}
         onClose={() => {
           setShowCreateRoleModal(false);
           setNewRoleName("");
           setNewRoleDescription("");
           setSelectedScopes([]);
-        }} 
-        maxWidth="sm" 
+        }}
+        maxWidth="sm"
         fullWidth
       >
         <DialogTitle>Create New Role</DialogTitle>
@@ -353,9 +367,20 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
               <div style={{ marginBottom: "8px", fontWeight: "bold" }}>
                 Select Scopes:
               </div>
-              <Box sx={{ maxHeight: "200px", overflowY: "auto", border: "1px solid #e0e0e0", borderRadius: 1, padding: 1 }}>
+              <Box
+                sx={{
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                  border: "1px solid #e0e0e0",
+                  borderRadius: 1,
+                  padding: 1,
+                }}
+              >
                 {scopes.map((scope) => (
-                  <Box key={scope.name} sx={{ display: "flex", alignItems: "center", padding: 0.5 }}>
+                  <Box
+                    key={scope.name}
+                    sx={{ display: "flex", alignItems: "center", padding: 0.5 }}
+                  >
                     <input
                       type="checkbox"
                       id={`scope-${scope.name}`}
@@ -366,13 +391,18 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
                           if (isChecked) {
                             return [...current, scope.name];
                           } else {
-                            return current.filter((name) => name !== scope.name);
+                            return current.filter(
+                              (name) => name !== scope.name,
+                            );
                           }
                         });
                       }}
                       style={{ marginRight: 8, cursor: "pointer" }}
                     />
-                    <label htmlFor={`scope-${scope.name}`} style={{ cursor: "pointer", userSelect: "none" }}>
+                    <label
+                      htmlFor={`scope-${scope.name}`}
+                      style={{ cursor: "pointer", userSelect: "none" }}
+                    >
                       {scope.name}
                     </label>
                   </Box>
@@ -382,12 +412,16 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => {
-            setShowCreateRoleModal(false);
-            setNewRoleName("");
-            setNewRoleDescription("");
-            setSelectedScopes([]);
-          }}>Cancel</Button>
+          <Button
+            onClick={() => {
+              setShowCreateRoleModal(false);
+              setNewRoleName("");
+              setNewRoleDescription("");
+              setSelectedScopes([]);
+            }}
+          >
+            Cancel
+          </Button>
           <Button onClick={handleCreateRole} variant="contained">
             Create
           </Button>
@@ -429,9 +463,20 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
               <div style={{ marginBottom: "8px", fontWeight: "bold" }}>
                 Select Scopes:
               </div>
-              <Box sx={{ maxHeight: "200px", overflowY: "auto", border: "1px solid #e0e0e0", borderRadius: 1, padding: 1 }}>
+              <Box
+                sx={{
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                  border: "1px solid #e0e0e0",
+                  borderRadius: 1,
+                  padding: 1,
+                }}
+              >
                 {scopes.map((scope) => (
-                  <Box key={scope.name} sx={{ display: "flex", alignItems: "center", padding: 0.5 }}>
+                  <Box
+                    key={scope.name}
+                    sx={{ display: "flex", alignItems: "center", padding: 0.5 }}
+                  >
                     <input
                       type="checkbox"
                       id={`edit-scope-${scope.name}`}
@@ -442,13 +487,18 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
                           if (isChecked) {
                             return [...current, scope.name];
                           } else {
-                            return current.filter((name) => name !== scope.name);
+                            return current.filter(
+                              (name) => name !== scope.name,
+                            );
                           }
                         });
                       }}
                       style={{ marginRight: 8, cursor: "pointer" }}
                     />
-                    <label htmlFor={`edit-scope-${scope.name}`} style={{ cursor: "pointer", userSelect: "none" }}>
+                    <label
+                      htmlFor={`edit-scope-${scope.name}`}
+                      style={{ cursor: "pointer", userSelect: "none" }}
+                    >
                       {scope.name}
                     </label>
                   </Box>
@@ -458,13 +508,17 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => {
-            setShowEditRoleModal(false);
-            setSelectedRole(null);
-            setEditRoleName("");
-            setEditRoleDescription("");
-            setEditScopes([]);
-          }}>Cancel</Button>
+          <Button
+            onClick={() => {
+              setShowEditRoleModal(false);
+              setSelectedRole(null);
+              setEditRoleName("");
+              setEditRoleDescription("");
+              setEditScopes([]);
+            }}
+          >
+            Cancel
+          </Button>
           <Button onClick={handleUpdateRole} variant="contained">
             Update
           </Button>
@@ -481,14 +535,14 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>
-          Manage {selectedRole?.name} Role for Users
-        </DialogTitle>
+        <DialogTitle>Manage {selectedRole?.name} Role for Users</DialogTitle>
         <DialogContent sx={{ minHeight: 300 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
             <List sx={{ width: "100%" }}>
               {users.map((user) => {
-                const hasRole = user.roles.some((r) => r.id === selectedRole?.id);
+                const hasRole = user.roles.some(
+                  (r) => r.id === selectedRole?.id,
+                );
                 return (
                   <Box
                     key={user.id}
@@ -512,7 +566,12 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
                           size="small"
                           variant="contained"
                           color="error"
-                          onClick={() => handleUnassignUserFromRole(user.id as string, selectedRole?.id || "")}
+                          onClick={() =>
+                            handleUnassignUserFromRole(
+                              user.id as string,
+                              selectedRole?.id || "",
+                            )
+                          }
                         >
                           Remove
                         </Button>
@@ -521,7 +580,9 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
                           size="small"
                           variant="contained"
                           color="success"
-                          onClick={() => handleAssignUserToRole(user.id as string)}
+                          onClick={() =>
+                            handleAssignUserToRole(user.id as string)
+                          }
                         >
                           Assign
                         </Button>
@@ -537,10 +598,14 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => {
-            setShowAssignModal(false);
-            setSelectedRole(null);
-          }}>Close</Button>
+          <Button
+            onClick={() => {
+              setShowAssignModal(false);
+              setSelectedRole(null);
+            }}
+          >
+            Close
+          </Button>
         </DialogActions>
       </Dialog>
 

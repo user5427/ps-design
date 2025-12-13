@@ -13,7 +13,8 @@ import {
 
 export const rolesKeys = {
   all: ["roles"] as const,
-  list: (businessId?: string) => [...rolesKeys.all, "list", businessId] as const,
+  list: (businessId?: string) =>
+    [...rolesKeys.all, "list", businessId] as const,
   detail: (id: string) => [...rolesKeys.all, "detail", id] as const,
   scopes: () => [...rolesKeys.all, "scopes"] as const,
   userScopes: () => [...rolesKeys.all, "userScopes"] as const,

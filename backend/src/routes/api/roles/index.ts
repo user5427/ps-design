@@ -61,7 +61,7 @@ export default async function roleRoutes(fastify: FastifyInstance) {
       try {
         const authUser = requireAuthUser(request, reply);
         if (!authUser) return;
-        
+
         let roles: any[];
         if (request.query.businessId) {
           // Get roles for a specific business

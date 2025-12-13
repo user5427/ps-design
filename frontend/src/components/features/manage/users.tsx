@@ -37,7 +37,9 @@ interface BusinessUsersManagementProps {
   businessId: string;
 }
 
-export function BusinessUsersManagement({ businessId }: BusinessUsersManagementProps) {
+export function BusinessUsersManagement({
+  businessId,
+}: BusinessUsersManagementProps) {
   const queryClient = useQueryClient();
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserResponse | null>(null);
@@ -51,7 +53,13 @@ export function BusinessUsersManagement({ businessId }: BusinessUsersManagementP
 
   // Assign roles mutation
   const assignRolesMutation = useMutation({
-    mutationFn: async ({ userId, roleIds }: { userId: string; roleIds: string[] }) => {
+    mutationFn: async ({
+      userId,
+      roleIds,
+    }: {
+      userId: string;
+      roleIds: string[];
+    }) => {
       const assignData: AssignRolesBody = { roleIds };
       const response = await api.post(`/users/${userId}/roles`, assignData);
       return response.data;
@@ -92,7 +100,12 @@ export function BusinessUsersManagement({ businessId }: BusinessUsersManagementP
 
   if (usersLoading || rolesLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
         <CircularProgress />
       </Box>
     );
@@ -102,7 +115,12 @@ export function BusinessUsersManagement({ businessId }: BusinessUsersManagementP
     <Box>
       <Card>
         <CardContent>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+          >
             <Typography variant="h5">Users Management</Typography>
           </Box>
 
@@ -131,7 +149,11 @@ export function BusinessUsersManagement({ businessId }: BusinessUsersManagementP
                       <Box display="flex" gap={0.5} flexWrap="wrap">
                         {user.roles.length > 0 ? (
                           user.roles.map((role) => (
-                            <Chip key={role.id} label={role.name} size="small" />
+                            <Chip
+                              key={role.id}
+                              label={role.name}
+                              size="small"
+                            />
                           ))
                         ) : (
                           <Typography variant="caption" color="text.secondary">
@@ -141,7 +163,10 @@ export function BusinessUsersManagement({ businessId }: BusinessUsersManagementP
                       </Box>
                     </TableCell>
                     <TableCell align="right">
-                      <IconButton size="small" onClick={() => handleOpenDialog(user)}>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleOpenDialog(user)}
+                      >
                         <EditIcon />
                       </IconButton>
                     </TableCell>
@@ -153,7 +178,12 @@ export function BusinessUsersManagement({ businessId }: BusinessUsersManagementP
         </CardContent>
       </Card>
 
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Assign Roles to {selectedUser?.name}</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 2 }}>

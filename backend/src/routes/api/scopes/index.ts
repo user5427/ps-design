@@ -5,9 +5,7 @@ import { ScopeNames, SCOPE_CONFIG } from "@/modules/user/scope.types";
 import { handleServiceError } from "@/shared/error-handler";
 import { requireAuthUser } from "@/shared/auth-utils";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
-import {
-  ErrorResponseSchema,
-} from "@ps-design/schemas/shared/response-types";
+import { ErrorResponseSchema } from "@ps-design/schemas/shared/response-types";
 import { ScopesResponseSchema } from "@ps-design/schemas/scope";
 
 export default async function scopesRoutes(fastify: FastifyInstance) {
@@ -36,7 +34,7 @@ export default async function scopesRoutes(fastify: FastifyInstance) {
         const authUser = requireAuthUser(request, reply);
         if (!authUser) return;
         const { businessId } = request.query;
-        
+
         // Get user's scopes from their roles
         const userScopes = await fastify.db.role.getUserScopesFromRoles(
           authUser.roleIds,

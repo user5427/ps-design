@@ -99,8 +99,16 @@ export function useRemoveRole() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ userId, roleId }: { userId: string; roleId: string }) => {
-      await apiClient.delete<SuccessResponse>(`/users/${userId}/roles/${roleId}`);
+    mutationFn: async ({
+      userId,
+      roleId,
+    }: {
+      userId: string;
+      roleId: string;
+    }) => {
+      await apiClient.delete<SuccessResponse>(
+        `/users/${userId}/roles/${roleId}`,
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

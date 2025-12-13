@@ -221,9 +221,8 @@ export async function assignRolesToUser(
 
     // Check if user can assign this role (must have all scopes in the role)
     if (!userScopes.includes(ScopeNames.SUPERADMIN)) {
-      const roleScopes = await fastify.db.roleScope.getScopeNamesForRole(
-        roleId,
-      );
+      const roleScopes =
+        await fastify.db.roleScope.getScopeNamesForRole(roleId);
       for (const scope of roleScopes) {
         if (!userScopes.includes(scope)) {
           throw new ForbiddenError(
@@ -292,9 +291,7 @@ export async function removeRoleFromUser(
   // Check if this is a SUPERADMIN role
   if (role.name === "SUPERADMIN") {
     // Prevent removing the last superadmin globally
-    const allUsersWithRole = await fastify.db.userRole.getUsersWithRole(
-      roleId,
-    );
+    const allUsersWithRole = await fastify.db.userRole.getUsersWithRole(roleId);
     if (allUsersWithRole.length <= 1) {
       throw new BadRequestError(
         "Cannot remove the last superadmin from the system",
@@ -307,9 +304,8 @@ export async function removeRoleFromUser(
     // Allow SUPERADMIN to remove last owner, but prevent others from doing so
     if (!userScopes.includes(ScopeNames.SUPERADMIN)) {
       // Prevent removing the last owner from the business
-      const allUsersWithRole = await fastify.db.userRole.getUsersWithRole(
-        roleId,
-      );
+      const allUsersWithRole =
+        await fastify.db.userRole.getUsersWithRole(roleId);
       // Filter to only users in the same business
       const businessOwners = allUsersWithRole.filter(
         (ur) => ur.user.businessId === user.businessId,

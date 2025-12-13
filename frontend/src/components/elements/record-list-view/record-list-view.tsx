@@ -262,7 +262,7 @@ export function RecordListView<T extends Record<string, unknown>>({
     data,
     enableRowSelection: enableRowDeletion
       ? enableRowDeletion
-      : enableMultiRowSelection ?? !!onDelete,
+      : (enableMultiRowSelection ?? !!onDelete),
     enableColumnResizing: true,
     enableGlobalFilter: true,
     enableStickyHeader: true,

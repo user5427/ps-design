@@ -16,18 +16,21 @@ export function BusinessRoles() {
   const [showRolesModal, setShowRolesModal] = useState(false);
 
   if (!businessId) {
-    return <Alert severity="info">You are not associated with a business</Alert>;
+    return (
+      <Alert severity="info">You are not associated with a business</Alert>
+    );
   }
 
   return (
     <>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 3, p: 3 }}>
         <Typography variant="h4">Business Roles</Typography>
-        
+
         <Card>
           <CardContent>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-              Manage roles and permissions for your business. Click the button below to view and manage roles.
+              Manage roles and permissions for your business. Click the button
+              below to view and manage roles.
             </Typography>
             <Button
               variant="contained"
@@ -41,8 +44,8 @@ export function BusinessRoles() {
         </Card>
       </Box>
 
-      <RoleManager 
-        businessId={businessId} 
+      <RoleManager
+        businessId={businessId}
         open={showRolesModal}
         onClose={() => setShowRolesModal(false)}
       />
