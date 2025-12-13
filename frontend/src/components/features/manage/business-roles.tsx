@@ -59,10 +59,7 @@ export function BusinessRoles() {
   const { data: currentUser } = useAuthUser();
   const businessId = currentUser?.businessId as string;
 
-  if (!businessId) {
-    return <Alert severity="info">You are not associated with a business</Alert>;
-  }
-
+  // All hooks must be called before any conditional returns
   const { data: rolesData = [], isLoading: rolesLoading, error } = useRoles(businessId);
   const createMutation = useCreateRole();
   const deleteMutation = useDeleteRole();
@@ -75,9 +72,6 @@ export function BusinessRoles() {
   const [selectedScopes, setSelectedScopes] = useState<string[]>([]);
   const [assignError, setAssignError] = useState<string>("");
   const [assignSuccess, setAssignSuccess] = useState<string>("");
-
-  // Cast API response to Role type
-  const roles = rolesData as unknown as Role[];
 
   // Fetch available scopes
   const { data: scopes = [] } = useQuery<Scope[]>({
@@ -97,6 +91,7 @@ export function BusinessRoles() {
       });
       return response.data;
     },
+    enabled: !!businessId,
   });
 
   const columns = useMemo<MRT_ColumnDef<Role>[]>(
@@ -121,29 +116,24 @@ export function BusinessRoles() {
     [],
   );
 
-  const editFormFields: FormFieldDefinition[] = [
-    {
-      name: "name",
-      label: "Name",
-      type: "text",
-      required: true,
-      validationRules: [ValidationRules.minLength(1)],
-    },
-    {
-      name: "description",
-      label: "Description",
-      type: "text",
-      required: false,
-    },
-  ];
+  // Cast API response to Role type
+  const roles = rolesData as unknown as Role[];
 
-  const viewFields: ViewFieldDefinition[] = [
-    { name: "id", label: "ID" },
-    { name: "name", label: "Name" },
-    { name: "description", label: "Description" },
-    { name: "createdAt", label: "Created At" },
-    { name: "updatedAt", label: "Updated At" },
-  ];
+  const handleEdit = useCallback(
+    async (id: string, values: Partial<Role>) => {
+      await apiClient.put(`/roles/${id}`, {
+        name: values.name,
+        description: values.description,
+      });
+      queryClient.invalidateQueries({ queryKey: ["roles", businessId] });
+    },
+    [queryClient, businessId],
+  );
+
+  // Now we can do conditional returns after all hooks
+  if (!businessId) {
+    return <Alert severity="info">You are not associated with a business</Alert>;
+  }
 
   const handleCreateRole = async () => {
     if (!newRoleName.trim()) return;
@@ -164,17 +154,6 @@ export function BusinessRoles() {
       console.error("Failed to create role:", error);
     }
   };
-
-  const handleEdit = useCallback(
-    async (id: string, values: Partial<Role>) => {
-      await apiClient.put(`/roles/${id}`, {
-        name: values.name,
-        description: values.description,
-      });
-      queryClient.invalidateQueries({ queryKey: ["roles", businessId] });
-    },
-    [queryClient, businessId],
-  );
 
   const handleDelete = async (ids: string[]) => {
     // Filter out non-deletable roles
@@ -203,10 +182,6 @@ export function BusinessRoles() {
         return [...prev, scopeId];
       }
     });
-  };
-
-  const refetch = () => {
-    queryClient.invalidateQueries({ queryKey: ["roles", businessId] });
   };
 
   const handleAssignUser = async (userId: string) => {
@@ -249,6 +224,34 @@ export function BusinessRoles() {
       setAssignError(errorMessage);
       console.error("Failed to remove role:", error);
     }
+  };
+
+  const editFormFields: FormFieldDefinition[] = [
+    {
+      name: "name",
+      label: "Name",
+      type: "text",
+      required: true,
+      validationRules: [ValidationRules.minLength(1)],
+    },
+    {
+      name: "description",
+      label: "Description",
+      type: "text",
+      required: false,
+    },
+  ];
+
+  const viewFields: ViewFieldDefinition[] = [
+    { name: "id", label: "ID" },
+    { name: "name", label: "Name" },
+    { name: "description", label: "Description" },
+    { name: "createdAt", label: "Created At" },
+    { name: "updatedAt", label: "Updated At" },
+  ];
+
+  const refetch = () => {
+    queryClient.invalidateQueries({ queryKey: ["roles", businessId] });
   };
 
   return (

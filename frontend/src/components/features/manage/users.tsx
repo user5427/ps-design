@@ -142,6 +142,7 @@ export function BusinessUsersManagement({ businessId }: BusinessUsersManagementP
                 <TableRow>
                   <TableCell>Name</TableCell>
                   <TableCell>Email</TableCell>
+                  <TableCell>Business ID</TableCell>
                   <TableCell>Roles</TableCell>
                   <TableCell align="right">Actions</TableCell>
                 </TableRow>
@@ -151,6 +152,11 @@ export function BusinessUsersManagement({ businessId }: BusinessUsersManagementP
                   <TableRow key={user.id}>
                     <TableCell>{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <Typography variant="body2" fontFamily="monospace">
+                        {user.businessId || "N/A"}
+                      </Typography>
+                    </TableCell>
                     <TableCell>
                       <Box display="flex" gap={0.5} flexWrap="wrap">
                         {user.roles.length > 0 ? (
