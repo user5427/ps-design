@@ -34,7 +34,6 @@ import {
   RoleResponseSchema,
   RolesResponseSchema,
 } from "@ps-design/schemas/role";
-import { ScopesResponseSchema } from "@ps-design/schemas/scope";
 
 export default async function roleRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -63,7 +62,7 @@ export default async function roleRoutes(fastify: FastifyInstance) {
         const authUser = requireAuthUser(request, reply);
         if (!authUser) return;
         
-        let roles;
+        let roles: any[];
         if (request.query.businessId) {
           // Get roles for a specific business
           roles = await getRolesByBusinessId(
