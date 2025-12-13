@@ -89,7 +89,7 @@ export class AppointmentPayment {
   @JoinColumn({ name: "paidById" })
   paidBy: Relation<User>;
 
-  @OneToMany("PaymentLineItem", "payment", { cascade: true })
+  @OneToMany("AppointmentPaymentLineItem", "payment", { cascade: true })
   lineItems: Relation<PaymentLineItem[]>;
 
   @CreateDateColumn()
