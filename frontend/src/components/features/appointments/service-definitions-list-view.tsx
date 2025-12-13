@@ -16,6 +16,7 @@ import { useCategories } from "@/hooks/category-hooks";
 import type { ServiceDefinition } from "@/schemas/appointments";
 import { Chip } from "@mui/material";
 import { formatPrice, centsToEuros, eurosToCents } from "@/utils/price";
+import type { CategoryResponse } from "@ps-design/schemas/category";
 
 export const ServiceDefinitionsListView = () => {
   const {
@@ -31,7 +32,7 @@ export const ServiceDefinitionsListView = () => {
 
   const categoryOptions = useMemo(
     () =>
-      categories.map((cat) => ({
+      categories.map((cat: CategoryResponse) => ({
         label: cat.name,
         value: cat.id,
       })),

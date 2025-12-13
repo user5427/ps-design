@@ -5,6 +5,7 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   type Relation,
   UpdateDateColumn,
@@ -13,7 +14,7 @@ import type { Business } from "@/modules/business/business.entity";
 import type { User } from "@/modules/user/user.entity";
 import type { StaffService } from "@/modules/appointments/staff-service/staff-service.entity";
 
-export type AppointmentStatus = "RESERVED" | "CANCELLED" | "PAID";
+export type AppointmentStatus = "RESERVED" | "CANCELLED" | "PAID" | "REFUNDED";
 
 @Entity("Appointment")
 export class Appointment {
@@ -29,7 +30,7 @@ export class Appointment {
   @Column({ type: "varchar", nullable: true })
   customerEmail: string | null;
 
-  @Column({ type: "timestamptz" })
+  @Column({ type: "timestamp" })
   @Index()
   startTime: Date;
 
@@ -61,6 +62,11 @@ export class Appointment {
   @ManyToOne("User", { onDelete: "SET NULL" })
   @JoinColumn({ name: "createdById" })
   createdBy: Relation<User>;
+
+  @OneToOne("AppointmentPayment", "appointment", { cascade: true })
+  payment: Relation<
+    import("../appointment-payment/appointment-payment.entity").AppointmentPayment
+  >;
 
   @CreateDateColumn()
   createdAt: Date;
