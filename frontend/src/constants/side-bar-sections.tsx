@@ -11,6 +11,8 @@ import ViewListIcon from "@mui/icons-material/ViewList";
 import EventIcon from "@mui/icons-material/Event";
 import SecurityIcon from "@mui/icons-material/Security";
 import PersonIcon from "@mui/icons-material/Person";
+import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
+import type { Section } from "@/components/layouts/side-bar/side-bar-item";
 import { URLS } from "./urls";
 import type { Section } from "@/components/layouts/side-bar";
 
@@ -114,6 +116,11 @@ export const sidebarSections: Section[] = [
         path: URLS.APPOINTMENTS_STAFF_SERVICES,
       },
     ],
+  },
+  {
+    label: "Gift Cards",
+    icon: <CardGiftcardIcon />,
+    path: URLS.GIFT_CARDS,
   },
   {
     label: "Settings",

@@ -5,11 +5,15 @@ import {
   getAppointments,
   updateAppointment,
   updateAppointmentStatus,
+  payAppointment,
+  refundAppointment,
 } from "@/api/appointments";
 import type {
   CreateAppointmentBody,
   UpdateAppointmentBody,
   AppointmentStatus,
+  PayAppointmentBody,
+  RefundAppointmentBody,
 } from "@ps-design/schemas/appointments/appointment";
 
 export const appointmentKeys = {
@@ -60,6 +64,28 @@ export function useBulkDeleteAppointments() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (ids: string[]) => bulkDeleteAppointments(ids),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: appointmentKeys.all });
+    },
+  });
+}
+
+export function usePayAppointment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: PayAppointmentBody }) =>
+      payAppointment(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: appointmentKeys.all });
+    },
+  });
+}
+
+export function useRefundAppointment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: RefundAppointmentBody }) =>
+      refundAppointment(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: appointmentKeys.all });
     },

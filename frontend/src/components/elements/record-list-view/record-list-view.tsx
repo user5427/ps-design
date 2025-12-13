@@ -47,6 +47,7 @@ export function RecordListView<T extends Record<string, unknown>>({
   viewModalTitle,
   renderRowActions,
   enableMultiRowSelection,
+  canEditRow,
 }: RecordListViewProps<T>) {
   // Compute whether to show actions - defaults to true when handler is provided
   const showEditAction = hasEditAction ?? !!onEdit;
@@ -207,7 +208,7 @@ export function RecordListView<T extends Record<string, unknown>>({
                 </IconButton>
               </Tooltip>
             )}
-            {showEditAction && (
+            {showEditAction && (!canEditRow || canEditRow(row.original)) && (
               <Tooltip title="Edit">
                 <IconButton
                   size="small"
@@ -250,6 +251,7 @@ export function RecordListView<T extends Record<string, unknown>>({
     openViewModal,
     openDeleteDialog,
     renderRowActions,
+    canEditRow,
   ]);
 
   const table = useMaterialReactTable({

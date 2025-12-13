@@ -49,3 +49,5 @@ export type CreateAppointment =
   import("@ps-design/schemas/appointments/appointment").CreateAppointmentBody;
 export type UpdateAppointment =
   import("@ps-design/schemas/appointments/appointment").UpdateAppointmentBody;
+export type PaymentLineItem =
+  import("@ps-design/schemas/appointments/appointment").PaymentLineItem;

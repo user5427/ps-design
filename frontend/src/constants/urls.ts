@@ -22,4 +22,5 @@ export const URLS = {
   APPOINTMENTS_SERVICE_DEFINITIONS: "/appointments/service-definitions",
   APPOINTMENTS_STAFF_SERVICES: "/appointments/staff-services",
   APPOINTMENTS_LIST: "/appointments/appointments",
+  GIFT_CARDS: "/gift-cards",
 };

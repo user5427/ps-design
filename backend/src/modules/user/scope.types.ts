@@ -21,6 +21,9 @@ export enum ScopeNames {
   APPOINTMENTS_READ = "APPOINTMENTS_READ",
   APPOINTMENTS_WRITE = "APPOINTMENTS_WRITE",
   APPOINTMENTS_DELETE = "APPOINTMENTS_DELETE",
+  GIFT_CARDS_READ = "GIFT_CARDS_READ",
+  GIFT_CARDS_WRITE = "GIFT_CARDS_WRITE",
+  GIFT_CARDS_DELETE = "GIFT_CARDS_DELETE",
 }
 
 // Scope configuration with descriptions
@@ -111,6 +114,18 @@ export const SCOPE_CONFIG: Record<
   [ScopeNames.APPOINTMENTS_DELETE]: {
     name: ScopeNames.APPOINTMENTS_DELETE,
     description: "Delete appointments data",
+  },
+  [ScopeNames.GIFT_CARDS_READ]: {
+    name: ScopeNames.GIFT_CARDS_READ,
+    description: "Read gift cards data",
+  },
+  [ScopeNames.GIFT_CARDS_WRITE]: {
+    name: ScopeNames.GIFT_CARDS_WRITE,
+    description: "Create and update gift cards data",
+  },
+  [ScopeNames.GIFT_CARDS_DELETE]: {
+    name: ScopeNames.GIFT_CARDS_DELETE,
+    description: "Delete gift cards data",
   },
 };
 
