@@ -8,6 +8,7 @@ import {
   getBusinessById,
   getBusinessesPaginated,
   updateBusiness,
+  getBusinessUsers,
 } from "./service";
 import { handleServiceError } from "@/shared/error-handler";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
@@ -21,6 +22,7 @@ import {
   UpdateBusinessSchema,
   type BusinessQuery,
   BusinessQuerySchema,
+  BusinessUsersResponseSchema,
 } from "@ps-design/schemas/business";
 import {
   BusinessResponseSchema,
@@ -184,6 +186,35 @@ export default async function businessRoutes(fastify: FastifyInstance) {
         const { businessId } = request.params;
         await deleteBusiness(fastify, businessId);
         return reply.send({ success: true });
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
+
+  // Get users for a specific business
+  server.get<{ Params: BusinessIdParams }>(
+    "/:businessId/users",
+    {
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ)],
+      schema: {
+        params: BusinessIdParam,
+        response: {
+          200: BusinessUsersResponseSchema,
+          401: ErrorResponseSchema,
+        },
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Params: BusinessIdParams;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      try {
+        const { businessId } = request.params;
+        const users = await getBusinessUsers(fastify, businessId);
+        return reply.send(users);
       } catch (error) {
         return handleServiceError(error, reply);
       }

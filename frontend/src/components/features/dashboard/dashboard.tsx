@@ -51,6 +51,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
       <Stack direction="row" spacing={2} sx={{ mt: 4 }}>
         <Button
           variant="outlined"
+          onClick={() => navigate({ to: URLS.AVAILABILITY })}
+        >
+          Manage Availability
+        </Button>
+        <Button
+          variant="outlined"
           onClick={() => navigate({ to: URLS.CHANGE_PASSWORD })}
         >
           Change Password

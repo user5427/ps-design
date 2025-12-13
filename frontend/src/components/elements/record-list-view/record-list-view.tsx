@@ -37,13 +37,20 @@ export function RecordListView<T extends Record<string, unknown>>({
   onSuccess,
   viewFields,
   hasViewAction = true,
+  hasEditAction,
+  hasDeleteAction,
   getRowId,
   renderCustomCreateModal,
   renderCustomEditModal,
   createModalTitle,
   editModalTitle,
   viewModalTitle,
+  renderRowActions,
+  enableMultiRowSelection,
 }: RecordListViewProps<T>) {
+  // Compute whether to show actions - defaults to true when handler is provided
+  const showEditAction = hasEditAction ?? !!onEdit;
+  const showDeleteAction = hasDeleteAction ?? !!onDelete;
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -68,7 +75,21 @@ export function RecordListView<T extends Record<string, unknown>>({
   // Action handlers
   const handleCreate = async (values: Record<string, unknown>) => {
     if (!onCreate) return;
-    await onCreate(values as Partial<T>);
+
+    // Apply transformForSubmit to field values
+    const transformedValues = { ...values };
+    for (const field of createFormFields) {
+      if (
+        field.transformForSubmit &&
+        transformedValues[field.name] !== undefined
+      ) {
+        transformedValues[field.name] = field.transformForSubmit(
+          transformedValues[field.name],
+        );
+      }
+    }
+
+    await onCreate(transformedValues as Partial<T>);
     setSnackbar({
       open: true,
       message: "Record created successfully",
@@ -82,7 +103,21 @@ export function RecordListView<T extends Record<string, unknown>>({
     const id = getRowId
       ? getRowId(editingRecord)
       : String(editingRecord[idKey]);
-    await onEdit(id, values as Partial<T>);
+
+    // Apply transformForSubmit to field values
+    const transformedValues = { ...values };
+    for (const field of editFormFields) {
+      if (
+        field.transformForSubmit &&
+        transformedValues[field.name] !== undefined
+      ) {
+        transformedValues[field.name] = field.transformForSubmit(
+          transformedValues[field.name],
+        );
+      }
+    }
+
+    await onEdit(id, transformedValues as Partial<T>);
     setSnackbar({
       open: true,
       message: "Record updated successfully",
@@ -115,6 +150,20 @@ export function RecordListView<T extends Record<string, unknown>>({
     setViewModalOpen(true);
   }, []);
 
+  // Transform editing record values for display in edit form
+  const transformedEditingRecord = useMemo(() => {
+    if (!editingRecord) return undefined;
+    const transformed = { ...editingRecord } as Record<string, unknown>;
+    for (const field of editFormFields) {
+      if (field.transformForEdit && transformed[field.name] !== undefined) {
+        transformed[field.name] = field.transformForEdit(
+          transformed[field.name],
+        );
+      }
+    }
+    return transformed;
+  }, [editingRecord, editFormFields]);
+
   // Generate view fields from edit fields if not provided
   const computedViewFields: ViewFieldDefinition[] = useMemo(() => {
     if (viewFields) return viewFields;
@@ -143,7 +192,7 @@ export function RecordListView<T extends Record<string, unknown>>({
       {
         id: "actions",
         header: "Actions",
-        size: 100,
+        size: renderRowActions ? 180 : 100,
         enableSorting: false,
         enableColumnFilter: false,
         Cell: ({ row }: { row: { original: T } }) => (
@@ -158,7 +207,7 @@ export function RecordListView<T extends Record<string, unknown>>({
                 </IconButton>
               </Tooltip>
             )}
-            {onEdit && (
+            {showEditAction && (
               <Tooltip title="Edit">
                 <IconButton
                   size="small"
@@ -168,7 +217,7 @@ export function RecordListView<T extends Record<string, unknown>>({
                 </IconButton>
               </Tooltip>
             )}
-            {onDelete && (
+            {showDeleteAction && (
               <Tooltip title="Delete">
                 <IconButton
                   size="small"
@@ -181,6 +230,12 @@ export function RecordListView<T extends Record<string, unknown>>({
                 </IconButton>
               </Tooltip>
             )}
+            {renderRowActions?.({
+              row: row.original,
+              openViewModal,
+              openEditModal,
+              openDeleteDialog,
+            })}
           </Box>
         ),
       },
@@ -188,18 +243,19 @@ export function RecordListView<T extends Record<string, unknown>>({
   }, [
     columns,
     hasViewAction,
-    onEdit,
-    onDelete,
+    showEditAction,
+    showDeleteAction,
     idKey,
     openEditModal,
     openViewModal,
     openDeleteDialog,
+    renderRowActions,
   ]);
 
   const table = useMaterialReactTable({
     columns: tableColumns,
     data,
-    enableRowSelection: !!onDelete,
+    enableRowSelection: enableMultiRowSelection ?? !!onDelete,
     enableColumnResizing: true,
     enableGlobalFilter: true,
     enableStickyHeader: true,
@@ -312,7 +368,7 @@ export function RecordListView<T extends Record<string, unknown>>({
           }}
           title={editModalTitle || `Edit`}
           fields={editFormFields}
-          initialValues={editingRecord as Record<string, unknown> | undefined}
+          initialValues={transformedEditingRecord}
           onSubmit={handleEdit}
           submitLabel="Save"
         />

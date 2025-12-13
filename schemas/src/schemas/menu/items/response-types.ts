@@ -29,7 +29,7 @@ const MenuItemVariationResponseSchema = z.object({
   deletedAt: datetime().nullable(),
 });
 
-const MenuItemCategorySchema = z
+const CategorySchema = z
   .object({
     id: uuid(),
     name: z.string(),
@@ -44,7 +44,7 @@ export const MenuItemResponseSchema = z.object({
   businessId: uuid(),
   isDisabled: z.boolean(),
   isAvailable: z.boolean(),
-  category: MenuItemCategorySchema,
+  category: CategorySchema,
   baseProducts: z.array(ProductRecipeResponseSchema),
   variations: z.array(MenuItemVariationResponseSchema),
   createdAt: datetime(),

@@ -11,9 +11,8 @@ import {
   Unique,
   UpdateDateColumn,
 } from "typeorm";
-import { decimalTransformer } from "@/shared/decimal-transformer";
 import type { Business } from "@/modules/business/business.entity";
-import type { MenuItemCategory } from "@/modules/menu/menu-item-category/menu-item-category.entity";
+import type { Category } from "@/modules/category/category.entity";
 import type { MenuItemVariation } from "@/modules/menu/menu-item-variation/menu-item-variation.entity";
 import type { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product/menu-item-base-product.entity";
 
@@ -26,12 +25,8 @@ export class MenuItem {
   @Column({ type: "varchar" })
   baseName: string;
 
-  @Column({
-    type: "decimal",
-    precision: 10,
-    scale: 2,
-    transformer: decimalTransformer,
-  })
+  /** Price in cents */
+  @Column({ type: "int" })
   basePrice: number;
 
   @Column({ type: "boolean", default: false })
@@ -49,12 +44,12 @@ export class MenuItem {
   @Index()
   categoryId: string | null;
 
-  @ManyToOne("MenuItemCategory", "menuItems", {
+  @ManyToOne("Category", "menuItems", {
     nullable: true,
     onDelete: "SET NULL",
   })
   @JoinColumn({ name: "categoryId" })
-  category: Relation<MenuItemCategory> | null;
+  category: Relation<Category> | null;
 
   @OneToMany("MenuItemVariation", "menuItem")
   variations: Relation<MenuItemVariation[]>;

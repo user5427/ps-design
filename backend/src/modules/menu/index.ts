@@ -1,7 +1,3 @@
-export {
-  MenuItemCategory,
-  MenuItemCategoryRepository,
-} from "./menu-item-category";
 export { MenuItem, MenuItemRepository } from "./menu-item";
 export {
   MenuItemVariation,

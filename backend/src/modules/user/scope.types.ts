@@ -18,6 +18,9 @@ export enum ScopeNames {
   BUSINESS_WRITE = "BUSINESS_WRITE",
   BUSINESS_DELETE = "BUSINESS_DELETE",
   BUSINESS_CREATE = "BUSINESS_CREATE",
+  APPOINTMENTS_READ = "APPOINTMENTS_READ",
+  APPOINTMENTS_WRITE = "APPOINTMENTS_WRITE",
+  APPOINTMENTS_DELETE = "APPOINTMENTS_DELETE",
 }
 
 // Scope configuration with descriptions
@@ -96,6 +99,18 @@ export const SCOPE_CONFIG: Record<
   [ScopeNames.BUSINESS_CREATE]: {
     name: ScopeNames.BUSINESS_CREATE,
     description: "Create new businesses",
+  },
+  [ScopeNames.APPOINTMENTS_READ]: {
+    name: ScopeNames.APPOINTMENTS_READ,
+    description: "Read appointments data",
+  },
+  [ScopeNames.APPOINTMENTS_WRITE]: {
+    name: ScopeNames.APPOINTMENTS_WRITE,
+    description: "Create and update appointments data",
+  },
+  [ScopeNames.APPOINTMENTS_DELETE]: {
+    name: ScopeNames.APPOINTMENTS_DELETE,
+    description: "Delete appointments data",
   },
 };
 
