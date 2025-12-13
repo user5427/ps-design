@@ -12,8 +12,8 @@ export function getReadableError(
       error.response?.data?.error ||
       error.message;
 
-    if (error.response?.status === 400) return badRequestMessage;
-    if (error.response?.status === 401) return badRequestMessage;
+    if (error.response?.status === 400) return message || badRequestMessage;
+    if (error.response?.status === 401) return message || badRequestMessage;
     if (error.response?.status === 500) return "Server error. Try again later.";
 
     return message || "Unable to process your request.";

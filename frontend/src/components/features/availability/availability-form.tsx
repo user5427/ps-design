@@ -127,7 +127,7 @@ export const AvailabilityForm: React.FC<AvailabilityFormProps> = ({
       }
 
       if (issue.path.length === 1 && issue.path[0] === "availabilities") {
-        newErrors["global"] = issue.message;
+        newErrors.global = issue.message;
       }
     });
 

@@ -189,7 +189,9 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     } catch (error: unknown) {
       const message =
-        (error as any)?.response?.data?.message || "Failed to assign role";
+        error instanceof Error && 'response' in error
+          ? (error as { response?: { data?: { message?: string } } }).response?.data?.message || "Failed to assign role"
+          : "Failed to assign role";
       setSnackbar({
         open: true,
         message,
@@ -211,7 +213,9 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     } catch (error: unknown) {
       const message =
-        (error as any)?.response?.data?.message || "Failed to remove role";
+        error instanceof Error && 'response' in error
+          ? (error as { response?: { data?: { message?: string } } }).response?.data?.message || "Failed to remove role"
+          : "Failed to remove role";
       setSnackbar({
         open: true,
         message,

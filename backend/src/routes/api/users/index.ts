@@ -271,7 +271,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
     ) => {
       try {
         await deleteUser(fastify, request.params.userId, request.authUser!);
-        return reply.send({ message: "User deleted successfully" });
+        return reply.send({ success: true });
       } catch (error) {
         return handleServiceError(error, reply);
       }

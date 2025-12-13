@@ -113,7 +113,7 @@ export class MenuItemRepository {
     businessId: string,
     data: IUpdateMenuItem,
   ): Promise<MenuItem> {
-    const menuItem = await this.getById(id, businessId);
+    const _menuItem = await this.getById(id, businessId);
     const { baseProducts, variations, removeVariationIds, ...updateData } =
       data;
 

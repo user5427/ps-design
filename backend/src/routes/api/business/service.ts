@@ -25,7 +25,7 @@ export async function getBusinessesPaginated(
   let items = result.items;
   
   // If user is not superadmin, filter to only show their business
-  if (authUser && authUser.businessId) {
+  if (authUser?.businessId) {
     const userScopes = await fastify.db.role.getUserScopesFromRoles(
       authUser.roleIds,
     );

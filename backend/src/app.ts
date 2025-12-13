@@ -11,7 +11,7 @@ import {
   validatorCompiler,
 } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
-import path from "path";
+import path from "node:path";
 
 export default async function serviceApp(
   fastify: FastifyInstance,

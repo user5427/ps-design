@@ -4,7 +4,6 @@ import { createDataSource } from "@/database/data-source";
 import { Business } from "@/modules/business";
 import { User, Role, ScopeEntity, UserRole, RoleScope } from "@/modules/user";
 import { ScopeNames, SCOPE_CONFIG } from "@/modules/user/scope.types";
-import { Scope } from "@/modules/user/scope.entity";
 
 async function main() {
   const connectionString = process.env.DATABASE_URL;

@@ -22,8 +22,11 @@ export const availabilityKeys = {
 
 export function useUserAvailability(userId: string | undefined) {
   return useQuery({
-    queryKey: availabilityKeys.user(userId!),
-    queryFn: () => getAvailabilityByUserId(userId!),
+    queryKey: availabilityKeys.user(userId || ''),
+    queryFn: () => {
+      if (!userId) throw new Error('userId is required');
+      return getAvailabilityByUserId(userId);
+    },
     enabled: !!userId,
   });
 }

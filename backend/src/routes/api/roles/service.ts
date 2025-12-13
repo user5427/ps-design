@@ -45,7 +45,7 @@ export async function getRolesByBusinessId(
   authUser: IAuthUser,
 ) {
   // Check if user has access to this business
-  const hasOwnerScope = authUser.roleIds.length > 0;
+  const _hasOwnerScope = authUser.roleIds.length > 0;
   const userScopes = await fastify.db.role.getUserScopesFromRoles(
     authUser.roleIds,
   );

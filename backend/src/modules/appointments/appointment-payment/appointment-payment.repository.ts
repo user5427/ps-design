@@ -35,8 +35,7 @@ export interface IRefundPayment {
 export class AppointmentPaymentRepository {
   constructor(
     private dataSource: DataSource,
-    private repository: Repository<AppointmentPayment>,
-    private lineItemRepository: Repository<PaymentLineItem>,
+    private repository: Repository<AppointmentPayment>,_lineItemRepository: Repository<PaymentLineItem>,
     private appointmentRepository: Repository<Appointment>,
   ) {}
 

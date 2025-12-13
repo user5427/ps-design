@@ -135,7 +135,7 @@ export async function createUser(
     businessId?: string;
     isOwner?: boolean;
   },
-  authUser: IAuthUser,
+  _authUser: IAuthUser,
 ) {
   // Check if email already exists
   const existing = await fastify.db.user.findByEmail(data.email);
@@ -304,18 +304,21 @@ export async function removeRoleFromUser(
 
   // Check if this is an OWNER role
   if (role.name === "OWNER") {
-    // Prevent removing the last owner from the business
-    const allUsersWithRole = await fastify.db.userRole.getUsersWithRole(
-      roleId,
-    );
-    // Filter to only users in the same business
-    const businessOwners = allUsersWithRole.filter(
-      (ur) => ur.user.businessId === user.businessId,
-    );
-    if (businessOwners.length <= 1) {
-      throw new BadRequestError(
-        "Cannot remove the last owner from the business",
+    // Allow SUPERADMIN to remove last owner, but prevent others from doing so
+    if (!userScopes.includes(ScopeNames.SUPERADMIN)) {
+      // Prevent removing the last owner from the business
+      const allUsersWithRole = await fastify.db.userRole.getUsersWithRole(
+        roleId,
       );
+      // Filter to only users in the same business
+      const businessOwners = allUsersWithRole.filter(
+        (ur) => ur.user.businessId === user.businessId,
+      );
+      if (businessOwners.length <= 1) {
+        throw new BadRequestError(
+          "Cannot remove the last owner from the business",
+        );
+      }
     }
   }
 

@@ -41,7 +41,7 @@ function AvailabilityPage() {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: { availabilities: Array<{ dayOfWeek: "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN"; startTime: string; endTime: string; isOvernight: boolean }> }) => {
     if (!user?.id) return;
 
     try {
