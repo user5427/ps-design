@@ -11,7 +11,10 @@ import { MenuItem } from "@/modules/menu/menu-item/menu-item.entity";
 import { MenuItemVariation } from "@/modules/menu/menu-item-variation/menu-item-variation.entity";
 import { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product/menu-item-base-product.entity";
 import { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product/menu-item-variation-product.entity";
-import type { AuditBusinessLogQuery, AuditSecurityLogQuery } from "@ps-design/schemas/audit";
+import type {
+  AuditBusinessLogQuery,
+  AuditSecurityLogQuery,
+} from "@ps-design/schemas/audit";
 import { Category } from "@/modules/category/category.entity";
 import { ServiceDefinition } from "@/modules/appointments/service-definition/service-definition.entity";
 import { StaffService } from "@/modules/appointments/staff-service/staff-service.entity";
@@ -65,14 +68,14 @@ const entityClassMap: EntityMap = {
 };
 
 export class AuditLogRepository {
-  constructor(private dataSource: DataSource) { }
+  constructor(private dataSource: DataSource) {}
 
   getRepository<T extends keyof EntityMap>(
-    entityName: T
-  ): Repository<InstanceType<EntityMap[ T ]>> {
-    const entityClass = entityClassMap[ entityName ];
+    entityName: T,
+  ): Repository<InstanceType<EntityMap[T]>> {
+    const entityClass = entityClassMap[entityName];
     return this.dataSource.getRepository(entityClass) as Repository<
-      InstanceType<EntityMap[ T ]>
+      InstanceType<EntityMap[T]>
     >;
   }
 
@@ -113,7 +116,7 @@ export class AuditLogRepository {
       .take(limit);
 
     // Execute query
-    const [ items, total ] = await qb.getManyAndCount();
+    const [items, total] = await qb.getManyAndCount();
 
     return {
       items,
@@ -143,7 +146,7 @@ export class AuditLogRepository {
       .take(limit);
 
     // Execute query
-    const [ items, total ] = await qb.getManyAndCount();
+    const [items, total] = await qb.getManyAndCount();
 
     return {
       items,
@@ -153,7 +156,6 @@ export class AuditLogRepository {
       totalPages: Math.ceil(total / limit),
     };
   }
-
 
   async getBusinessLogById(id: string) {
     const repo = this.getRepository("AuditBusinessLog");

@@ -75,7 +75,9 @@ export async function updateStaffService(
   serviceId: string,
   input: UpdateServiceBody,
 ): Promise<StaffServiceResponse> {
-  return toStaffServiceResponse(await fastify.db.staffService.update(serviceId, businessId, input));
+  return toStaffServiceResponse(
+    await fastify.db.staffService.update(serviceId, businessId, input),
+  );
 }
 
 export async function bulkDeleteStaffServices(

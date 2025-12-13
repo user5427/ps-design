@@ -157,7 +157,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
           request,
           reply,
           "ProductUnit",
-          request.body.ids
+          request.body.ids,
         );
 
         await wrapBulkDeleteUnits(fastify, businessId, request.body.ids);

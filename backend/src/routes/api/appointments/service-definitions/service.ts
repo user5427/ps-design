@@ -75,10 +75,14 @@ export async function updateServiceDefinition(
   input: UpdateServiceDefinitionBody,
 ): Promise<ServiceDefinitionResponse> {
   const { duration, ...rest } = input;
-  const updated = await fastify.db.serviceDefinition.update(definitionId, businessId, {
-    ...rest,
-    ...(duration !== undefined && { baseDuration: duration }),
-  });
+  const updated = await fastify.db.serviceDefinition.update(
+    definitionId,
+    businessId,
+    {
+      ...rest,
+      ...(duration !== undefined && { baseDuration: duration }),
+    },
+  );
   return toDefinitionResponse(updated);
 }
 

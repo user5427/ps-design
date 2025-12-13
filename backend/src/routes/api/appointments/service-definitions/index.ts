@@ -216,7 +216,7 @@ export default async function serviceDefinitionsRoutes(
           "ServiceDefinition",
           request.body.ids,
         );
-        
+
         await bulkDeleteServiceDefinitionsWrapped(
           fastify,
           businessId,

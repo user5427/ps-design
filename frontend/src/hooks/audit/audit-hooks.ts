@@ -11,13 +11,16 @@ import type {
   PaginatedAuditBusinessLogResponse,
   AuditSecurityLogQuery,
   AuditSecurityLogResponse,
-  PaginatedAuditSecurityLogResponse
+  PaginatedAuditSecurityLogResponse,
 } from "@/schemas/audit";
 
 export const auditBusinessLogKeys = {
-  all: [ "audit", "business-logs" ] as const,
-  lists: (query: AuditBusinessLogQuery) => [ ...auditBusinessLogKeys.all, { query } ],
-  detail: (id: string) => [ ...auditBusinessLogKeys.all, "detail", id ] as const,
+  all: ["audit", "business-logs"] as const,
+  lists: (query: AuditBusinessLogQuery) => [
+    ...auditBusinessLogKeys.all,
+    { query },
+  ],
+  detail: (id: string) => [...auditBusinessLogKeys.all, "detail", id] as const,
 };
 
 export function useAuditBusinessLogs(query?: Partial<AuditBusinessLogQuery>) {
@@ -43,16 +46,20 @@ export function useAuditBusinessLog(id: string) {
   });
 }
 
-
 export const auditSecurityLogKeys = {
-  all: [ "audit", "security-logs" ] as const,
-  lists: (query: AuditSecurityLogQuery) => [ ...auditSecurityLogKeys.all, { query } ],
-  detail: (id: string) => [ ...auditSecurityLogKeys.all, "detail", id ] as const,
+  all: ["audit", "security-logs"] as const,
+  lists: (query: AuditSecurityLogQuery) => [
+    ...auditSecurityLogKeys.all,
+    { query },
+  ],
+  detail: (id: string) => [...auditSecurityLogKeys.all, "detail", id] as const,
 };
 
 export function useAuditSecurityLogs(query?: Partial<AuditSecurityLogQuery>) {
   return useQuery<PaginatedAuditSecurityLogResponse>({
-    queryKey: query ? auditSecurityLogKeys.lists(query as AuditSecurityLogQuery) : auditSecurityLogKeys.all,
+    queryKey: query
+      ? auditSecurityLogKeys.lists(query as AuditSecurityLogQuery)
+      : auditSecurityLogKeys.all,
     queryFn: () =>
       getAuditSecurityLogs({
         page: 1,
@@ -62,7 +69,6 @@ export function useAuditSecurityLogs(query?: Partial<AuditSecurityLogQuery>) {
     refetchOnMount: "always",
   });
 }
-
 
 export function useAuditSecurityLog(id: string) {
   return useQuery<AuditSecurityLogResponse>({

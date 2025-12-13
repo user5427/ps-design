@@ -195,7 +195,7 @@ export default async function productsRoutes(fastify: FastifyInstance) {
           request,
           reply,
           "Product",
-          request.body.ids
+          request.body.ids,
         );
         await bulkDeleteUnitsWrapped(fastify, businessId, request.body.ids);
         return reply.code(httpStatus.NO_CONTENT).send();

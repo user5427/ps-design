@@ -17,14 +17,21 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
   ip: string | null,
 ): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
   return async (...args: Parameters<T>): Promise<Awaited<ReturnType<T>>> => {
-    const ids = Array.isArray(entityIds) ? entityIds : entityIds ? [ entityIds ] : [];
+    const ids = Array.isArray(entityIds)
+      ? entityIds
+      : entityIds
+        ? [entityIds]
+        : [];
 
     // Fetch old snapshots
-    let oldValuesMap: Record<string, any> = {};
+    const oldValuesMap: Record<string, any> = {};
     if (action !== AuditActionType.CREATE && ids.length) {
       await Promise.all(
         ids.map(async (id) => {
-          oldValuesMap[ id ] = await auditLogService.getEntitySnapshot(entityType as any, id);
+          oldValuesMap[id] = await auditLogService.getEntitySnapshot(
+            entityType as any,
+            id,
+          );
         }),
       );
     }
@@ -41,7 +48,7 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
         if (Array.isArray(res)) {
           finalIds = res.map((r: any) => r.id);
         } else {
-          finalIds = [ res.id ];
+          finalIds = [res.id];
         }
       }
 
@@ -49,7 +56,10 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
     } finally {
       await Promise.all(
         finalIds.map(async (id) => {
-          const newValues = await auditLogService.getEntitySnapshot(entityType as any, id);
+          const newValues = await auditLogService.getEntitySnapshot(
+            entityType as any,
+            id,
+          );
           await auditLogService.logBusiness({
             businessId,
             userId,
@@ -57,7 +67,7 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
             entityType,
             entityId: id,
             action,
-            oldValues: oldValuesMap[ id ] ?? null,
+            oldValues: oldValuesMap[id] ?? null,
             newValues,
             result,
           });

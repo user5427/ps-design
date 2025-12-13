@@ -8,7 +8,10 @@ import type {
 import type { InitiatePaymentBody } from "@ps-design/schemas/payments";
 import { MINIMUM_STRIPE_PAYMENT_AMOUNT } from "@ps-design/schemas/payments";
 import type { Appointment } from "@/modules/appointments/appointment/appointment.entity";
-import type { AppointmentPayment, ICreatePaymentLineItem } from "@/modules/appointments/appointment-payment";
+import type {
+  AppointmentPayment,
+  ICreatePaymentLineItem,
+} from "@/modules/appointments/appointment-payment";
 import { stripeService } from "@/modules/payment/stripe-service";
 
 function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
@@ -81,16 +84,18 @@ export async function createAppointment(
   createdById: string,
   input: CreateAppointmentBody,
 ): Promise<AppointmentResponse> {
-  return toAppointmentResponse(await fastify.db.appointment.create({
-    customerName: input.customerName,
-    customerPhone: input.customerPhone,
-    customerEmail: input.customerEmail,
-    startTime: new Date(input.startTime),
-    notes: input.notes,
-    serviceId: input.serviceId,
-    businessId,
-    createdById,
-  }));
+  return toAppointmentResponse(
+    await fastify.db.appointment.create({
+      customerName: input.customerName,
+      customerPhone: input.customerPhone,
+      customerEmail: input.customerEmail,
+      startTime: new Date(input.startTime),
+      notes: input.notes,
+      serviceId: input.serviceId,
+      businessId,
+      createdById,
+    }),
+  );
 }
 
 export async function getAppointmentById(
@@ -111,12 +116,14 @@ export async function updateAppointment(
   appointmentId: string,
   input: UpdateAppointmentBody,
 ): Promise<AppointmentResponse> {
-  return toAppointmentResponse(await fastify.db.appointment.update(appointmentId, businessId, {
-    customerName: input.customerName,
-    customerPhone: input.customerPhone,
-    customerEmail: input.customerEmail,
-    notes: input.notes,
-  }));
+  return toAppointmentResponse(
+    await fastify.db.appointment.update(appointmentId, businessId, {
+      customerName: input.customerName,
+      customerPhone: input.customerPhone,
+      customerEmail: input.customerEmail,
+      notes: input.notes,
+    }),
+  );
 }
 
 export async function updateAppointmentStatus(

@@ -95,7 +95,12 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
           "Appointment",
         );
 
-        await createAppointmentWrapped(fastify, businessId, userId, request.body);
+        await createAppointmentWrapped(
+          fastify,
+          businessId,
+          userId,
+          request.body,
+        );
         return reply.code(httpStatus.CREATED).send();
       } catch (error) {
         return handleServiceError(error, reply);

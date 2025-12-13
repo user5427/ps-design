@@ -19,7 +19,7 @@ async function toAuditBusinessLogResponse(
     id: log.id,
     businessId: log.businessId,
     userId: log.userId,
-    userEmail: user ? user.email : null, 
+    userEmail: user ? user.email : null,
     ip: log.ip,
     entityType: log.entityType,
     entityId: log.entityId,
@@ -39,7 +39,9 @@ export async function getAuditBusinessLogs(
     await fastify.db.auditLogRepository.findPaginatedBusinessLogs(query);
 
   return {
-    items: await Promise.all(items.map(log => toAuditBusinessLogResponse(fastify, log))),
+    items: await Promise.all(
+      items.map((log) => toAuditBusinessLogResponse(fastify, log)),
+    ),
     total,
     page: query.page,
     limit: query.limit,
@@ -79,7 +81,9 @@ export async function getAuditSecurityLogs(
     await fastify.db.auditLogRepository.findPaginatedSecurityLogs(query);
 
   return {
-    items: await Promise.all(items.map(log => toAuditSecurityLogResponse(fastify, log))),
+    items: await Promise.all(
+      items.map((log) => toAuditSecurityLogResponse(fastify, log)),
+    ),
     total,
     page: query.page,
     limit: query.limit,

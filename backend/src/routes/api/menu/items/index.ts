@@ -178,7 +178,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
           request,
           reply,
           "MenuItem",
-          request.body.ids
+          request.body.ids,
         );
 
         await wrapBulkDeleteMenuItems(fastify, businessId, request.body.ids);

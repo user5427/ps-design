@@ -1,6 +1,9 @@
 import { useMemo } from "react";
 import { Chip } from "@mui/material";
-import { RecordListView, type ViewFieldDefinition } from "@/components/elements/record-list-view";
+import {
+  RecordListView,
+  type ViewFieldDefinition,
+} from "@/components/elements/record-list-view";
 import { useAuditBusinessLogs } from "@/hooks/audit";
 import type { AuditBusinessLogResponse } from "@/schemas/audit";
 
@@ -11,19 +14,21 @@ export const AuditBusinessLogsListView = () => {
   const { columns, viewFields } = useMemo(() => {
     if (!logs.length) return { columns: [], viewFields: [] };
 
-    const firstItem = logs[ 0 ];
+    const firstItem = logs[0];
 
     const dynamicKeys = Object.keys(firstItem).filter(
       (key) =>
         key.toLowerCase() !== "oldvalues" &&
         key.toLowerCase() !== "newvalues" &&
         !key.toLowerCase().endsWith("id") &&
-        key.toLowerCase() !== "ip"
+        key.toLowerCase() !== "ip",
     );
 
     const cols = dynamicKeys.map((key) => ({
       accessorKey: key,
-      header: key.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase()),
+      header: key
+        .replace(/([A-Z])/g, " $1")
+        .replace(/^./, (s) => s.toUpperCase()),
       size: 150,
       Cell: ({ cell }: any) => {
         const value = cell.getValue();
@@ -32,7 +37,7 @@ export const AuditBusinessLogsListView = () => {
           const label = String(value).toUpperCase();
           return (
             <Chip
-              label={"SUCCESS" === label ? "Success" : "Failure"} 
+              label={"SUCCESS" === label ? "Success" : "Failure"}
               size="small"
               color={label === "SUCCESS" ? "success" : "error"}
               sx={{ color: "common.white", fontWeight: 300 }}
@@ -62,7 +67,9 @@ export const AuditBusinessLogsListView = () => {
     // 👁️ View modal → show EVERYTHING
     const views: ViewFieldDefinition[] = Object.keys(firstItem).map((key) => ({
       name: key,
-      label: key.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase()),
+      label: key
+        .replace(/([A-Z])/g, " $1")
+        .replace(/^./, (s) => s.toUpperCase()),
       render: (value: any) => {
         if (value && typeof value === "object") {
           return (
@@ -84,7 +91,7 @@ export const AuditBusinessLogsListView = () => {
     }));
 
     return { columns: cols, viewFields: views };
-  }, [ logs ]);
+  }, [logs]);
 
   return (
     <RecordListView<AuditBusinessLogResponse>

@@ -1,4 +1,4 @@
-import { CreateStaffService } from './../../../../../../frontend/src/schemas/appointments/index';
+import { CreateStaffService } from "./../../../../../../frontend/src/schemas/appointments/index";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
@@ -154,7 +154,12 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
           serviceId,
         );
 
-        await updateStaffServiceWrapped(fastify, businessId, serviceId, request.body);
+        await updateStaffServiceWrapped(
+          fastify,
+          businessId,
+          serviceId,
+          request.body,
+        );
         return reply.send();
       } catch (error) {
         return handleServiceError(error, reply);
@@ -189,10 +194,14 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
           request,
           reply,
           "StaffService",
-          request.body.ids
+          request.body.ids,
         );
 
-        await wrapBulkDeleteStaffServices(fastify, businessId, request.body.ids);
+        await wrapBulkDeleteStaffServices(
+          fastify,
+          businessId,
+          request.body.ids,
+        );
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);

@@ -18,7 +18,10 @@ import { Availability } from "@/modules/appointments/availability/availability.e
 import { Appointment } from "@/modules/appointments/appointment/appointment.entity";
 import { AppointmentPayment } from "@/modules/appointments/appointment-payment/appointment-payment.entity";
 import { GiftCard } from "@/modules/gift-card/gift-card.entity";
-import { ICreateAuditBusinessLog, ICreateAuditSecurityLog } from "./audit-log.types";
+import type {
+  ICreateAuditBusinessLog,
+  ICreateAuditSecurityLog,
+} from "./audit-log.types";
 
 // Map of all supported entities
 const EntityMap = {

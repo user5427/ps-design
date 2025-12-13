@@ -42,7 +42,7 @@ export default fp(async (fastify: FastifyInstance) => {
       const entityIds = Array.isArray(userContext.businessId)
         ? userContext.businessId
         : userContext.businessId
-          ? [ userContext.businessId ]
+          ? [userContext.businessId]
           : undefined;
 
       return auditLogWrapper(fn, fastify.db.auditLogService, auditType, {

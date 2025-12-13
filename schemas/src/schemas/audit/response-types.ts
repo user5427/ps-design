@@ -2,10 +2,18 @@ import { z } from "zod";
 import { uuid, datetime } from "../shared/zod-utils";
 import { PaginationMetaSchema } from "../shared/response-types";
 
-export type AuditBusinessLogResponse = z.infer<typeof AuditBusinessLogResponseSchema>;
-export type PaginatedAuditBusinessLogResponse = z.infer<typeof PaginatedAuditBusinessLogResponseSchema>;
-export type AuditSecurityLogResponse = z.infer<typeof AuditSecurityLogResponseSchema>;
-export type PaginatedAuditSecurityLogResponse = z.infer<typeof PaginatedAuditSecurityLogResponseSchema>;
+export type AuditBusinessLogResponse = z.infer<
+  typeof AuditBusinessLogResponseSchema
+>;
+export type PaginatedAuditBusinessLogResponse = z.infer<
+  typeof PaginatedAuditBusinessLogResponseSchema
+>;
+export type AuditSecurityLogResponse = z.infer<
+  typeof AuditSecurityLogResponseSchema
+>;
+export type PaginatedAuditSecurityLogResponse = z.infer<
+  typeof PaginatedAuditSecurityLogResponseSchema
+>;
 
 export const AuditBusinessLogResponseSchema = z.object({
   id: uuid(),
@@ -41,4 +49,3 @@ export const PaginatedAuditSecurityLogResponseSchema = z.object({
   items: z.array(AuditSecurityLogResponseSchema),
   ...PaginationMetaSchema.shape,
 });
-

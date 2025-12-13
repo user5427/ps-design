@@ -23,9 +23,7 @@ import {
   getAuditSecurityLogById,
 } from "./service";
 
-import {
-  ErrorResponseSchema,
-} from "@ps-design/schemas/shared/response-types";
+import { ErrorResponseSchema } from "@ps-design/schemas/shared/response-types";
 
 export default async function auditRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();

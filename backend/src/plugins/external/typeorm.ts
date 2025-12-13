@@ -56,10 +56,7 @@ import {
   AppointmentPaymentRepository,
 } from "@/modules/appointments/appointment-payment";
 import { GiftCard, GiftCardRepository } from "@/modules/gift-card";
-import {
-  AuditLogService,
-  AuditLogRepository,
-} from "@/modules/audit";
+import { AuditLogService, AuditLogRepository } from "@/modules/audit";
 
 export interface Services {
   dataSource: DataSource;
