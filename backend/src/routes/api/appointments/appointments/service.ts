@@ -7,6 +7,7 @@ import type {
 } from "@ps-design/schemas/appointments/appointment";
 import type { Appointment } from "@/modules/appointments/appointment/appointment.entity";
 import type { ICreatePaymentLineItem } from "@/modules/appointments/appointment-payment";
+import { stripeService } from "@/modules/payment/stripe-service";
 
 function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
   return {
@@ -32,30 +33,30 @@ function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
         price: appointment.service.serviceDefinition.price,
         category: appointment.service.serviceDefinition.category
           ? {
-            id: appointment.service.serviceDefinition.category.id,
-            name: appointment.service.serviceDefinition.category.name,
-          }
+              id: appointment.service.serviceDefinition.category.id,
+              name: appointment.service.serviceDefinition.category.name,
+            }
           : null,
       },
     },
     payment: appointment.payment
       ? {
-        id: appointment.payment.id,
-        servicePrice: appointment.payment.servicePrice,
-        serviceDuration: appointment.payment.serviceDuration,
-        paymentMethod: appointment.payment.paymentMethod,
-        tipAmount: appointment.payment.tipAmount,
-        totalAmount: appointment.payment.totalAmount,
-        paidAt: appointment.payment.paidAt.toISOString(),
-        refundedAt: appointment.payment.refundedAt?.toISOString() || null,
-        refundReason: appointment.payment.refundReason,
-        lineItems: appointment.payment.lineItems.map((item) => ({
-          id: item.id,
-          type: item.type,
-          label: item.label,
-          amount: item.amount,
-        })),
-      }
+          id: appointment.payment.id,
+          servicePrice: appointment.payment.servicePrice,
+          serviceDuration: appointment.payment.serviceDuration,
+          paymentMethod: appointment.payment.paymentMethod,
+          tipAmount: appointment.payment.tipAmount,
+          totalAmount: appointment.payment.totalAmount,
+          paidAt: appointment.payment.paidAt.toISOString(),
+          refundedAt: appointment.payment.refundedAt?.toISOString() || null,
+          refundReason: appointment.payment.refundReason,
+          lineItems: appointment.payment.lineItems.map((item) => ({
+            id: item.id,
+            type: item.type,
+            label: item.label,
+            amount: item.amount,
+          })),
+        }
       : undefined,
     createdById: appointment.createdById,
     createdAt: appointment.createdAt.toISOString(),
@@ -135,7 +136,12 @@ export async function payAppointment(
   businessId: string,
   appointmentId: string,
   paidById: string,
-  input: { paymentMethod: string; tipAmount?: number; giftCardCode?: string },
+  input: {
+    paymentMethod: string;
+    tipAmount?: number;
+    giftCardCode?: string;
+    paymentIntentId?: string;
+  },
 ): Promise<void> {
   const appointment = await fastify.db.appointment.getById(
     appointmentId,
@@ -186,7 +192,8 @@ export async function payAppointment(
     appointmentId,
     businessId,
     paidById,
-    paymentMethod: input.paymentMethod as import("@/modules/appointments/appointment-payment").PaymentMethod,
+    paymentMethod:
+      input.paymentMethod as import("@/modules/appointments/appointment-payment").PaymentMethod,
     serviceName: serviceDefinition.name,
     servicePrice: serviceDefinition.price,
     serviceDuration: serviceDefinition.baseDuration,
@@ -194,6 +201,7 @@ export async function payAppointment(
     employeeId: employee.id,
     tipAmount: input.tipAmount,
     lineItems,
+    externalPaymentId: input.paymentIntentId,
   });
 }
 
@@ -204,9 +212,31 @@ export async function refundAppointment(
   refundedById: string,
   input: { reason?: string },
 ): Promise<void> {
+  // First, get the payment to check if it has an external payment ID (Stripe)
+  const payment =
+    await fastify.db.appointmentPayment.findByAppointmentIdAndBusinessId(
+      appointmentId,
+      businessId,
+    );
+
+  if (!payment) {
+    throw new Error("Payment not found for this appointment");
+  }
+
+  // If it's a Stripe payment, refund via Stripe first
+  if (payment.paymentMethod === "STRIPE" && payment.externalPaymentId) {
+    if (!stripeService.isConfigured()) {
+      throw new Error("Stripe is not configured, cannot process refund");
+    }
+
+    await stripeService.refundPayment({
+      paymentIntentId: payment.externalPaymentId,
+    });
+  }
+
+  // Then update the local record
   await fastify.db.appointmentPayment.refund(appointmentId, businessId, {
     refundedById,
     reason: input.reason,
   });
 }
-
