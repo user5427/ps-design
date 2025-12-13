@@ -225,7 +225,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
           request.params.roleId,
           request.authUser!,
         );
-        return reply.send({ message: "Role removed successfully" });
+        return reply.send({ success: true });
       } catch (error) {
         return handleServiceError(error, reply);
       }

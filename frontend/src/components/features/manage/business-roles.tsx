@@ -74,6 +74,8 @@ export function BusinessRoles() {
   const [newRoleName, setNewRoleName] = useState("");
   const [newRoleDescription, setNewRoleDescription] = useState("");
   const [selectedScopes, setSelectedScopes] = useState<string[]>([]);
+  const [assignError, setAssignError] = useState<string>("");
+  const [assignSuccess, setAssignSuccess] = useState<string>("");
 
   // Cast API response to Role type
   const roles = rolesData as unknown as Role[];
@@ -203,21 +205,52 @@ export function BusinessRoles() {
   const handleAssignUser = async (userId: string) => {
     if (!selectedRole) return;
 
+    setAssignError("");
+    setAssignSuccess("");
+
     try {
       await apiClient.post(`/users/${userId}/roles`, {
         roleIds: [selectedRole.id],
       });
+      setAssignSuccess(`Role "${selectedRole.name}" assigned successfully!`);
       queryClient.invalidateQueries({ queryKey: ["users", businessId] });
-      setShowAssignModal(false);
-      setSelectedRole(null);
-    } catch (error) {
+      setTimeout(() => {
+        setShowAssignModal(false);
+        setSelectedRole(null);
+        setAssignSuccess("");
+      }, 1500);
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || "Failed to assign role";
+      setAssignError(errorMessage);
       console.error("Failed to assign role:", error);
+    }
+  };
+
+  const handleUnassignUser = async (userId: string, roleId: string) => {
+    setAssignError("");
+    setAssignSuccess("");
+
+    try {
+      await apiClient.delete(`/users/${userId}/roles/${roleId}`);
+      setAssignSuccess("Role removed successfully!");
+      queryClient.invalidateQueries({ queryKey: ["users", businessId] });
+      setTimeout(() => {
+        setAssignSuccess("");
+      }, 1500);
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || "Failed to remove role";
+      setAssignError(errorMessage);
+      console.error("Failed to remove role:", error);
     }
   };
 
   return (
     <>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {error && (
+          <Alert severity="error">{error instanceof Error ? error.message : "Failed to load roles"}</Alert>
+        )}
+
         <Button
           variant="contained"
           color="primary"
@@ -246,9 +279,11 @@ export function BusinessRoles() {
               onClick={() => {
                 setSelectedRole(row as Role);
                 setShowAssignModal(true);
+                setAssignError("");
+                setAssignSuccess("");
               }}
             >
-              Assign
+              Manage
             </Button>
           )}
         />
@@ -301,32 +336,70 @@ export function BusinessRoles() {
         </DialogActions>
       </Dialog>
 
-      {/* Assign Role Dialog */}
+      {/* Manage User Roles Dialog */}
       <Dialog open={showAssignModal} onClose={() => setShowAssignModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Assign {selectedRole?.name} to User</DialogTitle>
+        <DialogTitle>Manage {selectedRole?.name} Role for Users</DialogTitle>
         <DialogContent>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mt: 2 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+            {assignError && (
+              <Alert severity="error">{assignError}</Alert>
+            )}
+            {assignSuccess && (
+              <Alert severity="success">{assignSuccess}</Alert>
+            )}
             <List sx={{ width: "100%" }}>
               {users.map((user) => {
                 const hasRole = user.roles.some((r) => r.id === selectedRole?.id);
                 return (
-                  <ListItemButton
+                  <Box
                     key={user.id}
-                    onClick={() => handleAssignUser(user.id)}
-                    selected={hasRole}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: 1,
+                      borderBottom: "1px solid #e0e0e0",
+                    }}
                   >
-                    <ListItemText
-                      primary={user.name}
-                      secondary={user.email}
-                    />
-                  </ListItemButton>
+                    <Box>
+                      <div style={{ fontWeight: "bold" }}>{user.name}</div>
+                      <div style={{ fontSize: "0.875rem", color: "#666" }}>
+                        {user.email}
+                      </div>
+                    </Box>
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      {hasRole ? (
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="error"
+                          onClick={() => handleUnassignUser(user.id, selectedRole?.id || "")}
+                        >
+                          Remove
+                        </Button>
+                      ) : (
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="success"
+                          onClick={() => handleAssignUser(user.id)}
+                        >
+                          Assign
+                        </Button>
+                      )}
+                    </Box>
+                  </Box>
                 );
               })}
             </List>
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowAssignModal(false)}>Close</Button>
+          <Button onClick={() => {
+            setShowAssignModal(false);
+            setAssignError("");
+            setAssignSuccess("");
+          }}>Close</Button>
         </DialogActions>
       </Dialog>
     </>
