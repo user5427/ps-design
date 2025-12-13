@@ -4,7 +4,6 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import type { BusinessIdParams } from "@ps-design/schemas/business";
 import { AuditActionType } from "@/modules/audit";
 import { getBusinessId } from "@/shared/auth-utils";
-import { en } from "zod/v4/locales";
 
 export default fp(async (fastify: FastifyInstance) => {
   fastify.decorate("audit", {
