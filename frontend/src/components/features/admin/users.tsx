@@ -1,5 +1,5 @@
 import type { MRT_ColumnDef } from "material-react-table";
-import { useMemo, useCallback, useState } from "react";
+import { useMemo, useCallback } from "react";
 import {
   RecordListView,
   type FormFieldDefinition,
@@ -104,8 +104,8 @@ export function AdminUsersManagement() {
         },
       ],
       renderCustomField: ({ value, onChange, error, disabled }) => {
-        const [localPassword, setLocalPassword] = useState(String(value || ""));
-        const strength = checkPasswordStrength(localPassword);
+        const passwordValue = String(value || "");
+        const strength = checkPasswordStrength(passwordValue);
         
         return (
           <Box>
@@ -113,17 +113,14 @@ export function AdminUsersManagement() {
               fullWidth
               type="password"
               label="Password"
-              value={localPassword}
-              onChange={(e) => {
-                setLocalPassword(e.target.value);
-                onChange(e.target.value);
-              }}
+              value={passwordValue}
+              onChange={(e) => onChange(e.target.value)}
               error={!!error}
               helperText={error}
               disabled={disabled}
               required
             />
-            {localPassword.length > 0 && (
+            {passwordValue.length > 0 && (
               <Box sx={{ mt: 1 }}>
                 <PasswordStrengthIndicator
                   score={strength.score}
