@@ -13,6 +13,7 @@ import {
   getAvailableScopes,
 } from "./service";
 import { handleServiceError } from "@/shared/error-handler";
+import { requireAuthUser } from "@/shared/auth-utils";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
 import {
@@ -59,17 +60,20 @@ export default async function roleRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
+        const authUser = requireAuthUser(request, reply);
+        if (!authUser) return;
+        
         let roles;
         if (request.query.businessId) {
           // Get roles for a specific business
           roles = await getRolesByBusinessId(
             fastify,
             request.query.businessId,
-            request.authUser!,
+            authUser,
           );
         } else {
           // Get all roles (requires SUPERADMIN)
-          roles = await getAllRoles(fastify, request.authUser!);
+          roles = await getAllRoles(fastify, authUser);
         }
         return reply.send(roles);
       } catch (error) {
@@ -99,10 +103,12 @@ export default async function roleRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
+        const authUser = requireAuthUser(request, reply);
+        if (!authUser) return;
         const role = await getRoleById(
           fastify,
           request.params.roleId,
-          request.authUser!,
+          authUser,
         );
         return reply.send(role);
       } catch (error) {
@@ -134,7 +140,9 @@ export default async function roleRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
-        const role = await createRole(fastify, request.body, request.authUser!);
+        const authUser = requireAuthUser(request, reply);
+        if (!authUser) return;
+        const role = await createRole(fastify, request.body, authUser);
         return reply.code(httpStatus.CREATED).send(role);
       } catch (error) {
         return handleServiceError(error, reply);
@@ -168,11 +176,13 @@ export default async function roleRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
+        const authUser = requireAuthUser(request, reply);
+        if (!authUser) return;
         const role = await updateRole(
           fastify,
           request.params.roleId,
           request.body,
-          request.authUser!,
+          authUser,
         );
         return reply.send(role);
       } catch (error) {
@@ -207,11 +217,13 @@ export default async function roleRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
+        const authUser = requireAuthUser(request, reply);
+        if (!authUser) return;
         const role = await assignScopesToRole(
           fastify,
           request.params.roleId,
           request.body.scopes,
-          request.authUser!,
+          authUser,
         );
         return reply.send(role);
       } catch (error) {
@@ -241,7 +253,9 @@ export default async function roleRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
-        await deleteRole(fastify, request.params.roleId, request.authUser!);
+        const authUser = requireAuthUser(request, reply);
+        if (!authUser) return;
+        await deleteRole(fastify, request.params.roleId, authUser);
         return reply.send({ success: true });
       } catch (error) {
         return handleServiceError(error, reply);

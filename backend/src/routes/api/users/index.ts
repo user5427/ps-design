@@ -12,6 +12,7 @@ import {
   removeRoleFromUser,
 } from "./service";
 import { handleServiceError } from "@/shared/error-handler";
+import { requireAuthUser } from "@/shared/auth-utils";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
 import {
@@ -59,10 +60,12 @@ export default async function userRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
+        const authUser = requireAuthUser(request, reply);
+        if (!authUser) return;
         const users = await getUsersByBusinessId(
           fastify,
           request.query.businessId,
-          request.authUser!,
+          authUser,
         );
         return reply.send(users);
       } catch (error) {
@@ -92,10 +95,12 @@ export default async function userRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
+        const authUser = requireAuthUser(request, reply);
+        if (!authUser) return;
         const user = await getUserById(
           fastify,
           request.params.userId,
-          request.authUser!,
+          authUser,
         );
         return reply.send(user);
       } catch (error) {
@@ -127,10 +132,9 @@ export default async function userRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
-        if (!request.authUser) {
-          return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Unauthorized" });
-        }
-        const user = await createUser(fastify, request.body, request.authUser);
+        const authUser = requireAuthUser(request, reply);
+        if (!authUser) return;
+        const user = await createUser(fastify, request.body, authUser);
         return reply.code(httpStatus.CREATED).send(user);
       } catch (error) {
         return handleServiceError(error, reply);
@@ -164,11 +168,13 @@ export default async function userRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
+        const authUser = requireAuthUser(request, reply);
+        if (!authUser) return;
         const user = await assignRolesToUser(
           fastify,
           request.params.userId,
           request.body.roleIds,
-          request.authUser!,
+          authUser,
         );
         return reply.send(user);
       } catch (error) {
@@ -200,11 +206,13 @@ export default async function userRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
+        const authUser = requireAuthUser(request, reply);
+        if (!authUser) return;
         await removeRoleFromUser(
           fastify,
           request.params.userId,
           request.params.roleId,
-          request.authUser!,
+          authUser,
         );
         return reply.send({ success: true });
       } catch (error) {
@@ -239,11 +247,13 @@ export default async function userRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
+        const authUser = requireAuthUser(request, reply);
+        if (!authUser) return;
         const user = await updateUser(
           fastify,
           request.params.userId,
           request.body,
-          request.authUser!,
+          authUser,
         );
         return reply.send(user);
       } catch (error) {
@@ -273,10 +283,9 @@ export default async function userRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
-        if (!request.authUser) {
-          return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Unauthorized" });
-        }
-        await deleteUser(fastify, request.params.userId, request.authUser);
+        const authUser = requireAuthUser(request, reply);
+        if (!authUser) return;
+        await deleteUser(fastify, request.params.userId, authUser);
         return reply.send({ success: true });
       } catch (error) {
         return handleServiceError(error, reply);

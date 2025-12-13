@@ -3,6 +3,7 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { ScopeNames, SCOPE_CONFIG } from "@/modules/user/scope.types";
 import { handleServiceError } from "@/shared/error-handler";
+import { requireAuthUser } from "@/shared/auth-utils";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import {
   ErrorResponseSchema,
@@ -32,7 +33,8 @@ export default async function scopesRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
-        const authUser = request.authUser!;
+        const authUser = requireAuthUser(request, reply);
+        if (!authUser) return;
         const { businessId } = request.query;
         
         // Get user's scopes from their roles
