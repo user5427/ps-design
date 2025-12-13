@@ -77,7 +77,7 @@ export class ProductRepository {
       const saved = await this.repository.save(product);
       const found = await this.findById(saved.id);
       if (!found) {
-        throw new Error("Saved product not found");
+        throw new NotFoundError("Saved product not found");
       }
       return found;
     } catch (error) {
