@@ -120,22 +120,34 @@ export async function getRoleById(
 export async function getAvailableScopes(
   fastify: FastifyInstance,
   authUser: IAuthUser,
+  businessId?: string,
 ) {
   // Get user's scopes
   const userScopes = await fastify.db.role.getUserScopesFromRoles(
     authUser.roleIds,
   );
 
+  let availableScopes: ScopeNames[];
+
   // If user is superadmin, they can see all scopes
   if (userScopes.includes(ScopeNames.SUPERADMIN)) {
-    return Object.values(ScopeNames).map((scope) => ({
-      name: scope,
-      description: SCOPE_CONFIG[scope].description,
-    }));
+    availableScopes = Object.values(ScopeNames);
+  } else {
+    // Otherwise, user can only assign scopes they have
+    availableScopes = userScopes;
   }
 
-  // Otherwise, user can only assign scopes they have
-  return userScopes.map((scope) => ({
+  // Filter out SUPERADMIN scope for non-default businesses
+  if (businessId) {
+    const business = await fastify.db.business.findById(businessId);
+    if (business && !business.isDefault) {
+      availableScopes = availableScopes.filter(
+        (scope) => scope !== ScopeNames.SUPERADMIN,
+      );
+    }
+  }
+
+  return availableScopes.map((scope) => ({
     name: scope,
     description: SCOPE_CONFIG[scope].description,
   }));

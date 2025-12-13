@@ -36,7 +36,7 @@ export class User {
   @Index()
   businessId: string | null;
 
-  @ManyToOne("Business", "users", { nullable: true })
+  @ManyToOne("Business", "users", { nullable: true, onDelete: "CASCADE" })
   @JoinColumn({ name: "businessId" })
   business: Relation<Business> | null;
 

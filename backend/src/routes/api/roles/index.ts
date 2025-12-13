@@ -78,28 +78,6 @@ export default async function roleRoutes(fastify: FastifyInstance) {
     },
   );
 
-  // Get available scopes (for role creation)
-  server.get(
-    "/scopes",
-    {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE_READ)],
-      schema: {
-        response: {
-          200: ScopesResponseSchema,
-          401: ErrorResponseSchema,
-        },
-      },
-    },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      try {
-        const scopes = await getAvailableScopes(fastify, request.authUser!);
-        return reply.send(scopes);
-      } catch (error) {
-        return handleServiceError(error, reply);
-      }
-    },
-  );
-
   // Get role by ID
   server.get<{ Params: RoleIdParams }>(
     "/:roleId",

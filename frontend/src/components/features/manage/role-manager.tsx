@@ -55,7 +55,7 @@ export function RoleManager({ businessId, open = true, onClose }: RoleManagerPro
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
 
-  const { data: scopes = [] } = useScopes();
+  const { data: scopes = [] } = useScopes(businessId);
   const { data: users = [] } = useUsers(businessId);
 
   const roles = Array.isArray(rolesData) ? rolesData : [];

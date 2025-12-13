@@ -25,6 +25,9 @@ export class Business {
   @Column({ type: "varchar" })
   name: string;
 
+  @Column({ type: "boolean", default: false })
+  isDefault: boolean;
+
   @OneToMany("User", "business")
   users: Relation<User[]>;
 

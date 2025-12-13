@@ -1,5 +1,5 @@
 import type { MRT_ColumnDef } from "material-react-table";
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState } from "react";
 import {
   RecordListView,
   type FormFieldDefinition,
@@ -9,6 +9,9 @@ import {
 import { apiClient } from "@/api/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthUser } from "@/hooks/auth";
+import { TextField, Box } from "@mui/material";
+import { PasswordStrengthIndicator } from "@/components/elements/auth/password-strength-indicator";
+import { checkPasswordStrength } from "@/utils/auth";
 
 type User = Record<string, unknown> & {
   id: string;
@@ -90,7 +93,47 @@ export function AdminUsersManagement() {
       label: "Password",
       type: "password",
       required: true,
-      validationRules: [ValidationRules.minLength(8)],
+      validationRules: [
+        ValidationRules.minLength(8),
+        {
+          test: (value) => {
+            const strength = checkPasswordStrength(String(value || ""));
+            return strength.isValid;
+          },
+          message: "Password does not meet requirements",
+        },
+      ],
+      renderCustomField: ({ value, onChange, error, disabled }) => {
+        const [localPassword, setLocalPassword] = useState(String(value || ""));
+        const strength = checkPasswordStrength(localPassword);
+        
+        return (
+          <Box>
+            <TextField
+              fullWidth
+              type="password"
+              label="Password"
+              value={localPassword}
+              onChange={(e) => {
+                setLocalPassword(e.target.value);
+                onChange(e.target.value);
+              }}
+              error={!!error}
+              helperText={error}
+              disabled={disabled}
+              required
+            />
+            {localPassword.length > 0 && (
+              <Box sx={{ mt: 1 }}>
+                <PasswordStrengthIndicator
+                  score={strength.score}
+                  feedback={strength.feedback}
+                />
+              </Box>
+            )}
+          </Box>
+        );
+      },
     },
     {
       name: "businessId",

@@ -4,11 +4,14 @@ import type { ScopesResponse } from "@ps-design/schemas/scope";
 
 export const SCOPES_QUERY_KEY = ["scopes"];
 
-export function useScopes() {
+export function useScopes(businessId?: string) {
   return useQuery({
-    queryKey: SCOPES_QUERY_KEY,
+    queryKey: [...SCOPES_QUERY_KEY, businessId],
     queryFn: async () => {
-      const response = await apiClient.get<ScopesResponse>("/scopes");
+      const params = businessId ? { businessId } : {};
+      const response = await apiClient.get<ScopesResponse>("/scopes", {
+        params,
+      });
       return response.data;
     },
   });

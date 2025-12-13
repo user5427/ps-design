@@ -106,6 +106,9 @@ export class BusinessRepository {
     if (!business) {
       throw new NotFoundError("Business not found");
     }
+    if (business.isDefault) {
+      throw new ConflictError("Cannot delete the default business");
+    }
     await this.repository.update(id, { deletedAt: new Date() });
   }
 }

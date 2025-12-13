@@ -40,6 +40,12 @@ export const BusinessList: React.FC = () => {
         header: "ID",
         size: 200,
       },
+      {
+        accessorKey: "isDefault",
+        header: "Default",
+        size: 100,
+        Cell: ({ cell }) => (cell.getValue() ? "Yes" : "No"),
+      },
     ],
     [],
   );
@@ -95,7 +101,10 @@ export const BusinessList: React.FC = () => {
   );
 
   const handleDelete = async (ids: string[]) => {
-    for (const id of ids) {
+    const defaultBusiness = businessData.find((b) => b.isDefault);
+    const deletableIds = ids.filter((id) => id !== defaultBusiness?.id);
+    
+    for (const id of deletableIds) {
       await deleteMutation.mutateAsync(id);
     }
   };
@@ -119,6 +128,7 @@ export const BusinessList: React.FC = () => {
       createModalTitle="Create Business"
       editModalTitle="Edit Business"
       viewModalTitle="View Business"
+      enableRowDeletion={(row) => !row.original.isDefault}
     />
   );
 };

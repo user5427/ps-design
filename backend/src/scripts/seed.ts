@@ -29,12 +29,12 @@ async function main() {
 
   try {
     // Create or reuse a default business
-    const businessName = "Default Business";
+    const businessName = "UniServe";
     let business = await businessRepo.findOne({
       where: { name: businessName },
     });
     if (!business) {
-      business = businessRepo.create({ name: businessName });
+      business = businessRepo.create({ name: businessName, isDefault: true });
       business = await businessRepo.save(business);
       console.log(`Created business: ${business.name}`);
     } else {
