@@ -15,7 +15,11 @@ import {
   useUpdateAppointmentStatus,
 } from "@/hooks/appointments";
 import { useStaffServices } from "@/hooks/appointments";
-import type { Appointment, AppointmentStatus } from "@/schemas/appointments";
+import type {
+  Appointment,
+  AppointmentStatus,
+  StaffServiceResponse,
+} from "@/schemas/appointments";
 import { CreateAppointmentModal } from "./create-appointment-modal";
 import { PayModal } from "./pay-modal";
 import { CancelAppointmentDialog } from "./cancel-appointment-dialog";
@@ -47,7 +51,8 @@ export const AppointmentsListView = () => {
     error,
     refetch,
   } = useAppointments();
-  const { data: staffServices = [] } = useStaffServices();
+  const { data: staffServices = [] }: { data?: StaffServiceResponse[] } =
+    useStaffServices();
   const createMutation = useCreateAppointment();
   const updateMutation = useUpdateAppointment();
   const updateStatusMutation = useUpdateAppointmentStatus();
@@ -221,7 +226,7 @@ export const AppointmentsListView = () => {
     {
       name: "service.serviceDefinition.price",
       label: "Price",
-      render: (value) => `${(value as number).toFixed(2)}€`,
+      render: (value) => formatPrice(value as number),
     },
     {
       name: "startTime",
