@@ -15,8 +15,12 @@ import {
 import { useServiceDefinitions } from "@/hooks/appointments";
 import { useAuthUser } from "@/hooks/auth";
 import { useBusinessUsers } from "@/hooks/business";
-import type { StaffService } from "@/schemas/appointments";
+import type {
+  ServiceDefinitionResponse,
+  StaffService,
+} from "@/schemas/appointments";
 import { formatPrice } from "@/utils/price";
+import type { BusinessUserResponse } from "@ps-design/schemas/business";
 
 export const StaffServicesListView = () => {
   const { data: user } = useAuthUser();
@@ -38,7 +42,7 @@ export const StaffServicesListView = () => {
 
   const serviceDefinitionOptions = useMemo(
     () =>
-      serviceDefinitions.map((def) => ({
+      serviceDefinitions.map((def: ServiceDefinitionResponse) => ({
         label: def.name,
         value: def.id,
       })),
@@ -47,7 +51,7 @@ export const StaffServicesListView = () => {
 
   const employeeOptions = useMemo(
     () =>
-      businessUsers.map((user) => ({
+      businessUsers.map((user: BusinessUserResponse) => ({
         label: `${user.name} (${user.email})`,
         value: user.id,
       })),

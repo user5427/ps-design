@@ -134,4 +134,9 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
    * Whether to enable multi-row selection for bulk delete (default: true when onDelete is provided)
    */
   enableMultiRowSelection?: boolean;
+  /**
+   * Optional function to determine if a row can be edited.
+   * If returns false, the edit button will be hidden for that row.
+   */
+  canEditRow?: (row: T) => boolean;
 }
