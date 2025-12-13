@@ -36,7 +36,6 @@ type Role = Record<string, unknown> & {
 };
 
 interface Scope {
-  id: string;
   name: string;
   description: string | null;
 }
@@ -153,13 +152,14 @@ export function BusinessRoles() {
       await createMutation.mutateAsync({
         name: newRoleName,
         description: newRoleDescription,
-        scopeIds: selectedScopes,
+        scopes: selectedScopes,
         businessId,
       });
       setShowRoleModal(false);
       setNewRoleName("");
       setNewRoleDescription("");
       setSelectedScopes([]);
+      queryClient.invalidateQueries({ queryKey: ["roles", businessId] });
     } catch (error) {
       console.error("Failed to create role:", error);
     }
@@ -190,12 +190,19 @@ export function BusinessRoles() {
     for (const id of deletableIds) {
       await deleteMutation.mutateAsync(id);
     }
+    
+    // Refresh the roles list after deletion
+    queryClient.invalidateQueries({ queryKey: ["roles", businessId] });
   };
 
-  const handleScopeChange = (scopeId: string, checked: boolean) => {
-    setSelectedScopes((prev) =>
-      checked ? [...prev, scopeId] : prev.filter((s) => s !== scopeId)
-    );
+  const handleScopeToggle = (scopeId: string) => {
+    setSelectedScopes((prev) => {
+      if (prev.includes(scopeId)) {
+        return prev.filter((s) => s !== scopeId);
+      } else {
+        return [...prev, scopeId];
+      }
+    });
   };
 
   const refetch = () => {
@@ -308,24 +315,36 @@ export function BusinessRoles() {
               multiline
               rows={3}
             />
-            <div>
+            <Box>
               <div style={{ marginBottom: "8px", fontWeight: "bold" }}>
                 Select Scopes:
               </div>
-              <Stack spacing={1} sx={{ maxHeight: "200px", overflowY: "auto" }}>
+              <Box sx={{ maxHeight: "200px", overflowY: "auto", border: "1px solid #e0e0e0", borderRadius: 1, padding: 1 }}>
                 {scopes.map((scope) => (
-                  <Button
-                    key={scope.id}
-                    onClick={() => handleScopeChange(scope.id, !selectedScopes.includes(scope.id))}
-                    variant={selectedScopes.includes(scope.id) ? "contained" : "outlined"}
-                    size="small"
-                    fullWidth
-                  >
-                    {scope.name}
-                  </Button>
+                  <Box key={scope.name} sx={{ display: "flex", alignItems: "center", padding: 0.5 }}>
+                    <input
+                      type="checkbox"
+                      id={`scope-${scope.name}`}
+                      checked={selectedScopes.includes(scope.name)}
+                      onChange={(e) => {
+                        const isChecked = e.target.checked;
+                        setSelectedScopes((current) => {
+                          if (isChecked) {
+                            return [...current, scope.name];
+                          } else {
+                            return current.filter((name) => name !== scope.name);
+                          }
+                        });
+                      }}
+                      style={{ marginRight: 8, cursor: "pointer" }}
+                    />
+                    <label htmlFor={`scope-${scope.name}`} style={{ cursor: "pointer", userSelect: "none" }}>
+                      {scope.name}
+                    </label>
+                  </Box>
                 ))}
-              </Stack>
-            </div>
+              </Box>
+            </Box>
           </Box>
         </DialogContent>
         <DialogActions>

@@ -291,7 +291,7 @@ export default async function roleRoutes(fastify: FastifyInstance) {
     ) => {
       try {
         await deleteRole(fastify, request.params.roleId, request.authUser!);
-        return reply.send({ message: "Role deleted successfully" });
+        return reply.send({ success: true });
       } catch (error) {
         return handleServiceError(error, reply);
       }

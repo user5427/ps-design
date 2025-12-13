@@ -68,7 +68,7 @@ export function ManageRoles() {
   >({
     queryKey: ["businesses"],
     queryFn: async () => {
-      const response = await apiClient.get("/businesses", {
+      const response = await apiClient.get("/business", {
         params: { limit: 1000 },
       });
       return response.data.items || [];
