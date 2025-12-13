@@ -90,6 +90,8 @@ export function BusinessUsersManagement({ businessId }: BusinessUsersManagementP
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users", businessId] });
+      queryClient.invalidateQueries({ queryKey: ["scopes"] });
+      queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
       handleCloseDialog();
     },
   });

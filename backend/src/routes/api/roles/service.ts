@@ -239,7 +239,7 @@ export async function updateRole(
 
   // Don't allow updating system roles
   if (role.isSystemRole) {
-    throw new BadRequestError("Cannot update system role");
+    throw new BadRequestError("Cannot update system roles");
   }
 
   const updatedRole = await fastify.db.role.update(roleId, data);
@@ -287,6 +287,11 @@ export async function assignScopesToRole(
     throw new ForbiddenError("You don't have access to this role");
   }
 
+  // System roles cannot have their scopes modified
+  if (role.isSystemRole) {
+    throw new BadRequestError("Cannot modify scopes of system roles");
+  }
+
   // Check if user can assign these scopes
   const isSuperadmin = userScopes.includes(ScopeNames.SUPERADMIN);
   for (const scope of scopes) {
@@ -330,16 +335,26 @@ export async function deleteRole(
     throw new NotFoundError("Role not found");
   }
 
-  // Check if user has access to this business
+  // Check if user has ROLE_DELETE permission
   const userScopes = await fastify.db.role.getUserScopesFromRoles(
     authUser.roleIds,
   );
 
+  if (!userScopes.includes(ScopeNames.ROLE_DELETE)) {
+    throw new ForbiddenError("You don't have permission to delete roles");
+  }
+
+  // Check if user has access to this business (unless they're superadmin)
   if (
     !userScopes.includes(ScopeNames.SUPERADMIN) &&
     authUser.businessId !== role.businessId
   ) {
     throw new ForbiddenError("You don't have access to this role");
+  }
+
+  // Prevent deletion of SUPERADMIN and OWNER roles by name only
+  if (role.name === "SUPERADMIN" || role.name === "OWNER") {
+    throw new BadRequestError("Cannot delete SUPERADMIN or OWNER roles");
   }
 
   await fastify.db.role.delete(roleId);

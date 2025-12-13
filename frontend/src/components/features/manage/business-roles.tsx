@@ -1,13 +1,6 @@
-import type { MRT_ColumnDef } from "material-react-table";
-import { useMemo, useCallback, useState } from "react";
-import {
-  RecordListView,
-  type FormFieldDefinition,
-  type ViewFieldDefinition,
-  ValidationRules,
-} from "@/components/elements/record-list-view";
-import { useRoles, useCreateRole, useDeleteRole } from "@/hooks/roles";
+import { useState } from "react";
 import { useAuthUser } from "@/hooks/auth";
+import { useRoles, useCreateRole, useDeleteRole } from "@/hooks/roles";
 import { apiClient } from "@/api/client";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import {
@@ -23,6 +16,11 @@ import {
   List,
   ListItemButton,
   ListItemText,
+  CircularProgress,
+  Snackbar,
+  Typography,
+  Card,
+  CardContent,
 } from "@mui/material";
 
 type Role = Record<string, unknown> & {
@@ -31,6 +29,7 @@ type Role = Record<string, unknown> & {
   description: string | null;
   businessId: string | null;
   isDeletable: boolean;
+  scopes: string[];
   createdAt: string;
   updatedAt: string;
 };
@@ -64,14 +63,21 @@ export function BusinessRoles() {
   const createMutation = useCreateRole();
   const deleteMutation = useDeleteRole();
   
-  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [showRolesModal, setShowRolesModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
+  const [showCreateRoleModal, setShowCreateRoleModal] = useState(false);
+  const [showEditRoleModal, setShowEditRoleModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [editRoleName, setEditRoleName] = useState("");
+  const [editRoleDescription, setEditRoleDescription] = useState("");
   const [newRoleName, setNewRoleName] = useState("");
   const [newRoleDescription, setNewRoleDescription] = useState("");
   const [selectedScopes, setSelectedScopes] = useState<string[]>([]);
-  const [assignError, setAssignError] = useState<string>("");
-  const [assignSuccess, setAssignSuccess] = useState<string>("");
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
 
   // Fetch available scopes
   const { data: scopes = [] } = useQuery<Scope[]>({
@@ -94,41 +100,7 @@ export function BusinessRoles() {
     enabled: !!businessId,
   });
 
-  const columns = useMemo<MRT_ColumnDef<Role>[]>(
-    () => [
-      {
-        accessorKey: "name",
-        header: "Name",
-        size: 200,
-      },
-      {
-        accessorKey: "description",
-        header: "Description",
-        size: 300,
-      },
-      {
-        accessorKey: "createdAt",
-        header: "Created At",
-        size: 150,
-        Cell: ({ cell }) => new Date(cell.getValue() as string).toLocaleDateString(),
-      },
-    ],
-    [],
-  );
-
-  // Cast API response to Role type
-  const roles = rolesData as unknown as Role[];
-
-  const handleEdit = useCallback(
-    async (id: string, values: Partial<Role>) => {
-      await apiClient.put(`/roles/${id}`, {
-        name: values.name,
-        description: values.description,
-      });
-      queryClient.invalidateQueries({ queryKey: ["roles", businessId] });
-    },
-    [queryClient, businessId],
-  );
+  const roles = Array.isArray(rolesData) ? rolesData : [];
 
   // Now we can do conditional returns after all hooks
   if (!businessId) {
@@ -145,162 +117,273 @@ export function BusinessRoles() {
         scopes: selectedScopes,
         businessId,
       });
-      setShowRoleModal(false);
+      setShowCreateRoleModal(false);
       setNewRoleName("");
       setNewRoleDescription("");
       setSelectedScopes([]);
       queryClient.invalidateQueries({ queryKey: ["roles", businessId] });
+      setSnackbar({
+        open: true,
+        message: "Role created successfully",
+        severity: "success",
+      });
     } catch (error) {
       console.error("Failed to create role:", error);
+      setSnackbar({
+        open: true,
+        message: "Failed to create role",
+        severity: "error",
+      });
     }
   };
 
-  const handleDelete = async (ids: string[]) => {
-    // Filter out non-deletable roles
-    const deletableIds = ids.filter((id) => {
-      const role = roles.find((r) => r.id === id);
-      return role && role.isDeletable;
-    });
-
-    if (deletableIds.length === 0) {
+  const handleDelete = async (roleId: string) => {
+    const role = roles.find((r) => r.id === roleId) as Role | undefined;
+    if (role && (role.name === "SUPERADMIN" || role.name === "OWNER")) {
+      setSnackbar({
+        open: true,
+        message: "Cannot delete SUPERADMIN or OWNER roles",
+        severity: "error",
+      });
       return;
     }
 
-    for (const id of deletableIds) {
-      await deleteMutation.mutateAsync(id);
+    try {
+      await deleteMutation.mutateAsync(roleId);
+      setSnackbar({
+        open: true,
+        message: "Role deleted successfully",
+        severity: "success",
+      });
+      queryClient.invalidateQueries({ queryKey: ["roles", businessId] });
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: "Failed to delete role",
+        severity: "error",
+      });
     }
-    
-    // Refresh the roles list after deletion
-    queryClient.invalidateQueries({ queryKey: ["roles", businessId] });
   };
 
-  const handleScopeToggle = (scopeId: string) => {
-    setSelectedScopes((prev) => {
-      if (prev.includes(scopeId)) {
-        return prev.filter((s) => s !== scopeId);
-      } else {
-        return [...prev, scopeId];
-      }
-    });
+  const handleAssignRole = (role: Role) => {
+    setSelectedRole(role);
+    setShowAssignModal(true);
   };
 
-  const handleAssignUser = async (userId: string) => {
+  const handleEditRole = (role: Role) => {
+    setSelectedRole(role);
+    setEditRoleName(role.name);
+    setEditRoleDescription(role.description || "");
+    setShowEditRoleModal(true);
+  };
+
+  const handleUpdateRole = async () => {
     if (!selectedRole) return;
 
-    setAssignError("");
-    setAssignSuccess("");
-
     try {
-      await apiClient.post(`/users/${userId}/roles`, {
-        roleIds: [selectedRole.id],
+      await apiClient.put(`/roles/${selectedRole.id}`, {
+        name: editRoleName,
+        description: editRoleDescription,
       });
-      setAssignSuccess(`Role "${selectedRole.name}" assigned successfully!`);
-      queryClient.invalidateQueries({ queryKey: ["users", businessId] });
-      setTimeout(() => {
-        setShowAssignModal(false);
-        setSelectedRole(null);
-        setAssignSuccess("");
-      }, 1500);
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || "Failed to assign role";
-      setAssignError(errorMessage);
-      console.error("Failed to assign role:", error);
+      setShowEditRoleModal(false);
+      setSelectedRole(null);
+      setEditRoleName("");
+      setEditRoleDescription("");
+      queryClient.invalidateQueries({ queryKey: ["roles", businessId] });
+      setSnackbar({
+        open: true,
+        message: "Role updated successfully",
+        severity: "success",
+      });
+    } catch (error) {
+      console.error("Failed to update role:", error);
+      setSnackbar({
+        open: true,
+        message: "Failed to update role",
+        severity: "error",
+      });
     }
   };
 
-  const handleUnassignUser = async (userId: string, roleId: string) => {
-    setAssignError("");
-    setAssignSuccess("");
+  const handleAssignUserToRole = async (userId: string) => {
+    if (!selectedRole) return;
 
+    try {
+      // Get the user's existing roles
+      const user = users.find((u) => u.id === userId);
+      const existingRoleIds = user?.roles.map((r) => r.id) || [];
+      
+      // Add the new role to existing roles (avoid duplicates)
+      const newRoleIds = [...new Set([...existingRoleIds, selectedRole.id])];
+      
+      await apiClient.post(`/users/${userId}/roles`, {
+        roleIds: newRoleIds,
+      });
+      setSnackbar({
+        open: true,
+        message: `Role assigned successfully`,
+        severity: "success",
+      });
+      queryClient.invalidateQueries({ queryKey: ["users", businessId] });
+      queryClient.invalidateQueries({ queryKey: ["scopes"] });
+      queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || "Failed to assign role";
+      setSnackbar({
+        open: true,
+        message,
+        severity: "error",
+      });
+    }
+  };
+
+  const handleUnassignUserFromRole = async (userId: string, roleId: string) => {
     try {
       await apiClient.delete(`/users/${userId}/roles/${roleId}`);
-      setAssignSuccess("Role removed successfully!");
+      setSnackbar({
+        open: true,
+        message: `Role removed successfully`,
+        severity: "success",
+      });
       queryClient.invalidateQueries({ queryKey: ["users", businessId] });
-      setTimeout(() => {
-        setAssignSuccess("");
-      }, 1500);
+      queryClient.invalidateQueries({ queryKey: ["scopes"] });
+      queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || "Failed to remove role";
-      setAssignError(errorMessage);
-      console.error("Failed to remove role:", error);
+      const message =
+        error.response?.data?.message || "Failed to remove role";
+      setSnackbar({
+        open: true,
+        message,
+        severity: "error",
+      });
     }
-  };
-
-  const editFormFields: FormFieldDefinition[] = [
-    {
-      name: "name",
-      label: "Name",
-      type: "text",
-      required: true,
-      validationRules: [ValidationRules.minLength(1)],
-    },
-    {
-      name: "description",
-      label: "Description",
-      type: "text",
-      required: false,
-    },
-  ];
-
-  const viewFields: ViewFieldDefinition[] = [
-    { name: "id", label: "ID" },
-    { name: "name", label: "Name" },
-    { name: "description", label: "Description" },
-    { name: "createdAt", label: "Created At" },
-    { name: "updatedAt", label: "Updated At" },
-  ];
-
-  const refetch = () => {
-    queryClient.invalidateQueries({ queryKey: ["roles", businessId] });
   };
 
   return (
     <>
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        {error && (
-          <Alert severity="error">{error instanceof Error ? error.message : "Failed to load roles"}</Alert>
-        )}
-
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setShowRoleModal(true)}
-        >
-          Create Role
-        </Button>
-
-        <RecordListView<Role>
-          title="Business Roles"
-          columns={columns}
-          data={roles}
-          isLoading={rolesLoading}
-          error={error}
-          editFormFields={editFormFields}
-          viewFields={viewFields}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onSuccess={refetch}
-          editModalTitle="Edit Role"
-          viewModalTitle="View Role"
-          renderRowActions={({ row }) => (
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 3, p: 3 }}>
+        <Typography variant="h4">Business Roles</Typography>
+        
+        <Card>
+          <CardContent>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+              Manage roles and permissions for your business. Click the button below to view and manage roles.
+            </Typography>
             <Button
-              size="small"
-              variant="outlined"
-              onClick={() => {
-                setSelectedRole(row as Role);
-                setShowAssignModal(true);
-                setAssignError("");
-                setAssignSuccess("");
-              }}
+              variant="contained"
+              color="primary"
+              size="large"
+              onClick={() => setShowRolesModal(true)}
             >
-              Manage
+              Manage Roles
             </Button>
-          )}
-        />
+          </CardContent>
+        </Card>
       </Box>
 
+      {/* Roles Management Modal */}
+      <Dialog
+        open={showRolesModal}
+        onClose={() => setShowRolesModal(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Roles Management</DialogTitle>
+        <DialogContent sx={{ minHeight: 400 }}>
+          {rolesLoading ? (
+            <CircularProgress />
+          ) : (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+              {error && (
+                <Alert severity="error">Failed to load roles</Alert>
+              )}
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => setShowCreateRoleModal(true)}
+              >
+                Create Role
+              </Button>
+              <List sx={{ border: "1px solid #ddd", borderRadius: 1 }}>
+                {roles.map((role) => (
+                  <ListItemButton
+                    key={role.id}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      py: 2,
+                      px: 2,
+                    }}
+                  >
+                    <ListItemText
+                      primary={role.name}
+                      secondary={role.description || "No description"}
+                    />
+                    <Stack direction="row" spacing={1}>
+                      {role.name !== "SUPERADMIN" && role.name !== "OWNER" && (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditRole(role as Role);
+                          }}
+                        >
+                          Edit
+                        </Button>
+                      )}
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAssignRole(role as Role);
+                        }}
+                      >
+                        Assign
+                      </Button>
+                      {role.name !== "SUPERADMIN" && role.name !== "OWNER" && (
+                        <Button
+                          size="small"
+                          color="error"
+                          variant="outlined"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(role.id as string);
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      )}
+                    </Stack>
+                  </ListItemButton>
+                ))}
+              </List>
+              {roles.length === 0 && (
+                <Alert severity="info">No roles in this business</Alert>
+              )}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowRolesModal(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Create Role Dialog */}
-      <Dialog open={showRoleModal} onClose={() => setShowRoleModal(false)} maxWidth="sm" fullWidth>
+      <Dialog 
+        open={showCreateRoleModal} 
+        onClose={() => {
+          setShowCreateRoleModal(false);
+          setNewRoleName("");
+          setNewRoleDescription("");
+          setSelectedScopes([]);
+        }} 
+        maxWidth="sm" 
+        fullWidth
+      >
         <DialogTitle>Create New Role</DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
@@ -351,24 +434,78 @@ export function BusinessRoles() {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowRoleModal(false)}>Cancel</Button>
+          <Button onClick={() => {
+            setShowCreateRoleModal(false);
+            setNewRoleName("");
+            setNewRoleDescription("");
+            setSelectedScopes([]);
+          }}>Cancel</Button>
           <Button onClick={handleCreateRole} variant="contained">
             Create
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Manage User Roles Dialog */}
-      <Dialog open={showAssignModal} onClose={() => setShowAssignModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Manage {selectedRole?.name} Role for Users</DialogTitle>
+      {/* Edit Role Dialog */}
+      <Dialog
+        open={showEditRoleModal}
+        onClose={() => {
+          setShowEditRoleModal(false);
+          setSelectedRole(null);
+          setEditRoleName("");
+          setEditRoleDescription("");
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Edit Role</DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
-            {assignError && (
-              <Alert severity="error">{assignError}</Alert>
-            )}
-            {assignSuccess && (
-              <Alert severity="success">{assignSuccess}</Alert>
-            )}
+            <TextField
+              label="Role Name"
+              value={editRoleName}
+              onChange={(e) => setEditRoleName(e.target.value)}
+              fullWidth
+              disabled={!!(selectedRole as Role)?.isSystemRole}
+            />
+            <TextField
+              label="Description"
+              value={editRoleDescription}
+              onChange={(e) => setEditRoleDescription(e.target.value)}
+              fullWidth
+              multiline
+              rows={3}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {
+            setShowEditRoleModal(false);
+            setSelectedRole(null);
+            setEditRoleName("");
+            setEditRoleDescription("");
+          }}>Cancel</Button>
+          <Button onClick={handleUpdateRole} variant="contained">
+            Update
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* User Assignment Modal */}
+      <Dialog
+        open={showAssignModal}
+        onClose={() => {
+          setShowAssignModal(false);
+          setSelectedRole(null);
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          Manage {selectedRole?.name} Role for Users
+        </DialogTitle>
+        <DialogContent sx={{ minHeight: 300 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
             <List sx={{ width: "100%" }}>
               {users.map((user) => {
                 const hasRole = user.roles.some((r) => r.id === selectedRole?.id);
@@ -395,7 +532,7 @@ export function BusinessRoles() {
                           size="small"
                           variant="contained"
                           color="error"
-                          onClick={() => handleUnassignUser(user.id, selectedRole?.id || "")}
+                          onClick={() => handleUnassignUserFromRole(user.id as string, selectedRole?.id || "")}
                         >
                           Remove
                         </Button>
@@ -404,7 +541,7 @@ export function BusinessRoles() {
                           size="small"
                           variant="contained"
                           color="success"
-                          onClick={() => handleAssignUser(user.id)}
+                          onClick={() => handleAssignUserToRole(user.id as string)}
                         >
                           Assign
                         </Button>
@@ -414,16 +551,34 @@ export function BusinessRoles() {
                 );
               })}
             </List>
+            {users.length === 0 && (
+              <Alert severity="info">No users in this business</Alert>
+            )}
           </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => {
             setShowAssignModal(false);
-            setAssignError("");
-            setAssignSuccess("");
+            setSelectedRole(null);
           }}>Close</Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

@@ -205,7 +205,7 @@ async function main() {
     }> = [
       {
         email: "superadmin@demo.local",
-        name: "SupAdminas",
+        name: "Super Administrator",
         roleNames: ["SUPERADMIN"],
         businessId: business.id,
         isPasswordResetRequired: true,

@@ -12,14 +12,14 @@ export interface RoleResponse {
 export interface CreateRoleBody {
   name: string;
   description?: string;
-  scopeIds: string[];
+  scopes: string[];
   businessId?: string;
 }
 
 export interface UpdateRoleBody {
   name?: string;
   description?: string;
-  scopeIds?: string[];
+  scopes?: string[];
 }
 
 export interface ScopeResponse {

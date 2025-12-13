@@ -64,4 +64,14 @@ export class UserRoleRepository {
     });
     return !!result;
   }
+
+  /**
+   * Get all users with a specific role
+   */
+  async getUsersWithRole(roleId: string): Promise<UserRole[]> {
+    return this.repository.find({
+      where: { roleId },
+      relations: ["user"],
+    });
+  }
 }

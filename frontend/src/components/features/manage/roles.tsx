@@ -1,5 +1,5 @@
 import type { MRT_ColumnDef } from "material-react-table";
-import { useMemo, useCallback, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -14,8 +14,6 @@ import {
   ListItemButton,
   ListItemText,
   CircularProgress,
-  FormControlLabel,
-  Checkbox,
   TextField,
 } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -23,11 +21,9 @@ import { apiClient } from "@/api/client";
 import { useRoles, useCreateRole, useDeleteRole } from "@/hooks/roles";
 import {
   RecordListView,
-  type FormFieldDefinition,
   type ViewFieldDefinition,
-  ValidationRules,
 } from "@/components/elements/record-list-view";
-import { useBusinessesPaginated, useDeleteBusiness } from "@/queries/business";
+import { useBusinessesPaginated } from "@/queries/business";
 
 type Business = Record<string, unknown> & {
   id: string;
@@ -73,8 +69,11 @@ export function ManageRoles() {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showCreateRoleModal, setShowCreateRoleModal] = useState(false);
+  const [showEditRoleModal, setShowEditRoleModal] = useState(false);
   const [newRoleName, setNewRoleName] = useState("");
   const [newRoleDescription, setNewRoleDescription] = useState("");
+  const [editRoleName, setEditRoleName] = useState("");
+  const [editRoleDescription, setEditRoleDescription] = useState("");
   const [selectedScopes, setSelectedScopes] = useState<string[]>([]);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -89,7 +88,6 @@ export function ManageRoles() {
     undefined,
   );
   const businesses = businessData?.items || [];
-  const deleteMutation = useDeleteBusiness();
 
   // Fetch roles for selected business
   const {
@@ -194,10 +192,10 @@ export function ManageRoles() {
 
   const handleDelete = async (roleId: string) => {
     const role = roles.find((r) => r.id === roleId);
-    if (role && !role.isDeletable) {
+    if (role && (!role.isDeletable || role.name === "SUPERADMIN" || role.name === "OWNER")) {
       setSnackbar({
         open: true,
-        message: "Cannot delete system roles",
+        message: "Cannot delete SUPERADMIN or OWNER roles",
         severity: "error",
       });
       return;
@@ -225,12 +223,54 @@ export function ManageRoles() {
     setShowAssignModal(true);
   };
 
+  const handleEditRole = (role: Role) => {
+    setSelectedRole(role);
+    setEditRoleName(role.name);
+    setEditRoleDescription(role.description || "");
+    setShowEditRoleModal(true);
+  };
+
+  const handleUpdateRole = async () => {
+    if (!selectedRole) return;
+
+    try {
+      await apiClient.put(`/roles/${selectedRole.id}`, {
+        name: editRoleName,
+        description: editRoleDescription,
+      });
+      setShowEditRoleModal(false);
+      setSelectedRole(null);
+      setEditRoleName("");
+      setEditRoleDescription("");
+      queryClient.invalidateQueries({ queryKey: ["roles", selectedBusiness?.id] });
+      setSnackbar({
+        open: true,
+        message: "Role updated successfully",
+        severity: "success",
+      });
+    } catch (error) {
+      console.error("Failed to update role:", error);
+      setSnackbar({
+        open: true,
+        message: "Failed to update role",
+        severity: "error",
+      });
+    }
+  };
+
   const handleAssignUserToRole = async (userId: string) => {
     if (!selectedRole) return;
 
     try {
+      // Get the user's existing roles
+      const user = users.find((u) => u.id === userId);
+      const existingRoleIds = user?.roles.map((r) => r.id) || [];
+      
+      // Add the new role to existing roles (avoid duplicates)
+      const newRoleIds = [...new Set([...existingRoleIds, selectedRole.id])];
+      
       await apiClient.post(`/users/${userId}/roles`, {
-        roleIds: [selectedRole.id],
+        roleIds: newRoleIds,
       });
       setSnackbar({
         open: true,
@@ -238,6 +278,8 @@ export function ManageRoles() {
         severity: "success",
       });
       queryClient.invalidateQueries({ queryKey: ["business-users", selectedBusiness?.id] });
+      queryClient.invalidateQueries({ queryKey: ["scopes"] });
+      queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     } catch (error: any) {
       const message =
         error.response?.data?.message || "Failed to assign role";
@@ -258,6 +300,8 @@ export function ManageRoles() {
         severity: "success",
       });
       queryClient.invalidateQueries({ queryKey: ["business-users", selectedBusiness?.id] });
+      queryClient.invalidateQueries({ queryKey: ["scopes"] });
+      queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     } catch (error: any) {
       const message =
         error.response?.data?.message || "Failed to remove role";
@@ -331,6 +375,18 @@ export function ManageRoles() {
                       secondary={role.description || "No description"}
                     />
                     <Stack direction="row" spacing={1}>
+                      {role.name !== "SUPERADMIN" && role.name !== "OWNER" && (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditRole(role as Role);
+                          }}
+                        >
+                          Edit
+                        </Button>
+                      )}
                       <Button
                         size="small"
                         variant="outlined"
@@ -341,7 +397,7 @@ export function ManageRoles() {
                       >
                         Assign
                       </Button>
-                      {role.isDeletable && (
+                      {role.isDeletable && role.name !== "SUPERADMIN" && role.name !== "OWNER" && (
                         <Button
                           size="small"
                           color="error"
@@ -364,6 +420,51 @@ export function ManageRoles() {
             </Box>
           )}
         </DialogContent>
+      </Dialog>
+
+      {/* Edit Role Dialog */}
+      <Dialog
+        open={showEditRoleModal}
+        onClose={() => {
+          setShowEditRoleModal(false);
+          setSelectedRole(null);
+          setEditRoleName("");
+          setEditRoleDescription("");
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Edit Role</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+            <TextField
+              label="Role Name"
+              value={editRoleName}
+              onChange={(e) => setEditRoleName(e.target.value)}
+              fullWidth
+              disabled={!!(selectedRole as Role)?.isSystemRole}
+            />
+            <TextField
+              label="Description"
+              value={editRoleDescription}
+              onChange={(e) => setEditRoleDescription(e.target.value)}
+              fullWidth
+              multiline
+              rows={3}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {
+            setShowEditRoleModal(false);
+            setSelectedRole(null);
+            setEditRoleName("");
+            setEditRoleDescription("");
+          }}>Cancel</Button>
+          <Button onClick={handleUpdateRole} variant="contained">
+            Update
+          </Button>
+        </DialogActions>
       </Dialog>
 
       {/* Create Role Dialog */}
