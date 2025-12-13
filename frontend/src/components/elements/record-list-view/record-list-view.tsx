@@ -285,24 +285,27 @@ export function RecordListView<T extends Record<string, unknown>>({
           {title}
         </Typography>
         <Box sx={{ display: "flex", gap: 1 }}>
-          <Button
-            variant="outlined"
-            color="error"
-            startIcon={<DeleteIcon />}
-            onClick={() => openDeleteDialog(selectedIds)}
-            disabled={selectedIds.length === 0 || !onDelete}
-          >
-            Delete{selectedIds.length > 0 ? ` (${selectedIds.length})` : ""}
-          </Button>
+          {onDelete && (
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteIcon />}
+              onClick={() => openDeleteDialog(selectedIds)}
+              disabled={selectedIds.length === 0}
+            >
+              Delete{selectedIds.length > 0 ? ` (${selectedIds.length})` : ""}
+            </Button>
+          )}
 
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setCreateModalOpen(true)}
-            disabled={!onCreate}
-          >
-            New
-          </Button>
+          {onCreate && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setCreateModalOpen(true)}
+            >
+              New
+            </Button>
+          )}
         </Box>
       </Box>
 

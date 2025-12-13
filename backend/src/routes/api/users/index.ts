@@ -28,7 +28,7 @@ const CreateUserSchema = z.object({
   email: z.string().email(),
   name: z.string().min(1),
   password: z.string().min(8),
-  businessId: z.string().uuid().optional(),
+  businessId: z.string().uuid(),
   isOwner: z.boolean().optional(),
 });
 

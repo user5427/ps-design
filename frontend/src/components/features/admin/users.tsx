@@ -59,6 +59,17 @@ export function AdminUsersManagement() {
     [],
   );
 
+  // Fetch all businesses for the selector
+  const { data: businesses = [] } = useQuery({
+    queryKey: ["business"],
+    queryFn: async () => {
+      const response = await apiClient.get("/business", {
+        params: { page: 1, limit: 1000 },
+      });
+      return response.data.items;
+    },
+  });
+
   const createFormFields: FormFieldDefinition[] = [
     {
       name: "name",
@@ -80,6 +91,19 @@ export function AdminUsersManagement() {
       type: "password",
       required: true,
       validationRules: [ValidationRules.minLength(8)],
+    },
+    {
+      name: "businessId",
+      label: "Business",
+      type: "select",
+      required: true,
+      options: businesses.map((b: any) => ({ value: b.id, label: b.name })),
+    },
+    {
+      name: "isOwner",
+      label: "Make user owner of business",
+      type: "checkbox",
+      required: false,
     },
   ];
 
@@ -115,6 +139,8 @@ export function AdminUsersManagement() {
         name: values.name,
         email: values.email,
         password: values.password,
+        businessId: values.businessId,
+        isOwner: values.isOwner || false,
       });
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },

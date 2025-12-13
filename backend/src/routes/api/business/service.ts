@@ -49,6 +49,42 @@ export async function createBusiness(
 ): Promise<BusinessResponse> {
   const { name } = input;
   const business = await fastify.db.business.create({ name });
+  
+  // Create default OWNER role for the new business
+  const ownerRole = await fastify.db.role.create({
+    name: "OWNER",
+    description: "Business owner with full permissions",
+    businessId: business.id,
+    isSystemRole: true,
+    isDeletable: false,
+  });
+  
+  // Assign owner scopes to the role
+  const ownerScopes = [
+    "OWNER",
+    "USER_READ",
+    "USER_WRITE",
+    "USER_DELETE",
+    "ROLE_READ",
+    "ROLE_WRITE",
+    "ROLE_DELETE",
+    "INVENTORY_READ",
+    "INVENTORY_WRITE",
+    "INVENTORY_DELETE",
+    "MENU_READ",
+    "MENU_WRITE",
+    "MENU_DELETE",
+    "BUSINESS_READ",
+    "BUSINESS_WRITE",
+    "APPOINTMENTS_READ",
+    "APPOINTMENTS_WRITE",
+    "APPOINTMENTS_DELETE",
+  ];
+  
+  for (const scopeName of ownerScopes) {
+    await fastify.db.roleScope.assignScope(ownerRole.id, scopeName as any);
+  }
+  
   return BusinessResponseSchema.parse(business);
 }
 
