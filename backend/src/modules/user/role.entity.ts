@@ -30,7 +30,7 @@ export class Role {
   @Index()
   businessId: string;
 
-  @ManyToOne("Business", { nullable: false, onDelete: "RESTRICT" })
+  @ManyToOne("Business", { nullable: false, onDelete: "CASCADE" })
   @JoinColumn({ name: "businessId" })
   business: Relation<Business>;
 
