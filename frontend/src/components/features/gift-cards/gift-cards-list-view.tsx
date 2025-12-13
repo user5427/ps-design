@@ -15,7 +15,6 @@ import {
 } from "@/hooks/gift-cards";
 import type { GiftCardResponse } from "@ps-design/schemas/gift-card";
 import { formatPrice, centsToEuros, eurosToCents } from "@/utils/price";
-// @ts-expect-error - dayjs uses CommonJS export
 import dayjs from "dayjs";
 
 export const GiftCardsListView = () => {

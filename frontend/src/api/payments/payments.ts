@@ -1,22 +1,16 @@
 import { apiClient } from "@/api/client";
 import type {
-  CreatePaymentIntentBody,
-  CreatePaymentIntentResponse,
+  InitiatePaymentBody,
+  InitiatePaymentResponse,
 } from "@ps-design/schemas/payments";
 
-export async function createPaymentIntent(
-  data: CreatePaymentIntentBody,
-): Promise<CreatePaymentIntentResponse> {
-  const response = await apiClient.post<CreatePaymentIntentResponse>(
-    "/payments/create-intent",
+export async function initiatePayment(
+  appointmentId: string,
+  data: Omit<InitiatePaymentBody, "appointmentId">,
+): Promise<InitiatePaymentResponse> {
+  const response = await apiClient.post<InitiatePaymentResponse>(
+    `/appointments/${appointmentId}/pay/initiate`,
     data,
-  );
-  return response.data;
-}
-
-export async function getStripeConfig(): Promise<{ stripeEnabled: boolean }> {
-  const response = await apiClient.get<{ stripeEnabled: boolean }>(
-    "/payments/config",
   );
   return response.data;
 }

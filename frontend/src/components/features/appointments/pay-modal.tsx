@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -22,6 +22,7 @@ import MoneyIcon from "@mui/icons-material/Money";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ClearIcon from "@mui/icons-material/Clear";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -31,13 +32,13 @@ import {
 } from "@stripe/react-stripe-js";
 import type { Appointment } from "@/schemas/appointments";
 import type { GiftCardResponse } from "@ps-design/schemas/gift-card";
+import type { InitiatePaymentResponse } from "@ps-design/schemas/payments";
 import { formatPrice } from "@/utils/price";
-// @ts-expect-error - dayjs uses CommonJS export
 import dayjs from "dayjs";
 import { usePayAppointment } from "@/hooks/appointments";
 import { useValidateGiftCard } from "@/hooks/gift-cards";
 import { getReadableError } from "@/utils/get-readable-error";
-import { createPaymentIntent } from "@/api/payments";
+import { initiatePayment } from "@/api/payments";
 
 // Initialize Stripe with publishable key from environment
 const stripePromise = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
@@ -45,6 +46,7 @@ const stripePromise = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
   : null;
 
 type PaymentMethod = "CASH" | "STRIPE";
+type PaymentStep = "details" | "stripe-checkout";
 
 interface PayModalProps {
   open: boolean;
@@ -53,10 +55,15 @@ interface PayModalProps {
   onSuccess?: () => void;
 }
 
-const PayModalTitle = () => (
+const PayModalTitle = ({ step, onBack }: { step: PaymentStep; onBack?: () => void }) => (
   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+    {step === "stripe-checkout" && onBack && (
+      <IconButton onClick={onBack} size="small" sx={{ mr: 0.5 }}>
+        <ArrowBackIcon />
+      </IconButton>
+    )}
     <PaymentIcon color="primary" />
-    Process Payment
+    {step === "details" ? "Process Payment" : "Complete Card Payment"}
   </Box>
 );
 
@@ -89,12 +96,14 @@ interface StripeCheckoutFormProps {
   onSuccess: (paymentIntentId: string) => void;
   onError: (message: string) => void;
   isLoading: boolean;
+  serverAmount: number;
 }
 
 const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
   onSuccess,
   onError,
   isLoading,
+  serverAmount,
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -121,6 +130,8 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
       if (error) {
         onError(error.message ?? "Payment failed");
       } else if (paymentIntent && paymentIntent.status === "succeeded") {
+        // Note: The actual fulfillment happens via webhook + /pay endpoint
+        // This client-side success is just for UX - backend is source of truth
         onSuccess(paymentIntent.id);
       } else {
         onError("Payment was not completed");
@@ -134,6 +145,14 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
 
   return (
     <form onSubmit={handleStripeSubmit}>
+      <Box sx={{ mb: 2, p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
+        <Typography variant="body2" color="text.secondary" gutterBottom>
+          Amount to charge (verified by server):
+        </Typography>
+        <Typography variant="h5" color="primary" fontWeight="bold">
+          {formatPrice(serverAmount)}
+        </Typography>
+      </Box>
       <PaymentElement />
       <Button
         type="submit"
@@ -150,7 +169,7 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
         }
         sx={{ mt: 2 }}
       >
-        {isProcessing || isLoading ? "Processing..." : "Pay with Card"}
+        {isProcessing || isLoading ? "Processing..." : `Pay ${formatPrice(serverAmount)}`}
       </Button>
     </form>
   );
@@ -162,15 +181,21 @@ export const PayModal: React.FC<PayModalProps> = ({
   appointment,
   onSuccess,
 }) => {
+  // Step management
+  const [step, setStep] = useState<PaymentStep>("details");
+  
+  // Form state
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
   const [tipAmount, setTipAmount] = useState<string>("");
   const [giftCardCode, setGiftCardCode] = useState<string>("");
   const [validatedGiftCard, setValidatedGiftCard] =
     useState<GiftCardResponse | null>(null);
   const [giftCardError, setGiftCardError] = useState<string>("");
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  
+  // Stripe state
+  const [paymentIntent, setPaymentIntent] = useState<InitiatePaymentResponse | null>(null);
   const [stripeError, setStripeError] = useState<string>("");
-  const [isCreatingIntent, setIsCreatingIntent] = useState(false);
+  const [isInitiatingPayment, setIsInitiatingPayment] = useState(false);
 
   const payMutation = usePayAppointment();
   const validateGiftCardMutation = useValidateGiftCard();
@@ -184,35 +209,12 @@ export const PayModal: React.FC<PayModalProps> = ({
     : "";
   const duration = appointment?.service?.serviceDefinition?.duration ?? 0;
 
+  // Client-side estimates (for display before server confirmation)
   const tipAmountCents = Math.round(parseFloat(tipAmount || "0") * 100);
   const giftCardDiscount = validatedGiftCard
     ? Math.min(validatedGiftCard.value, price)
     : 0;
-  const total = Math.max(0, price + tipAmountCents - giftCardDiscount);
-
-  useEffect(() => {
-    const createIntent = async () => {
-      if (paymentMethod === "STRIPE" && total > 0 && total >= 50) {
-        setClientSecret(null);
-        setIsCreatingIntent(true);
-        setStripeError("");
-        try {
-          const result = await createPaymentIntent({ amount: total });
-          setClientSecret(result.clientSecret);
-        } catch (error) {
-          const errorMessage = getReadableError(
-            error,
-            "Failed to initialize card payment",
-          );
-          setStripeError(errorMessage);
-          setPaymentMethod("CASH");
-        } finally {
-          setIsCreatingIntent(false);
-        }
-      }
-    };
-    createIntent();
-  }, [total, paymentMethod]);
+  const estimatedTotal = Math.max(0, price + tipAmountCents - giftCardDiscount);
 
   const handlePaymentMethodChange = (
     _: React.MouseEvent<HTMLElement>,
@@ -253,30 +255,105 @@ export const PayModal: React.FC<PayModalProps> = ({
     setGiftCardError("");
   };
 
-  const handleSubmit = async (stripePaymentIntentId?: string) => {
+  /**
+   * Initiate Stripe payment - server calculates final amount and creates PaymentIntent
+   * This is the correct Stripe architecture where server is source of truth
+   */
+  const handleInitiateStripePayment = async () => {
     if (!appointment) return;
-    await payMutation.mutateAsync({
-      id: appointment.id,
-      data: {
-        paymentMethod:
-          validatedGiftCard && total === 0 ? "GIFTCARD" : paymentMethod,
+
+    setIsInitiatingPayment(true);
+    setStripeError("");
+
+    try {
+      const result = await initiatePayment(appointment.id, {
         tipAmount: tipAmountCents > 0 ? tipAmountCents : undefined,
         giftCardCode: validatedGiftCard ? giftCardCode : undefined,
-        paymentIntentId: stripePaymentIntentId,
-      },
-    });
-    resetForm();
-    onClose();
-    onSuccess?.();
+      });
+
+      setPaymentIntent(result);
+      setStep("stripe-checkout");
+    } catch (error) {
+      const errorMessage = getReadableError(
+        error,
+        "Failed to initialize card payment",
+      );
+      setStripeError(errorMessage);
+    } finally {
+      setIsInitiatingPayment(false);
+    }
+  };
+
+  /**
+   * Complete payment after Stripe confirmation
+   * This finalizes the appointment as paid in our system
+   */
+  const handleStripeSuccess = async (paymentIntentId: string) => {
+    if (!appointment) return;
+
+    try {
+      await payMutation.mutateAsync({
+        id: appointment.id,
+        data: {
+          paymentMethod: "STRIPE",
+          tipAmount: paymentIntent?.breakdown.tipAmount,
+          giftCardCode: validatedGiftCard ? giftCardCode : undefined,
+          paymentIntentId,
+        },
+      });
+      resetForm();
+      onClose();
+      onSuccess?.();
+    } catch (error) {
+      // Payment succeeded in Stripe but failed to record locally
+      // This is handled by webhook as backup
+      const errorMessage = getReadableError(
+        error,
+        "Payment processed but failed to update appointment. Please refresh the page.",
+      );
+      setStripeError(errorMessage);
+    }
+  };
+
+  /**
+   * Handle cash or gift-card-only payments
+   */
+  const handleCashPayment = async () => {
+    if (!appointment) return;
+
+    try {
+      await payMutation.mutateAsync({
+        id: appointment.id,
+        data: {
+          paymentMethod:
+            validatedGiftCard && estimatedTotal === 0 ? "GIFTCARD" : "CASH",
+          tipAmount: tipAmountCents > 0 ? tipAmountCents : undefined,
+          giftCardCode: validatedGiftCard ? giftCardCode : undefined,
+        },
+      });
+      resetForm();
+      onClose();
+      onSuccess?.();
+    } catch (error) {
+      const errorMessage = getReadableError(error, "Failed to process payment");
+      setStripeError(errorMessage);
+    }
+  };
+
+  const handleBack = () => {
+    setStep("details");
+    setPaymentIntent(null);
+    setStripeError("");
   };
 
   const resetForm = () => {
+    setStep("details");
     setTipAmount("");
     setPaymentMethod("CASH");
     setGiftCardCode("");
     setValidatedGiftCard(null);
     setGiftCardError("");
-    setClientSecret(null);
+    setPaymentIntent(null);
     setStripeError("");
   };
 
@@ -287,10 +364,48 @@ export const PayModal: React.FC<PayModalProps> = ({
 
   if (!appointment) return null;
 
+  // Stripe checkout step
+  if (step === "stripe-checkout" && paymentIntent && stripePromise) {
+    return (
+      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          <PayModalTitle step={step} onBack={handleBack} />
+        </DialogTitle>
+        <DialogContent>
+          <Stack sx={{ py: 2 }} spacing={3}>
+            {stripeError && (
+              <Alert severity="error">{stripeError}</Alert>
+            )}
+            <Elements
+              stripe={stripePromise}
+              options={{
+                clientSecret: paymentIntent.clientSecret,
+                appearance: { theme: "stripe" },
+              }}
+            >
+              <StripeCheckoutForm
+                onSuccess={handleStripeSuccess}
+                onError={(msg) => setStripeError(msg)}
+                isLoading={payMutation.isPending}
+                serverAmount={paymentIntent.finalAmount}
+              />
+            </Elements>
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={handleBack} disabled={payMutation.isPending}>
+            Back
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+
+  // Details step (default)
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        <PayModalTitle />
+        <PayModalTitle step={step} />
       </DialogTitle>
       <DialogContent>
         <Stack sx={{ py: 2 }} spacing={3}>
@@ -403,10 +518,10 @@ export const PayModal: React.FC<PayModalProps> = ({
               <Divider />
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="h6">
-                  {total === 0 ? "Fully Covered" : "To Pay"}
+                  {estimatedTotal === 0 ? "Fully Covered" : "Estimated Total"}
                 </Typography>
                 <Typography variant="h6" color="primary">
-                  {formatPrice(total)}
+                  {formatPrice(estimatedTotal)}
                 </Typography>
               </Box>
             </Stack>
@@ -415,7 +530,7 @@ export const PayModal: React.FC<PayModalProps> = ({
           <Divider />
 
           {/* Payment Method - only show if remaining amount > 0 */}
-          {total > 0 && (
+          {estimatedTotal > 0 && (
             <Box>
               <Typography
                 variant="subtitle2"
@@ -443,50 +558,23 @@ export const PayModal: React.FC<PayModalProps> = ({
                 />
               </ToggleButtonGroup>
 
-              {/* Stripe Error */}
+              {/* Error display */}
               {stripeError && (
                 <Alert severity="error" sx={{ mt: 2 }}>
                   {stripeError}
                 </Alert>
-              )}
-
-              {/* Stripe Payment Element */}
-              {paymentMethod === "STRIPE" && isCreatingIntent && (
-                <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-                  <CircularProgress size={24} />
-                  <Typography sx={{ ml: 1 }} color="text.secondary">
-                    Initializing card payment...
-                  </Typography>
-                </Box>
-              )}
-
-              {paymentMethod === "STRIPE" && clientSecret && stripePromise && (
-                <Box sx={{ mt: 2 }}>
-                  <Elements
-                    stripe={stripePromise}
-                    options={{
-                      clientSecret,
-                      appearance: { theme: "stripe" },
-                    }}
-                  >
-                    <StripeCheckoutForm
-                      onSuccess={(intentId) => handleSubmit(intentId)}
-                      onError={(msg) => setStripeError(msg)}
-                      isLoading={payMutation.isPending}
-                    />
-                  </Elements>
-                </Box>
               )}
             </Box>
           )}
         </Stack>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={handleClose} disabled={payMutation.isPending}>
+        <Button onClick={handleClose} disabled={payMutation.isPending || isInitiatingPayment}>
           Cancel
         </Button>
-        {/* Only show confirm button for CASH or fully covered by gift card */}
-        {(paymentMethod === "CASH" || total === 0) && (
+        
+        {/* Cash or fully-covered payment */}
+        {(paymentMethod === "CASH" || estimatedTotal === 0) && (
           <Button
             variant="contained"
             color="primary"
@@ -497,10 +585,29 @@ export const PayModal: React.FC<PayModalProps> = ({
                 <PaymentIcon />
               )
             }
-            onClick={() => handleSubmit()}
+            onClick={handleCashPayment}
             disabled={payMutation.isPending}
           >
             {payMutation.isPending ? "Processing..." : "Confirm Payment"}
+          </Button>
+        )}
+
+        {/* Stripe payment - proceed to checkout */}
+        {paymentMethod === "STRIPE" && estimatedTotal > 0 && (
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={
+              isInitiatingPayment ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                <CreditCardIcon />
+              )
+            }
+            onClick={handleInitiateStripePayment}
+            disabled={isInitiatingPayment || estimatedTotal < 50}
+          >
+            {isInitiatingPayment ? "Preparing..." : "Continue to Card Payment"}
           </Button>
         )}
       </DialogActions>

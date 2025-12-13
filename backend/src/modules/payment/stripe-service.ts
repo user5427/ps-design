@@ -1,9 +1,16 @@
 import Stripe from "stripe";
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
 if (!STRIPE_SECRET_KEY) {
   console.warn("STRIPE_SECRET_KEY is not set. Stripe payments will not work.");
+}
+
+if (!STRIPE_WEBHOOK_SECRET) {
+  console.warn(
+    "STRIPE_WEBHOOK_SECRET is not set. Stripe webhooks will not be verified.",
+  );
 }
 
 const stripe = STRIPE_SECRET_KEY
@@ -113,6 +120,38 @@ export const stripeService = {
    */
   isConfigured(): boolean {
     return stripe !== null;
+  },
+
+  /**
+   * Check if webhook verification is configured
+   */
+  isWebhookConfigured(): boolean {
+    return !!STRIPE_WEBHOOK_SECRET;
+  },
+
+  /**
+   * Construct and verify a Stripe webhook event
+   * @param payload - Raw request body
+   * @param signature - Stripe-Signature header value
+   * @returns Verified Stripe event
+   */
+  constructWebhookEvent(
+    payload: string | Buffer,
+    signature: string,
+  ): Stripe.Event {
+    if (!stripe) {
+      throw new Error("Stripe is not configured");
+    }
+
+    if (!STRIPE_WEBHOOK_SECRET) {
+      throw new Error("Stripe webhook secret is not configured");
+    }
+
+    return stripe.webhooks.constructEvent(
+      payload,
+      signature,
+      STRIPE_WEBHOOK_SECRET,
+    );
   },
 };
 

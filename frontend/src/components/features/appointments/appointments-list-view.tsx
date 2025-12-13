@@ -27,7 +27,6 @@ import { CancelAppointmentDialog } from "./cancel-appointment-dialog";
 import { RefundAppointmentDialog } from "./refund-appointment-dialog";
 import { AppointmentRowActions } from "./appointment-row-actions";
 import { formatPrice } from "@/utils/price";
-// @ts-expect-error - dayjs uses CommonJS export
 import dayjs from "dayjs";
 
 const STATUS_COLORS: Record<
