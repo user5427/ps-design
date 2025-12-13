@@ -6,27 +6,13 @@ import { webhookService } from "@/modules/payment/webhook";
 export default async function paymentsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
 
-  // Custom content type parser to get raw body for Stripe signature verification
-  fastify.addContentTypeParser(
-    "application/json",
-    { parseAs: "buffer", bodyLimit: 1048576 },
-    (req, body, done) => {
-      (req as FastifyRequest & { rawBody: Buffer }).rawBody = body as Buffer;
-      try {
-        const json = JSON.parse(body.toString());
-        done(null, json);
-      } catch (err) {
-        done(err as Error, undefined);
-      }
-    },
-  );
-
   /**
    * Stripe webhook endpoint
    * Handles payment events from Stripe and routes them to appropriate handlers
    */
   server.post(
     "/webhook",
+
     async (request: FastifyRequest, reply: FastifyReply) => {
       const signature = request.headers["stripe-signature"];
 

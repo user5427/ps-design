@@ -37,7 +37,7 @@ stripe login
 Run the following command:
 
 ```bash
-stripe listen --forward-to localhost:400/api/payments/webhook
+stripe listen --forward-to localhost:4000/api/payments/webhook
 ```
 
 * After starting the listener, Stripe will output a **webhook signing secret**.

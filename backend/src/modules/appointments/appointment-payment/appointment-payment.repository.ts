@@ -82,7 +82,7 @@ export class AppointmentPaymentRepository {
         tipAmount: data.tipAmount ?? 0,
         totalAmount,
         paidAt: new Date(),
-        externalPSaymentId: data.externalPaymentId ?? null,
+        externalPaymentId: data.externalPaymentId ?? null,
       });
 
       const savedPayment = await manager.save(payment);

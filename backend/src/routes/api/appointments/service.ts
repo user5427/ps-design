@@ -6,6 +6,7 @@ import type {
   AppointmentStatus,
 } from "@ps-design/schemas/appointments/appointment";
 import type { InitiatePaymentBody } from "@ps-design/schemas/payments";
+import { MINIMUM_STRIPE_PAYMENT_AMOUNT } from "@ps-design/schemas/payments";
 import type { Appointment } from "@/modules/appointments/appointment/appointment.entity";
 import type { ICreatePaymentLineItem } from "@/modules/appointments/appointment-payment";
 import { stripeService } from "@/modules/payment/stripe-service";
@@ -191,7 +192,7 @@ export async function initiatePayment(
 
   const finalAmount = Math.max(0, servicePrice + tipAmount - giftCardDiscount);
 
-  if (finalAmount < 50) {
+  if (finalAmount < MINIMUM_STRIPE_PAYMENT_AMOUNT) {
     throw new Error(
       "Amount too low for card payment (minimum €0.50). Use cash or gift card instead.",
     );

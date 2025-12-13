@@ -7,10 +7,11 @@ export const InitiatePaymentSchema = z.object({
   giftCardCode: z.string().max(50).optional(),
 });
 
+export const MINIMUM_STRIPE_PAYMENT_AMOUNT = 50;
 export const InitiatePaymentResponseSchema = z.object({
   clientSecret: z.string(),
   paymentIntentId: z.string(),
-  finalAmount: z.number().int(), // cents - the server-calculated amount
+  finalAmount: z.number().int().min(MINIMUM_STRIPE_PAYMENT_AMOUNT), // cents
   breakdown: z.object({
     servicePrice: z.number().int(),
     tipAmount: z.number().int(),

@@ -18,6 +18,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import dayjs from "dayjs";
 
 import type { Appointment } from "@/schemas/appointments";
+import { MINIMUM_STRIPE_PAYMENT_AMOUNT } from "@ps-design/schemas/payments";
 import { usePaymentModal } from "@/hooks/payments";
 import {
   DetailRow,
@@ -54,7 +55,9 @@ export const PayModal: React.FC<PayModalProps> = ({
 
   if (!appointment) return null;
 
-  const startTimeLabel = dayjs(appointment.startTime).format("YYYY-MM-DD HH:mm");
+  const startTimeLabel = dayjs(appointment.startTime).format(
+    "YYYY-MM-DD HH:mm",
+  );
 
   // Stripe checkout step
   if (
@@ -118,7 +121,10 @@ export const PayModal: React.FC<PayModalProps> = ({
               <DetailRow label="Service" value={calculations.serviceName} />
               <DetailRow label="Employee" value={calculations.employeeName} />
               <DetailRow label="Date" value={startTimeLabel} />
-              <DetailRow label="Duration" value={`${calculations.duration} min`} />
+              <DetailRow
+                label="Duration"
+                value={`${calculations.duration} min`}
+              />
             </Stack>
           </Box>
 
@@ -183,32 +189,36 @@ export const PayModal: React.FC<PayModalProps> = ({
             onClick={actions.handleCashPayment}
             disabled={mutations.payMutation.isPending}
           >
-            {mutations.payMutation.isPending ? "Processing..." : "Confirm Payment"}
+            {mutations.payMutation.isPending
+              ? "Processing..."
+              : "Confirm Payment"}
           </Button>
         )}
 
         {/* Stripe payment - proceed to checkout */}
-        {state.paymentMethod === "STRIPE" && calculations.estimatedTotal > 0 && (
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={
-              state.isInitiatingPayment ? (
-                <CircularProgress size={20} color="inherit" />
-              ) : (
-                <CreditCardIcon />
-              )
-            }
-            onClick={actions.handleInitiateStripePayment}
-            disabled={
-              state.isInitiatingPayment || calculations.estimatedTotal < 50
-            }
-          >
-            {state.isInitiatingPayment
-              ? "Preparing..."
-              : "Continue to Card Payment"}
-          </Button>
-        )}
+        {state.paymentMethod === "STRIPE" &&
+          calculations.estimatedTotal > 0 && (
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={
+                state.isInitiatingPayment ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  <CreditCardIcon />
+                )
+              }
+              onClick={actions.handleInitiateStripePayment}
+              disabled={
+                state.isInitiatingPayment ||
+                calculations.estimatedTotal < MINIMUM_STRIPE_PAYMENT_AMOUNT
+              }
+            >
+              {state.isInitiatingPayment
+                ? "Preparing..."
+                : "Continue to Card Payment"}
+            </Button>
+          )}
       </DialogActions>
     </Dialog>
   );
