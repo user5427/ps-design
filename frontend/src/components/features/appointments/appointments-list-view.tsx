@@ -23,6 +23,7 @@ import type {
 import { CreateAppointmentModal } from "./create-appointment-modal";
 import { PayModal } from "./pay-modal";
 import { CancelAppointmentDialog } from "./cancel-appointment-dialog";
+import { RefundAppointmentDialog } from "./refund-appointment-dialog";
 import { AppointmentRowActions } from "./appointment-row-actions";
 import { formatPrice } from "@/utils/price";
 import dayjs from "dayjs";
@@ -34,6 +35,7 @@ const STATUS_COLORS: Record<
   RESERVED: "primary",
   CANCELLED: "error",
   PAID: "success",
+  REFUNDED: "warning",
 };
 
 const AppointmentStatusChip = ({ status }: { status: AppointmentStatus }) => (
@@ -62,6 +64,8 @@ export const AppointmentsListView = () => {
   );
   const [cancelAppointment, setCancelAppointment] =
     useState<Appointment | null>(null);
+  const [refundAppointment, setRefundAppointment] =
+    useState<Appointment | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
 
   const handleConfirmCancel = useCallback(async () => {
@@ -86,6 +90,10 @@ export const AppointmentsListView = () => {
 
   const handleOpenPayModal = useCallback((appointment: Appointment) => {
     setPayAppointment(appointment);
+  }, []);
+
+  const handleOpenRefundModal = useCallback((appointment: Appointment) => {
+    setRefundAppointment(appointment);
   }, []);
 
   const staffServiceOptions = useMemo(
@@ -177,10 +185,11 @@ export const AppointmentsListView = () => {
           openEditModal={openEditModal}
           onCancel={() => handleOpenCancelModal(row)}
           onPay={() => handleOpenPayModal(row)}
+          onRefund={() => handleOpenRefundModal(row)}
         />
       );
     },
-    [handleOpenCancelModal, handleOpenPayModal],
+    [handleOpenCancelModal, handleOpenPayModal, handleOpenRefundModal],
   );
 
   const editFormFields: FormFieldDefinition[] = [
@@ -323,6 +332,7 @@ export const AppointmentsListView = () => {
         open={!!payAppointment}
         onClose={() => setPayAppointment(null)}
         appointment={payAppointment}
+        onSuccess={() => refetch()}
       />
 
       <CancelAppointmentDialog
@@ -331,6 +341,13 @@ export const AppointmentsListView = () => {
         isLoading={isCancelling}
         onCancel={() => setCancelAppointment(null)}
         onConfirm={handleConfirmCancel}
+      />
+
+      <RefundAppointmentDialog
+        open={!!refundAppointment}
+        appointment={refundAppointment}
+        onCancel={() => setRefundAppointment(null)}
+        onSuccess={() => refetch()}
       />
     </>
   );

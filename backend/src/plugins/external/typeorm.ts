@@ -50,6 +50,11 @@ import {
   Appointment,
   AppointmentRepository,
 } from "@/modules/appointments/appointment";
+import {
+  AppointmentPayment,
+  PaymentLineItem,
+  AppointmentPaymentRepository,
+} from "@/modules/appointments/appointment-payment";
 
 export interface Services {
   dataSource: DataSource;
@@ -70,6 +75,7 @@ export interface Services {
   staffService: StaffServiceRepository;
   availability: AvailabilityRepository;
   appointment: AppointmentRepository;
+  appointmentPayment: AppointmentPaymentRepository;
 }
 
 declare module "fastify" {
@@ -152,6 +158,12 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
       dataSource.getRepository(Appointment),
       dataSource.getRepository(StaffService),
       availabilityRepo,
+    ),
+    appointmentPayment: new AppointmentPaymentRepository(
+      dataSource,
+      dataSource.getRepository(AppointmentPayment),
+      dataSource.getRepository(PaymentLineItem),
+      dataSource.getRepository(Appointment),
     ),
   };
 

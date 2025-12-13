@@ -8,6 +8,8 @@ import {
   getAppointmentById,
   updateAppointment,
   updateAppointmentStatus,
+  payAppointment,
+  refundAppointment,
 } from "./service";
 import { getBusinessId, getUserId } from "@/shared/auth-utils";
 import { handleServiceError } from "@/shared/error-handler";
@@ -19,6 +21,10 @@ import {
   type UpdateAppointmentBody,
   UpdateAppointmentSchema,
   AppointmentStatusEnum,
+  PayAppointmentSchema,
+  type PayAppointmentBody,
+  RefundAppointmentSchema,
+  type RefundAppointmentBody,
 } from "@ps-design/schemas/appointments/appointment";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
@@ -182,6 +188,80 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
           (request.body as StatusUpdateBody).status,
         );
         return reply.send();
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
+
+  // Pay appointment
+  server.post<{ Params: AppointmentIdParams; Body: PayAppointmentBody }>(
+    "/:appointmentId/pay",
+    {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+      ],
+      schema: {
+        params: AppointmentIdParam,
+        body: PayAppointmentSchema,
+      },
+    },
+    async (request, reply: FastifyReply) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
+
+      const userId = getUserId(request, reply);
+      if (!userId) return;
+
+      const { appointmentId } = request.params;
+
+      try {
+        await payAppointment(
+          fastify,
+          businessId,
+          appointmentId,
+          userId,
+          request.body,
+        );
+        return reply.code(httpStatus.OK).send();
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
+
+  // Refund appointment
+  server.post<{ Params: AppointmentIdParams; Body: RefundAppointmentBody }>(
+    "/:appointmentId/refund",
+    {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+      ],
+      schema: {
+        params: AppointmentIdParam,
+        body: RefundAppointmentSchema,
+      },
+    },
+    async (request, reply: FastifyReply) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
+
+      const userId = getUserId(request, reply);
+      if (!userId) return;
+
+      const { appointmentId } = request.params;
+
+      try {
+        await refundAppointment(
+          fastify,
+          businessId,
+          appointmentId,
+          userId,
+          request.body,
+        );
+        return reply.code(httpStatus.OK).send();
       } catch (error) {
         return handleServiceError(error, reply);
       }

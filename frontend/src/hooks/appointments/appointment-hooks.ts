@@ -5,6 +5,8 @@ import {
   getAppointments,
   updateAppointment,
   updateAppointmentStatus,
+  payAppointment,
+  refundAppointment,
 } from "@/api/appointments";
 import type {
   CreateAppointmentBody,
@@ -65,3 +67,31 @@ export function useBulkDeleteAppointments() {
     },
   });
 }
+
+export function usePayAppointment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: { paymentMethod: string; tipAmount?: number };
+    }) => payAppointment(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: appointmentKeys.all });
+    },
+  });
+}
+
+export function useRefundAppointment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
+      refundAppointment(id, { reason }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: appointmentKeys.all });
+    },
+  });
+}
+

@@ -3,10 +3,10 @@ import type {
   CreateAppointmentBody,
   UpdateAppointmentBody,
   AppointmentResponse,
-  AppointmentFilterQuery,
   AppointmentStatus,
 } from "@ps-design/schemas/appointments/appointment";
 import type { Appointment } from "@/modules/appointments/appointment/appointment.entity";
+import type { ICreatePaymentLineItem } from "@/modules/appointments/appointment-payment";
 
 function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
   return {
@@ -32,9 +32,9 @@ function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
         price: appointment.service.serviceDefinition.price,
         category: appointment.service.serviceDefinition.category
           ? {
-              id: appointment.service.serviceDefinition.category.id,
-              name: appointment.service.serviceDefinition.category.name,
-            }
+            id: appointment.service.serviceDefinition.category.id,
+            name: appointment.service.serviceDefinition.category.name,
+          }
           : null,
       },
     },
@@ -110,3 +110,68 @@ export async function updateAppointmentStatus(
   );
   return toAppointmentResponse(updated);
 }
+
+export async function payAppointment(
+  fastify: FastifyInstance,
+  businessId: string,
+  appointmentId: string,
+  paidById: string,
+  input: { paymentMethod: string; tipAmount?: number },
+): Promise<void> {
+  const appointment = await fastify.db.appointment.getById(
+    appointmentId,
+    businessId,
+  );
+
+  if (appointment.status !== "RESERVED") {
+    throw new Error("Only reserved appointments can be paid");
+  }
+
+  const service = appointment.service;
+  const serviceDefinition = service.serviceDefinition;
+  const employee = service.employee;
+
+  const lineItems: ICreatePaymentLineItem[] = [
+    {
+      type: "SERVICE",
+      label: serviceDefinition.name,
+      amount: serviceDefinition.price,
+    },
+  ];
+
+  if (input.tipAmount && input.tipAmount > 0) {
+    lineItems.push({
+      type: "TIP",
+      label: "Tip",
+      amount: input.tipAmount,
+    });
+  }
+
+  await fastify.db.appointmentPayment.create({
+    appointmentId,
+    businessId,
+    paidById,
+    paymentMethod: input.paymentMethod as import("@/modules/appointments/appointment-payment").PaymentMethod,
+    serviceName: serviceDefinition.name,
+    servicePrice: serviceDefinition.price,
+    serviceDuration: serviceDefinition.baseDuration,
+    employeeName: employee.name,
+    employeeId: employee.id,
+    tipAmount: input.tipAmount,
+    lineItems,
+  });
+}
+
+export async function refundAppointment(
+  fastify: FastifyInstance,
+  businessId: string,
+  appointmentId: string,
+  refundedById: string,
+  input: { reason?: string },
+): Promise<void> {
+  await fastify.db.appointmentPayment.refund(appointmentId, businessId, {
+    refundedById,
+    reason: input.reason,
+  });
+}
+

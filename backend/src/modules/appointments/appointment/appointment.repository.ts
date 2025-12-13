@@ -21,7 +21,7 @@ export class AppointmentRepository {
     private repository: Repository<Appointment>,
     private staffServiceRepository: Repository<StaffService>,
     private availabilityRepository: AvailabilityRepository,
-  ) {}
+  ) { }
 
   async findAllByBusinessId(businessId: string): Promise<Appointment[]> {
     const queryBuilder = this.repository
@@ -189,7 +189,8 @@ export class AppointmentRepository {
     const validTransitions: Record<AppointmentStatus, AppointmentStatus[]> = {
       RESERVED: ["CANCELLED", "PAID"],
       CANCELLED: [],
-      PAID: [],
+      PAID: ["REFUNDED"],
+      REFUNDED: [],
     };
 
     if (!validTransitions[currentStatus].includes(newStatus)) {

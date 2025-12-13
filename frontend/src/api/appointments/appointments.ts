@@ -57,3 +57,18 @@ export async function updateAppointmentStatus(
 export async function bulkDeleteAppointments(ids: string[]): Promise<void> {
   await apiClient.post("/appointments/appointments/bulk-delete", { ids });
 }
+
+export async function payAppointment(
+  id: string,
+  data: { paymentMethod: string; tipAmount?: number },
+): Promise<void> {
+  await apiClient.post(`/appointments/appointments/${id}/pay`, data);
+}
+
+export async function refundAppointment(
+  id: string,
+  data: { reason?: string },
+): Promise<void> {
+  await apiClient.post(`/appointments/appointments/${id}/refund`, data);
+}
+

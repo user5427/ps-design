@@ -13,7 +13,7 @@ import type { Business } from "@/modules/business/business.entity";
 import type { User } from "@/modules/user/user.entity";
 import type { StaffService } from "@/modules/appointments/staff-service/staff-service.entity";
 
-export type AppointmentStatus = "RESERVED" | "CANCELLED" | "PAID";
+export type AppointmentStatus = "RESERVED" | "CANCELLED" | "PAID" | "REFUNDED";
 
 @Entity("Appointment")
 export class Appointment {
