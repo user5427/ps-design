@@ -209,7 +209,7 @@ export function ManageRoles() {
         severity: "success",
       });
       queryClient.invalidateQueries({ queryKey: ["roles", selectedBusiness?.id] });
-    } catch (error) {
+    } catch (_error) {
       setSnackbar({
         open: true,
         message: "Failed to delete role",
@@ -280,9 +280,9 @@ export function ManageRoles() {
       queryClient.invalidateQueries({ queryKey: ["business-users", selectedBusiness?.id] });
       queryClient.invalidateQueries({ queryKey: ["scopes"] });
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message =
-        error.response?.data?.message || "Failed to assign role";
+        (error as any)?.response?.data?.message || "Failed to assign role";
       setSnackbar({
         open: true,
         message,
@@ -302,9 +302,9 @@ export function ManageRoles() {
       queryClient.invalidateQueries({ queryKey: ["business-users", selectedBusiness?.id] });
       queryClient.invalidateQueries({ queryKey: ["scopes"] });
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message =
-        error.response?.data?.message || "Failed to remove role";
+        (error as any)?.response?.data?.message || "Failed to remove role";
       setSnackbar({
         open: true,
         message,

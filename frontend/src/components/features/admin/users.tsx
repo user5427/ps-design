@@ -97,7 +97,7 @@ export function AdminUsersManagement() {
       label: "Business",
       type: "select",
       required: true,
-      options: businesses.map((b: any) => ({ value: b.id, label: b.name })),
+      options: businesses.map((b: { id: string; name: string }) => ({ value: b.id, label: b.name })),
     },
     {
       name: "isOwner",

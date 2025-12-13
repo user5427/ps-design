@@ -156,7 +156,7 @@ export function BusinessRoles() {
         severity: "success",
       });
       queryClient.invalidateQueries({ queryKey: ["roles", businessId] });
-    } catch (error) {
+    } catch (_error) {
       setSnackbar({
         open: true,
         message: "Failed to delete role",
@@ -227,9 +227,9 @@ export function BusinessRoles() {
       queryClient.invalidateQueries({ queryKey: ["users", businessId] });
       queryClient.invalidateQueries({ queryKey: ["scopes"] });
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message =
-        error.response?.data?.message || "Failed to assign role";
+        (error as any)?.response?.data?.message || "Failed to assign role";
       setSnackbar({
         open: true,
         message,
@@ -249,9 +249,9 @@ export function BusinessRoles() {
       queryClient.invalidateQueries({ queryKey: ["users", businessId] });
       queryClient.invalidateQueries({ queryKey: ["scopes"] });
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message =
-        error.response?.data?.message || "Failed to remove role";
+        (error as any)?.response?.data?.message || "Failed to remove role";
       setSnackbar({
         open: true,
         message,
