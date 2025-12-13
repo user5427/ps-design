@@ -234,7 +234,7 @@ export const AppointmentsListView = () => {
     { name: "service.serviceDefinition.category.name", label: "Category" },
     {
       name: "service.serviceDefinition.price",
-      label: "Price",
+      label: "Service Price",
       render: (value) => formatPrice(value as number),
     },
     {
@@ -249,6 +249,46 @@ export const AppointmentsListView = () => {
       render: (value) => `${value} minutes`,
     },
     { name: "status", label: "Status" },
+    {
+      name: "payment.totalAmount",
+      label: "Total Paid",
+      render: (value, row) => {
+        if (!row.payment) return "-";
+        return formatPrice(value as number);
+      },
+    },
+    {
+      name: "payment.paymentMethod",
+      label: "Payment Method",
+      render: (value) => (value ? (value as string) : "-"),
+    },
+    {
+      name: "payment.lineItems",
+      label: "Payment Details",
+      render: (value) => {
+        if (!Array.isArray(value) || value.length === 0) return "-";
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            {value.map((item: any) => (
+              <span key={item.id} style={{ fontSize: "0.875rem" }}>
+                {item.label}: {formatPrice(item.amount)}
+              </span>
+            ))}
+          </div>
+        );
+      },
+    },
+    {
+      name: "payment.refundedAt",
+      label: "Refunded At",
+      render: (value) =>
+        value ? dayjs(value as string).format("YYYY-MM-DD HH:mm") : "-",
+    },
+    {
+      name: "payment.refundReason",
+      label: "Refund Reason",
+      render: (value) => (value ? (value as string) : "-"),
+    },
     { name: "notes", label: "Notes" },
     { name: "createdAt", label: "Created At" },
     { name: "updatedAt", label: "Updated At" },

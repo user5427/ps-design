@@ -38,6 +38,25 @@ function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
           : null,
       },
     },
+    payment: appointment.payment
+      ? {
+        id: appointment.payment.id,
+        servicePrice: appointment.payment.servicePrice,
+        serviceDuration: appointment.payment.serviceDuration,
+        paymentMethod: appointment.payment.paymentMethod,
+        tipAmount: appointment.payment.tipAmount,
+        totalAmount: appointment.payment.totalAmount,
+        paidAt: appointment.payment.paidAt.toISOString(),
+        refundedAt: appointment.payment.refundedAt?.toISOString() || null,
+        refundReason: appointment.payment.refundReason,
+        lineItems: appointment.payment.lineItems.map((item) => ({
+          id: item.id,
+          type: item.type,
+          label: item.label,
+          amount: item.amount,
+        })),
+      }
+      : undefined,
     createdById: appointment.createdById,
     createdAt: appointment.createdAt.toISOString(),
     updatedAt: appointment.updatedAt.toISOString(),

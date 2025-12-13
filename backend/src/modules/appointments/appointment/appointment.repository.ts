@@ -13,6 +13,8 @@ const APPOINTMENT_RELATIONS = [
   "service.employee",
   "service.serviceDefinition",
   "service.serviceDefinition.category",
+  "payment",
+  "payment.lineItems",
 ];
 
 export class AppointmentRepository {
@@ -21,7 +23,7 @@ export class AppointmentRepository {
     private repository: Repository<Appointment>,
     private staffServiceRepository: Repository<StaffService>,
     private availabilityRepository: AvailabilityRepository,
-  ) { }
+  ) {}
 
   async findAllByBusinessId(businessId: string): Promise<Appointment[]> {
     const queryBuilder = this.repository
@@ -30,6 +32,8 @@ export class AppointmentRepository {
       .leftJoinAndSelect("service.employee", "employee")
       .leftJoinAndSelect("service.serviceDefinition", "serviceDefinition")
       .leftJoinAndSelect("serviceDefinition.category", "category")
+      .leftJoinAndSelect("appointment.payment", "payment")
+      .leftJoinAndSelect("payment.lineItems", "lineItems")
       .where("appointment.businessId = :businessId", { businessId })
       .orderBy("appointment.startTime", "DESC");
 

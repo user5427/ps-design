@@ -67,7 +67,7 @@ export class AppointmentPayment {
   @Index({ unique: true })
   appointmentId: string;
 
-  @OneToOne("Appointment", { onDelete: "CASCADE" })
+  @OneToOne("Appointment", "payment", { onDelete: "CASCADE" })
   @JoinColumn({ name: "appointmentId" })
   appointment: Relation<Appointment>;
 

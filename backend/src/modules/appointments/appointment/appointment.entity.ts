@@ -5,6 +5,7 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   type Relation,
   UpdateDateColumn,
@@ -61,6 +62,9 @@ export class Appointment {
   @ManyToOne("User", { onDelete: "SET NULL" })
   @JoinColumn({ name: "createdById" })
   createdBy: Relation<User>;
+
+  @OneToOne("AppointmentPayment", "appointment", { cascade: true })
+  payment: Relation<import("../appointment-payment/appointment-payment.entity").AppointmentPayment>;
 
   @CreateDateColumn()
   createdAt: Date;

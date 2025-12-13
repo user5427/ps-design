@@ -28,6 +28,26 @@ const ServiceSchema = z.object({
   serviceDefinition: ServiceDefinitionSchema,
 });
 
+const PaymentLineItemSchema = z.object({
+  id: uuid(),
+  type: z.enum(["SERVICE", "TIP", "DISCOUNT", "TAX"]),
+  label: z.string(),
+  amount: z.number(), // cents
+});
+
+const AppointmentPaymentResponseSchema = z.object({
+  id: uuid(),
+  servicePrice: z.number(),
+  serviceDuration: z.number(),
+  paymentMethod: z.enum(["CASH", "GIFTCARD", "STRIPE"]),
+  tipAmount: z.number(),
+  totalAmount: z.number(),
+  paidAt: datetime(),
+  refundedAt: datetime().nullable(),
+  refundReason: z.string().nullable(),
+  lineItems: z.array(PaymentLineItemSchema),
+});
+
 export const AppointmentResponseSchema = z.object({
   id: uuid(),
   customerName: z.string(),
@@ -37,6 +57,7 @@ export const AppointmentResponseSchema = z.object({
   status: AppointmentStatusEnum,
   notes: z.string().nullable(),
   service: ServiceSchema,
+  payment: AppointmentPaymentResponseSchema.nullable().optional(),
   createdById: uuid(),
   createdAt: datetime(),
   updatedAt: datetime(),
