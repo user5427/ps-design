@@ -105,7 +105,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
           AuditActionType.CREATE,
           request,
           reply,
-          "StockChange"
+          "StockChange",
         );
 
         const stockChange = await wrapCreateStockChange(

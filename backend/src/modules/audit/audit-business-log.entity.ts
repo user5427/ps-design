@@ -10,15 +10,12 @@ import {
 } from "typeorm";
 import type { User } from "@/modules/user/user.entity";
 import type { Business } from "@/modules/business/business.entity";
-import {
-  AuditActionType,
-  ActionResult,
-} from "./audit-log.types";
+import { AuditActionType, ActionResult } from "./audit-log.types";
 
 @Entity("AuditBusinessLog")
-@Index([ "entityType", "entityId" ])
-@Index([ "businessId" ])
-@Index([ "userId" ])
+@Index(["entityType", "entityId"])
+@Index(["businessId"])
+@Index(["userId"])
 export class AuditBusinessLog {
   @PrimaryGeneratedColumn("uuid")
   id: string;

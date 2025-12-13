@@ -11,7 +11,9 @@ export default fp(async (fastify: FastifyInstance) => {
     business: async (
       fn: (...args: any[]) => any,
       auditType: any,
-      request: FastifyRequest | FastifyRequest<{ Params: { businessId: string } }>,
+      request:
+        | FastifyRequest
+        | FastifyRequest<{ Params: { businessId: string } }>,
     ) => {
       const userContext = request.user as {
         userId: string;

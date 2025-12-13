@@ -1,4 +1,4 @@
-import { DataSource, Repository } from "typeorm";
+import type { DataSource, Repository } from "typeorm";
 import { AuditBusinessLog } from "./audit-business-log.entity";
 import { AuditSecurityLog } from "./audit-security-log.entity";
 import { User } from "@/modules/user/user.entity";

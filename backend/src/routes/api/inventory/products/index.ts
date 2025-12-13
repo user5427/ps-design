@@ -78,7 +78,11 @@ export default async function productsRoutes(fastify: FastifyInstance) {
           "Product",
         );
 
-        const product = await createProductWrapped(fastify, businessId, request.body);
+        const product = await createProductWrapped(
+          fastify,
+          businessId,
+          request.body,
+        );
         return reply.code(httpStatus.CREATED).send(product);
       } catch (error) {
         return handleServiceError(error, reply);

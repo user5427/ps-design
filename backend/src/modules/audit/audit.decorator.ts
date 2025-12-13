@@ -107,9 +107,9 @@ export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
     ip: string | null;
   },
 ): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
-
-  const isBusinessAction =
-    Object.values(AuditActionType).includes(auditType as AuditActionType);
+  const isBusinessAction = Object.values(AuditActionType).includes(
+    auditType as AuditActionType,
+  );
 
   if (isBusinessAction) {
     const action = auditType as AuditActionType;
@@ -150,6 +150,11 @@ export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
   }
 
   return auditSecurityWrapper(
+    fn,
+    auditLogService,
+    auditType as AuditSecurityType,
+    params.userId,
+    params.ip,
     fn,
     auditLogService,
     auditType as AuditSecurityType,

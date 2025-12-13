@@ -1,4 +1,4 @@
-import { DataSource, Repository } from "typeorm";
+import type { DataSource, Repository } from "typeorm";
 import { AuditBusinessLog } from "./audit-business-log.entity";
 import { AuditSecurityLog } from "./audit-security-log.entity";
 import { User } from "@/modules/user/user.entity";
@@ -46,15 +46,15 @@ const EntityMap = {
 type EntityName = keyof typeof EntityMap;
 
 export class AuditLogService {
-  constructor(private dataSource: DataSource) { }
+  constructor(private dataSource: DataSource) {}
 
   getRepository<T extends EntityName>(
-    entityName: T
-  ): Repository<InstanceType<typeof EntityMap[ T ]>> {
-    const entityClass = EntityMap[ entityName ];
-    return this.dataSource.getRepository(
-      entityClass
-    ) as Repository<InstanceType<typeof EntityMap[ T ]>>;
+    entityName: T,
+  ): Repository<InstanceType<(typeof EntityMap)[T]>> {
+    const entityClass = EntityMap[entityName];
+    return this.dataSource.getRepository(entityClass) as Repository<
+      InstanceType<(typeof EntityMap)[T]>
+    >;
   }
 
   async getEntitySnapshot(entityType: EntityName, entityId: string) {

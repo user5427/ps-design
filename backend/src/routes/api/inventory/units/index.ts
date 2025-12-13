@@ -72,7 +72,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
           AuditActionType.CREATE,
           request,
           reply,
-          "ProductUnit"
+          "ProductUnit",
         );
 
         const unit = await wrapCreateUnit(fastify, businessId, request.body);
@@ -114,7 +114,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
           request,
           reply,
           "ProductUnit",
-          unitId
+          unitId,
         );
 
         const unit = await wrapUpdateUnit(

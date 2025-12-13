@@ -33,7 +33,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
   server.get(
     "/",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_READ) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);
@@ -47,7 +47,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateMenuItemBody }>(
     "/",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_WRITE) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_WRITE)],
       schema: {
         body: CreateMenuItemSchema,
       },
@@ -67,7 +67,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
           AuditActionType.CREATE,
           request,
           reply,
-          "MenuItem"
+          "MenuItem",
         );
 
         const menuItem = await wrapCreateMenuItem(
@@ -85,7 +85,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
   server.get<{ Params: MenuItemIdParams }>(
     "/:menuItemId",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_READ) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
       schema: {
         params: MenuItemIdParam,
       },
@@ -113,7 +113,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
   server.put<{ Params: MenuItemIdParams; Body: UpdateMenuItemBody }>(
     "/:menuItemId",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_WRITE) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_WRITE)],
       schema: {
         params: MenuItemIdParam,
         body: UpdateMenuItemSchema,
@@ -138,7 +138,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
           request,
           reply,
           "MenuItem",
-          menuItemId
+          menuItemId,
         );
 
         const updated = await wrapUpdateMenuItem(
@@ -157,7 +157,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
   server.post<{ Body: BulkDeleteBody }>(
     "/bulk-delete",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_DELETE) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_DELETE)],
       schema: {
         body: BulkDeleteSchema,
       },

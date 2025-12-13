@@ -33,7 +33,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   server.get(
     "/",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_READ) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);
@@ -47,7 +47,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateCategoryBody }>(
     "/",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_WRITE) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_WRITE)],
       schema: {
         body: CreateCategorySchema,
       },
@@ -85,7 +85,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   server.get<{ Params: CategoryIdParams }>(
     "/:categoryId",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_READ) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
       schema: {
         params: CategoryIdParam,
       },
@@ -113,7 +113,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   server.put<{ Params: CategoryIdParams; Body: UpdateCategoryBody }>(
     "/:categoryId",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_WRITE) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_WRITE)],
       schema: {
         params: CategoryIdParam,
         body: UpdateCategorySchema,
@@ -157,7 +157,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   server.post<{ Body: BulkDeleteBody }>(
     "/bulk-delete",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.MENU_DELETE) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_DELETE)],
       schema: {
         body: BulkDeleteSchema,
       },

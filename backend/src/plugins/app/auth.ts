@@ -16,7 +16,9 @@ declare module "fastify" {
       business: (
         fn: (...args: any[]) => any,
         auditType: any,
-        request: FastifyRequest | FastifyRequest<{ Params: { businessId: string } }>,
+        request:
+          | FastifyRequest
+          | FastifyRequest<{ Params: { businessId: string } }>,
       ) => Promise<any>;
       security: (
         fn: (...args: any[]) => any,
