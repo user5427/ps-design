@@ -1,7 +1,7 @@
 import { IsNull, type Repository } from "typeorm";
 import { ConflictError, NotFoundError, BadRequestError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
-import { GiftCard } from "./gift-card.entity";
+import type { GiftCard } from "./gift-card.entity";
 import type { ICreateGiftCard, IUpdateGiftCard } from "./gift-card.types";
 
 export class GiftCardRepository {
