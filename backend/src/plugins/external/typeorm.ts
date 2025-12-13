@@ -52,9 +52,10 @@ import {
 } from "@/modules/appointments/appointment";
 import {
   AppointmentPayment,
-  PaymentLineItem,
   AppointmentPaymentRepository,
 } from "@/modules/appointments/appointment-payment";
+import { Payment } from "@/modules/payment/payment.entity";
+import { PaymentLineItem } from "@/modules/payment/payment-line-item.entity";
 import { GiftCard, GiftCardRepository } from "@/modules/gift-card";
 
 export interface Services {
@@ -164,6 +165,7 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
     appointmentPayment: new AppointmentPaymentRepository(
       dataSource,
       dataSource.getRepository(AppointmentPayment),
+      dataSource.getRepository(Payment),
       dataSource.getRepository(PaymentLineItem),
       dataSource.getRepository(Appointment),
     ),

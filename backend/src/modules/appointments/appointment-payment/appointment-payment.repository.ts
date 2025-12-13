@@ -1,11 +1,13 @@
 import type { DataSource, Repository } from "typeorm";
 import { NotFoundError, BadRequestError } from "@/shared/errors";
 import type { Appointment } from "@/modules/appointments/appointment/appointment.entity";
+import type { PaymentMethod } from "@/modules/payment/payment.entity";
+import { Payment } from "@/modules/payment/payment.entity";
 import {
-  AppointmentPayment,
-  type PaymentMethod,
-} from "./appointment-payment.entity";
-import { PaymentLineItem, type LineItemType } from "./payment-line-item.entity";
+  PaymentLineItem,
+  type LineItemType,
+} from "@/modules/payment/payment-line-item.entity";
+import { AppointmentPayment } from "./appointment-payment.entity";
 
 export interface ICreatePaymentLineItem {
   type: LineItemType;
@@ -37,6 +39,7 @@ export class AppointmentPaymentRepository {
   constructor(
     private dataSource: DataSource,
     private repository: Repository<AppointmentPayment>,
+    private paymentRepository: Repository<Payment>,
     private lineItemRepository: Repository<PaymentLineItem>,
     private appointmentRepository: Repository<Appointment>,
   ) {}
@@ -46,7 +49,12 @@ export class AppointmentPaymentRepository {
   ): Promise<AppointmentPayment | null> {
     return this.repository.findOne({
       where: { appointmentId },
-      relations: ["lineItems", "paidBy", "refundedBy"],
+      relations: [
+        "payment",
+        "payment.lineItems",
+        "payment.paidBy",
+        "payment.refundedBy",
+      ],
     });
   }
 
@@ -54,10 +62,20 @@ export class AppointmentPaymentRepository {
     appointmentId: string,
     businessId: string,
   ): Promise<AppointmentPayment | null> {
-    return this.repository.findOne({
-      where: { appointmentId, businessId },
-      relations: ["lineItems", "paidBy", "refundedBy"],
+    const aptPayment = await this.repository.findOne({
+      where: { appointmentId },
+      relations: [
+        "payment",
+        "payment.lineItems",
+        "payment.paidBy",
+        "payment.refundedBy",
+      ],
     });
+
+    if (aptPayment && aptPayment.payment.businessId === businessId) {
+      return aptPayment;
+    }
+    return null;
   }
 
   async create(data: ICreatePayment): Promise<AppointmentPayment> {
@@ -69,25 +87,27 @@ export class AppointmentPaymentRepository {
         .reduce((sum, item) => sum + item.amount, 0);
 
     return await this.dataSource.transaction(async (manager) => {
-      const payment = manager.create(AppointmentPayment, {
-        appointmentId: data.appointmentId,
+      const payment = manager.create(Payment, {
         businessId: data.businessId,
         paidById: data.paidById,
-        paymentMethod: data.paymentMethod,
-        serviceName: data.serviceName,
-        servicePrice: data.servicePrice,
-        serviceDuration: data.serviceDuration,
-        employeeName: data.employeeName,
-        employeeId: data.employeeId,
+        method: data.paymentMethod,
+        amount: data.servicePrice,
         tipAmount: data.tipAmount ?? 0,
         totalAmount,
         paidAt: new Date(),
-        externalPSaymentId: data.externalPaymentId ?? null,
+        externalPaymentId: data.externalPaymentId ?? null,
       });
 
       const savedPayment = await manager.save(payment);
 
-      const lineItems = data.lineItems.map((item) =>
+      const serviceLineItem = manager.create(PaymentLineItem, {
+        paymentId: savedPayment.id,
+        type: "SERVICE",
+        label: data.serviceName,
+        amount: data.servicePrice,
+      });
+
+      const otherLineItems = data.lineItems.map((item) =>
         manager.create(PaymentLineItem, {
           paymentId: savedPayment.id,
           type: item.type,
@@ -96,7 +116,14 @@ export class AppointmentPaymentRepository {
         }),
       );
 
-      await manager.save(lineItems);
+      await manager.save([serviceLineItem, ...otherLineItems]);
+
+      const appointmentPayment = manager.create(AppointmentPayment, {
+        appointmentId: data.appointmentId,
+        paymentId: savedPayment.id,
+      });
+
+      await manager.save(appointmentPayment);
 
       await manager.update(
         this.appointmentRepository.target,
@@ -107,7 +134,7 @@ export class AppointmentPaymentRepository {
       );
 
       return this.findByAppointmentId(
-        savedPayment.appointmentId,
+        data.appointmentId,
       ) as Promise<AppointmentPayment>;
     });
   }
@@ -117,21 +144,22 @@ export class AppointmentPaymentRepository {
     businessId: string,
     data: IRefundPayment,
   ): Promise<AppointmentPayment> {
-    const payment = await this.findByAppointmentIdAndBusinessId(
+    const aptPayment = await this.findByAppointmentIdAndBusinessId(
       appointmentId,
       businessId,
     );
 
-    if (!payment) {
+    if (!aptPayment) {
       throw new NotFoundError("Payment not found for this appointment");
     }
 
-    if (payment.refundedAt) {
+    if (aptPayment.payment.status === "REFUNDED") {
       throw new BadRequestError("Payment has already been refunded");
     }
 
     return await this.dataSource.transaction(async (manager) => {
-      await manager.update(AppointmentPayment, payment.id, {
+      await manager.update(Payment, aptPayment.paymentId, {
+        status: "REFUNDED",
         refundedAt: new Date(),
         refundedById: data.refundedById,
         refundReason: data.reason ?? null,

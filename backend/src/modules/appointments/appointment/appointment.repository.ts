@@ -14,7 +14,8 @@ const APPOINTMENT_RELATIONS = [
   "service.serviceDefinition",
   "service.serviceDefinition.category",
   "payment",
-  "payment.lineItems",
+  "payment.payment",
+  "payment.payment.lineItems",
 ];
 
 export class AppointmentRepository {
@@ -32,7 +33,8 @@ export class AppointmentRepository {
       .leftJoinAndSelect("service.employee", "employee")
       .leftJoinAndSelect("service.serviceDefinition", "serviceDefinition")
       .leftJoinAndSelect("serviceDefinition.category", "category")
-      .leftJoinAndSelect("appointment.payment", "payment")
+      .leftJoinAndSelect("appointment.payment", "appointmentPayment")
+      .leftJoinAndSelect("appointmentPayment.payment", "payment")
       .leftJoinAndSelect("payment.lineItems", "lineItems")
       .where("appointment.businessId = :businessId", { businessId })
       .orderBy("appointment.startTime", "DESC");
@@ -81,7 +83,6 @@ export class AppointmentRepository {
 
     const duration = staffService.serviceDefinition.baseDuration;
 
-    // Check employee availability
     const isAvailable = await this.availabilityRepository.isEmployeeAvailable(
       staffService.employeeId,
       data.businessId,

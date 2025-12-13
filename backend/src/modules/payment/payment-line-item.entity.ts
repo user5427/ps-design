@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   type Relation,
 } from "typeorm";
-import type { AppointmentPayment } from "./appointment-payment.entity";
+import type { Payment } from "./payment.entity";
 
 export type LineItemType = "SERVICE" | "TIP" | "DISCOUNT" | "TAX";
 
@@ -31,9 +31,9 @@ export class PaymentLineItem {
   @Index()
   paymentId: string;
 
-  @ManyToOne("AppointmentPayment", "lineItems", { onDelete: "CASCADE" })
+  @ManyToOne("Payment", "lineItems", { onDelete: "CASCADE" })
   @JoinColumn({ name: "paymentId" })
-  payment: Relation<AppointmentPayment>;
+  payment: Relation<Payment>;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -34,30 +34,30 @@ function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
         price: appointment.service.serviceDefinition.price,
         category: appointment.service.serviceDefinition.category
           ? {
-              id: appointment.service.serviceDefinition.category.id,
-              name: appointment.service.serviceDefinition.category.name,
-            }
+            id: appointment.service.serviceDefinition.category.id,
+            name: appointment.service.serviceDefinition.category.name,
+          }
           : null,
       },
     },
-    payment: appointment.payment
+    payment: appointment.payment?.payment
       ? {
-          id: appointment.payment.id,
-          servicePrice: appointment.payment.servicePrice,
-          serviceDuration: appointment.payment.serviceDuration,
-          paymentMethod: appointment.payment.paymentMethod,
-          tipAmount: appointment.payment.tipAmount,
-          totalAmount: appointment.payment.totalAmount,
-          paidAt: appointment.payment.paidAt.toISOString(),
-          refundedAt: appointment.payment.refundedAt?.toISOString() || null,
-          refundReason: appointment.payment.refundReason,
-          lineItems: appointment.payment.lineItems.map((item) => ({
-            id: item.id,
-            type: item.type,
-            label: item.label,
-            amount: item.amount,
-          })),
-        }
+        id: appointment.payment.payment.id,
+        servicePrice: appointment.payment.payment.amount,
+        serviceDuration: appointment.service.serviceDefinition.baseDuration,
+        paymentMethod: appointment.payment.payment.method,
+        tipAmount: appointment.payment.payment.tipAmount,
+        totalAmount: appointment.payment.payment.totalAmount,
+        paidAt: appointment.payment.payment.paidAt.toISOString(),
+        refundedAt: appointment.payment.payment.refundedAt?.toISOString() || null,
+        refundReason: appointment.payment.payment.refundReason,
+        lineItems: appointment.payment.payment.lineItems.map((item) => ({
+          id: item.id,
+          type: item.type,
+          label: item.label,
+          amount: item.amount,
+        })),
+      }
       : undefined,
     createdById: appointment.createdById,
     createdAt: appointment.createdAt.toISOString(),
@@ -245,13 +245,7 @@ export async function payAppointment(
   const serviceDefinition = service.serviceDefinition;
   const employee = service.employee;
 
-  const lineItems: ICreatePaymentLineItem[] = [
-    {
-      type: "SERVICE",
-      label: serviceDefinition.name,
-      amount: serviceDefinition.price,
-    },
-  ];
+  const lineItems: ICreatePaymentLineItem[] = [];
 
   if (input.tipAmount && input.tipAmount > 0) {
     lineItems.push({
@@ -309,13 +303,13 @@ export async function refundAppointment(
     throw new Error("Payment not found for this appointment");
   }
 
-  if (payment.paymentMethod === "STRIPE" && payment.externalPaymentId) {
+  if (payment.payment.method === "STRIPE" && payment.payment.externalPaymentId) {
     if (!stripeService.isConfigured()) {
       throw new Error("Stripe is not configured, cannot process refund");
     }
 
     await stripeService.refundPayment({
-      paymentIntentId: payment.externalPaymentId,
+      paymentIntentId: payment.payment.externalPaymentId,
     });
   }
 
