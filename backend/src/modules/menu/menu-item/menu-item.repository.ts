@@ -105,7 +105,12 @@ export class MenuItemRepository {
       }
     });
 
-    return (await this.findByIdAndBusinessId(savedId, data.businessId))!;
+    let sth = await this.findByIdAndBusinessId(savedId, data.businessId);
+    if (!sth) {
+      throw new NotFoundError("Menu item not found after creation");
+    }
+
+    return sth;
   }
 
   async update(
@@ -163,7 +168,12 @@ export class MenuItemRepository {
       }
     });
 
-    return (await this.findByIdAndBusinessId(id, businessId))!;
+    let sth = await this.findByIdAndBusinessId(id, businessId);
+    if (!sth) {
+      throw new NotFoundError("Menu item not found after update");
+    }
+
+    return sth;
   }
 
   private async validateRelations(
