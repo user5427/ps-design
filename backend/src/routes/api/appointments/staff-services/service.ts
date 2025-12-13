@@ -48,8 +48,8 @@ export async function createStaffService(
   fastify: FastifyInstance,
   businessId: string,
   input: CreateServiceBody,
-): Promise<void> {
-  await fastify.db.staffService.create({
+): Promise<StaffService> {
+  return await fastify.db.staffService.create({
     isDisabled: input.isDisabled,
     employeeId: input.employeeId,
     serviceDefinitionId: input.serviceDefinitionId,
@@ -74,8 +74,8 @@ export async function updateStaffService(
   businessId: string,
   serviceId: string,
   input: UpdateServiceBody,
-): Promise<void> {
-  await fastify.db.staffService.update(serviceId, businessId, input);
+): Promise<StaffServiceResponse> {
+  return toStaffServiceResponse(await fastify.db.staffService.update(serviceId, businessId, input));
 }
 
 export async function bulkDeleteStaffServices(

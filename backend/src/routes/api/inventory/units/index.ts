@@ -156,7 +156,8 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
           AuditActionType.DELETE,
           request,
           reply,
-          "ProductUnit"
+          "ProductUnit",
+          request.body.ids
         );
 
         await wrapBulkDeleteUnits(fastify, businessId, request.body.ids);

@@ -111,6 +111,8 @@ async function main() {
           ScopeNames.GIFT_CARDS_READ,
           ScopeNames.GIFT_CARDS_WRITE,
           ScopeNames.GIFT_CARDS_DELETE,
+          ScopeNames.AUDIT_BUSINESS_READ,
+          ScopeNames.AUDIT_SECURITY_READ,
         ],
       },
       {

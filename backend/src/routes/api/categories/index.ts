@@ -67,7 +67,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
           AuditActionType.CREATE,
           request,
           reply,
-          "MenuItemCategory"
+          "Category"
         );
 
         const category = await wrapCreateCategory(
@@ -137,7 +137,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
           AuditActionType.UPDATE,
           request,
           reply,
-          "MenuItemCategory",
+          "Category",
           categoryId
         );
 
@@ -177,7 +177,8 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
           AuditActionType.DELETE,
           request,
           reply,
-          "MenuItemCategory"
+          "Category",
+          request.body.ids
         );
         await wrapBulkDeleteCategories(fastify, businessId, request.body.ids);
         return reply.code(httpStatus.NO_CONTENT).send();

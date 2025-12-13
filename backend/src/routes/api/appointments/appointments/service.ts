@@ -6,7 +6,7 @@ import type {
   AppointmentStatus,
 } from "@ps-design/schemas/appointments/appointment";
 import type { Appointment } from "@/modules/appointments/appointment/appointment.entity";
-import type { ICreatePaymentLineItem } from "@/modules/appointments/appointment-payment";
+import type { AppointmentPayment, ICreatePaymentLineItem } from "@/modules/appointments/appointment-payment";
 
 function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
   return {
@@ -77,8 +77,8 @@ export async function createAppointment(
   businessId: string,
   createdById: string,
   input: CreateAppointmentBody,
-): Promise<void> {
-  await fastify.db.appointment.create({
+): Promise<AppointmentResponse> {
+  return toAppointmentResponse(await fastify.db.appointment.create({
     customerName: input.customerName,
     customerPhone: input.customerPhone,
     customerEmail: input.customerEmail,
@@ -87,7 +87,7 @@ export async function createAppointment(
     serviceId: input.serviceId,
     businessId,
     createdById,
-  });
+  }));
 }
 
 export async function getAppointmentById(
@@ -107,13 +107,13 @@ export async function updateAppointment(
   businessId: string,
   appointmentId: string,
   input: UpdateAppointmentBody,
-): Promise<void> {
-  await fastify.db.appointment.update(appointmentId, businessId, {
+): Promise<AppointmentResponse> {
+  return toAppointmentResponse(await fastify.db.appointment.update(appointmentId, businessId, {
     customerName: input.customerName,
     customerPhone: input.customerPhone,
     customerEmail: input.customerEmail,
     notes: input.notes,
-  });
+  }));
 }
 
 export async function updateAppointmentStatus(
@@ -136,7 +136,7 @@ export async function payAppointment(
   appointmentId: string,
   paidById: string,
   input: { paymentMethod: string; tipAmount?: number; giftCardCode?: string },
-): Promise<void> {
+): Promise<AppointmentPayment> {
   const appointment = await fastify.db.appointment.getById(
     appointmentId,
     businessId,
@@ -182,7 +182,7 @@ export async function payAppointment(
     });
   }
 
-  await fastify.db.appointmentPayment.create({
+  return await fastify.db.appointmentPayment.create({
     appointmentId,
     businessId,
     paidById,
@@ -204,8 +204,8 @@ export async function refundAppointment(
   appointmentId: string,
   refundedById: string,
   input: { reason?: string },
-): Promise<void> {
-  await fastify.db.appointmentPayment.refund(appointmentId, businessId, {
+): Promise<AppointmentPayment> {
+  return await fastify.db.appointmentPayment.refund(appointmentId, businessId, {
     refundedById,
     reason: input.reason,
   });

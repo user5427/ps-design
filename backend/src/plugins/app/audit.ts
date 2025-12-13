@@ -4,6 +4,7 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import type { BusinessIdParams } from "@ps-design/schemas/business";
 import { AuditActionType } from "@/modules/audit";
 import { getBusinessId } from "@/shared/auth-utils";
+import { en } from "zod/v4/locales";
 
 export default fp(async (fastify: FastifyInstance) => {
   fastify.decorate("audit", {
@@ -27,7 +28,7 @@ export default fp(async (fastify: FastifyInstance) => {
         return auditLogWrapper(fn, fastify.db.auditLogService, auditType, {
           ...baseParams,
           businessId: undefined,
-          entityId: undefined,
+          entityId: undefined, // can be left undefined, handled by wrapper
         });
       }
 
@@ -35,10 +36,18 @@ export default fp(async (fastify: FastifyInstance) => {
       if ("businessId" in params) {
         userContext.businessId = params.businessId;
       }
+
+      // Support single or multiple entity IDs
+      const entityIds = Array.isArray(userContext.businessId)
+        ? userContext.businessId
+        : userContext.businessId
+          ? [ userContext.businessId ]
+          : undefined;
+
       return auditLogWrapper(fn, fastify.db.auditLogService, auditType, {
         ...baseParams,
         businessId: userContext.businessId!,
-        entityId: userContext.businessId!,
+        entityId: entityIds,
       });
     },
 
@@ -72,7 +81,7 @@ export default fp(async (fastify: FastifyInstance) => {
       request: FastifyRequest,
       reply: FastifyReply,
       entityType: string,
-      entityId?: string
+      entityId?: string | string[] | null, // support single or multiple IDs
     ) => {
       const businessId = getBusinessId(request, reply);
       if (!businessId) throw new Error("Business ID not found");
@@ -80,13 +89,13 @@ export default fp(async (fastify: FastifyInstance) => {
       const baseParams = {
         userId: (request.user as { userId: string }).userId,
         ip: request.ip,
-        entityType: entityType,
+        entityType,
       };
 
       return auditLogWrapper(fn, fastify.db.auditLogService, auditType, {
         ...baseParams,
         businessId,
-        entityId: entityId ?? undefined,
+        entityId, // can be single or array
       });
     },
   });

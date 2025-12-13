@@ -13,44 +13,56 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
   entityType: string,
   businessId: string | null,
   userId: string,
-  entityId: string | null,
+  entityIds: string | string[] | null,
   ip: string | null,
 ): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
   return async (...args: Parameters<T>): Promise<Awaited<ReturnType<T>>> => {
-    let oldValues = null;
+    const ids = Array.isArray(entityIds) ? entityIds : entityIds ? [ entityIds ] : [];
 
-    if (action !== AuditActionType.CREATE && entityId) {
-      oldValues = await auditLogService.getEntitySnapshot(entityType as any, entityId);
+    // Fetch old snapshots
+    let oldValuesMap: Record<string, any> = {};
+    if (action !== AuditActionType.CREATE && ids.length) {
+      await Promise.all(
+        ids.map(async (id) => {
+          oldValuesMap[ id ] = await auditLogService.getEntitySnapshot(entityType as any, id);
+        }),
+      );
     }
 
     let result: ActionResult = ActionResult.FAILURE;
     let res: Awaited<ReturnType<T>>;
-    let finalEntityId = entityId;
+    let finalIds = ids;
 
     try {
       res = await fn(...args);
 
+      // For CREATE, the returned entity (or entities) provide new IDs
       if (action === AuditActionType.CREATE) {
-        finalEntityId = res.id;
+        if (Array.isArray(res)) {
+          finalIds = res.map((r: any) => r.id);
+        } else {
+          finalIds = [ res.id ];
+        }
       }
 
       result = ActionResult.SUCCESS;
     } finally {
-      const newValues = finalEntityId
-        ? await auditLogService.getEntitySnapshot(entityType as any, finalEntityId)
-        : null;
-
-      await auditLogService.logBusiness({
-        businessId,
-        userId,
-        ip,
-        entityType,
-        entityId: finalEntityId!,
-        action,
-        oldValues,
-        newValues,
-        result,
-      });
+      await Promise.all(
+        finalIds.map(async (id) => {
+          const newValues = await auditLogService.getEntitySnapshot(entityType as any, id);
+          await auditLogService.logBusiness({
+            businessId,
+            userId,
+            ip,
+            entityType,
+            entityId: id,
+            action,
+            oldValues: oldValuesMap[ id ] ?? null,
+            newValues,
+            result,
+          });
+        }),
+      );
     }
 
     return res;
@@ -90,7 +102,7 @@ export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
   params: {
     entityType?: string;
     businessId?: string | null;
-    entityId?: string | null;
+    entityId?: string | string[] | null;
     userId: string;
     ip: string | null;
   },
@@ -114,14 +126,14 @@ export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
         params.entityType,
         params.businessId ?? null,
         params.userId,
-        null,
+        params.entityId ?? null,
         params.ip,
       );
     }
 
     if (!params.entityType || !params.businessId || !params.entityId) {
       throw new Error(
-        "UPDATE/DELETE action requires entityType, businessId, and entityId",
+        "UPDATE/DELETE action requires entityType, businessId, and entityId(s)",
       );
     }
 
@@ -138,7 +150,10 @@ export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
   }
 
   return auditSecurityWrapper(
-    fn, auditLogService, auditType as AuditSecurityType, params.userId, params.ip
+    fn,
+    auditLogService,
+    auditType as AuditSecurityType,
+    params.userId,
+    params.ip,
   );
 }
-

@@ -29,7 +29,7 @@ declare module "fastify" {
         request: FastifyRequest,
         reply: FastifyReply,
         entityType: string,
-        entityId?: string
+        entityId?: string | string[] | null,
       ) => Promise<any>;
     };
   }

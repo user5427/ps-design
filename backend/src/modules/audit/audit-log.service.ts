@@ -7,14 +7,17 @@ import { Product } from "@/modules/inventory/product/product.entity";
 import { ProductUnit } from "@/modules/inventory/product-unit/product-unit.entity";
 import { StockChange } from "@/modules/inventory/stock-change/stock-change.entity";
 import { StockLevel } from "@/modules/inventory/stock-level/stock-level.entity";
-import { Country } from "@/modules/country/country.entity";
-import { Tax } from "@/modules/tax/tax.entity";
 import { MenuItem } from "@/modules/menu/menu-item/menu-item.entity";
-import { MenuItemCategory } from "@/modules/menu/menu-item-category/menu-item-category.entity";
 import { MenuItemVariation } from "@/modules/menu/menu-item-variation/menu-item-variation.entity";
 import { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product/menu-item-base-product.entity";
 import { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product/menu-item-variation-product.entity";
-
+import { Category } from "@/modules/category/category.entity";
+import { ServiceDefinition } from "@/modules/appointments/service-definition/service-definition.entity";
+import { StaffService } from "@/modules/appointments/staff-service/staff-service.entity";
+import { Availability } from "@/modules/appointments/availability/availability.entity";
+import { Appointment } from "@/modules/appointments/appointment/appointment.entity";
+import { AppointmentPayment } from "@/modules/appointments/appointment-payment/appointment-payment.entity";
+import { GiftCard } from "@/modules/gift-card/gift-card.entity";
 import { ICreateAuditBusinessLog, ICreateAuditSecurityLog } from "./audit-log.types";
 
 // Map of all supported entities
@@ -25,13 +28,17 @@ const EntityMap = {
   ProductUnit,
   StockChange,
   StockLevel,
-  Country,
-  Tax,
+  Category,
   MenuItem,
-  MenuItemCategory,
   MenuItemVariation,
   MenuItemBaseProduct,
   MenuItemVariationProduct,
+  ServiceDefinition,
+  StaffService,
+  Availability,
+  Appointment,
+  AppointmentPayment,
+  GiftCard,
   AuditBusinessLog,
   AuditSecurityLog,
 } as const;
@@ -60,6 +67,12 @@ export class AuditLogService {
     const repo = this.getRepository("AuditBusinessLog");
     const audit = repo.create(log);
     await repo.save(audit);
+  }
+
+  async logBusinessBulk(logs: ICreateAuditBusinessLog[]) {
+    const repo = this.getRepository("AuditBusinessLog");
+    const audits = repo.create(logs);
+    await repo.save(audits);
   }
 
   async logSecurity(log: ICreateAuditSecurityLog) {
