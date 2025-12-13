@@ -5,6 +5,7 @@ export const PaymentMethodEnum = z.enum(["CASH", "GIFTCARD", "STRIPE"]);
 export const PayAppointmentSchema = z.object({
   paymentMethod: PaymentMethodEnum,
   tipAmount: z.number().int().min(0).optional(), // cents
+  giftCardCode: z.string().max(50).optional(),
 });
 
 export const RefundAppointmentSchema = z.object({

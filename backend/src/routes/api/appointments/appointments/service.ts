@@ -116,7 +116,7 @@ export async function payAppointment(
   businessId: string,
   appointmentId: string,
   paidById: string,
-  input: { paymentMethod: string; tipAmount?: number },
+  input: { paymentMethod: string; tipAmount?: number; giftCardCode?: string },
 ): Promise<void> {
   const appointment = await fastify.db.appointment.getById(
     appointmentId,
@@ -144,6 +144,22 @@ export async function payAppointment(
       type: "TIP",
       label: "Tip",
       amount: input.tipAmount,
+    });
+  }
+
+  // Handle gift card if provided
+  let giftCardDiscount = 0;
+  if (input.giftCardCode) {
+    const giftCard = await fastify.db.giftCard.validateAndRedeem(
+      input.giftCardCode,
+      businessId,
+    );
+    // Discount is the minimum of card value and service price
+    giftCardDiscount = Math.min(giftCard.value, serviceDefinition.price);
+    lineItems.push({
+      type: "DISCOUNT",
+      label: `Gift Card (${input.giftCardCode})`,
+      amount: -giftCardDiscount,
     });
   }
 

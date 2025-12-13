@@ -55,6 +55,7 @@ import {
   PaymentLineItem,
   AppointmentPaymentRepository,
 } from "@/modules/appointments/appointment-payment";
+import { GiftCard, GiftCardRepository } from "@/modules/gift-card";
 
 export interface Services {
   dataSource: DataSource;
@@ -76,6 +77,7 @@ export interface Services {
   availability: AvailabilityRepository;
   appointment: AppointmentRepository;
   appointmentPayment: AppointmentPaymentRepository;
+  giftCard: GiftCardRepository;
 }
 
 declare module "fastify" {
@@ -165,6 +167,7 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
       dataSource.getRepository(PaymentLineItem),
       dataSource.getRepository(Appointment),
     ),
+    giftCard: new GiftCardRepository(dataSource.getRepository(GiftCard)),
   };
 
   fastify.decorate("db", services);

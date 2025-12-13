@@ -14,17 +14,22 @@ import {
   InputAdornment,
   Divider,
   CircularProgress,
+  Alert,
+  IconButton,
 } from "@mui/material";
 import PaymentIcon from "@mui/icons-material/Payment";
 import MoneyIcon from "@mui/icons-material/Money";
-import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ClearIcon from "@mui/icons-material/Clear";
 import type { Appointment } from "@/schemas/appointments";
+import type { GiftCardResponse } from "@ps-design/schemas/gift-card";
 import { formatPrice } from "@/utils/price";
 import dayjs from "dayjs";
 import { usePayAppointment } from "@/hooks/appointments";
+import { useValidateGiftCard } from "@/hooks/gift-cards";
 
-type PaymentMethod = "CASH" | "GIFTCARD" | "STRIPE";
+type PaymentMethod = "CASH" | "STRIPE";
 
 interface PayModalProps {
   open: boolean;
@@ -72,8 +77,12 @@ export const PayModal: React.FC<PayModalProps> = ({
 }) => {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
   const [tipAmount, setTipAmount] = useState<string>("");
+  const [giftCardCode, setGiftCardCode] = useState<string>("");
+  const [validatedGiftCard, setValidatedGiftCard] = useState<GiftCardResponse | null>(null);
+  const [giftCardError, setGiftCardError] = useState<string>("");
 
   const payMutation = usePayAppointment();
+  const validateGiftCardMutation = useValidateGiftCard();
 
   if (!appointment) return null;
 
@@ -86,7 +95,10 @@ export const PayModal: React.FC<PayModalProps> = ({
   const duration = appointment.service?.serviceDefinition?.duration ?? 0;
 
   const tipAmountCents = Math.round(parseFloat(tipAmount || "0") * 100);
-  const total = price + tipAmountCents;
+  const giftCardDiscount = validatedGiftCard
+    ? Math.min(validatedGiftCard.value, price)
+    : 0;
+  const total = Math.max(0, price + tipAmountCents - giftCardDiscount);
 
   const handlePaymentMethodChange = (
     _: React.MouseEvent<HTMLElement>,
@@ -104,23 +116,50 @@ export const PayModal: React.FC<PayModalProps> = ({
     }
   };
 
+  const handleValidateGiftCard = async () => {
+    if (!giftCardCode.trim()) return;
+
+    setGiftCardError("");
+    try {
+      const giftCard = await validateGiftCardMutation.mutateAsync(giftCardCode.trim());
+      setValidatedGiftCard(giftCard);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Invalid gift card";
+      setGiftCardError(errorMessage);
+      setValidatedGiftCard(null);
+    }
+  };
+
+  const handleClearGiftCard = () => {
+    setGiftCardCode("");
+    setValidatedGiftCard(null);
+    setGiftCardError("");
+  };
+
   const handleSubmit = async () => {
     await payMutation.mutateAsync({
       id: appointment.id,
       data: {
-        paymentMethod,
+        paymentMethod: validatedGiftCard && total === 0 ? "GIFTCARD" : paymentMethod,
         tipAmount: tipAmountCents > 0 ? tipAmountCents : undefined,
+        giftCardCode: validatedGiftCard ? giftCardCode : undefined,
       },
     });
-    setTipAmount("");
-    setPaymentMethod("CASH");
+    resetForm();
     onClose();
     onSuccess?.();
   };
 
-  const handleClose = () => {
+  const resetForm = () => {
     setTipAmount("");
     setPaymentMethod("CASH");
+    setGiftCardCode("");
+    setValidatedGiftCard(null);
+    setGiftCardError("");
+  };
+
+  const handleClose = () => {
+    resetForm();
     onClose();
   };
 
@@ -147,35 +186,85 @@ export const PayModal: React.FC<PayModalProps> = ({
 
           <Divider />
 
+          {/* Gift Card */}
           <Box>
             <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-              Payment Method
+              Gift Card (Optional)
             </Typography>
-            <ToggleButtonGroup
-              value={paymentMethod}
-              exclusive
-              onChange={handlePaymentMethodChange}
-              fullWidth
-              color="primary"
-            >
-              <PaymentMethodButton
-                value="CASH"
-                icon={<MoneyIcon />}
-                label="Cash"
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <TextField
+                value={giftCardCode}
+                onChange={(e) => setGiftCardCode(e.target.value)}
+                placeholder="Enter code"
+                fullWidth
+                size="small"
+                disabled={!!validatedGiftCard}
+                InputProps={{
+                  endAdornment: validatedGiftCard && (
+                    <InputAdornment position="end">
+                      <IconButton size="small" onClick={handleClearGiftCard}>
+                        <ClearIcon fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
-              <PaymentMethodButton
-                value="GIFTCARD"
-                icon={<CardGiftcardIcon />}
-                label="Gift Card"
-              />
-              <PaymentMethodButton
-                value="STRIPE"
-                icon={<CreditCardIcon />}
-                label="Card"
-              />
-            </ToggleButtonGroup>
+              {!validatedGiftCard && (
+                <Button
+                  variant="outlined"
+                  onClick={handleValidateGiftCard}
+                  disabled={!giftCardCode.trim() || validateGiftCardMutation.isPending}
+                >
+                  {validateGiftCardMutation.isPending ? "..." : "Apply"}
+                </Button>
+              )}
+            </Box>
+            {giftCardError && (
+              <Alert severity="error" sx={{ mt: 1 }}>
+                {giftCardError}
+              </Alert>
+            )}
+            {validatedGiftCard && (
+              <Alert
+                severity="success"
+                icon={<CheckCircleIcon fontSize="inherit" />}
+                sx={{ mt: 1 }}
+              >
+                Gift card applied: {formatPrice(validatedGiftCard.value)} discount
+              </Alert>
+            )}
           </Box>
 
+          <Divider />
+
+          {/* Payment Method - only show if remaining amount > 0 */}
+          {total > 0 && (
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                Payment Method
+              </Typography>
+              <ToggleButtonGroup
+                value={paymentMethod}
+                exclusive
+                onChange={handlePaymentMethodChange}
+                fullWidth
+                color="primary"
+              >
+                <PaymentMethodButton
+                  value="CASH"
+                  icon={<MoneyIcon />}
+                  label="Cash"
+                />
+                <PaymentMethodButton
+                  value="STRIPE"
+                  icon={<CreditCardIcon />}
+                  label="Card"
+                />
+              </ToggleButtonGroup>
+            </Box>
+          )}
+
+          {/* Tip */}
           <Box>
             <Typography variant="subtitle2" color="text.secondary" gutterBottom>
               Add Tip (Optional)
@@ -188,7 +277,7 @@ export const PayModal: React.FC<PayModalProps> = ({
               type="text"
               InputProps={{
                 startAdornment: (
-                  <InputAdornment position="start">$</InputAdornment>
+                  <InputAdornment position="start">€</InputAdornment>
                 ),
               }}
             />
@@ -196,15 +285,24 @@ export const PayModal: React.FC<PayModalProps> = ({
 
           <Divider />
 
+          {/* Totals */}
           <Box>
             <Stack spacing={1}>
               <DetailRow label="Service" value={formatPrice(price)} />
+              {giftCardDiscount > 0 && (
+                <DetailRow
+                  label="Gift Card Discount"
+                  value={`-${formatPrice(giftCardDiscount)}`}
+                />
+              )}
               {tipAmountCents > 0 && (
                 <DetailRow label="Tip" value={formatPrice(tipAmountCents)} />
               )}
               <Divider />
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography variant="h6">Total</Typography>
+                <Typography variant="h6">
+                  {total === 0 ? "Fully Covered" : "To Pay"}
+                </Typography>
                 <Typography variant="h6" color="primary">
                   {formatPrice(total)}
                 </Typography>
