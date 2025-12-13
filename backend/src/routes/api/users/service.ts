@@ -291,3 +291,90 @@ export async function removeRoleFromUser(
 
   await fastify.db.userRole.removeRole(userId, roleId);
 }
+
+export async function updateUser(
+  fastify: FastifyInstance,
+  userId: string,
+  data: { email?: string; name?: string },
+  authUser: IAuthUser,
+) {
+  const user = await fastify.db.user.findById(userId);
+  if (!user) {
+    throw new NotFoundError("User not found");
+  }
+
+  // Check if user has access
+  const userScopes = await fastify.db.role.getUserScopesFromRoles(
+    authUser.roleIds,
+  );
+
+  if (
+    !userScopes.includes(ScopeNames.SUPERADMIN) &&
+    authUser.businessId !== user.businessId
+  ) {
+    throw new ForbiddenError("You don't have access to this user");
+  }
+
+  // Check if email already exists (if changing email)
+  if (data.email && data.email !== user.email) {
+    const existing = await fastify.db.user.findByEmail(data.email);
+    if (existing) {
+      throw new BadRequestError("User with this email already exists");
+    }
+  }
+
+  // Update user
+  const updatedUser = await fastify.db.user.update(userId, data);
+
+  const userRoles = await fastify.db.userRole.getRolesForUser(updatedUser.id);
+
+  return {
+    id: updatedUser.id,
+    email: updatedUser.email,
+    name: updatedUser.name,
+    businessId: updatedUser.businessId,
+    roles: await Promise.all(
+      userRoles.map(async (ur) => ({
+        id: ur.role.id,
+        name: ur.role.name,
+        description: ur.role.description,
+      })),
+    ),
+    createdAt: updatedUser.createdAt.toISOString(),
+    updatedAt: updatedUser.updatedAt.toISOString(),
+  };
+}
+
+export async function deleteUser(
+  fastify: FastifyInstance,
+  userId: string,
+  authUser: IAuthUser,
+) {
+  const user = await fastify.db.user.findById(userId);
+  if (!user) {
+    throw new NotFoundError("User not found");
+  }
+
+  // Check if user has access
+  const userScopes = await fastify.db.role.getUserScopesFromRoles(
+    authUser.roleIds,
+  );
+
+  if (
+    !userScopes.includes(ScopeNames.SUPERADMIN) &&
+    authUser.businessId !== user.businessId
+  ) {
+    throw new ForbiddenError("You don't have access to this user");
+  }
+
+  // Don't allow users to delete themselves
+  if (userId === authUser.id) {
+    throw new BadRequestError("You cannot delete your own account");
+  }
+
+  // Remove all user roles first
+  await fastify.db.userRole.removeAllRoles(userId);
+
+  // Delete user
+  await fastify.db.user.delete(userId);
+}

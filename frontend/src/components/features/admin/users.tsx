@@ -1,34 +1,13 @@
-import { useState } from "react";
+import type { MRT_ColumnDef } from "material-react-table";
+import { useMemo, useCallback } from "react";
 import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography,
-  Chip,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormControlLabel,
-  Checkbox,
-  CircularProgress,
-} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient as api } from "@/api/client";
+  RecordListView,
+  type FormFieldDefinition,
+  type ViewFieldDefinition,
+  ValidationRules,
+} from "@/components/elements/record-list-view";
+import { apiClient } from "@/api/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface User {
   id: string;
@@ -51,221 +30,129 @@ interface Business {
 
 export function AdminUsersManagement() {
   const queryClient = useQueryClient();
-  const [openDialog, setOpenDialog] = useState(false);
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
-  const [selectedBusinessId, setSelectedBusinessId] = useState("");
-  const [isOwner, setIsOwner] = useState(false);
 
   // Fetch all users
-  const { data: users = [], isLoading: usersLoading } = useQuery<User[]>({
+  const { data: users = [], isLoading: usersLoading, error } = useQuery<User[]>({
     queryKey: ["users"],
     queryFn: async () => {
-      const response = await api.get("/users");
+      const response = await apiClient.get("/users");
       return response.data;
     },
   });
 
-  // Fetch all businesses
-  const { data: businesses = [], isLoading: businessesLoading } = useQuery<Business[]>({
+  // Fetch all businesses for display mapping
+  const { data: businesses = [] } = useQuery<Business[]>({
     queryKey: ["businesses"],
     queryFn: async () => {
-      const response = await api.get("/business");
-      return response.data.data; // Assuming paginated response
+      const response = await apiClient.get("/business");
+      return response.data.data;
     },
   });
 
-  // Create user mutation
-  const createUserMutation = useMutation({
-    mutationFn: async (data: {
-      email: string;
-      name: string;
-      password: string;
-      businessId?: string;
-      isOwner?: boolean;
-    }) => {
-      const response = await api.post("/users", data);
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-      handleCloseDialog();
-    },
-  });
-
-  const handleOpenDialog = () => {
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setEmail("");
-    setName("");
-    setPassword("");
-    setSelectedBusinessId("");
-    setIsOwner(false);
-  };
-
-  const handleSubmit = () => {
-    createUserMutation.mutate({
-      email,
-      name,
-      password,
-      businessId: selectedBusinessId || undefined,
-      isOwner,
+  // Create business name lookup
+  const businessLookup = useMemo(() => {
+    const lookup: Record<string, string> = {};
+    businesses.forEach((b) => {
+      lookup[b.id] = b.name;
     });
+    return lookup;
+  }, [businesses]);
+
+  const columns = useMemo<MRT_ColumnDef<User>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Name",
+        size: 200,
+      },
+      {
+        accessorKey: "email",
+        header: "Email",
+        size: 250,
+      },
+      {
+        accessorKey: "businessId",
+        header: "Business",
+        size: 200,
+        Cell: ({ cell }) => {
+          const businessId = cell.getValue() as string | null;
+          if (!businessId) return "No business";
+          return businessLookup[businessId] || businessId;
+        },
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Created At",
+        size: 150,
+        Cell: ({ cell }) => new Date(cell.getValue() as string).toLocaleDateString(),
+      },
+    ],
+    [businessLookup],
+  );
+
+  const editFormFields: FormFieldDefinition[] = [
+    {
+      name: "name",
+      label: "Name",
+      type: "text",
+      required: true,
+      validationRules: [ValidationRules.minLength(1)],
+    },
+    {
+      name: "email",
+      label: "Email",
+      type: "email",
+      required: true,
+      validationRules: [ValidationRules.email()],
+    },
+  ];
+
+  const viewFields: ViewFieldDefinition[] = [
+    { name: "id", label: "ID" },
+    { name: "name", label: "Name" },
+    { name: "email", label: "Email" },
+    { name: "businessId", label: "Business ID" },
+    { name: "createdAt", label: "Created At" },
+    { name: "updatedAt", label: "Updated At" },
+  ];
+
+  const handleEdit = useCallback(
+    async (id: string, values: Partial<User>) => {
+      await apiClient.put(`/users/${id}`, {
+        name: values.name,
+        email: values.email,
+      });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    [queryClient],
+  );
+
+  const handleDelete = async (ids: string[]) => {
+    for (const id of ids) {
+      await apiClient.delete(`/users/${id}`);
+    }
+    queryClient.invalidateQueries({ queryKey: ["users"] });
   };
 
-  if (usersLoading || businessesLoading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const refetch = () => {
+    queryClient.invalidateQueries({ queryKey: ["users"] });
+  };
 
   return (
-    <Box>
-      <Card>
-        <CardContent>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h5">Admin Users Management</Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<AddIcon />}
-              onClick={handleOpenDialog}
-            >
-              Create User
-            </Button>
-          </Box>
-
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Business</TableCell>
-                  <TableCell>Roles</TableCell>
-                  <TableCell>Created At</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      {user.businessId ? (
-                        businesses.find((b) => b.id === user.businessId)?.name || user.businessId
-                      ) : (
-                        <Typography variant="caption" color="text.secondary">
-                          No business
-                        </Typography>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Box display="flex" gap={0.5} flexWrap="wrap">
-                        {user.roles.length > 0 ? (
-                          user.roles.map((role) => (
-                            <Chip key={role.id} label={role.name} size="small" />
-                          ))
-                        ) : (
-                          <Typography variant="caption" color="text.secondary">
-                            No roles
-                          </Typography>
-                        )}
-                      </Box>
-                    </TableCell>
-                    <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
-
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>Create New User</DialogTitle>
-        <DialogContent>
-          <Box sx={{ pt: 2 }}>
-            <TextField
-              fullWidth
-              label="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              margin="normal"
-              required
-            />
-            <TextField
-              fullWidth
-              label="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              margin="normal"
-              required
-            />
-            <TextField
-              fullWidth
-              label="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              margin="normal"
-              required
-              helperText="Minimum 8 characters"
-            />
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Business (Optional)</InputLabel>
-              <Select
-                value={selectedBusinessId}
-                onChange={(e) => setSelectedBusinessId(e.target.value)}
-                label="Business (Optional)"
-              >
-                <MenuItem value="">
-                  <em>None</em>
-                </MenuItem>
-                {businesses.map((business) => (
-                  <MenuItem key={business.id} value={business.id}>
-                    {business.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            {selectedBusinessId && (
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={isOwner}
-                    onChange={(e) => setIsOwner(e.target.checked)}
-                  />
-                }
-                label="Make this user a business owner (grants OWNER role)"
-              />
-            )}
-            <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: "block" }}>
-              Note: User will be created without roles. Business owners can assign roles later, or
-              check the "Make this user a business owner" option to automatically grant the OWNER role.
-            </Typography>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button
-            onClick={handleSubmit}
-            variant="contained"
-            disabled={
-              !email || !name || !password || password.length < 8 || createUserMutation.isPending
-            }
-          >
-            Create
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+    <RecordListView<User>
+      title="Users"
+      columns={columns}
+      data={users}
+      isLoading={usersLoading}
+      error={error}
+      editFormFields={editFormFields}
+      viewFields={viewFields}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
+      onSuccess={refetch}
+      editModalTitle="Edit User"
+      viewModalTitle="View User"
+      enableCreate={false}
+    />
   );
 }

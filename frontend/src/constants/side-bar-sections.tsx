@@ -7,7 +7,6 @@ import MenuBookIcon from "@mui/icons-material/MenuBook";
 import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import AddIcon from "@mui/icons-material/Add";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import EventIcon from "@mui/icons-material/Event";
 import PersonIcon from "@mui/icons-material/Person";
@@ -21,28 +20,17 @@ export const sidebarSections: Section[] = [
     path: URLS.DASHBOARD,
   },
   {
-    label: "Manage Businesses",
+    label: "Manage",
     icon: <BusinessIcon />,
     children: [
       {
-        label: "View Businesses",
+        label: "Businesses",
         icon: <ViewListIcon />,
         path: URLS.BUSINESS_LIST,
       },
       {
-        label: "Create Business",
-        icon: <AddIcon />,
-        path: URLS.BUSINESS_CREATE,
-      },
-    ],
-  },
-  {
-    label: "Admin",
-    icon: <SettingsIcon />,
-    children: [
-      {
-        label: "Manage Users",
-        icon: <ViewListIcon />,
+        label: "Users",
+        icon: <PersonIcon />,
         path: URLS.ADMIN_USERS,
       },
     ],

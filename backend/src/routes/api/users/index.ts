@@ -8,6 +8,8 @@ import {
   getUsersByBusinessId,
   getUserById,
   assignRolesToUser,
+  updateUser,
+  deleteUser,
   removeRoleFromUser,
 } from "./service";
 import { handleServiceError } from "@/shared/error-handler";
@@ -224,6 +226,77 @@ export default async function userRoutes(fastify: FastifyInstance) {
           request.authUser!,
         );
         return reply.send({ message: "Role removed successfully" });
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
+
+  // Update user
+  server.put<{
+    Params: { userId: string };
+    Body: { email?: string; name?: string };
+  }>(
+    "/:userId",
+    {
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.USER_WRITE)],
+      schema: {
+        params: UserIdParam,
+        body: z.object({
+          email: z.string().email().optional(),
+          name: z.string().min(1).optional(),
+        }),
+        response: {
+          200: UserResponseSchema,
+          401: ErrorResponseSchema,
+          404: ErrorResponseSchema,
+        },
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Params: { userId: string };
+        Body: { email?: string; name?: string };
+      }>,
+      reply: FastifyReply,
+    ) => {
+      try {
+        const user = await updateUser(
+          fastify,
+          request.params.userId,
+          request.body,
+          request.authUser!,
+        );
+        return reply.send(user);
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
+
+  // Delete user
+  server.delete<{ Params: { userId: string } }>(
+    "/:userId",
+    {
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.USER_WRITE)],
+      schema: {
+        params: UserIdParam,
+        response: {
+          200: SuccessResponseSchema,
+          401: ErrorResponseSchema,
+          404: ErrorResponseSchema,
+        },
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Params: { userId: string };
+      }>,
+      reply: FastifyReply,
+    ) => {
+      try {
+        await deleteUser(fastify, request.params.userId, request.authUser!);
+        return reply.send({ message: "User deleted successfully" });
       } catch (error) {
         return handleServiceError(error, reply);
       }
