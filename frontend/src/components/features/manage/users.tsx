@@ -27,32 +27,11 @@ import {
 } from "@mui/material";
 import type { SelectChangeEvent } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient as api } from "@/api/client";
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  businessId: string | null;
-  roles: Array<{
-    id: string;
-    name: string;
-    description: string | null;
-  }>;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Role {
-  id: string;
-  name: string;
-  description: string | null;
-  businessId: string;
-  isSystemRole: boolean;
-  isDeletable: boolean;
-  scopes: string[];
-}
+import { useUsers } from "@/queries/users";
+import { useRoles } from "@/queries/roles";
+import type { UserResponse, AssignRolesBody } from "@ps-design/schemas/user";
 
 interface BusinessUsersManagementProps {
   businessId: string;
@@ -61,31 +40,20 @@ interface BusinessUsersManagementProps {
 export function BusinessUsersManagement({ businessId }: BusinessUsersManagementProps) {
   const queryClient = useQueryClient();
   const [openDialog, setOpenDialog] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserResponse | null>(null);
   const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
 
   // Fetch users for business
-  const { data: users = [], isLoading: usersLoading } = useQuery<User[]>({
-    queryKey: ["users", businessId],
-    queryFn: async () => {
-      const response = await api.get(`/users?businessId=${businessId}`);
-      return response.data;
-    },
-  });
+  const { data: users = [], isLoading: usersLoading } = useUsers(businessId);
 
   // Fetch roles for business
-  const { data: roles = [], isLoading: rolesLoading } = useQuery<Role[]>({
-    queryKey: ["roles", businessId],
-    queryFn: async () => {
-      const response = await api.get(`/roles?businessId=${businessId}`);
-      return response.data;
-    },
-  });
+  const { data: roles = [], isLoading: rolesLoading } = useRoles(businessId);
 
   // Assign roles mutation
   const assignRolesMutation = useMutation({
     mutationFn: async ({ userId, roleIds }: { userId: string; roleIds: string[] }) => {
-      const response = await api.post(`/users/${userId}/roles`, { roleIds });
+      const assignData: AssignRolesBody = { roleIds };
+      const response = await api.post(`/users/${userId}/roles`, assignData);
       return response.data;
     },
     onSuccess: () => {
@@ -96,7 +64,7 @@ export function BusinessUsersManagement({ businessId }: BusinessUsersManagementP
     },
   });
 
-  const handleOpenDialog = (user: User) => {
+  const handleOpenDialog = (user: UserResponse) => {
     setSelectedUser(user);
     setSelectedRoleIds(user.roles.map((r) => r.id));
     setOpenDialog(true);

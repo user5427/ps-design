@@ -1,19 +1,12 @@
 import type { FastifyInstance } from "fastify";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { z } from "zod";
 import { ScopeNames, SCOPE_CONFIG } from "@/modules/user/scope.types";
 import { handleServiceError } from "@/shared/error-handler";
 import {
   ErrorResponseSchema,
 } from "@ps-design/schemas/shared/response-types";
-
-const ScopeSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-});
-
-const ScopesResponseSchema = z.array(ScopeSchema);
+import { ScopesResponseSchema } from "@ps-design/schemas/scope";
 
 export default async function scopesRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();

@@ -12,7 +12,10 @@ import {
   useCreateBusiness,
 } from "@/queries/business";
 import { apiClient } from "@/api/client";
-import type { BusinessResponse } from "@ps-design/schemas/business";
+import type {
+  BusinessResponse,
+  UpdateBusinessBody,
+} from "@ps-design/schemas/business";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const BusinessList: React.FC = () => {
@@ -82,9 +85,10 @@ export const BusinessList: React.FC = () => {
 
   const handleEdit = useCallback(
     async (id: string, values: Partial<BusinessResponse>) => {
-      await apiClient.put(`/business/${id}`, {
-        name: String(values.name),
-      });
+      const updateData: UpdateBusinessBody = {
+        name: values.name ? String(values.name) : undefined,
+      };
+      await apiClient.put(`/business/${id}`, updateData);
       queryClient.invalidateQueries({ queryKey: ["business"] });
     },
     [queryClient],

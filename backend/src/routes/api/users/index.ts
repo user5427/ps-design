@@ -2,7 +2,6 @@ import type { FastifyInstance } from "fastify";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
-import { z } from "zod";
 import {
   createUser,
   getUsersByBusinessId,
@@ -19,52 +18,34 @@ import {
   ErrorResponseSchema,
   SuccessResponseSchema,
 } from "@ps-design/schemas/shared/response-types";
-
-const UserIdParam = z.object({
-  userId: z.string().uuid(),
-});
-
-const CreateUserSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(1),
-  password: z.string().min(8),
-  businessId: z.string().uuid(),
-  isOwner: z.boolean().optional(),
-});
-
-const AssignRolesSchema = z.object({
-  roleIds: z.array(z.string().uuid()),
-});
-
-const UserResponseSchema = z.object({
-  id: z.string(),
-  email: z.string(),
-  name: z.string(),
-  businessId: z.string().nullable(),
-  roles: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-      description: z.string().nullable(),
-    }),
-  ),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-});
-
-const UsersResponseSchema = z.array(UserResponseSchema);
+import {
+  type UserIdParams,
+  UserIdParam,
+  type CreateUserBody,
+  CreateUserSchema,
+  type UpdateUserBody,
+  UpdateUserSchema,
+  type AssignRolesBody,
+  AssignRolesSchema,
+  type UserQuery,
+  UserQuerySchema,
+  type RemoveRoleParams,
+  RemoveRoleParam,
+  UserResponseSchema,
+  UsersResponseSchema,
+} from "@ps-design/schemas/user";
 
 export default async function userRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope } = createScopeMiddleware(fastify);
 
   // Get users for a business
-  server.get<{ Querystring: { businessId?: string } }>(
+  server.get<{ Querystring: UserQuery }>(
     "/",
     {
       onRequest: [fastify.authenticate, requireScope(ScopeNames.USER_READ)],
       schema: {
-        querystring: z.object({ businessId: z.string().uuid().optional() }),
+        querystring: UserQuerySchema,
         response: {
           200: UsersResponseSchema,
           401: ErrorResponseSchema,
@@ -73,7 +54,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Querystring: { businessId?: string };
+        Querystring: UserQuery;
       }>,
       reply: FastifyReply,
     ) => {
@@ -91,7 +72,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
   );
 
   // Get user by ID
-  server.get<{ Params: { userId: string } }>(
+  server.get<{ Params: UserIdParams }>(
     "/:userId",
     {
       onRequest: [fastify.authenticate, requireScope(ScopeNames.USER_READ)],
@@ -106,7 +87,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Params: { userId: string };
+        Params: UserIdParams;
       }>,
       reply: FastifyReply,
     ) => {
@@ -125,7 +106,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
 
   // Create user (superadmin only)
   server.post<{
-    Body: z.infer<typeof CreateUserSchema>;
+    Body: CreateUserBody;
   }>(
     "/",
     {
@@ -141,7 +122,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Body: z.infer<typeof CreateUserSchema>;
+        Body: CreateUserBody;
       }>,
       reply: FastifyReply,
     ) => {
@@ -156,8 +137,8 @@ export default async function userRoutes(fastify: FastifyInstance) {
 
   // Assign roles to user
   server.post<{
-    Params: { userId: string };
-    Body: z.infer<typeof AssignRolesSchema>;
+    Params: UserIdParams;
+    Body: AssignRolesBody;
   }>(
     "/:userId/roles",
     {
@@ -174,8 +155,8 @@ export default async function userRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Params: { userId: string };
-        Body: z.infer<typeof AssignRolesSchema>;
+        Params: UserIdParams;
+        Body: AssignRolesBody;
       }>,
       reply: FastifyReply,
     ) => {
@@ -195,16 +176,13 @@ export default async function userRoutes(fastify: FastifyInstance) {
 
   // Remove role from user
   server.delete<{
-    Params: { userId: string; roleId: string };
+    Params: RemoveRoleParams;
   }>(
     "/:userId/roles/:roleId",
     {
       onRequest: [fastify.authenticate, requireScope(ScopeNames.USER_WRITE)],
       schema: {
-        params: z.object({
-          userId: z.string().uuid(),
-          roleId: z.string().uuid(),
-        }),
+        params: RemoveRoleParam,
         response: {
           200: SuccessResponseSchema,
           401: ErrorResponseSchema,
@@ -214,7 +192,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Params: { userId: string; roleId: string };
+        Params: RemoveRoleParams;
       }>,
       reply: FastifyReply,
     ) => {
@@ -234,18 +212,15 @@ export default async function userRoutes(fastify: FastifyInstance) {
 
   // Update user
   server.put<{
-    Params: { userId: string };
-    Body: { email?: string; name?: string };
+    Params: UserIdParams;
+    Body: UpdateUserBody;
   }>(
     "/:userId",
     {
       onRequest: [fastify.authenticate, requireScope(ScopeNames.SUPERADMIN)],
       schema: {
         params: UserIdParam,
-        body: z.object({
-          email: z.string().email().optional(),
-          name: z.string().min(1).optional(),
-        }),
+        body: UpdateUserSchema,
         response: {
           200: UserResponseSchema,
           401: ErrorResponseSchema,
@@ -255,8 +230,8 @@ export default async function userRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Params: { userId: string };
-        Body: { email?: string; name?: string };
+        Params: UserIdParams;
+        Body: UpdateUserBody;
       }>,
       reply: FastifyReply,
     ) => {
@@ -275,7 +250,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
   );
 
   // Delete user
-  server.delete<{ Params: { userId: string } }>(
+  server.delete<{ Params: UserIdParams }>(
     "/:userId",
     {
       onRequest: [fastify.authenticate, requireScope(ScopeNames.SUPERADMIN)],
@@ -290,7 +265,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Params: { userId: string };
+        Params: UserIdParams;
       }>,
       reply: FastifyReply,
     ) => {

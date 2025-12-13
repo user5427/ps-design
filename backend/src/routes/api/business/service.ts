@@ -7,6 +7,7 @@ import type {
   BusinessUserResponse,
 } from "@ps-design/schemas/business";
 import { BusinessResponseSchema } from "@ps-design/schemas/business";
+import { ScopeNames } from "@/modules/user";
 
 export async function getBusinessesPaginated(
   fastify: FastifyInstance,
@@ -29,7 +30,7 @@ export async function getBusinessesPaginated(
       authUser.roleIds,
     );
     
-    if (!userScopes.includes("SUPERADMIN")) {
+    if (!userScopes.includes(ScopeNames.SUPERADMIN)) {
       items = items.filter((item) => item.id === authUser.businessId);
     }
   }

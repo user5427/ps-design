@@ -14,7 +14,6 @@ import PersonIcon from "@mui/icons-material/Person";
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import type { Section } from "@/components/layouts/side-bar/side-bar-item";
 import { URLS } from "./urls";
-import type { Section } from "@/components/layouts/side-bar";
 
 export const sidebarSections: Section[] = [
   {

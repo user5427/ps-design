@@ -2,7 +2,6 @@ import type { FastifyInstance } from "fastify";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
-import { z } from "zod";
 import {
   createRole,
   deleteRole,
@@ -20,59 +19,33 @@ import {
   ErrorResponseSchema,
   SuccessResponseSchema,
 } from "@ps-design/schemas/shared/response-types";
-
-const RoleIdParam = z.object({
-  roleId: z.string().uuid(),
-});
-
-const CreateRoleSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().optional(),
-  businessId: z.string().uuid(),
-  scopes: z.array(z.string()),
-});
-
-const UpdateRoleSchema = z.object({
-  name: z.string().min(1).optional(),
-  description: z.string().optional(),
-});
-
-const AssignScopesSchema = z.object({
-  scopes: z.array(z.string()),
-});
-
-const RoleResponseSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string().nullable(),
-  businessId: z.string(),
-  isSystemRole: z.boolean(),
-  isDeletable: z.boolean(),
-  scopes: z.array(z.string()),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-});
-
-const RolesResponseSchema = z.array(RoleResponseSchema);
-
-const AvailableScopesSchema = z.array(
-  z.object({
-    name: z.string(),
-    description: z.string(),
-  }),
-);
+import {
+  type RoleIdParams,
+  RoleIdParam,
+  type CreateRoleBody,
+  CreateRoleSchema,
+  type UpdateRoleBody,
+  UpdateRoleSchema,
+  type AssignScopesBody,
+  AssignScopesSchema,
+  type RoleQuery,
+  RoleQuerySchema,
+  RoleResponseSchema,
+  RolesResponseSchema,
+} from "@ps-design/schemas/role";
+import { ScopesResponseSchema } from "@ps-design/schemas/scope";
 
 export default async function roleRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope } = createScopeMiddleware(fastify);
 
   // Get roles for a business or all roles (if no businessId, requires SUPERADMIN)
-  server.get<{ Querystring: { businessId?: string } }>(
+  server.get<{ Querystring: RoleQuery }>(
     "/",
     {
       onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE_READ)],
       schema: {
-        querystring: z.object({ businessId: z.string().uuid().optional() }),
+        querystring: RoleQuerySchema,
         response: {
           200: RolesResponseSchema,
           401: ErrorResponseSchema,
@@ -81,7 +54,7 @@ export default async function roleRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Querystring: { businessId?: string };
+        Querystring: RoleQuery;
       }>,
       reply: FastifyReply,
     ) => {
@@ -112,7 +85,7 @@ export default async function roleRoutes(fastify: FastifyInstance) {
       onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE_READ)],
       schema: {
         response: {
-          200: AvailableScopesSchema,
+          200: ScopesResponseSchema,
           401: ErrorResponseSchema,
         },
       },
@@ -128,7 +101,7 @@ export default async function roleRoutes(fastify: FastifyInstance) {
   );
 
   // Get role by ID
-  server.get<{ Params: { roleId: string } }>(
+  server.get<{ Params: RoleIdParams }>(
     "/:roleId",
     {
       onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE_READ)],
@@ -143,7 +116,7 @@ export default async function roleRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Params: { roleId: string };
+        Params: RoleIdParams;
       }>,
       reply: FastifyReply,
     ) => {
@@ -162,7 +135,7 @@ export default async function roleRoutes(fastify: FastifyInstance) {
 
   // Create role
   server.post<{
-    Body: z.infer<typeof CreateRoleSchema>;
+    Body: CreateRoleBody;
   }>(
     "/",
     {
@@ -178,7 +151,7 @@ export default async function roleRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Body: z.infer<typeof CreateRoleSchema>;
+        Body: CreateRoleBody;
       }>,
       reply: FastifyReply,
     ) => {
@@ -193,8 +166,8 @@ export default async function roleRoutes(fastify: FastifyInstance) {
 
   // Update role
   server.patch<{
-    Params: { roleId: string };
-    Body: z.infer<typeof UpdateRoleSchema>;
+    Params: RoleIdParams;
+    Body: UpdateRoleBody;
   }>(
     "/:roleId",
     {
@@ -211,8 +184,8 @@ export default async function roleRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Params: { roleId: string };
-        Body: z.infer<typeof UpdateRoleSchema>;
+        Params: RoleIdParams;
+        Body: UpdateRoleBody;
       }>,
       reply: FastifyReply,
     ) => {
@@ -232,8 +205,8 @@ export default async function roleRoutes(fastify: FastifyInstance) {
 
   // Assign scopes to role
   server.post<{
-    Params: { roleId: string };
-    Body: z.infer<typeof AssignScopesSchema>;
+    Params: RoleIdParams;
+    Body: AssignScopesBody;
   }>(
     "/:roleId/scopes",
     {
@@ -250,8 +223,8 @@ export default async function roleRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Params: { roleId: string };
-        Body: z.infer<typeof AssignScopesSchema>;
+        Params: RoleIdParams;
+        Body: AssignScopesBody;
       }>,
       reply: FastifyReply,
     ) => {
@@ -270,7 +243,7 @@ export default async function roleRoutes(fastify: FastifyInstance) {
   );
 
   // Delete role
-  server.delete<{ Params: { roleId: string } }>(
+  server.delete<{ Params: RoleIdParams }>(
     "/:roleId",
     {
       onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE_DELETE)],
@@ -285,7 +258,7 @@ export default async function roleRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Params: { roleId: string };
+        Params: RoleIdParams;
       }>,
       reply: FastifyReply,
     ) => {

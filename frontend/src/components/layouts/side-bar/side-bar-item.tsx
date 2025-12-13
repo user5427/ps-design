@@ -34,7 +34,6 @@ interface SidebarItemProps {
 export const SidebarItem: React.FC<SidebarItemProps> = ({
   section,
   isSelected,
-  selected,
   onSelect,
   isOpen,
   onToggle,

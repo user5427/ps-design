@@ -1,8 +1,15 @@
 import { useState } from "react";
 import { useAuthUser } from "@/hooks/auth";
-import { useRoles, useCreateRole, useDeleteRole } from "@/hooks/roles";
+import { useRoles, useCreateRole, useDeleteRole } from "@/queries/roles";
+import { useUsers } from "@/queries/users";
+import { useScopes } from "@/queries/scopes";
 import { apiClient } from "@/api/client";
-import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
+import type {
+  RoleResponse,
+  CreateRoleBody,
+  UpdateRoleBody,
+} from "@ps-design/schemas/role";
 import {
   Dialog,
   DialogTitle,
@@ -23,36 +30,6 @@ import {
   CardContent,
 } from "@mui/material";
 
-type Role = Record<string, unknown> & {
-  id: string;
-  name: string;
-  description: string | null;
-  businessId: string | null;
-  isDeletable: boolean;
-  scopes: string[];
-  createdAt: string;
-  updatedAt: string;
-};
-
-interface Scope {
-  name: string;
-  description: string | null;
-}
-
-type User = Record<string, unknown> & {
-  id: string;
-  email: string;
-  name: string;
-  businessId: string | null;
-  roles: Array<{
-    id: string;
-    name: string;
-    description: string | null;
-  }>;
-  createdAt: string;
-  updatedAt: string;
-};
-
 export function BusinessRoles() {
   const queryClient = useQueryClient();
   const { data: currentUser } = useAuthUser();
@@ -67,7 +44,7 @@ export function BusinessRoles() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showCreateRoleModal, setShowCreateRoleModal] = useState(false);
   const [showEditRoleModal, setShowEditRoleModal] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [selectedRole, setSelectedRole] = useState<RoleResponse | null>(null);
   const [editRoleName, setEditRoleName] = useState("");
   const [editRoleDescription, setEditRoleDescription] = useState("");
   const [newRoleName, setNewRoleName] = useState("");
@@ -80,25 +57,10 @@ export function BusinessRoles() {
   }>({ open: false, message: "", severity: "success" });
 
   // Fetch available scopes
-  const { data: scopes = [] } = useQuery<Scope[]>({
-    queryKey: ["scopes"],
-    queryFn: async () => {
-      const response = await apiClient.get("/scopes");
-      return response.data;
-    },
-  });
+  const { data: scopes = [] } = useScopes();
 
   // Fetch users for this business only
-  const { data: users = [] } = useQuery<User[]>({
-    queryKey: ["users", businessId],
-    queryFn: async () => {
-      const response = await apiClient.get("/users", {
-        params: { businessId },
-      });
-      return response.data;
-    },
-    enabled: !!businessId,
-  });
+  const { data: users = [] } = useUsers(businessId);
 
   const roles = Array.isArray(rolesData) ? rolesData : [];
 
@@ -111,12 +73,13 @@ export function BusinessRoles() {
     if (!newRoleName.trim()) return;
 
     try {
-      await createMutation.mutateAsync({
+      const createData: CreateRoleBody = {
         name: newRoleName,
-        description: newRoleDescription,
+        description: newRoleDescription || undefined,
         scopes: selectedScopes,
         businessId,
-      });
+      };
+      await createMutation.mutateAsync(createData);
       setShowCreateRoleModal(false);
       setNewRoleName("");
       setNewRoleDescription("");
@@ -138,7 +101,7 @@ export function BusinessRoles() {
   };
 
   const handleDelete = async (roleId: string) => {
-    const role = roles.find((r) => r.id === roleId) as Role | undefined;
+    const role = roles.find((r) => r.id === roleId);
     if (role && (role.name === "SUPERADMIN" || role.name === "OWNER")) {
       setSnackbar({
         open: true,
@@ -165,12 +128,12 @@ export function BusinessRoles() {
     }
   };
 
-  const handleAssignRole = (role: Role) => {
+  const handleAssignRole = (role: RoleResponse) => {
     setSelectedRole(role);
     setShowAssignModal(true);
   };
 
-  const handleEditRole = (role: Role) => {
+  const handleEditRole = (role: RoleResponse) => {
     setSelectedRole(role);
     setEditRoleName(role.name);
     setEditRoleDescription(role.description || "");
@@ -181,10 +144,11 @@ export function BusinessRoles() {
     if (!selectedRole) return;
 
     try {
-      await apiClient.put(`/roles/${selectedRole.id}`, {
+      const updateData: UpdateRoleBody = {
         name: editRoleName,
-        description: editRoleDescription,
-      });
+        description: editRoleDescription || undefined,
+      };
+      await apiClient.patch(`/roles/${selectedRole.id}`, updateData);
       setShowEditRoleModal(false);
       setSelectedRole(null);
       setEditRoleName("");
@@ -328,7 +292,7 @@ export function BusinessRoles() {
                           variant="outlined"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleEditRole(role as Role);
+                            handleEditRole(role);
                           }}
                         >
                           Edit
@@ -339,7 +303,7 @@ export function BusinessRoles() {
                         variant="outlined"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleAssignRole(role as Role);
+                          handleAssignRole(role);
                         }}
                       >
                         Assign
@@ -466,7 +430,7 @@ export function BusinessRoles() {
               value={editRoleName}
               onChange={(e) => setEditRoleName(e.target.value)}
               fullWidth
-              disabled={!!(selectedRole as Role)?.isSystemRole}
+              disabled={!!selectedRole?.isSystemRole}
             />
             <TextField
               label="Description"

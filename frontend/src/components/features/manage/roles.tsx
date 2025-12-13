@@ -16,57 +16,30 @@ import {
   CircularProgress,
   TextField,
 } from "@mui/material";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/api/client";
-import { useRoles, useCreateRole, useDeleteRole } from "@/hooks/roles";
+import { useRoles, useCreateRole, useDeleteRole } from "@/queries/roles";
+import { useUsers } from "@/queries/users";
+import { useScopes } from "@/queries/scopes";
 import {
   RecordListView,
   type ViewFieldDefinition,
 } from "@/components/elements/record-list-view";
 import { useBusinessesPaginated } from "@/queries/business";
-
-type Business = Record<string, unknown> & {
-  id: string;
-  name: string;
-  createdAt?: string;
-  updatedAt?: string;
-};
-
-type Role = Record<string, unknown> & {
-  id: string;
-  name: string;
-  description: string | null;
-  businessId: string | null;
-  isDeletable: boolean;
-  scopes: string[];
-  createdAt: string;
-  updatedAt: string;
-};
-
-type User = Record<string, unknown> & {
-  id: string;
-  email: string;
-  name: string;
-  businessId: string | null;
-  roles: Array<{
-    id: string;
-    name: string;
-    description: string | null;
-  }>;
-};
-
-interface Scope {
-  name: string;
-  description: string | null;
-}
+import type { BusinessResponse } from "@ps-design/schemas/business";
+import type {
+  RoleResponse,
+  CreateRoleBody,
+  UpdateRoleBody,
+} from "@ps-design/schemas/role";
 
 export function ManageRoles() {
   const queryClient = useQueryClient();
-  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(
+  const [selectedBusiness, setSelectedBusiness] = useState<BusinessResponse | null>(
     null
   );
   const [showBusinessModal, setShowBusinessModal] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [selectedRole, setSelectedRole] = useState<RoleResponse | null>(null);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showCreateRoleModal, setShowCreateRoleModal] = useState(false);
   const [showEditRoleModal, setShowEditRoleModal] = useState(false);
@@ -84,7 +57,7 @@ export function ManageRoles() {
   // Fetch all businesses for the picker
   const { data: businessData, isLoading: businessesLoading, error: businessError, refetch: refetchBusinesses } = useBusinessesPaginated(
     1,
-    1000,
+    100,
     undefined,
   );
   const businesses = businessData?.items || [];
@@ -99,30 +72,14 @@ export function ManageRoles() {
   const deleteRoleMutation = useDeleteRole();
 
   // Fetch available scopes
-  const { data: scopes = [] } = useQuery<Scope[]>({
-    queryKey: ["scopes"],
-    queryFn: async () => {
-      const response = await apiClient.get("/scopes");
-      return response.data;
-    },
-  });
+  const { data: scopes = [] } = useScopes();
 
   // Fetch users for selected business when assigning
-  const { data: users = [] } = useQuery<User[]>({
-    queryKey: ["business-users", selectedBusiness?.id],
-    queryFn: async () => {
-      if (!selectedBusiness) return [];
-      const response = await apiClient.get("/users", {
-        params: { businessId: selectedBusiness.id },
-      });
-      return response.data;
-    },
-    enabled: !!selectedBusiness && showAssignModal,
-  });
+  const { data: users = [] } = useUsers(showAssignModal && selectedBusiness ? selectedBusiness.id : undefined);
 
-  const roles = rolesData as unknown as Role[];
+  const roles = rolesData;
 
-  const businessColumns = useMemo<MRT_ColumnDef<Business>[]>(
+  const businessColumns = useMemo<MRT_ColumnDef<BusinessResponse>[]>(
     () => [
       {
         accessorKey: "name",
@@ -145,7 +102,7 @@ export function ManageRoles() {
     { name: "updatedAt", label: "Updated At" },
   ];
 
-  const handleSelectBusiness = (business: Business) => {
+  const handleSelectBusiness = (business: BusinessResponse) => {
     setSelectedBusiness(business);
     setShowBusinessModal(true);
   };
@@ -164,12 +121,13 @@ export function ManageRoles() {
     if (!newRoleName.trim() || !selectedBusiness) return;
 
     try {
-      await createRoleMutation.mutateAsync({
+      const createData: CreateRoleBody = {
         name: newRoleName,
-        description: newRoleDescription,
+        description: newRoleDescription || undefined,
         scopes: selectedScopes,
         businessId: selectedBusiness.id,
-      });
+      };
+      await createRoleMutation.mutateAsync(createData);
       setShowCreateRoleModal(false);
       setNewRoleName("");
       setNewRoleDescription("");
@@ -218,12 +176,12 @@ export function ManageRoles() {
     }
   };
 
-  const handleAssignRole = (role: Role) => {
+  const handleAssignRole = (role: RoleResponse) => {
     setSelectedRole(role);
     setShowAssignModal(true);
   };
 
-  const handleEditRole = (role: Role) => {
+  const handleEditRole = (role: RoleResponse) => {
     setSelectedRole(role);
     setEditRoleName(role.name);
     setEditRoleDescription(role.description || "");
@@ -234,10 +192,11 @@ export function ManageRoles() {
     if (!selectedRole) return;
 
     try {
-      await apiClient.put(`/roles/${selectedRole.id}`, {
+      const updateData: UpdateRoleBody = {
         name: editRoleName,
-        description: editRoleDescription,
-      });
+        description: editRoleDescription || undefined,
+      };
+      await apiClient.patch(`/roles/${selectedRole.id}`, updateData);
       setShowEditRoleModal(false);
       setSelectedRole(null);
       setEditRoleName("");
@@ -315,7 +274,7 @@ export function ManageRoles() {
 
   return (
     <>
-      <RecordListView<Business>
+      <RecordListView<BusinessResponse>
         title="Manage Business Roles"
         columns={businessColumns}
         data={businesses}
@@ -328,7 +287,7 @@ export function ManageRoles() {
           <Button
             size="small"
             variant="outlined"
-            onClick={() => handleSelectBusiness(row as Business)}
+            onClick={() => handleSelectBusiness(row as BusinessResponse)}
           >
             Manage Roles
           </Button>
@@ -381,7 +340,7 @@ export function ManageRoles() {
                           variant="outlined"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleEditRole(role as Role);
+                            handleEditRole(role);
                           }}
                         >
                           Edit
@@ -392,7 +351,7 @@ export function ManageRoles() {
                         variant="outlined"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleAssignRole(role as Role);
+                          handleAssignRole(role);
                         }}
                       >
                         Assign
@@ -442,7 +401,7 @@ export function ManageRoles() {
               value={editRoleName}
               onChange={(e) => setEditRoleName(e.target.value)}
               fullWidth
-              disabled={!!(selectedRole as Role)?.isSystemRole}
+              disabled={!!selectedRole?.isSystemRole}
             />
             <TextField
               label="Description"

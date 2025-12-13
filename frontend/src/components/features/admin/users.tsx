@@ -64,7 +64,7 @@ export function AdminUsersManagement() {
     queryKey: ["business"],
     queryFn: async () => {
       const response = await apiClient.get("/business", {
-        params: { page: 1, limit: 1000 },
+        params: { page: 1, limit: 100 },
       });
       return response.data.items;
     },
