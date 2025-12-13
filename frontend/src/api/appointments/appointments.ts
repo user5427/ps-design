@@ -71,17 +71,3 @@ export async function refundAppointment(
 ): Promise<void> {
   await apiClient.post(`/appointments/${id}/refund`, data);
 }
-
-export async function payAppointment(
-  id: string,
-  data: PayAppointmentBody,
-): Promise<void> {
-  await apiClient.post(`/appointments/appointments/${id}/pay`, data);
-}
-
-export async function refundAppointment(
-  id: string,
-  data: RefundAppointmentBody,
-): Promise<void> {
-  await apiClient.post(`/appointments/appointments/${id}/refund`, data);
-}
