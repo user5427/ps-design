@@ -127,7 +127,10 @@ export default async function userRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
-        const user = await createUser(fastify, request.body, request.authUser!);
+        if (!request.authUser) {
+          return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Unauthorized" });
+        }
+        const user = await createUser(fastify, request.body, request.authUser);
         return reply.code(httpStatus.CREATED).send(user);
       } catch (error) {
         return handleServiceError(error, reply);
@@ -270,7 +273,10 @@ export default async function userRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
-        await deleteUser(fastify, request.params.userId, request.authUser!);
+        if (!request.authUser) {
+          return reply.code(httpStatus.UNAUTHORIZED).send({ message: "Unauthorized" });
+        }
+        await deleteUser(fastify, request.params.userId, request.authUser);
         return reply.send({ success: true });
       } catch (error) {
         return handleServiceError(error, reply);
