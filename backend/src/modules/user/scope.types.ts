@@ -13,6 +13,8 @@ export enum ScopeNames {
   BUSINESS_WRITE = "BUSINESS_WRITE",
   BUSINESS_DELETE = "BUSINESS_DELETE",
   BUSINESS_CREATE = "BUSINESS_CREATE",
+  AUDIT_BUSINESS_READ = "AUDIT_BUSINESS_READ",
+  AUDIT_SECURITY_READ = "AUDIT_SECURITY_READ",
 }
 
 // Scope configuration with descriptions
@@ -71,6 +73,14 @@ export const SCOPE_CONFIG: Record<
   [ScopeNames.BUSINESS_CREATE]: {
     name: ScopeNames.BUSINESS_CREATE,
     description: "Create new businesses",
+  },
+  [ScopeNames.AUDIT_BUSINESS_READ]: {
+    name: ScopeNames.AUDIT_BUSINESS_READ,
+    description: "Read business audit logs",
+  },
+  [ScopeNames.AUDIT_SECURITY_READ]: {
+    name: ScopeNames.AUDIT_SECURITY_READ,
+    description: "Read security audit logs",
   },
 };
 

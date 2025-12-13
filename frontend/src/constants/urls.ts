@@ -16,4 +16,7 @@ export const URLS = {
   // Menu
   MENU_CATEGORIES: "/menu/categories",
   MENU_ITEMS: "/menu/items",
+  // Audit Logs
+  AUDIT_BUSINESS_LOGS: "/audit/business-logs",
+  AUDIT_SECURITY_LOGS: "/audit/security-logs",
 };
