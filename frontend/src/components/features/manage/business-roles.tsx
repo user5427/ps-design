@@ -47,6 +47,7 @@ export function BusinessRoles() {
   const [selectedRole, setSelectedRole] = useState<RoleResponse | null>(null);
   const [editRoleName, setEditRoleName] = useState("");
   const [editRoleDescription, setEditRoleDescription] = useState("");
+  const [editScopes, setEditScopes] = useState<string[]>([]);
   const [newRoleName, setNewRoleName] = useState("");
   const [newRoleDescription, setNewRoleDescription] = useState("");
   const [selectedScopes, setSelectedScopes] = useState<string[]>([]);
@@ -137,6 +138,7 @@ export function BusinessRoles() {
     setSelectedRole(role);
     setEditRoleName(role.name);
     setEditRoleDescription(role.description || "");
+    setEditScopes(role.scopes || []);
     setShowEditRoleModal(true);
   };
 
@@ -149,10 +151,17 @@ export function BusinessRoles() {
         description: editRoleDescription || undefined,
       };
       await apiClient.patch(`/roles/${selectedRole.id}`, updateData);
+      
+      // Update scopes separately
+      await apiClient.post(`/roles/${selectedRole.id}/scopes`, {
+        scopes: editScopes,
+      });
+      
       setShowEditRoleModal(false);
       setSelectedRole(null);
       setEditRoleName("");
       setEditRoleDescription("");
+      setEditScopes([]);
       queryClient.invalidateQueries({ queryKey: ["roles", businessId] });
       setSnackbar({
         open: true,
@@ -440,6 +449,36 @@ export function BusinessRoles() {
               multiline
               rows={3}
             />
+            <Box>
+              <div style={{ marginBottom: "8px", fontWeight: "bold" }}>
+                Select Scopes:
+              </div>
+              <Box sx={{ maxHeight: "200px", overflowY: "auto", border: "1px solid #e0e0e0", borderRadius: 1, padding: 1 }}>
+                {scopes.map((scope) => (
+                  <Box key={scope.name} sx={{ display: "flex", alignItems: "center", padding: 0.5 }}>
+                    <input
+                      type="checkbox"
+                      id={`edit-scope-${scope.name}`}
+                      checked={editScopes.includes(scope.name)}
+                      onChange={(e) => {
+                        const isChecked = e.target.checked;
+                        setEditScopes((current) => {
+                          if (isChecked) {
+                            return [...current, scope.name];
+                          } else {
+                            return current.filter((name) => name !== scope.name);
+                          }
+                        });
+                      }}
+                      style={{ marginRight: 8, cursor: "pointer" }}
+                    />
+                    <label htmlFor={`edit-scope-${scope.name}`} style={{ cursor: "pointer", userSelect: "none" }}>
+                      {scope.name}
+                    </label>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
           </Box>
         </DialogContent>
         <DialogActions>
@@ -448,6 +487,7 @@ export function BusinessRoles() {
             setSelectedRole(null);
             setEditRoleName("");
             setEditRoleDescription("");
+            setEditScopes([]);
           }}>Cancel</Button>
           <Button onClick={handleUpdateRole} variant="contained">
             Update
