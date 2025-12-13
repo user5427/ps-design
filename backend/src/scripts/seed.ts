@@ -28,19 +28,6 @@ async function main() {
   const roleScopeRepo = dataSource.getRepository(RoleScope);
 
   try {
-    // Create or reuse system business for superadmin
-    const systemBusinessName = "System";
-    let systemBusiness = await businessRepo.findOne({
-      where: { name: systemBusinessName },
-    });
-    if (!systemBusiness) {
-      systemBusiness = businessRepo.create({ name: systemBusinessName });
-      systemBusiness = await businessRepo.save(systemBusiness);
-      console.log(`Created system business: ${systemBusiness.name}`);
-    } else {
-      console.log(`Using existing system business: ${systemBusiness.name}`);
-    }
-
     // Create or reuse a default business
     const businessName = "Default Business";
     let business = await businessRepo.findOne({
@@ -58,7 +45,7 @@ async function main() {
     const defaultPassword = "Geras@123";
     const passwordHash = await bcrypt.hash(defaultPassword, 10);
 
-    // Seed Roles
+    // Seed Roles - All roles are business-based
     const roleConfigs: Array<{
       name: string;
       businessId: string;
@@ -67,7 +54,7 @@ async function main() {
     }> = [
       {
         name: "SUPERADMIN",
-        businessId: systemBusiness.id,
+        businessId: business.id,
         isSystemRole: true,
         isDeletable: false,
       },
@@ -76,12 +63,6 @@ async function main() {
         businessId: business.id,
         isSystemRole: true,
         isDeletable: false,
-      },
-      {
-        name: "ADMIN",
-        businessId: business.id,
-        isSystemRole: false,
-        isDeletable: true,
       },
       {
         name: "USER",
@@ -142,7 +123,29 @@ async function main() {
     }> = [
       {
         roleName: "SUPERADMIN",
-        scopes: [ScopeNames.SUPERADMIN], // Superadmin scope
+        scopes: [
+          ScopeNames.SUPERADMIN,
+          ScopeNames.OWNER,
+          ScopeNames.INVENTORY_READ,
+          ScopeNames.INVENTORY_WRITE,
+          ScopeNames.INVENTORY_DELETE,
+          ScopeNames.MENU_READ,
+          ScopeNames.MENU_WRITE,
+          ScopeNames.MENU_DELETE,
+          ScopeNames.USER_READ,
+          ScopeNames.USER_WRITE,
+          ScopeNames.USER_DELETE,
+          ScopeNames.ROLE_READ,
+          ScopeNames.ROLE_WRITE,
+          ScopeNames.ROLE_DELETE,
+          ScopeNames.BUSINESS_READ,
+          ScopeNames.BUSINESS_WRITE,
+          ScopeNames.BUSINESS_DELETE,
+          ScopeNames.BUSINESS_CREATE,
+          ScopeNames.APPOINTMENTS_READ,
+          ScopeNames.APPOINTMENTS_WRITE,
+          ScopeNames.APPOINTMENTS_DELETE,
+        ],
       },
       {
         roleName: "OWNER",
@@ -162,21 +165,6 @@ async function main() {
           ScopeNames.MENU_DELETE,
           ScopeNames.BUSINESS_READ,
           ScopeNames.BUSINESS_WRITE,
-        ],
-      },
-      {
-        roleName: "ADMIN",
-        scopes: [
-          ScopeNames.INVENTORY_READ,
-          ScopeNames.INVENTORY_WRITE,
-          ScopeNames.USER_READ,
-          ScopeNames.BUSINESS_READ,
-          ScopeNames.MENU_DELETE,
-          ScopeNames.MENU_READ,
-          ScopeNames.MENU_WRITE,
-          ScopeNames.APPOINTMENTS_READ,
-          ScopeNames.APPOINTMENTS_WRITE,
-          ScopeNames.APPOINTMENTS_DELETE,
         ],
       },
       {
@@ -219,20 +207,13 @@ async function main() {
         email: "superadmin@demo.local",
         name: "SupAdminas",
         roleNames: ["SUPERADMIN"],
-        businessId: systemBusiness.id,
+        businessId: business.id,
         isPasswordResetRequired: true,
       },
       {
         email: "owner@demo.local",
         name: "Business Owner",
         roleNames: ["OWNER"],
-        businessId: business.id,
-        isPasswordResetRequired: true,
-      },
-      {
-        email: "admin@demo.local",
-        name: "AdminasUseris",
-        roleNames: ["ADMIN"],
         businessId: business.id,
         isPasswordResetRequired: true,
       },

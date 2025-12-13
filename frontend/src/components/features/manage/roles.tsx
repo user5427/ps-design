@@ -1,42 +1,40 @@
 import type { MRT_ColumnDef } from "material-react-table";
 import { useMemo, useCallback, useState } from "react";
 import {
-  RecordListView,
-  type FormFieldDefinition,
-  type ViewFieldDefinition,
-  ValidationRules,
-} from "@/components/elements/record-list-view";
-import { useRoles, useCreateRole, useDeleteRole } from "@/hooks/roles";
-import { apiClient } from "@/api/client";
-import { useQueryClient, useQuery } from "@tanstack/react-query";
-import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
   Button,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
-  TextField,
   Box,
   Stack,
+  Alert,
+  Snackbar,
+  List,
+  ListItemButton,
+  ListItemText,
+  CircularProgress,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "@/api/client";
+import { useRoles, useCreateRole, useDeleteRole } from "@/hooks/roles";
+
+type Business = {
+  id: string;
+  name: string;
+};
 
 type Role = Record<string, unknown> & {
   id: string;
   name: string;
   description: string | null;
   businessId: string | null;
+  isDeletable: boolean;
+  scopes: string[];
   createdAt: string;
   updatedAt: string;
 };
-
-interface Scope {
-  id: string;
-  name: string;
-  description: string | null;
-}
 
 type User = Record<string, unknown> & {
   id: string;
@@ -48,269 +46,283 @@ type User = Record<string, unknown> & {
     name: string;
     description: string | null;
   }>;
-  createdAt: string;
-  updatedAt: string;
 };
 
 export function ManageRoles() {
   const queryClient = useQueryClient();
-  const { data: rolesData = [], isLoading: rolesLoading, error } = useRoles();
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(
+    null
+  );
+  const [showBusinessModal, setShowBusinessModal] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
+
+  // Fetch all businesses for the picker
+  const { data: businesses = [], isLoading: businessesLoading } = useQuery<
+    Business[]
+  >({
+    queryKey: ["businesses"],
+    queryFn: async () => {
+      const response = await apiClient.get("/businesses", {
+        params: { limit: 1000 },
+      });
+      return response.data.items || [];
+    },
+  });
+
+  // Fetch roles for selected business
+  const {
+    data: rolesData = [],
+    isLoading: rolesLoading,
+    error,
+  } = useRoles(selectedBusiness?.id);
   const createMutation = useCreateRole();
   const deleteMutation = useDeleteRole();
-  const [showRoleModal, setShowRoleModal] = useState(false);
-  const [showAssignModal, setShowAssignModal] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const [newRoleName, setNewRoleName] = useState("");
-  const [newRoleDescription, setNewRoleDescription] = useState("");
-  const [selectedScopes, setSelectedScopes] = useState<string[]>([]);
 
-  // Cast API response to Role type
+  // Fetch users for selected business when assigning
+  const { data: users = [] } = useQuery<User[]>({
+    queryKey: ["business-users", selectedBusiness?.id],
+    queryFn: async () => {
+      if (!selectedBusiness) return [];
+      const response = await apiClient.get("/users", {
+        params: { businessId: selectedBusiness.id },
+      });
+      return response.data;
+    },
+    enabled: !!selectedBusiness && showAssignModal,
+  });
+
   const roles = rolesData as unknown as Role[];
 
-  // Fetch available scopes
-  const { data: scopes = [] } = useQuery<Scope[]>({
-    queryKey: ["scopes"],
-    queryFn: async () => {
-      const response = await apiClient.get("/scopes");
-      return response.data;
-    },
-  });
+  const handleSelectBusiness = (business: Business) => {
+    setSelectedBusiness(business);
+    setShowBusinessModal(true);
+  };
 
-  // Fetch all users for role assignment
-  const { data: users = [] } = useQuery<User[]>({
-    queryKey: ["users"],
-    queryFn: async () => {
-      const response = await apiClient.get("/users");
-      return response.data;
-    },
-  });
+  const handleCloseBusiness = () => {
+    setShowBusinessModal(false);
+    setSelectedRole(null);
+    setSelectedBusiness(null);
+  };
 
-  const columns = useMemo<MRT_ColumnDef<Role>[]>(
-    () => [
-      {
-        accessorKey: "name",
-        header: "Name",
-        size: 200,
-      },
-      {
-        accessorKey: "description",
-        header: "Description",
-        size: 300,
-      },
-      {
-        accessorKey: "createdAt",
-        header: "Created At",
-        size: 150,
-        Cell: ({ cell }) => new Date(cell.getValue() as string).toLocaleDateString(),
-      },
-    ],
-    [],
-  );
-
-  const editFormFields: FormFieldDefinition[] = [
-    {
-      name: "name",
-      label: "Name",
-      type: "text",
-      required: true,
-      validationRules: [ValidationRules.minLength(1)],
-    },
-    {
-      name: "description",
-      label: "Description",
-      type: "text",
-      required: false,
-    },
-  ];
-
-  const viewFields: ViewFieldDefinition[] = [
-    { name: "id", label: "ID" },
-    { name: "name", label: "Name" },
-    { name: "description", label: "Description" },
-    { name: "businessId", label: "Business ID" },
-    { name: "createdAt", label: "Created At" },
-    { name: "updatedAt", label: "Updated At" },
-  ];
-
-  const handleCreateRole = async () => {
-    if (!newRoleName.trim()) return;
+  const handleDelete = async (roleId: string) => {
+    const role = roles.find((r) => r.id === roleId);
+    if (role && !role.isDeletable) {
+      setSnackbar({
+        open: true,
+        message: "Cannot delete system roles",
+        severity: "error",
+      });
+      return;
+    }
 
     try {
-      await createMutation.mutateAsync({
-        name: newRoleName,
-        description: newRoleDescription,
-        scopeIds: selectedScopes,
+      await deleteMutation.mutateAsync(roleId);
+      setSnackbar({
+        open: true,
+        message: "Role deleted successfully",
+        severity: "success",
       });
-      setShowRoleModal(false);
-      setNewRoleName("");
-      setNewRoleDescription("");
-      setSelectedScopes([]);
+      queryClient.invalidateQueries({ queryKey: ["roles", selectedBusiness?.id] });
     } catch (error) {
-      console.error("Failed to create role:", error);
-    }
-  };
-
-  const handleEdit = useCallback(
-    async (id: string, values: Partial<Role>) => {
-      await apiClient.put(`/roles/${id}`, {
-        name: values.name,
-        description: values.description,
+      setSnackbar({
+        open: true,
+        message: "Failed to delete role",
+        severity: "error",
       });
-      queryClient.invalidateQueries({ queryKey: ["roles"] });
-    },
-    [queryClient],
-  );
-
-  const handleDelete = async (ids: string[]) => {
-    for (const id of ids) {
-      await deleteMutation.mutateAsync(id);
     }
   };
 
-  const handleScopeChange = (scopeId: string, checked: boolean) => {
-    setSelectedScopes((prev) =>
-      checked ? [...prev, scopeId] : prev.filter((s) => s !== scopeId)
-    );
+  const handleAssignRole = (role: Role) => {
+    setSelectedRole(role);
+    setShowAssignModal(true);
   };
 
-  const refetch = () => {
-    queryClient.invalidateQueries({ queryKey: ["roles"] });
+  const handleAssignUserToRole = async (userId: string) => {
+    if (!selectedRole) return;
+
+    try {
+      await apiClient.post(`/users/${userId}/roles`, {
+        roleIds: [selectedRole.id],
+      });
+      setSnackbar({
+        open: true,
+        message: `Role assigned successfully`,
+        severity: "success",
+      });
+      queryClient.invalidateQueries({ queryKey: ["business-users"] });
+      setShowAssignModal(false);
+      setSelectedRole(null);
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || "Failed to assign role";
+      setSnackbar({
+        open: true,
+        message,
+        severity: "error",
+      });
+    }
   };
+
+  if (businessesLoading) {
+    return <CircularProgress />;
+  }
 
   return (
     <>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        <Stack direction="row" spacing={2}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setShowRoleModal(true)}
-          >
-            Create Role
-          </Button>
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() => {
-              if (selectedRole && Object.keys(selectedRole).length > 0) {
-                setShowAssignModal(true);
-              }
-            }}
-            disabled={!selectedRole || Object.keys(selectedRole).length === 0}
-          >
-            Assign to User
-          </Button>
-        </Stack>
+        <h2>Manage Business Roles</h2>
+        <p>Select a business to manage its roles:</p>
 
-        <RecordListView<Role>
-          title="Roles"
-          columns={columns}
-          data={roles}
-          isLoading={rolesLoading}
-          error={error}
-          editFormFields={editFormFields}
-          viewFields={viewFields}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onSuccess={refetch}
-          editModalTitle="Edit Role"
-          viewModalTitle="View Role"
-          renderRowActions={({ row }) => (
-            <Button
-              size="small"
-              onClick={() => {
-                setSelectedRole(row as Role);
-                setShowAssignModal(true);
-              }}
+        <List sx={{ border: "1px solid #ddd", borderRadius: 1 }}>
+          {businesses.map((business) => (
+            <ListItemButton
+              key={business.id}
+              onClick={() => handleSelectBusiness(business)}
             >
-              Assign
-            </Button>
-          )}
-        />
+              <ListItemText primary={business.name} />
+            </ListItemButton>
+          ))}
+        </List>
+
+        {businesses.length === 0 && (
+          <Alert severity="info">No businesses available</Alert>
+        )}
       </Box>
 
-      {/* Create Role Dialog */}
-      <Dialog open={showRoleModal} onClose={() => setShowRoleModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Create New Role</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
-            <TextField
-              label="Role Name"
-              value={newRoleName}
-              onChange={(e) => setNewRoleName(e.target.value)}
-              fullWidth
-            />
-            <TextField
-              label="Description"
-              value={newRoleDescription}
-              onChange={(e) => setNewRoleDescription(e.target.value)}
-              fullWidth
-              multiline
-              rows={3}
-            />
-            <div>
-              <div style={{ marginBottom: "8px", fontWeight: "bold" }}>
-                Select Scopes:
-              </div>
-              <FormGroup>
-                {scopes.map((scope) => (
-                  <FormControlLabel
-                    key={scope.id}
-                    control={
-                      <Checkbox
-                        checked={selectedScopes.includes(scope.id)}
-                        onChange={(e) => handleScopeChange(scope.id, e.target.checked)}
-                      />
-                    }
-                    label={`${scope.name}${scope.description ? ` - ${scope.description}` : ""}`}
-                  />
+      {/* Business Roles Modal */}
+      <Dialog
+        open={showBusinessModal}
+        onClose={handleCloseBusiness}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>{selectedBusiness?.name} - Roles</DialogTitle>
+        <DialogContent sx={{ minHeight: 400 }}>
+          {rolesLoading ? (
+            <CircularProgress />
+          ) : (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+              {error && (
+                <Alert severity="error">Failed to load roles</Alert>
+              )}
+              <List sx={{ border: "1px solid #ddd", borderRadius: 1 }}>
+                {roles.map((role) => (
+                  <ListItemButton
+                    key={role.id}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      py: 2,
+                      px: 2,
+                    }}
+                  >
+                    <ListItemText
+                      primary={role.name}
+                      secondary={role.description || "No description"}
+                    />
+                    <Stack direction="row" spacing={1}>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAssignRole(role as Role);
+                        }}
+                      >
+                        Assign
+                      </Button>
+                      {role.isDeletable && (
+                        <Button
+                          size="small"
+                          color="error"
+                          variant="outlined"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(role.id as string);
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      )}
+                    </Stack>
+                  </ListItemButton>
                 ))}
-              </FormGroup>
-            </div>
-          </Box>
+              </List>
+              {roles.length === 0 && (
+                <Alert severity="info">No roles in this business</Alert>
+              )}
+            </Box>
+          )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowRoleModal(false)}>Cancel</Button>
-          <Button onClick={handleCreateRole} variant="contained">
-            Create
-          </Button>
-        </DialogActions>
       </Dialog>
 
-      {/* Assign Role Dialog */}
-      <Dialog open={showAssignModal} onClose={() => setShowAssignModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Assign Role to Users</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mt: 2 }}>
-            {users.map((user) => (
-              <FormControlLabel
-                key={user.id}
-                control={
-                  <Checkbox
-                    checked={user.roles.some((r) => r.id === selectedRole?.id)}
-                    onChange={async (e) => {
-                      if (e.target.checked && selectedRole) {
-                        await apiClient.post(`/users/${user.id}/roles`, {
-                          roleIds: [selectedRole.id],
-                        });
-                      } else if (!e.target.checked && selectedRole) {
-                        await apiClient.delete(
-                          `/users/${user.id}/roles/${selectedRole.id}`
-                        );
-                      }
-                      queryClient.invalidateQueries({ queryKey: ["users"] });
-                    }}
+      {/* User Assignment Modal */}
+      <Dialog
+        open={showAssignModal}
+        onClose={() => {
+          setShowAssignModal(false);
+          setSelectedRole(null);
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          Assign {selectedRole?.name} to User
+        </DialogTitle>
+        <DialogContent sx={{ minHeight: 300 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+            {selectedRole && (
+              <Alert severity="info">
+                Assigning role: <strong>{selectedRole.name}</strong>
+              </Alert>
+            )}
+            <List sx={{ border: "1px solid #ddd", borderRadius: 1 }}>
+              {users.map((user) => (
+                <ListItemButton
+                  key={user.id}
+                  onClick={() => handleAssignUserToRole(user.id as string)}
+                  sx={{
+                    py: 2,
+                    px: 2,
+                  }}
+                >
+                  <ListItemText
+                    primary={user.name}
+                    secondary={user.email}
                   />
-                }
-                label={`${user.name} (${user.email})`}
-              />
-            ))}
+                </ListItemButton>
+              ))}
+            </List>
+            {users.length === 0 && (
+              <Alert severity="info">No users in this business</Alert>
+            )}
           </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowAssignModal(false)}>Close</Button>
-        </DialogActions>
       </Dialog>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 }
+

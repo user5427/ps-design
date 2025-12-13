@@ -13,18 +13,33 @@ export async function getBusinessesPaginated(
   page: number,
   limit: number,
   search?: string,
+  authUser?: any,
 ): Promise<PaginatedBusinessResponse> {
   const result = await fastify.db.business.findAllPaginated(
     page,
     limit,
     search,
   );
+  
+  let items = result.items;
+  
+  // If user is not superadmin, filter to only show their business
+  if (authUser && authUser.businessId) {
+    const userScopes = await fastify.db.role.getUserScopesFromRoles(
+      authUser.roleIds,
+    );
+    
+    if (!userScopes.includes("SUPERADMIN")) {
+      items = items.filter((item) => item.id === authUser.businessId);
+    }
+  }
+  
   return {
-    items: result.items.map((item) => BusinessResponseSchema.parse(item)),
-    total: result.total,
-    page: result.page,
-    limit: result.limit,
-    pages: result.pages,
+    items: items.map((item) => BusinessResponseSchema.parse(item)),
+    total: items.length,
+    page: page,
+    limit: limit,
+    pages: Math.ceil(items.length / limit),
   };
 }
 

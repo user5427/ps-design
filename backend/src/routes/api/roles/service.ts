@@ -3,6 +3,42 @@ import { BadRequestError, NotFoundError, ForbiddenError } from "@/shared/errors"
 import { ScopeNames, SCOPE_CONFIG } from "@/modules/user/scope.types";
 import type { IAuthUser } from "@/modules/user/user.types";
 
+export async function getAllRoles(
+  fastify: FastifyInstance,
+  authUser: IAuthUser,
+) {
+  // Only superadmin can view all roles
+  const userScopes = await fastify.db.role.getUserScopesFromRoles(
+    authUser.roleIds,
+  );
+
+  if (!userScopes.includes(ScopeNames.SUPERADMIN)) {
+    throw new ForbiddenError("Only superadmin can view all roles");
+  }
+
+  const roles = await fastify.db.role.findAll();
+
+  // Get scopes for each role
+  const rolesWithScopes = await Promise.all(
+    roles.map(async (role) => {
+      const scopes = await fastify.db.roleScope.getScopeNamesForRole(role.id);
+      return {
+        id: role.id,
+        name: role.name,
+        description: role.description,
+        businessId: role.businessId,
+        isSystemRole: role.isSystemRole,
+        isDeletable: role.isDeletable,
+        scopes,
+        createdAt: role.createdAt.toISOString(),
+        updatedAt: role.updatedAt.toISOString(),
+      };
+    }),
+  );
+
+  return rolesWithScopes;
+}
+
 export async function getRolesByBusinessId(
   fastify: FastifyInstance,
   businessId: string,

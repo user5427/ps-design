@@ -16,13 +16,13 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
   TextField,
   Box,
   Alert,
   Stack,
+  List,
+  ListItemButton,
+  ListItemText,
 } from "@mui/material";
 
 type Role = Record<string, unknown> & {
@@ -30,6 +30,7 @@ type Role = Record<string, unknown> & {
   name: string;
   description: string | null;
   businessId: string | null;
+  isDeletable: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -66,6 +67,7 @@ export function BusinessRoles() {
   const { data: rolesData = [], isLoading: rolesLoading, error } = useRoles(businessId);
   const createMutation = useCreateRole();
   const deleteMutation = useDeleteRole();
+  
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
@@ -173,7 +175,17 @@ export function BusinessRoles() {
   );
 
   const handleDelete = async (ids: string[]) => {
-    for (const id of ids) {
+    // Filter out non-deletable roles
+    const deletableIds = ids.filter((id) => {
+      const role = roles.find((r) => r.id === id);
+      return role && role.isDeletable;
+    });
+
+    if (deletableIds.length === 0) {
+      return;
+    }
+
+    for (const id of deletableIds) {
       await deleteMutation.mutateAsync(id);
     }
   };
@@ -188,30 +200,31 @@ export function BusinessRoles() {
     queryClient.invalidateQueries({ queryKey: ["roles", businessId] });
   };
 
+  const handleAssignUser = async (userId: string) => {
+    if (!selectedRole) return;
+
+    try {
+      await apiClient.post(`/users/${userId}/roles`, {
+        roleIds: [selectedRole.id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["users", businessId] });
+      setShowAssignModal(false);
+      setSelectedRole(null);
+    } catch (error) {
+      console.error("Failed to assign role:", error);
+    }
+  };
+
   return (
     <>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        <Stack direction="row" spacing={2}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setShowRoleModal(true)}
-          >
-            Create Role
-          </Button>
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() => {
-              if (selectedRole && Object.keys(selectedRole).length > 0) {
-                setShowAssignModal(true);
-              }
-            }}
-            disabled={!selectedRole || Object.keys(selectedRole).length === 0}
-          >
-            Assign to User
-          </Button>
-        </Stack>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setShowRoleModal(true)}
+        >
+          Create Role
+        </Button>
 
         <RecordListView<Role>
           title="Business Roles"
@@ -229,6 +242,7 @@ export function BusinessRoles() {
           renderRowActions={({ row }) => (
             <Button
               size="small"
+              variant="outlined"
               onClick={() => {
                 setSelectedRole(row as Role);
                 setShowAssignModal(true);
@@ -263,20 +277,19 @@ export function BusinessRoles() {
               <div style={{ marginBottom: "8px", fontWeight: "bold" }}>
                 Select Scopes:
               </div>
-              <FormGroup>
+              <Stack spacing={1} sx={{ maxHeight: "200px", overflowY: "auto" }}>
                 {scopes.map((scope) => (
-                  <FormControlLabel
+                  <Button
                     key={scope.id}
-                    control={
-                      <Checkbox
-                        checked={selectedScopes.includes(scope.id)}
-                        onChange={(e) => handleScopeChange(scope.id, e.target.checked)}
-                      />
-                    }
-                    label={`${scope.name}${scope.description ? ` - ${scope.description}` : ""}`}
-                  />
+                    onClick={() => handleScopeChange(scope.id, !selectedScopes.includes(scope.id))}
+                    variant={selectedScopes.includes(scope.id) ? "contained" : "outlined"}
+                    size="small"
+                    fullWidth
+                  >
+                    {scope.name}
+                  </Button>
                 ))}
-              </FormGroup>
+              </Stack>
             </div>
           </Box>
         </DialogContent>
@@ -290,32 +303,26 @@ export function BusinessRoles() {
 
       {/* Assign Role Dialog */}
       <Dialog open={showAssignModal} onClose={() => setShowAssignModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Assign Role to Users</DialogTitle>
+        <DialogTitle>Assign {selectedRole?.name} to User</DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mt: 2 }}>
-            {users.map((user) => (
-              <FormControlLabel
-                key={user.id}
-                control={
-                  <Checkbox
-                    checked={user.roles.some((r) => r.id === selectedRole?.id)}
-                    onChange={async (e) => {
-                      if (e.target.checked && selectedRole) {
-                        await apiClient.post(`/users/${user.id}/roles`, {
-                          roleIds: [selectedRole.id],
-                        });
-                      } else if (!e.target.checked && selectedRole) {
-                        await apiClient.delete(
-                          `/users/${user.id}/roles/${selectedRole.id}`
-                        );
-                      }
-                      queryClient.invalidateQueries({ queryKey: ["users", businessId] });
-                    }}
-                  />
-                }
-                label={`${user.name} (${user.email})`}
-              />
-            ))}
+            <List sx={{ width: "100%" }}>
+              {users.map((user) => {
+                const hasRole = user.roles.some((r) => r.id === selectedRole?.id);
+                return (
+                  <ListItemButton
+                    key={user.id}
+                    onClick={() => handleAssignUser(user.id)}
+                    selected={hasRole}
+                  >
+                    <ListItemText
+                      primary={user.name}
+                      secondary={user.email}
+                    />
+                  </ListItemButton>
+                );
+              })}
+            </List>
           </Box>
         </DialogContent>
         <DialogActions>

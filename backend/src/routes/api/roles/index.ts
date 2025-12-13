@@ -8,6 +8,7 @@ import {
   deleteRole,
   getRoleById,
   getRolesByBusinessId,
+  getAllRoles,
   updateRole,
   assignScopesToRole,
   getAvailableScopes,
@@ -65,13 +66,13 @@ export default async function roleRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope } = createScopeMiddleware(fastify);
 
-  // Get roles for a business
-  server.get<{ Querystring: { businessId: string } }>(
+  // Get roles for a business or all roles (if no businessId, requires SUPERADMIN)
+  server.get<{ Querystring: { businessId?: string } }>(
     "/",
     {
       onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE_READ)],
       schema: {
-        querystring: z.object({ businessId: z.string().uuid() }),
+        querystring: z.object({ businessId: z.string().uuid().optional() }),
         response: {
           200: RolesResponseSchema,
           401: ErrorResponseSchema,
@@ -80,16 +81,23 @@ export default async function roleRoutes(fastify: FastifyInstance) {
     },
     async (
       request: FastifyRequest<{
-        Querystring: { businessId: string };
+        Querystring: { businessId?: string };
       }>,
       reply: FastifyReply,
     ) => {
       try {
-        const roles = await getRolesByBusinessId(
-          fastify,
-          request.query.businessId,
-          request.authUser!,
-        );
+        let roles;
+        if (request.query.businessId) {
+          // Get roles for a specific business
+          roles = await getRolesByBusinessId(
+            fastify,
+            request.query.businessId,
+            request.authUser!,
+          );
+        } else {
+          // Get all roles (requires SUPERADMIN)
+          roles = await getAllRoles(fastify, request.authUser!);
+        }
         return reply.send(roles);
       } catch (error) {
         return handleServiceError(error, reply);
