@@ -155,10 +155,5 @@ export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
     auditType as AuditSecurityType,
     params.userId,
     params.ip,
-    fn,
-    auditLogService,
-    auditType as AuditSecurityType,
-    params.userId,
-    params.ip,
   );
 }
