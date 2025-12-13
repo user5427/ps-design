@@ -199,7 +199,7 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  // Initiate Stripe payment - creates PaymentIntent with server-calculated amount
+  // Initiate Stripe payment - creates PaymentIntent
   const InitiatePaymentBodySchema = InitiatePaymentSchema.omit({
     appointmentId: true,
   });

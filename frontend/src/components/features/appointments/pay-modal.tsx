@@ -55,7 +55,13 @@ interface PayModalProps {
   onSuccess?: () => void;
 }
 
-const PayModalTitle = ({ step, onBack }: { step: PaymentStep; onBack?: () => void }) => (
+const PayModalTitle = ({
+  step,
+  onBack,
+}: {
+  step: PaymentStep;
+  onBack?: () => void;
+}) => (
   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
     {step === "stripe-checkout" && onBack && (
       <IconButton onClick={onBack} size="small" sx={{ mr: 0.5 }}>
@@ -169,7 +175,9 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
         }
         sx={{ mt: 2 }}
       >
-        {isProcessing || isLoading ? "Processing..." : `Pay ${formatPrice(serverAmount)}`}
+        {isProcessing || isLoading
+          ? "Processing..."
+          : `Pay ${formatPrice(serverAmount)}`}
       </Button>
     </form>
   );
@@ -183,7 +191,7 @@ export const PayModal: React.FC<PayModalProps> = ({
 }) => {
   // Step management
   const [step, setStep] = useState<PaymentStep>("details");
-  
+
   // Form state
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
   const [tipAmount, setTipAmount] = useState<string>("");
@@ -191,9 +199,10 @@ export const PayModal: React.FC<PayModalProps> = ({
   const [validatedGiftCard, setValidatedGiftCard] =
     useState<GiftCardResponse | null>(null);
   const [giftCardError, setGiftCardError] = useState<string>("");
-  
+
   // Stripe state
-  const [paymentIntent, setPaymentIntent] = useState<InitiatePaymentResponse | null>(null);
+  const [paymentIntent, setPaymentIntent] =
+    useState<InitiatePaymentResponse | null>(null);
   const [stripeError, setStripeError] = useState<string>("");
   const [isInitiatingPayment, setIsInitiatingPayment] = useState(false);
 
@@ -373,9 +382,7 @@ export const PayModal: React.FC<PayModalProps> = ({
         </DialogTitle>
         <DialogContent>
           <Stack sx={{ py: 2 }} spacing={3}>
-            {stripeError && (
-              <Alert severity="error">{stripeError}</Alert>
-            )}
+            {stripeError && <Alert severity="error">{stripeError}</Alert>}
             <Elements
               stripe={stripePromise}
               options={{
@@ -569,10 +576,13 @@ export const PayModal: React.FC<PayModalProps> = ({
         </Stack>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={handleClose} disabled={payMutation.isPending || isInitiatingPayment}>
+        <Button
+          onClick={handleClose}
+          disabled={payMutation.isPending || isInitiatingPayment}
+        >
           Cancel
         </Button>
-        
+
         {/* Cash or fully-covered payment */}
         {(paymentMethod === "CASH" || estimatedTotal === 0) && (
           <Button
