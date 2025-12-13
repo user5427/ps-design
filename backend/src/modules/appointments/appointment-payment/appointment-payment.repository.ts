@@ -25,6 +25,7 @@ export interface ICreatePayment {
   employeeId: string;
   tipAmount?: number;
   lineItems: ICreatePaymentLineItem[];
+  externalPaymentId?: string;
 }
 
 export interface IRefundPayment {
@@ -81,6 +82,7 @@ export class AppointmentPaymentRepository {
         tipAmount: data.tipAmount ?? 0,
         totalAmount,
         paidAt: new Date(),
+        externalPaymentId: data.externalPaymentId ?? null,
       });
 
       const savedPayment = await manager.save(payment);
