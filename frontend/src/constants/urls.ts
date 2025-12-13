@@ -5,14 +5,10 @@ export const URLS = {
   LOGIN: "/auth/login",
   CHANGE_PASSWORD: "/auth/change-password",
   HOME: "/",
-  // Business Management
-  BUSINESS_LIST: "/businesses",
-  BUSINESS_CREATE: "/businesses/create",
-  BUSINESS_EDIT: (businessId: string) => `/businesses/${businessId}/edit`,
-  BUSINESS_ROLES: (businessId: string) => `/businesses/${businessId}/roles`,
-  BUSINESS_USERS: (businessId: string) => `/businesses/${businessId}/users`,
-  // Admin
-  ADMIN_USERS: "/admin/users",
+  // Manage
+  MANAGE_BUSINESSES: "/manage/businesses",
+  MANAGE_USERS: "/manage/users",
+  MANAGE_ROLES: "/manage/roles",
   // Inventory
   INVENTORY_UNITS: "/inventory/units",
   INVENTORY_PRODUCTS: "/inventory/products",

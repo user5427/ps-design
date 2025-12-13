@@ -26,12 +26,12 @@ export const sidebarSections: Section[] = [
       {
         label: "Businesses",
         icon: <ViewListIcon />,
-        path: URLS.BUSINESS_LIST,
+        path: URLS.MANAGE_BUSINESSES,
       },
       {
         label: "Users",
         icon: <PersonIcon />,
-        path: URLS.ADMIN_USERS,
+        path: URLS.MANAGE_USERS,
       },
     ],
   },

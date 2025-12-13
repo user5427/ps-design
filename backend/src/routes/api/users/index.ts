@@ -161,7 +161,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
   }>(
     "/:userId/roles",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.USER_WRITE)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.SUPERADMIN)],
       schema: {
         params: UserIdParam,
         body: AssignRolesSchema,
@@ -199,7 +199,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
   }>(
     "/:userId/roles/:roleId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.USER_WRITE)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.SUPERADMIN)],
       schema: {
         params: z.object({
           userId: z.string().uuid(),
@@ -239,7 +239,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
   }>(
     "/:userId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.USER_WRITE)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.SUPERADMIN)],
       schema: {
         params: UserIdParam,
         body: z.object({
@@ -278,7 +278,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
   server.delete<{ Params: { userId: string } }>(
     "/:userId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.USER_WRITE)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.SUPERADMIN)],
       schema: {
         params: UserIdParam,
         response: {

@@ -325,6 +325,9 @@ export async function updateUser(
 
   // Update user
   const updatedUser = await fastify.db.user.update(userId, data);
+  if (!updatedUser) {
+    throw new NotFoundError("User not found");
+  }
 
   const userRoles = await fastify.db.userRole.getRolesForUser(updatedUser.id);
 
@@ -376,5 +379,5 @@ export async function deleteUser(
   await fastify.db.userRole.removeAllRoles(userId);
 
   // Delete user
-  await fastify.db.user.delete(userId);
+  await fastify.db.user.softDelete(userId);
 }

@@ -3,7 +3,6 @@ import type {
   CreateAppointmentBody,
   UpdateAppointmentBody,
   AppointmentResponse,
-  AppointmentFilterQuery,
   AppointmentStatus,
 } from "@ps-design/schemas/appointments/appointment";
 import type { Appointment } from "@/modules/appointments/appointment/appointment.entity";
