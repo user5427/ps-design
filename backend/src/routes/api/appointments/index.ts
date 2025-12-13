@@ -1,4 +1,3 @@
-import { UpdateAppointment } from './../../../../../../frontend/src/schemas/appointments/index';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
