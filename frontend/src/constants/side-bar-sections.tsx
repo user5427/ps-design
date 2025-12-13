@@ -9,15 +9,27 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import EventIcon from "@mui/icons-material/Event";
+import SecurityIcon from "@mui/icons-material/Security";
 import PersonIcon from "@mui/icons-material/Person";
-import type { Section } from "@/components/layouts/side-bar/side-bar-item";
 import { URLS } from "./urls";
+import type { Section } from "@/components/layouts/side-bar";
 
 export const sidebarSections: Section[] = [
   {
     label: "Dashboard",
     icon: <DashboardIcon />,
     path: URLS.DASHBOARD,
+  },
+  {
+    label: "My Business",
+    icon: <BusinessIcon />,
+    children: [
+      {
+        label: "Roles",
+        icon: <SecurityIcon />,
+        path: "/my-business/roles",
+      },
+    ],
   },
   {
     label: "Manage",
@@ -32,6 +44,11 @@ export const sidebarSections: Section[] = [
         label: "Users",
         icon: <PersonIcon />,
         path: URLS.MANAGE_USERS,
+      },
+      {
+        label: "Roles",
+        icon: <SecurityIcon />,
+        path: URLS.MANAGE_ROLES,
       },
     ],
   },

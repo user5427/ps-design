@@ -10,7 +10,7 @@ import { apiClient } from "@/api/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthUser } from "@/hooks/auth";
 
-interface User {
+type User = Record<string, unknown> & {
   id: string;
   email: string;
   name: string;
@@ -22,12 +22,7 @@ interface User {
   }>;
   createdAt: string;
   updatedAt: string;
-}
-
-interface Business {
-  id: string;
-  name: string;
-}
+};
 
 export function AdminUsersManagement() {
   const queryClient = useQueryClient();
@@ -41,24 +36,6 @@ export function AdminUsersManagement() {
       return response.data;
     },
   });
-
-  // Fetch all businesses for display mapping
-  const { data: businesses = [] } = useQuery<Business[]>({
-    queryKey: ["businesses"],
-    queryFn: async () => {
-      const response = await apiClient.get("/business");
-      return response.data.data;
-    },
-  });
-
-  // Create business name lookup
-  const businessLookup = useMemo(() => {
-    const lookup: Record<string, string> = {};
-    businesses.forEach((b) => {
-      lookup[b.id] = b.name;
-    });
-    return lookup;
-  }, [businesses]);
 
   const columns = useMemo<MRT_ColumnDef<User>[]>(
     () => [
@@ -81,6 +58,30 @@ export function AdminUsersManagement() {
     ],
     [],
   );
+
+  const createFormFields: FormFieldDefinition[] = [
+    {
+      name: "name",
+      label: "Name",
+      type: "text",
+      required: true,
+      validationRules: [ValidationRules.minLength(1)],
+    },
+    {
+      name: "email",
+      label: "Email",
+      type: "email",
+      required: true,
+      validationRules: [ValidationRules.email()],
+    },
+    {
+      name: "password",
+      label: "Password",
+      type: "password",
+      required: true,
+      validationRules: [ValidationRules.minLength(8)],
+    },
+  ];
 
   const editFormFields: FormFieldDefinition[] = [
     {
@@ -107,6 +108,18 @@ export function AdminUsersManagement() {
     { name: "createdAt", label: "Created At" },
     { name: "updatedAt", label: "Updated At" },
   ];
+
+  const handleCreate = useCallback(
+    async (values: Partial<User>) => {
+      await apiClient.post("/users", {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    [queryClient],
+  );
 
   const handleEdit = useCallback(
     async (id: string, values: Partial<User>) => {
@@ -144,14 +157,16 @@ export function AdminUsersManagement() {
       data={users}
       isLoading={usersLoading}
       error={error}
+      createFormFields={createFormFields}
       editFormFields={editFormFields}
       viewFields={viewFields}
+      onCreate={handleCreate}
       onEdit={handleEdit}
       onDelete={handleDelete}
       onSuccess={refetch}
+      createModalTitle="Create User"
       editModalTitle="Edit User"
       viewModalTitle="View User"
-      enableCreate={false}
     />
   );
 }
