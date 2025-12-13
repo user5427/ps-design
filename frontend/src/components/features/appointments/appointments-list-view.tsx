@@ -19,6 +19,7 @@ import type {
   Appointment,
   AppointmentStatus,
   StaffServiceResponse,
+  PaymentLineItem,
 } from "@/schemas/appointments";
 import { CreateAppointmentModal } from "./create-appointment-modal";
 import { PayModal } from "./pay-modal";
@@ -269,7 +270,7 @@ export const AppointmentsListView = () => {
         if (!Array.isArray(value) || value.length === 0) return "-";
         return (
           <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-            {value.map((item: any) => (
+            {value.map((item: PaymentLineItem) => (
               <span key={item.id} style={{ fontSize: "0.875rem" }}>
                 {item.label}: {formatPrice(item.amount)}
               </span>

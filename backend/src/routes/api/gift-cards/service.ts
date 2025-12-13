@@ -55,11 +55,25 @@ export async function updateGiftCard(
   id: string,
   data: UpdateGiftCardBody,
 ): Promise<GiftCardResponse> {
-  const giftCard = await fastify.db.giftCard.update(id, businessId, {
-    code: data.code,
-    value: data.value,
-    expiresAt: data.expiresAt ? new Date(data.expiresAt) : data.expiresAt,
-  });
+  const updateData: Partial<{
+    code?: string;
+    value?: number;
+    expiresAt?: Date | null;
+  }> = {};
+
+  if (data.code !== undefined) {
+    updateData.code = data.code;
+  }
+
+  if (data.value !== undefined) {
+    updateData.value = data.value;
+  }
+
+  if (data.expiresAt !== undefined) {
+    updateData.expiresAt = data.expiresAt ? new Date(data.expiresAt) : null;
+  }
+
+  const giftCard = await fastify.db.giftCard.update(id, businessId, updateData);
   return toGiftCardResponse(giftCard);
 }
 

@@ -4,6 +4,8 @@ import type {
   UpdateAppointmentBody,
   AppointmentResponse,
   AppointmentStatus,
+  PayAppointmentBody,
+  RefundAppointmentBody,
 } from "@ps-design/schemas/appointments/appointment";
 
 export async function getAppointments(): Promise<AppointmentResponse[]> {
@@ -60,15 +62,14 @@ export async function bulkDeleteAppointments(ids: string[]): Promise<void> {
 
 export async function payAppointment(
   id: string,
-  data: { paymentMethod: string; tipAmount?: number },
+  data: PayAppointmentBody,
 ): Promise<void> {
   await apiClient.post(`/appointments/appointments/${id}/pay`, data);
 }
 
 export async function refundAppointment(
   id: string,
-  data: { reason?: string },
+  data: RefundAppointmentBody,
 ): Promise<void> {
   await apiClient.post(`/appointments/appointments/${id}/refund`, data);
 }
-

@@ -12,6 +12,8 @@ import type {
   CreateAppointmentBody,
   UpdateAppointmentBody,
   AppointmentStatus,
+  PayAppointmentBody,
+  RefundAppointmentBody,
 } from "@ps-design/schemas/appointments/appointment";
 
 export const appointmentKeys = {
@@ -71,13 +73,8 @@ export function useBulkDeleteAppointments() {
 export function usePayAppointment() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: { paymentMethod: string; tipAmount?: number };
-    }) => payAppointment(id, data),
+    mutationFn: ({ id, data }: { id: string; data: PayAppointmentBody }) =>
+      payAppointment(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: appointmentKeys.all });
     },
@@ -87,11 +84,10 @@ export function usePayAppointment() {
 export function useRefundAppointment() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
-      refundAppointment(id, { reason }),
+    mutationFn: ({ id, data }: { id: string; data: RefundAppointmentBody }) =>
+      refundAppointment(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: appointmentKeys.all });
     },
   });
 }
-

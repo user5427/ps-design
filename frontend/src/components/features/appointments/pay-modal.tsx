@@ -28,6 +28,7 @@ import { formatPrice } from "@/utils/price";
 import dayjs from "dayjs";
 import { usePayAppointment } from "@/hooks/appointments";
 import { useValidateGiftCard } from "@/hooks/gift-cards";
+import { getReadableError } from "@/utils/get-readable-error";
 
 type PaymentMethod = "CASH" | "STRIPE";
 
@@ -78,7 +79,8 @@ export const PayModal: React.FC<PayModalProps> = ({
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
   const [tipAmount, setTipAmount] = useState<string>("");
   const [giftCardCode, setGiftCardCode] = useState<string>("");
-  const [validatedGiftCard, setValidatedGiftCard] = useState<GiftCardResponse | null>(null);
+  const [validatedGiftCard, setValidatedGiftCard] =
+    useState<GiftCardResponse | null>(null);
   const [giftCardError, setGiftCardError] = useState<string>("");
 
   const payMutation = usePayAppointment();
@@ -121,10 +123,12 @@ export const PayModal: React.FC<PayModalProps> = ({
 
     setGiftCardError("");
     try {
-      const giftCard = await validateGiftCardMutation.mutateAsync(giftCardCode.trim());
+      const giftCard = await validateGiftCardMutation.mutateAsync(
+        giftCardCode.trim(),
+      );
       setValidatedGiftCard(giftCard);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Invalid gift card";
+      const errorMessage = getReadableError(error, "Invalid gift card");
       setGiftCardError(errorMessage);
       setValidatedGiftCard(null);
     }
@@ -140,7 +144,8 @@ export const PayModal: React.FC<PayModalProps> = ({
     await payMutation.mutateAsync({
       id: appointment.id,
       data: {
-        paymentMethod: validatedGiftCard && total === 0 ? "GIFTCARD" : paymentMethod,
+        paymentMethod:
+          validatedGiftCard && total === 0 ? "GIFTCARD" : paymentMethod,
         tipAmount: tipAmountCents > 0 ? tipAmountCents : undefined,
         giftCardCode: validatedGiftCard ? giftCardCode : undefined,
       },
@@ -213,7 +218,9 @@ export const PayModal: React.FC<PayModalProps> = ({
                 <Button
                   variant="outlined"
                   onClick={handleValidateGiftCard}
-                  disabled={!giftCardCode.trim() || validateGiftCardMutation.isPending}
+                  disabled={
+                    !giftCardCode.trim() || validateGiftCardMutation.isPending
+                  }
                 >
                   {validateGiftCardMutation.isPending ? "..." : "Apply"}
                 </Button>
@@ -230,7 +237,8 @@ export const PayModal: React.FC<PayModalProps> = ({
                 icon={<CheckCircleIcon fontSize="inherit" />}
                 sx={{ mt: 1 }}
               >
-                Gift card applied: {formatPrice(validatedGiftCard.value)} discount
+                Gift card applied: {formatPrice(validatedGiftCard.value)}{" "}
+                discount
               </Alert>
             )}
           </Box>
@@ -240,7 +248,11 @@ export const PayModal: React.FC<PayModalProps> = ({
           {/* Payment Method - only show if remaining amount > 0 */}
           {total > 0 && (
             <Box>
-              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+              <Typography
+                variant="subtitle2"
+                color="text.secondary"
+                gutterBottom
+              >
                 Payment Method
               </Typography>
               <ToggleButtonGroup

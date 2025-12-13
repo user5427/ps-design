@@ -28,12 +28,14 @@ const ServiceSchema = z.object({
   serviceDefinition: ServiceDefinitionSchema,
 });
 
-const PaymentLineItemSchema = z.object({
+export const PaymentLineItemSchema = z.object({
   id: uuid(),
   type: z.enum(["SERVICE", "TIP", "DISCOUNT", "TAX"]),
   label: z.string(),
   amount: z.number(), // cents
 });
+
+export type PaymentLineItem = z.infer<typeof PaymentLineItemSchema>;
 
 const AppointmentPaymentResponseSchema = z.object({
   id: uuid(),

@@ -47,10 +47,10 @@ export class AppointmentPayment {
   @Column({ type: "int" })
   totalAmount: number;
 
-  @Column({ type: "timestamptz" })
+  @Column({ type: "timestamp" })
   paidAt: Date;
 
-  @Column({ type: "timestamptz", nullable: true })
+  @Column({ type: "timestamp", nullable: true })
   refundedAt: Date | null;
 
   @Column({ type: "uuid", nullable: true })

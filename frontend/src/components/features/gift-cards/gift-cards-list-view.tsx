@@ -80,8 +80,14 @@ export const GiftCardsListView = () => {
       type: "text",
       required: true,
       validationRules: [
-        ValidationRules.minLength(1),
-        ValidationRules.maxLength(50),
+        ValidationRules.minLength(
+          3,
+          "Gift card code must be at least 3 characters",
+        ),
+        ValidationRules.maxLength(
+          50,
+          "Gift card code must be at most 50 characters",
+        ),
       ],
     },
     {
@@ -89,13 +95,21 @@ export const GiftCardsListView = () => {
       label: "Value (€)",
       type: "number",
       required: true,
-      validationRules: [ValidationRules.min(0.01)],
+      validationRules: [
+        ValidationRules.min(0.01, "Value must be at least €0.01"),
+      ],
     },
     {
       name: "expiresAt",
       label: "Expiration Date",
       type: "date",
       required: false,
+      validationRules: [
+        ValidationRules.custom(
+          (value) => !value || new Date(value as string) > new Date(),
+          "Expiration date must be in the future",
+        ),
+      ],
     },
   ];
 
@@ -106,8 +120,14 @@ export const GiftCardsListView = () => {
       type: "text",
       required: false,
       validationRules: [
-        ValidationRules.minLength(1),
-        ValidationRules.maxLength(50),
+        ValidationRules.minLength(
+          3,
+          "Gift card code must be at least 3 characters",
+        ),
+        ValidationRules.maxLength(
+          50,
+          "Gift card code must be at most 50 characters",
+        ),
       ],
     },
     {
@@ -115,7 +135,9 @@ export const GiftCardsListView = () => {
       label: "Value (€)",
       type: "number",
       required: false,
-      validationRules: [ValidationRules.min(0.01)],
+      validationRules: [
+        ValidationRules.min(0.01, "Value must be at least €0.01"),
+      ],
       transformForEdit: (value) => centsToEuros(value as number),
     },
     {
@@ -123,6 +145,12 @@ export const GiftCardsListView = () => {
       label: "Expiration Date",
       type: "date",
       required: false,
+      validationRules: [
+        ValidationRules.custom(
+          (value) => !value || new Date(value as string) > new Date(),
+          "Expiration date must be in the future",
+        ),
+      ],
       transformForEdit: (value) =>
         value ? dayjs(value as string).format("YYYY-MM-DD") : "",
     },
@@ -173,15 +201,23 @@ export const GiftCardsListView = () => {
           values.value !== undefined
             ? eurosToCents(Number(values.value))
             : undefined,
-        expiresAt: values.expiresAt
-          ? dayjs(values.expiresAt).endOf("day").toISOString()
-          : values.expiresAt,
+        expiresAt:
+          values.expiresAt !== undefined
+            ? values.expiresAt
+              ? dayjs(values.expiresAt).endOf("day").toISOString()
+              : null
+            : undefined,
       },
     });
   };
 
   const handleDelete = async (ids: string[]) => {
     await Promise.all(ids.map((id) => deleteMutation.mutateAsync(id)));
+  };
+
+  const canEditRow = (row: GiftCardResponse): boolean => {
+    const isRedeemed = !!row.redeemedAt;
+    return !isRedeemed;
   };
 
   return (
@@ -201,6 +237,7 @@ export const GiftCardsListView = () => {
       createModalTitle="Create Gift Card"
       editModalTitle="Edit Gift Card"
       viewModalTitle="View Gift Card"
+      canEditRow={canEditRow}
     />
   );
 };

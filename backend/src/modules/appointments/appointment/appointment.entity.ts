@@ -30,7 +30,7 @@ export class Appointment {
   @Column({ type: "varchar", nullable: true })
   customerEmail: string | null;
 
-  @Column({ type: "timestamptz" })
+  @Column({ type: "timestamp" })
   @Index()
   startTime: Date;
 
@@ -64,7 +64,9 @@ export class Appointment {
   createdBy: Relation<User>;
 
   @OneToOne("AppointmentPayment", "appointment", { cascade: true })
-  payment: Relation<import("../appointment-payment/appointment-payment.entity").AppointmentPayment>;
+  payment: Relation<
+    import("../appointment-payment/appointment-payment.entity").AppointmentPayment
+  >;
 
   @CreateDateColumn()
   createdAt: Date;
