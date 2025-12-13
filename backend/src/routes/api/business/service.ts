@@ -4,6 +4,7 @@ import type {
   CreateBusinessBody,
   UpdateBusinessBody,
   PaginatedBusinessResponse,
+  BusinessUserResponse,
 } from "@ps-design/schemas/business";
 import { BusinessResponseSchema } from "@ps-design/schemas/business";
 
@@ -58,4 +59,16 @@ export async function deleteBusiness(
   businessId: string,
 ): Promise<void> {
   await fastify.db.business.softDelete(businessId);
+}
+
+export async function getBusinessUsers(
+  fastify: FastifyInstance,
+  businessId: string,
+): Promise<BusinessUserResponse[]> {
+  const users = await fastify.db.user.findByBusinessId(businessId);
+  return users.map((user) => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+  }));
 }

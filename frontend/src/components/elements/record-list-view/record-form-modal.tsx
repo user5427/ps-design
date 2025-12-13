@@ -15,8 +15,10 @@ import {
   Select,
   TextField,
 } from "@mui/material";
+import { DateTimeField } from "@mui/x-date-pickers/DateTimeField";
 import type React from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import dayjs from "dayjs";
 import { FormAlert } from "@/components/elements/form";
 import type { FormFieldDefinition } from "./types";
 import { getReadableError } from "@/utils/get-readable-error";
@@ -45,22 +47,43 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const reset = () => {
-    if (open) {
-      const defaultValues: Record<string, unknown> = {};
-      for (const field of fields) {
-        // Use initialValues first, then defaultValue, then empty string
-        const initialValue = initialValues[field.name];
-        defaultValues[field.name] =
-          initialValue !== undefined
-            ? initialValue
-            : (field.defaultValue ?? "");
+  const prevOpenRef = useRef(false);
+
+  // TODO: fix this :)
+  const populateFormWithInitialValues = () => {
+    const defaultValues: Record<string, unknown> = {};
+    for (const field of fields) {
+      let initialValue = initialValues[field.name];
+
+      // If initialValue is not found and field name ends with an ID (like categoryId),
+      // try to extract from nested property (e.g., category.id)
+      if (
+        initialValue === undefined &&
+        field.name.endsWith("Id") &&
+        field.type === "select"
+      ) {
+        const nestedKey = field.name.slice(0, -2);
+        const nestedObj = initialValues[nestedKey];
+        if (nestedObj && typeof nestedObj === "object" && "id" in nestedObj) {
+          initialValue = (nestedObj as { id: unknown }).id;
+        }
       }
-      setValues(defaultValues);
-      setErrors({});
-      setSubmitError(null);
+
+      defaultValues[field.name] =
+        initialValue !== undefined ? initialValue : (field.defaultValue ?? "");
     }
+    setValues(defaultValues);
+    setErrors({});
+    setSubmitError(null);
   };
+
+  if (open && !prevOpenRef.current) {
+    populateFormWithInitialValues();
+    prevOpenRef.current = true;
+  }
+  if (!open) {
+    prevOpenRef.current = false;
+  }
 
   const validateField = (
     field: FormFieldDefinition,
@@ -119,7 +142,6 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
     try {
       await onSubmit(values);
       onClose();
-      reset();
     } catch (err) {
       setSubmitError(getReadableError(err));
     } finally {
@@ -256,17 +278,23 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
 
       case "datetime":
         return (
-          <TextField
+          <DateTimeField
             key={field.name}
-            fullWidth
-            type="datetime-local"
             label={field.label}
-            value={value}
-            onChange={(e) => handleChange(field.name, e.target.value)}
-            error={!!error}
-            helperText={error}
+            value={value ? dayjs(value as string) : null}
+            onChange={(newValue) =>
+              handleChange(field.name, newValue ? newValue.toISOString() : "")
+            }
             disabled={isSubmitting}
             required={field.required}
+            slotProps={{
+              textField: {
+                fullWidth: true,
+                error: !!error,
+                helperText: error,
+              },
+            }}
+            format="YYYY-MM-DD HH:mm"
           />
         );
 

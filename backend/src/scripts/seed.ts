@@ -4,6 +4,7 @@ import { createDataSource } from "@/database/data-source";
 import { Business } from "@/modules/business";
 import { User, Role, ScopeEntity, UserRole, RoleScope } from "@/modules/user";
 import { ScopeNames, SCOPE_CONFIG } from "@/modules/user/scope.types";
+import { Scope } from "@/modules/user/scope.entity";
 
 async function main() {
   const connectionString = process.env.DATABASE_URL;
@@ -104,6 +105,12 @@ async function main() {
           ScopeNames.MENU_DELETE,
           ScopeNames.MENU_READ,
           ScopeNames.MENU_WRITE,
+          ScopeNames.APPOINTMENTS_READ,
+          ScopeNames.APPOINTMENTS_WRITE,
+          ScopeNames.APPOINTMENTS_DELETE,
+          ScopeNames.GIFT_CARDS_READ,
+          ScopeNames.GIFT_CARDS_WRITE,
+          ScopeNames.GIFT_CARDS_DELETE,
         ],
       },
       {

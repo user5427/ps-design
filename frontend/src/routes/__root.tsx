@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Toolbar } from "@mui/material";
 import type { QueryClient } from "@tanstack/react-query";
 import {
   createRootRouteWithContext,
@@ -44,6 +44,7 @@ function RootComponent() {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <AppBar {...AppBarData} />
+      <Toolbar />
       <Layout>
         <Outlet />
       </Layout>
