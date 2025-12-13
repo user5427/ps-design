@@ -33,16 +33,13 @@ export function AdminUsersManagement() {
   const queryClient = useQueryClient();
   const { data: currentUser } = useAuthUser();
 
-  // Fetch users for current user's business
+  // Fetch all users in the system
   const { data: users = [], isLoading: usersLoading, error } = useQuery<User[]>({
-    queryKey: ["users", currentUser?.businessId],
+    queryKey: ["users"],
     queryFn: async () => {
-      const response = await apiClient.get("/users", {
-        params: { businessId: currentUser?.businessId },
-      });
+      const response = await apiClient.get("/users");
       return response.data;
     },
-    enabled: !!currentUser?.businessId,
   });
 
   // Fetch all businesses for display mapping
@@ -117,9 +114,9 @@ export function AdminUsersManagement() {
         name: values.name,
         email: values.email,
       });
-      queryClient.invalidateQueries({ queryKey: ["users", currentUser?.businessId] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
-    [queryClient, currentUser?.businessId],
+    [queryClient],
   );
 
   const handleDelete = async (ids: string[]) => {
@@ -133,11 +130,11 @@ export function AdminUsersManagement() {
     for (const id of canDelete) {
       await apiClient.delete(`/users/${id}`);
     }
-    queryClient.invalidateQueries({ queryKey: ["users", currentUser?.businessId] });
+    queryClient.invalidateQueries({ queryKey: ["users"] });
   };
 
   const refetch = () => {
-    queryClient.invalidateQueries({ queryKey: ["users", currentUser?.businessId] });
+    queryClient.invalidateQueries({ queryKey: ["users"] });
   };
 
   return (
