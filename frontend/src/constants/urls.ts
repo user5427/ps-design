@@ -24,4 +24,3 @@ export const URLS = {
   APPOINTMENTS_LIST: "/appointments/appointments",
   GIFT_CARDS: "/gift-cards",
 };
-
