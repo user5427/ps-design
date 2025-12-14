@@ -106,9 +106,10 @@ export class AppointmentPaymentRepository {
         },
       );
 
-      return this.findByAppointmentId(
-        savedPayment.appointmentId,
-      ) as Promise<AppointmentPayment>;
+      return manager.findOne(AppointmentPayment, {
+        where: { id: savedPayment.id },
+        relations: ["lineItems", "paidBy", "refundedBy"],
+      }) as Promise<AppointmentPayment>;
     });
   }
 
@@ -141,9 +142,10 @@ export class AppointmentPaymentRepository {
         status: "REFUNDED",
       });
 
-      return this.findByAppointmentId(
-        appointmentId,
-      ) as Promise<AppointmentPayment>;
+      return manager.findOne(AppointmentPayment, {
+        where: { id: payment.id },
+        relations: ["lineItems", "paidBy", "refundedBy"],
+      }) as Promise<AppointmentPayment>;
     });
   }
 }

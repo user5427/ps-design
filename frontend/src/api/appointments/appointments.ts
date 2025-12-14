@@ -54,10 +54,6 @@ export async function updateAppointmentStatus(
   return response.data;
 }
 
-export async function bulkDeleteAppointments(ids: string[]): Promise<void> {
-  await apiClient.post("/appointments/bulk-delete", { ids });
-}
-
 export async function payAppointment(
   id: string,
   data: PayAppointmentBody,
