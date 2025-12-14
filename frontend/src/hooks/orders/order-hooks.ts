@@ -89,12 +89,19 @@ export function usePayOrder(orderId: string) {
     mutationFn: (body: {
       paymentMethod: "CASH" | "CARD" | "GIFT_CARD";
       amount: number;
+      giftCardCode?: string;
     }) => payOrderApi(orderId, body),
     onSuccess: (order: OrderResponse) => {
+      // Update the local order cache immediately so new payments show
+      // without a full page refresh.
       queryClient.setQueryData<OrderResponse | undefined>(
         orderKeys.order(orderId),
         order,
       );
+
+      // Also refetch from the backend to ensure all derived fields and
+      // relations are fully hydrated.
+      queryClient.invalidateQueries({ queryKey: orderKeys.order(orderId) });
     },
   });
 }

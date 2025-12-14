@@ -74,6 +74,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   const [tipInput, setTipInput] = useState<string>("");
   const [discountInput, setDiscountInput] = useState<string>("");
   const [paymentAmountInput, setPaymentAmountInput] = useState<string>("");
+  const [giftCardCodeInput, setGiftCardCodeInput] = useState<string>("");
 
   // Derive table label from floor plan data when available
   const matchingTable = useMemo(() => {
@@ -270,6 +271,29 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
 
   const handleAddPayment = (method: "CASH" | "CARD" | "GIFT_CARD") => {
     if (!order) return;
+
+    if (method === "GIFT_CARD") {
+      const code = giftCardCodeInput.trim();
+      if (!code) {
+        window.alert("Enter a gift card code.");
+        return;
+      }
+
+      payOrderMutation.mutate(
+        { paymentMethod: method, amount: 0, giftCardCode: code },
+        {
+          onSuccess: () => {
+            setGiftCardCodeInput("");
+            queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
+          },
+          onError: () => {
+            window.alert("Could not apply gift card. Please check the code.");
+          },
+        },
+      );
+
+      return;
+    }
 
     const amount = parseMoneyInput(paymentAmountInput);
     if (amount <= 0) {
@@ -727,6 +751,13 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                     value={paymentAmountInput}
                     onChange={(e) => setPaymentAmountInput(e.target.value)}
                     sx={{ minWidth: 140 }}
+                  />
+                  <TextField
+                    label="Gift card code"
+                    size="small"
+                    value={giftCardCodeInput}
+                    onChange={(e) => setGiftCardCodeInput(e.target.value)}
+                    sx={{ minWidth: 160 }}
                   />
                   <Stack direction="row" spacing={1}>
                     <Button

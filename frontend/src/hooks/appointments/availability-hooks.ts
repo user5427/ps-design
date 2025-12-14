@@ -6,6 +6,7 @@ import {
   getAvailabilityBlocks,
 } from "@/api/appointments";
 import type {
+  AvailabilityResponse,
   BulkSetAvailabilityBody,
   GetAvailableTimeSlotsQuery,
   GetAvailabilityBlocksQuery,
@@ -23,10 +24,10 @@ export const availabilityKeys = {
 export function useUserAvailability(userId: string | undefined) {
   const enabled = !!userId;
 
-  return useQuery({
+  return useQuery<AvailabilityResponse[]>({
     queryKey: enabled
       ? availabilityKeys.user(userId as string)
-      : ("availability/user/disabled" as const),
+      : availabilityKeys.all,
     queryFn: () => getAvailabilityByUserId(userId as string),
     enabled,
   });

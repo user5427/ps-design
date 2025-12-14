@@ -131,12 +131,60 @@ export async function payOrder(
   body: PayOrderBody,
 ): Promise<OrderResponse> {
   const method = body.paymentMethod as import("@/modules/order").PaymentMethod;
+  // Special handling for gift card payments: validate and redeem code, and
+  // apply up to the remaining order amount from the card's value.
+  if (method === "GIFT_CARD") {
+    if (!body.giftCardCode) {
+      throw new Error("Gift card code is required for gift card payments");
+    }
+
+    // Load current order to determine remaining balance
+    const existing = await fastify.db.order.getByIdAndBusinessId(
+      orderId,
+      businessId,
+    );
+
+    const totalPaid = (existing.payments ?? [])
+      .filter((p) => !p.isRefund)
+      .reduce((sum, p) => sum + p.amount, 0);
+
+    const remaining = Math.max(0, existing.totalAmount - totalPaid);
+
+    if (remaining <= 0) {
+      throw new Error("Order is already fully paid");
+    }
+
+    // Validate and redeem the gift card.
+    const giftCard = await fastify.db.giftCard.validateAndRedeem(
+      body.giftCardCode,
+      businessId,
+    );
+
+    const giftCardAmount = giftCard.value / 100; // convert cents to major units
+    const amountToApply = Math.min(remaining, giftCardAmount);
+
+    if (amountToApply <= 0) {
+      throw new Error("Gift card value is too low to apply to this order");
+    }
+
+    const updatedOrder = await fastify.db.order.addPayment(
+      orderId,
+      businessId,
+      amountToApply,
+      method,
+      giftCard.id,
+      false,
+    );
+
+    return toOrderResponse(updatedOrder);
+  }
+
   const order = await fastify.db.order.addPayment(
     orderId,
     businessId,
     body.amount,
     method,
-    null,
+    body.paymentIntentId ?? null,
     false,
   );
   return toOrderResponse(order);
@@ -167,6 +215,28 @@ export async function refundOrder(
 
   if (amount <= 0 || amount > refundable) {
     throw new Error("Invalid refund amount");
+  }
+
+  // If there were card payments processed via Stripe, attempt to refund them
+  const cardPayments = (existing.payments ?? []).filter(
+    (p) => !p.isRefund && p.method === "CARD" && p.externalReferenceId,
+  );
+
+  const totalCardPaid = cardPayments.reduce((sum, p) => sum + p.amount, 0);
+
+  if (stripeService.isConfigured() && cardPayments.length > 0 && totalCardPaid > 0) {
+    // Only refund up to the total amount that was actually paid by card
+    const stripeRefundAmount = Math.min(amount, totalCardPaid);
+
+    if (stripeRefundAmount > 0) {
+      const paymentIntentId = cardPayments[cardPayments.length - 1]
+        .externalReferenceId as string;
+
+      await stripeService.refundPayment({
+        paymentIntentId,
+        amount: Math.round(stripeRefundAmount * 100),
+      });
+    }
   }
 
   const order = await fastify.db.order.addPayment(

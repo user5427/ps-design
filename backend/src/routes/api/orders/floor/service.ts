@@ -51,11 +51,11 @@ export async function getFloorPlan(
     tables: tables.map((table) => {
       const hasOpenOrder = orderByTableId.has(table.id);
 
-      // Derive the visual status for the floor plan from the
-      // actual order state:
-      // - ATTENTION is preserved as a special highlight.
-      // - Tables with an OPEN order become ACTIVE (green).
-      // - All others are AVAILABLE (white).
+      // Visual status rules for the floor plan:
+      // - AVAILABLE (white/gray): no open order on this table.
+      // - ACTIVE (green): there is an OPEN order linked to the table.
+      // - ATTENTION (orange): manual override to highlight a table
+      //   that needs service; this always wins over other states.
       let status: DiningTableStatus;
       if (table.status === DiningTableStatus.ATTENTION) {
         status = DiningTableStatus.ATTENTION;
@@ -112,11 +112,26 @@ export async function updateFloorTable(
     },
   });
 
+  // Keep the same visual rules as getFloorPlan so the
+  // immediate response from this mutation matches what
+  // the floor-plan query will later return:
+  // - ATTENTION: preserved as an explicit highlight.
+  // - ACTIVE: there is an OPEN order on this table.
+  // - AVAILABLE: no open order.
+  let status: DiningTableStatus;
+  if (saved.status === DiningTableStatus.ATTENTION) {
+    status = DiningTableStatus.ATTENTION;
+  } else if (openOrder) {
+    status = DiningTableStatus.ACTIVE;
+  } else {
+    status = DiningTableStatus.AVAILABLE;
+  }
+
   return {
     id: saved.id,
     label: saved.label,
     capacity: saved.capacity,
-    status: saved.status,
+    status,
     reserved: saved.reserved ?? false,
     orderId: openOrder?.id ?? null,
   };

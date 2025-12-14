@@ -53,6 +53,7 @@ export class MenuPaymentHandler implements PaymentTypeHandler {
     await payOrder(fastify, businessId, orderId, {
       paymentMethod: "CARD",
       amount,
+      paymentIntentId: paymentIntent.id,
     });
 
     return {

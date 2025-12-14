@@ -28,6 +28,10 @@ export const UpdateOrderTotalsSchema = z.object({
 export const PayOrderSchema = z.object({
   paymentMethod: PaymentMethodEnum,
   amount: z.number().min(0), // major units
+  // When paying via Stripe, this links the payment to a PaymentIntent
+  paymentIntentId: z.string().optional(),
+  // When paying via gift card, this is the code to redeem
+  giftCardCode: z.string().max(50).optional(),
 });
 
 export const RefundOrderSchema = z.object({
