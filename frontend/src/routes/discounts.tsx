@@ -1,10 +1,10 @@
-import { DiscountsListView } from '@/components/features/discounts'
-import { createFileRoute } from '@tanstack/react-router'
+import { DiscountsListView } from "@/components/features/discounts";
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/discounts')({
+export const Route = createFileRoute("/discounts")({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
-  return <DiscountsListView />
+  return <DiscountsListView />;
 }

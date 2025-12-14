@@ -106,12 +106,11 @@ export function usePaymentModal({
 
   const serviceDefinitionId = appointment?.service?.serviceDefinition?.id;
   const servicePrice = appointment?.service?.serviceDefinition?.price ?? 0;
-  const { data: applicableDiscount } =
-    useApplicableServiceDiscount(
-      serviceDefinitionId ?? "",
-      servicePrice,
-      !!serviceDefinitionId && servicePrice > 0,
-    );
+  const { data: applicableDiscount } = useApplicableServiceDiscount(
+    serviceDefinitionId ?? "",
+    servicePrice,
+    !!serviceDefinitionId && servicePrice > 0,
+  );
 
   const calculations = useMemo<PaymentModalCalculations>(() => {
     const price = appointment?.service?.serviceDefinition?.price ?? 0;
