@@ -41,8 +41,8 @@ interface MenuItemEntry {
   price: number;
   category: string;
   stock: number;
-   quantity: number;
-   status?: "UNSENT" | "SENT";
+  quantity: number;
+  status?: "UNSENT" | "SENT";
 }
 type MenuCategory = string;
 
