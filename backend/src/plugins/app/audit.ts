@@ -2,7 +2,11 @@ import fp from "fastify-plugin";
 import { auditLogWrapper, type EntityName } from "@/modules/audit";
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import type { BusinessIdParams } from "@ps-design/schemas/business";
-import { AuditActionType, AuditSecurityType, type AuditType } from "@/modules/audit";
+import {
+  AuditActionType,
+  type AuditSecurityType,
+  type AuditType,
+} from "@/modules/audit";
 import { getBusinessId } from "@/shared/auth-utils";
 
 export default fp(async (fastify: FastifyInstance) => {
@@ -67,9 +71,7 @@ export default fp(async (fastify: FastifyInstance) => {
       if (!userId) {
         const body = request.body as { email?: string } | undefined;
         const email = body?.email;
-        const user = email
-          ? await fastify.db.user.findByEmail(email)
-          : null;
+        const user = email ? await fastify.db.user.findByEmail(email) : null;
         userId = user ? user.id : null;
       }
 

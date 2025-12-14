@@ -1,7 +1,4 @@
-import type {
-  AuditLogService,
-  EntityName,
-} from "../audit/audit-log.service";
+import type { AuditLogService, EntityName } from "../audit/audit-log.service";
 import {
   AuditActionType,
   type AuditSecurityType,
@@ -9,9 +6,7 @@ import {
   ActionResult,
 } from "../audit/audit-log.types";
 
-export function auditActionWrapper<
-  T extends (...args: any[]) => Promise<any>,
->(
+export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
   fn: T,
   auditLogService: AuditLogService,
   action: AuditActionType,
@@ -110,9 +105,7 @@ export function auditSecurityWrapper<
   };
 }
 
-export function auditLogWrapper<
-  T extends (...args: any[]) => Promise<any>,
->(
+export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
   fn: T,
   auditLogService: AuditLogService,
   auditType: AuditType,
