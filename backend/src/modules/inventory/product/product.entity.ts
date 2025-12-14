@@ -9,7 +9,6 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   type Relation,
-  Unique,
   UpdateDateColumn,
 } from "typeorm";
 import type { Business } from "@/modules/business/business.entity";
@@ -20,7 +19,10 @@ import type { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product/
 import type { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product/menu-item-variation-product.entity";
 
 @Entity("Product")
-@Unique(["businessId", "name"])
+@Index("IDX_product_business_name_unique_active", ["businessId", "name"], {
+  unique: true,
+  where: '"deletedAt" IS NULL',
+})
 export class Product {
   @PrimaryGeneratedColumn("uuid")
   id: string;
