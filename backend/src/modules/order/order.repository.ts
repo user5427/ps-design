@@ -1,17 +1,18 @@
 import {
+  type DataSource,
+  type EntityManager,
   In,
   IsNull,
-  type DataSource,
+  Not,
   type Repository,
-  type EntityManager,
 } from "typeorm";
-import { BadRequestError, NotFoundError } from "@/shared/errors";
-import { StockChangeType } from "@/modules/inventory/stock-change/stock-change.types";
 import type { StockChangeRepository } from "@/modules/inventory/stock-change";
+import { StockChangeType } from "@/modules/inventory/stock-change/stock-change.types";
 import type { MenuItem } from "@/modules/menu/menu-item/menu-item.entity";
-import type { MenuItemVariation } from "@/modules/menu/menu-item-variation/menu-item-variation.entity";
 import type { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product/menu-item-base-product.entity";
+import type { MenuItemVariation } from "@/modules/menu/menu-item-variation/menu-item-variation.entity";
 import type { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product/menu-item-variation-product.entity";
+import { BadRequestError, NotFoundError } from "@/shared/errors";
 import { type Order, OrderStatus } from "./order.entity";
 import { type OrderItem, OrderItemStatus } from "./order-item.entity";
 import type { OrderItemVariation } from "./order-item-variation.entity";
@@ -410,7 +411,11 @@ export class OrderRepository {
     const orderRepo = manager.getRepository(this.orderRepo.target);
 
     const items = await orderItemRepo.find({
-      where: { orderId, deletedAt: IsNull() },
+      where: {
+        orderId,
+        deletedAt: IsNull(),
+        status: Not(OrderItemStatus.VOIDED),
+      },
     });
 
     const itemsTotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
