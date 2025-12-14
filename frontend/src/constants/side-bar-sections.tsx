@@ -13,6 +13,7 @@ import ViewListIcon from "@mui/icons-material/ViewList";
 import EventIcon from "@mui/icons-material/Event";
 import PersonIcon from "@mui/icons-material/Person";
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import type { Section } from "@/components/layouts/side-bar/side-bar-item";
 import { URLS } from "./urls";
 
@@ -110,6 +111,11 @@ export const sidebarSections: Section[] = [
     label: "Gift Cards",
     icon: <CardGiftcardIcon />,
     path: URLS.GIFT_CARDS,
+  },
+  {
+    label: "Discounts",
+    icon: <LocalOfferIcon />,
+    path: URLS.DISCOUNTS,
   },
   {
     label: "Tax",
