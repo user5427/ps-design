@@ -1,15 +1,19 @@
-import { useState, useCallback, useMemo } from "react";
-import type { OrderResponse } from "@ps-design/schemas/order/order";
 import type { GiftCardResponse } from "@ps-design/schemas/gift-card";
+import type { OrderResponse } from "@ps-design/schemas/order/order";
 import type { InitiatePaymentResponse } from "@ps-design/schemas/payments";
-import type { PaymentMethod, PaymentStep } from "@/hooks/payments";
-import { usePayOrder } from "@/hooks/orders/order-hooks";
-import { useValidateGiftCard } from "@/hooks/gift-cards";
-import { initiateOrderStripePayment, getOrder } from "@/api/orders";
-import { getReadableError } from "@/utils/get-readable-error";
 import { useQueryClient } from "@tanstack/react-query";
-import { orderKeys } from "@/hooks/orders/order-hooks";
+import { useCallback, useMemo, useState } from "react";
+import { getOrder, initiateOrderStripePayment } from "@/api/orders";
+import { useValidateGiftCard } from "@/hooks/gift-cards";
 import { floorKeys } from "@/hooks/orders/floor-hooks";
+import { orderKeys, usePayOrder } from "@/hooks/orders/order-hooks";
+import type { PaymentMethod, PaymentStep } from "@/hooks/payments";
+import { getReadableError } from "@/utils/get-readable-error";
+
+// Polling configuration for payment status verification
+const PAYMENT_POLLING_MAX_ATTEMPTS = 10;
+const PAYMENT_POLLING_INITIAL_INTERVAL_MS = 1000;
+const PAYMENT_POLLING_BACKOFF_MULTIPLIER = 1.5;
 
 export interface UseOrderPaymentModalOptions {
   order: OrderResponse | null;
@@ -214,11 +218,11 @@ export function useOrderPaymentModal({
 
       try {
         // Poll for status update (via webhook handler updating the order)
+        // Using exponential backoff to reduce server load
         let attempts = 0;
-        const maxAttempts = 10;
-        const interval = 1000;
+        let currentInterval = PAYMENT_POLLING_INITIAL_INTERVAL_MS;
 
-        while (attempts < maxAttempts) {
+        while (attempts < PAYMENT_POLLING_MAX_ATTEMPTS) {
           try {
             const updatedOrder = await getOrder(order.id);
 
@@ -236,8 +240,14 @@ export function useOrderPaymentModal({
           } catch (error) {
             console.error("Polling order status failed:", error);
           } finally {
-            await new Promise((resolve) => setTimeout(resolve, interval));
+            await new Promise((resolve) =>
+              setTimeout(resolve, currentInterval),
+            );
             attempts++;
+            // Apply exponential backoff for subsequent attempts
+            currentInterval = Math.round(
+              currentInterval * PAYMENT_POLLING_BACKOFF_MULTIPLIER,
+            );
           }
         }
 
