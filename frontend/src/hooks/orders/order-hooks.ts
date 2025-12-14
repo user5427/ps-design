@@ -4,6 +4,7 @@ import {
   getOrder,
   initiateOrderStripePayment,
   payOrderApi,
+  cancelOrderApi,
   refundOrderApi,
   sendOrderItems,
   updateOrderItems,
@@ -111,5 +112,19 @@ export function useRefundOrder(orderId: string) {
 export function useInitiateOrderStripePayment(orderId: string) {
   return useMutation({
     mutationFn: () => initiateOrderStripePayment(orderId),
+  });
+}
+
+export function useCancelOrder(orderId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => cancelOrderApi(orderId),
+    onSuccess: (order: OrderResponse) => {
+      queryClient.setQueryData<OrderResponse | undefined>(
+        orderKeys.order(orderId),
+        order,
+      );
+    },
   });
 }

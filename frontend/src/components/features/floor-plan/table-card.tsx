@@ -18,19 +18,28 @@ interface TableCardProps {
   onContextMenu: (event: MouseEvent<HTMLDivElement>) => void;
 }
 
-function getBackgroundColor(status: TableStatus): string {
+function getBackgroundColor(status: TableStatus, reserved?: boolean): string {
+  // Reserved but not yet seated tables get their own highlight
+  if (reserved && status === "AVAILABLE") {
+    return "#BBDEFB"; // Light blue for reserved tables without an order
+  }
+
   switch (status) {
     case "ACTIVE":
-      return "#2ECC71"; // Green
+      return "#2ECC71"; // Green for tables with an open order
     case "ATTENTION":
-      return "#F39C12"; // Orange
+      return "#F39C12"; // Orange for tables that need attention
     case "AVAILABLE":
     default:
-      return "#F5F5F5"; // Light gray / white
+      return "#F5F5F5"; // Light gray / white for free tables
   }
 }
 
-function getTextColor(status: TableStatus): string {
+function getTextColor(status: TableStatus, reserved?: boolean): string {
+  if (reserved && status === "AVAILABLE") {
+    return "#000000";
+  }
+
   switch (status) {
     case "ACTIVE":
     case "ATTENTION":
@@ -42,8 +51,8 @@ function getTextColor(status: TableStatus): string {
 }
 
 export function TableCard({ table, onClick, onContextMenu }: TableCardProps) {
-  const backgroundColor = getBackgroundColor(table.status);
-  const textColor = getTextColor(table.status);
+  const backgroundColor = getBackgroundColor(table.status, table.reserved);
+  const textColor = getTextColor(table.status, table.reserved);
 
   return (
     <Paper

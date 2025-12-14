@@ -19,10 +19,19 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { useFloorPlan } from "@/hooks/orders/floor-hooks";
+import { useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { floorKeys, useFloorPlan } from "@/hooks/orders/floor-hooks";
 import { URLS } from "@/constants/urls";
-import { useOrder, useSendOrderItems, useUpdateOrderItems } from "@/hooks/orders/order-hooks";
+import {
+  useCancelOrder,
+  useOrder,
+  usePayOrder,
+  useRefundOrder,
+  useSendOrderItems,
+  useUpdateOrderItems,
+  useUpdateOrderTotals,
+} from "@/hooks/orders/order-hooks";
 import { useMenuItems } from "@/hooks/menu";
 import type { OrderItemInput } from "@ps-design/schemas/order/order";
 
@@ -43,11 +52,16 @@ interface OrderViewProps {
 
 export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: floorData } = useFloorPlan();
   const { data: order, isLoading } = useOrder(orderId);
   const { data: menuItems, isLoading: isMenuLoading } = useMenuItems();
   const updateItemsMutation = useUpdateOrderItems(orderId);
   const sendItemsMutation = useSendOrderItems(orderId);
+  const updateTotalsMutation = useUpdateOrderTotals(orderId);
+  const payOrderMutation = usePayOrder(orderId);
+  const refundOrderMutation = useRefundOrder(orderId);
+  const cancelOrderMutation = useCancelOrder(orderId);
 
   const [tableLabel, setTableLabel] = useState<string | null>(null);
   const [servedBy] = useState<string>("Demo Waiter");
@@ -56,6 +70,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   const [category, setCategory] = useState<MenuCategory>("All");
 
   const [ticketItems, setTicketItems] = useState<MenuItemEntry[]>([]);
+
+  const [tipInput, setTipInput] = useState<string>("");
+  const [discountInput, setDiscountInput] = useState<string>("");
+  const [paymentAmountInput, setPaymentAmountInput] = useState<string>("");
 
   // Derive table label from floor plan data when available
   const matchingTable = useMemo(() => {
@@ -94,13 +112,49 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     });
   }, [menuEntries, category, search]);
 
-  const total = useMemo(() => order?.totalAmount ?? 0, [order]);
+  const pendingItemsTotal = useMemo(
+    () =>
+      ticketItems.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0,
+      ),
+    [ticketItems],
+  );
+
+  const committedBaseTotal = order
+    ? order.itemsTotal + order.totalTax + order.totalTip - order.totalDiscount
+    : 0;
+
+  const total = committedBaseTotal + pendingItemsTotal;
+
+  const payments = order?.payments ?? [];
+  const totalPaid = payments
+    .filter((p) => !p.isRefund)
+    .reduce((sum, p) => sum + p.amount, 0);
+  const totalRefunded = payments
+    .filter((p) => p.isRefund)
+    .reduce((sum, p) => sum + p.amount, 0);
+  const netPaid = totalPaid - totalRefunded;
+  const remaining = Math.max(0, total - netPaid);
+
+  const isOpen = order?.status === "OPEN";
+
+  useEffect(() => {
+    if (!order) return;
+
+    setTipInput(order.totalTip.toFixed(2));
+    setDiscountInput(order.totalDiscount.toFixed(2));
+
+    const suggested = remaining > 0 ? remaining : order.totalAmount;
+    setPaymentAmountInput(suggested.toFixed(2));
+  }, [order, remaining]);
 
   const handleBack = () => {
     navigate({ to: URLS.FLOOR_PLAN });
   };
 
   const handleAddMenuItem = (menuItem: MenuItemEntry) => {
+    if (!isOpen) return;
     if (menuItem.stock === 0) return;
     setTicketItems((prev) => {
       const existing = prev.find((item) => item.id === menuItem.id);
@@ -114,6 +168,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   };
 
   const handleChangeQuantity = (itemId: string, delta: number) => {
+    if (!isOpen) return;
+
     setTicketItems((prev) =>
       prev
         .map((item) => {
@@ -127,10 +183,12 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   };
 
   const handleDeleteItem = (itemId: string) => {
+    if (!isOpen) return;
     setTicketItems((prev) => prev.filter((item) => item.id !== itemId));
   };
 
   const handlePrimaryAction = () => {
+    if (!isOpen) return;
     if (ticketItems.length === 0) return;
 
     const itemsInput: OrderItemInput[] = ticketItems.map((item) => ({
@@ -155,15 +213,104 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   };
 
   const handleCancelOrder = () => {
+    if (!isOpen) {
+      window.alert("Only open orders can be cancelled.");
+      return;
+    }
+
     const confirmed = window.confirm("Cancel this order and discard changes?");
     if (!confirmed) return;
-    navigate({ to: URLS.FLOOR_PLAN });
+
+    cancelOrderMutation.mutate(undefined, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
+        navigate({ to: URLS.FLOOR_PLAN });
+      },
+      onError: () => {
+        window.alert(
+          "Could not cancel this order. It may already have payments.",
+        );
+      },
+    });
   };
 
   const handlePrintBill = () => {
-    // Placeholder for actual print integration
-    // eslint-disable-next-line no-console
-    console.log("Print bill for order", orderId || "(unsaved)");
+    if (!order) return;
+
+    // For now, trigger the browser print dialog so the
+    // current order view (items, totals, payments) can
+    // be printed as a receipt.
+    window.print();
+  };
+
+  const parseMoneyInput = (value: string): number => {
+    const normalized = value.replace(",", ".");
+    const parsed = parseFloat(normalized);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  };
+
+  const handleUpdateTotals = () => {
+    if (!order) return;
+    if (!isOpen) {
+      window.alert("Only open orders can be updated.");
+      return;
+    }
+
+    const tipAmount = Math.max(0, parseMoneyInput(tipInput));
+    const discountAmount = Math.max(0, parseMoneyInput(discountInput));
+
+    updateTotalsMutation.mutate(
+      { tipAmount, discountAmount },
+      {
+        onError: () => {
+          window.alert("Could not update totals. Please try again.");
+        },
+      },
+    );
+  };
+
+  const handleAddPayment = (method: "CASH" | "CARD" | "GIFT_CARD") => {
+    if (!order) return;
+
+    const amount = parseMoneyInput(paymentAmountInput);
+    if (amount <= 0) {
+      window.alert("Enter a valid payment amount.");
+      return;
+    }
+
+    payOrderMutation.mutate(
+      { paymentMethod: method, amount },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
+        },
+        onError: () => {
+          window.alert("Could not register payment. Please try again.");
+        },
+      },
+    );
+  };
+
+  const handleRefund = () => {
+    if (!order) return;
+
+    const amount = parseMoneyInput(paymentAmountInput);
+    if (amount <= 0) {
+      window.alert("Enter a valid refund amount.");
+      return;
+    }
+
+    refundOrderMutation.mutate(
+      { amount },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
+        },
+        onError: () => {
+          window.alert("Could not refund this order.");
+        },
+      },
+    );
   };
 
   const primaryLabel =
@@ -235,8 +382,16 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
           <Stack direction="row" spacing={2} alignItems="center">
             <Chip
               label={order.status}
-              color="default"
-              variant="outlined"
+              color={
+                order.status === "OPEN"
+                  ? "primary"
+                  : order.status === "PAID"
+                    ? "success"
+                    : order.status === "CANCELLED"
+                      ? "error"
+                      : "warning"
+              }
+              variant={order.status === "OPEN" ? "outlined" : "filled"}
             />
             <Typography variant="body2" color="text.secondary">
               Served by {servedBy}
@@ -466,6 +621,159 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
             })}
           </Box>
 
+          {/* Payments and totals panel */}
+          <Box
+            sx={{
+              mt: 2,
+              p: 1.5,
+              borderRadius: 1,
+              border: 1,
+              borderColor: "divider",
+            }}
+          >
+            <Stack spacing={1.5}>
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+                justifyContent="space-between"
+              >
+                <Box>
+                  <Typography variant="subtitle2">Summary</Typography>
+                  <Typography variant="body2">
+                    Items: {(order.itemsTotal + pendingItemsTotal).toFixed(2)}€
+                  </Typography>
+                  <Typography variant="body2">
+                    Tax: {order.totalTax.toFixed(2)}€
+                  </Typography>
+                  <Typography variant="body2">
+                    Tip: {order.totalTip.toFixed(2)}€
+                  </Typography>
+                  <Typography variant="body2">
+                    Discount: -{order.totalDiscount.toFixed(2)}€
+                  </Typography>
+                  <Typography variant="body2">
+                    Total: {total.toFixed(2)}€
+                  </Typography>
+                  <Typography variant="body2">
+                    Paid: {netPaid.toFixed(2)}€
+                  </Typography>
+                  <Typography variant="body2">
+                    Due: {remaining.toFixed(2)}€
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <Typography variant="subtitle2">Tip & discount</Typography>
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={1}
+                    sx={{ mt: 0.5 }}
+                  >
+                    <TextField
+                      label="Tip (€)"
+                      size="small"
+                      value={tipInput}
+                      onChange={(e) => setTipInput(e.target.value)}
+                      disabled={!isOpen || updateTotalsMutation.isPending}
+                      sx={{ minWidth: 100 }}
+                    />
+                    <TextField
+                      label="Discount (€)"
+                      size="small"
+                      value={discountInput}
+                      onChange={(e) => setDiscountInput(e.target.value)}
+                      disabled={!isOpen || updateTotalsMutation.isPending}
+                      sx={{ minWidth: 120 }}
+                    />
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={handleUpdateTotals}
+                      disabled={!isOpen || updateTotalsMutation.isPending}
+                    >
+                      Save
+                    </Button>
+                  </Stack>
+                </Box>
+              </Stack>
+
+              <Box>
+                <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                  Payments
+                </Typography>
+                {payments.length === 0 ? (
+                  <Typography variant="body2" color="text.secondary">
+                    No payments yet.
+                  </Typography>
+                ) : (
+                  <Stack spacing={0.5}>
+                    {payments.map((p) => (
+                      <Typography key={p.id} variant="body2">
+                        {p.method} {p.isRefund ? "refund" : "payment"} —
+                        {" "}
+                        {p.amount.toFixed(2)}€ on
+                        {" "}
+                        {new Date(p.createdAt).toLocaleString()}
+                      </Typography>
+                    ))}
+                  </Stack>
+                )}
+
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={1}
+                  sx={{ mt: 1 }}
+                  alignItems={{ xs: "flex-start", sm: "center" }}
+                >
+                  <TextField
+                    label="Amount (€)"
+                    size="small"
+                    value={paymentAmountInput}
+                    onChange={(e) => setPaymentAmountInput(e.target.value)}
+                    sx={{ minWidth: 140 }}
+                  />
+                  <Stack direction="row" spacing={1}>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={() => handleAddPayment("CASH")}
+                      disabled={payOrderMutation.isPending}
+                    >
+                      Cash
+                    </Button>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={() => handleAddPayment("CARD")}
+                      disabled={payOrderMutation.isPending}
+                    >
+                      Card
+                    </Button>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={() => handleAddPayment("GIFT_CARD")}
+                      disabled={payOrderMutation.isPending}
+                    >
+                      Gift card
+                    </Button>
+                  </Stack>
+                  {(order.status === "PAID" || order.status === "REFUNDED") && (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      color="warning"
+                      onClick={handleRefund}
+                      disabled={refundOrderMutation.isPending}
+                    >
+                      Refund
+                    </Button>
+                  )}
+                </Stack>
+              </Box>
+            </Stack>
+          </Box>
+
           {/* Panel D: Action footer */}
           <Box
             sx={{
@@ -491,6 +799,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                   color="primary"
                   onClick={handlePrimaryAction}
                   disabled={
+                    !isOpen ||
                     ticketItems.length === 0 ||
                     updateItemsMutation.isPending ||
                     sendItemsMutation.isPending
@@ -502,6 +811,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                   variant="outlined"
                   color="error"
                   onClick={handleCancelOrder}
+                  disabled={!isOpen || cancelOrderMutation.isPending}
                 >
                   Cancel Order
                 </Button>
