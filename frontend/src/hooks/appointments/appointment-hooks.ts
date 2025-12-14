@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  bulkDeleteAppointments,
   createAppointment,
   getAppointments,
   updateAppointment,
@@ -54,16 +53,6 @@ export function useUpdateAppointmentStatus() {
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: AppointmentStatus }) =>
       updateAppointmentStatus(id, status),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: appointmentKeys.all });
-    },
-  });
-}
-
-export function useBulkDeleteAppointments() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (ids: string[]) => bulkDeleteAppointments(ids),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: appointmentKeys.all });
     },
