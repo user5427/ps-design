@@ -19,6 +19,8 @@ export enum ScopeNames {
   GIFT_CARDS_READ = "GIFT_CARDS_READ",
   GIFT_CARDS_WRITE = "GIFT_CARDS_WRITE",
   GIFT_CARDS_DELETE = "GIFT_CARDS_DELETE",
+  MENU_ORDERS_READ = "MENU_ORDERS_READ",
+  MENU_ORDERS_WRITE = "MENU_ORDERS_WRITE",
 }
 
 // Scope configuration with descriptions
@@ -101,6 +103,14 @@ export const SCOPE_CONFIG: Record<
   [ScopeNames.GIFT_CARDS_DELETE]: {
     name: ScopeNames.GIFT_CARDS_DELETE,
     description: "Delete gift cards data",
+  },
+  [ScopeNames.MENU_ORDERS_READ]: {
+    name: ScopeNames.MENU_ORDERS_READ,
+    description: "Read restaurant orders",
+  },
+  [ScopeNames.MENU_ORDERS_WRITE]: {
+    name: ScopeNames.MENU_ORDERS_WRITE,
+    description: "Create and update restaurant orders",
   },
 };
 

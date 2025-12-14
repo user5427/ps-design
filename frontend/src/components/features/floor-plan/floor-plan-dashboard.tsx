@@ -21,6 +21,7 @@ import {
   useFloorPlan,
   useUpdateFloorTable,
 } from "@/hooks/orders/floor-hooks";
+import { useCreateOrder } from "@/hooks/orders/order-hooks";
 import { URLS } from "@/constants/urls";
 
 interface ContextMenuState {
@@ -34,6 +35,7 @@ export function FloorPlanDashboard() {
   const updateFloorTable = useUpdateFloorTable();
   const createFloorTable = useCreateFloorTable();
   const deleteFloorTable = useDeleteFloorTable();
+  const createOrder = useCreateOrder();
   const [tables, setTables] = useState<FloorPlanTable[]>([]);
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
     anchorEl: null,
@@ -49,22 +51,29 @@ export function FloorPlanDashboard() {
 
   const handleTableClick = (table: FloorPlanTable) => {
     if (table.status === "AVAILABLE") {
-      const newOrderId =
-        typeof crypto !== "undefined" && "randomUUID" in crypto
-          ? crypto.randomUUID()
-          : `order-${Date.now()}`;
+      createOrder.mutate(
+        { tableId: table.id },
+        {
+          onSuccess: (order) => {
+            setTables((prev) =>
+              prev.map((t) =>
+                t.id === table.id
+                  ? { ...t, status: "ACTIVE", orderId: order.id }
+                  : t,
+              ),
+            );
 
-      setTables((prev) =>
-        prev.map((t) =>
-          t.id === table.id
-            ? { ...t, status: "ACTIVE", orderId: newOrderId }
-            : t,
-        ),
+            navigate({
+              to: URLS.ORDER_VIEW(order.id),
+            });
+          },
+          onError: () => {
+            window.alert(
+              "Could not open order for this table. Please check your permissions and try again.",
+            );
+          },
+        },
       );
-
-      navigate({
-        to: URLS.ORDER_VIEW(newOrderId),
-      });
       return;
     }
 

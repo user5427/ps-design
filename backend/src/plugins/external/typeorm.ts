@@ -56,6 +56,13 @@ import {
   AppointmentPaymentRepository,
 } from "@/modules/appointments/appointment-payment";
 import { GiftCard, GiftCardRepository } from "@/modules/gift-card";
+import {
+  Order,
+  OrderItem,
+  OrderItemVariation,
+  Payment as OrderPayment,
+} from "@/modules/order";
+import { OrderRepository } from "@/modules/order/order.repository";
 
 export interface Services {
   dataSource: DataSource;
@@ -72,6 +79,7 @@ export interface Services {
   stockChange: StockChangeRepository;
   category: CategoryRepository;
   menuItem: MenuItemRepository;
+  order: OrderRepository;
   serviceDefinition: ServiceDefinitionRepository;
   staffService: StaffServiceRepository;
   availability: AvailabilityRepository;
@@ -104,6 +112,12 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
     dataSource.getRepository(User),
   );
 
+  const stockChangeRepo = new StockChangeRepository(
+    dataSource.getRepository(StockChange),
+    dataSource.getRepository(Product),
+    dataSource,
+  );
+
   const services: Services = {
     dataSource,
     business: new BusinessRepository(dataSource.getRepository(Business)),
@@ -124,11 +138,7 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
       dataSource.getRepository(ProductUnit),
     ),
     stockLevel: new StockLevelRepository(dataSource.getRepository(StockLevel)),
-    stockChange: new StockChangeRepository(
-      dataSource.getRepository(StockChange),
-      dataSource.getRepository(Product),
-      dataSource,
-    ),
+    stockChange: stockChangeRepo,
     category: new CategoryRepository(
       dataSource.getRepository(Category),
       dataSource.getRepository(MenuItem),
@@ -143,6 +153,18 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
       dataSource.getRepository(MenuItemVariationProduct),
       dataSource.getRepository(Product),
       dataSource.getRepository(StockLevel),
+    ),
+    order: new OrderRepository(
+      dataSource,
+      dataSource.getRepository(Order),
+      dataSource.getRepository(OrderItem),
+      dataSource.getRepository(OrderItemVariation),
+      dataSource.getRepository(OrderPayment),
+      dataSource.getRepository(MenuItem),
+      dataSource.getRepository(MenuItemVariation),
+      dataSource.getRepository(MenuItemBaseProduct),
+      dataSource.getRepository(MenuItemVariationProduct),
+      stockChangeRepo,
     ),
     serviceDefinition: new ServiceDefinitionRepository(
       dataSource.getRepository(ServiceDefinition),

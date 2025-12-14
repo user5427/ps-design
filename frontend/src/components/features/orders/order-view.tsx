@@ -12,6 +12,7 @@ import {
   Toolbar,
   Typography,
   Paper,
+  CircularProgress,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -21,16 +22,9 @@ import { useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useFloorPlan } from "@/hooks/orders/floor-hooks";
 import { URLS } from "@/constants/urls";
-
-type TicketItemStatus = "UNSENT" | "SENT";
-
-interface TicketItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  status: TicketItemStatus;
-}
+import { useOrder, useSendOrderItems, useUpdateOrderItems } from "@/hooks/orders/order-hooks";
+import { useMenuItems } from "@/hooks/menu";
+import type { OrderItemInput } from "@ps-design/schemas/order/order";
 
 interface MenuItemEntry {
   id: string;
@@ -38,51 +32,10 @@ interface MenuItemEntry {
   price: number;
   category: string;
   stock: number;
+   quantity: number;
+   status?: "UNSENT" | "SENT";
 }
-
-const INITIAL_MENU_ITEMS: MenuItemEntry[] = [
-  { id: "m1", name: "Bruschetta", price: 6.5, category: "Starters", stock: 10 },
-  {
-    id: "m2",
-    name: "Caesar Salad",
-    price: 8.9,
-    category: "Starters",
-    stock: 5,
-  },
-  {
-    id: "m3",
-    name: "Margherita Pizza",
-    price: 12.5,
-    category: "Mains",
-    stock: 8,
-  },
-  {
-    id: "m4",
-    name: "Grilled Salmon",
-    price: 18.9,
-    category: "Mains",
-    stock: 3,
-  },
-  { id: "m5", name: "Tiramisu", price: 7.0, category: "Desserts", stock: 0 },
-  { id: "m6", name: "Espresso", price: 2.5, category: "Drinks", stock: 20 },
-  {
-    id: "m7",
-    name: "House Red Wine",
-    price: 4.5,
-    category: "Drinks",
-    stock: 0,
-  },
-];
-
-const MENU_CATEGORIES = [
-  "All",
-  "Starters",
-  "Mains",
-  "Desserts",
-  "Drinks",
-] as const;
-
-type MenuCategory = (typeof MENU_CATEGORIES)[number];
+type MenuCategory = string;
 
 type OrderUiStatus = "NEW" | "ACTIVE";
 
@@ -93,17 +46,19 @@ interface OrderViewProps {
 export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   const navigate = useNavigate();
   const { data: floorData } = useFloorPlan();
+  const { data: order, isLoading } = useOrder(orderId);
+  const { data: menuItems, isLoading: isMenuLoading } = useMenuItems();
+  const updateItemsMutation = useUpdateOrderItems(orderId);
+  const sendItemsMutation = useSendOrderItems(orderId);
 
-  const [orderStatus, setOrderStatus] = useState<OrderUiStatus>(
-    orderId ? "ACTIVE" : "NEW",
-  );
+  const [orderStatus] = useState<OrderUiStatus>("ACTIVE");
   const [tableLabel, setTableLabel] = useState<string | null>(null);
   const [servedBy] = useState<string>("Demo Waiter");
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<MenuCategory>("All");
 
-  const [ticketItems, setTicketItems] = useState<TicketItem[]>([]);
+  const [ticketItems, setTicketItems] = useState<MenuItemEntry[]>([]);
 
   // Derive table label from floor plan data when available
   const matchingTable = useMemo(() => {
@@ -115,19 +70,34 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     setTableLabel(matchingTable.label);
   }
 
+  const menuEntries: MenuItemEntry[] = useMemo(() => {
+    if (!menuItems) return [];
+
+    return menuItems.map((item) => ({
+      id: item.id,
+      name: item.baseName,
+      price: item.basePrice / 100,
+      category: item.category?.name ?? "Other",
+      stock: item.isAvailable ? 999 : 0,
+      quantity: 0,
+    }));
+  }, [menuItems]);
+
+  const menuCategories: MenuCategory[] = useMemo(() => {
+    const set = new Set<string>();
+    menuEntries.forEach((item) => set.add(item.category));
+    return ["All", ...Array.from(set).sort()];
+  }, [menuEntries]);
+
   const filteredMenuItems = useMemo(() => {
-    return INITIAL_MENU_ITEMS.filter((item) => {
+    return menuEntries.filter((item) => {
       if (category !== "All" && item.category !== category) return false;
       if (!search.trim()) return true;
       return item.name.toLowerCase().includes(search.toLowerCase());
     });
-  }, [category, search]);
+  }, [menuEntries, category, search]);
 
-  const total = useMemo(
-    () =>
-      ticketItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
-    [ticketItems],
-  );
+  const total = useMemo(() => order?.totalAmount ?? 0, [order]);
 
   const handleBack = () => {
     navigate({ to: URLS.FLOOR_PLAN });
@@ -135,26 +105,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
 
   const handleAddMenuItem = (menuItem: MenuItemEntry) => {
     if (menuItem.stock === 0) return;
-
     setTicketItems((prev) => {
-      const existing = prev.find(
-        (item) => item.id === menuItem.id && item.status === "UNSENT",
-      );
+      const existing = prev.find((item) => item.id === menuItem.id);
       if (existing) {
         return prev.map((item) =>
           item === existing ? { ...item, quantity: item.quantity + 1 } : item,
         );
       }
-      return [
-        ...prev,
-        {
-          id: menuItem.id,
-          name: menuItem.name,
-          price: menuItem.price,
-          quantity: 1,
-          status: "UNSENT",
-        },
-      ];
+      return [...prev, { ...menuItem, quantity: 1 }];
     });
   };
 
@@ -162,41 +120,46 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     setTicketItems((prev) =>
       prev
         .map((item) => {
-          if (item.id !== itemId || item.status === "SENT") return item;
+          if (item.id !== itemId) return item;
           const newQty = item.quantity + delta;
           if (newQty <= 0) return null;
           return { ...item, quantity: newQty };
         })
-        .filter((x): x is TicketItem => x !== null),
+        .filter((x): x is MenuItemEntry => x !== null),
     );
   };
 
   const handleDeleteItem = (itemId: string) => {
-    setTicketItems((prev) =>
-      prev.filter((item) => item.id !== itemId || item.status === "SENT"),
-    );
+    setTicketItems((prev) => prev.filter((item) => item.id !== itemId));
   };
 
   const handlePrimaryAction = () => {
-    if (orderStatus === "NEW") {
-      setOrderStatus("ACTIVE");
-      return;
-    }
+    if (ticketItems.length === 0) return;
 
-    if (orderStatus === "ACTIVE") {
-      setTicketItems((prev) =>
-        prev.map((item) =>
-          item.status === "UNSENT" ? { ...item, status: "SENT" } : item,
-        ),
-      );
-    }
+    const itemsInput: OrderItemInput[] = ticketItems.map((item) => ({
+      menuItemId: item.id,
+      quantity: item.quantity,
+      variationIds: [],
+    }));
+
+    updateItemsMutation.mutate(
+      { items: itemsInput },
+      {
+        onSuccess: () => {
+          sendItemsMutation.mutate(undefined, {
+            onSuccess: () => {
+              // Clear local pending ticket after successful send
+              setTicketItems([]);
+            },
+          });
+        },
+      },
+    );
   };
 
   const handleCancelOrder = () => {
     const confirmed = window.confirm("Cancel this order and discard changes?");
     if (!confirmed) return;
-    setTicketItems([]);
-    setOrderStatus("NEW");
     navigate({ to: URLS.FLOOR_PLAN });
   };
 
@@ -207,9 +170,52 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   };
 
   const primaryLabel =
-    orderStatus === "NEW" ? "Create Order" : "Send to Kitchen";
+    "Send to Kitchen";
 
   const statusChipColor = orderStatus === "NEW" ? "default" : "success";
+
+  if (isLoading || isMenuLoading || !order) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+        }}
+      >
+        <AppBar position="static" color="transparent" elevation={0}>
+          <Toolbar sx={{ px: 2 }}>
+            <IconButton
+              edge="start"
+              onClick={handleBack}
+              aria-label="Back to floor plan"
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <Box sx={{ flexGrow: 1, ml: 2 }}>
+              <Typography variant="h6">
+                {tableLabel ? `Table ${tableLabel}` : "Order"}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Order {orderId || "(new)"}
+              </Typography>
+            </Box>
+          </Toolbar>
+        </AppBar>
+        <Divider />
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -281,7 +287,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
             variant="scrollable"
             scrollButtons="auto"
           >
-            {MENU_CATEGORIES.map((cat) => (
+            {menuCategories.map((cat) => (
               <Tab key={cat} label={cat} value={cat} />
             ))}
           </Tabs>
@@ -364,23 +370,23 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
               pr: 1,
             }}
           >
-            {ticketItems.length === 0 && (
+            {order.orderItems.length === 0 && ticketItems.length === 0 && (
               <Typography variant="body2" color="text.secondary">
                 No items yet. Tap items on the left to add them.
               </Typography>
             )}
 
+            {/* Pending items not yet sent to kitchen */}
             {ticketItems.map((item) => {
-              const isSent = item.status === "SENT";
+              const lineTotal = item.price * item.quantity;
               return (
                 <Box
-                  key={`${item.id}-${item.status}`}
+                  key={`pending-${item.id}`}
                   sx={{
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
                     mb: 1.5,
-                    opacity: isSent ? 0.6 : 1,
                   }}
                 >
                   <Stack direction="row" spacing={1} alignItems="center">
@@ -388,7 +394,6 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                       <IconButton
                         size="small"
                         onClick={() => handleChangeQuantity(item.id, -1)}
-                        disabled={isSent}
                       >
                         <RemoveIcon fontSize="small" />
                       </IconButton>
@@ -401,7 +406,6 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                       <IconButton
                         size="small"
                         onClick={() => handleChangeQuantity(item.id, 1)}
-                        disabled={isSent}
                       >
                         <AddIcon fontSize="small" />
                       </IconButton>
@@ -410,23 +414,57 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                     <Box>
                       <Typography variant="body2">{item.name}</Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {(item.price * item.quantity).toFixed(2)}€
+                        {lineTotal.toFixed(2)}€
                       </Typography>
                     </Box>
                   </Stack>
 
                   <Stack direction="row" spacing={1} alignItems="center">
-                    {isSent ? (
-                      <Chip label="Sent" size="small" color="default" />
-                    ) : (
-                      <IconButton
-                        size="small"
-                        onClick={() => handleDeleteItem(item.id)}
-                        aria-label="Remove item from ticket"
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    )}
+                    <Chip label="New" size="small" color="primary" />
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDeleteItem(item.id)}
+                      aria-label="Remove item from ticket"
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
+                </Box>
+              );
+            })}
+
+            {/* Items that have already been sent to the kitchen */}
+            {order.orderItems.map((item) => {
+              if (item.status !== "SENT") return null;
+
+              return (
+                <Box
+                  key={`sent-${item.id}`}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 1.5,
+                    opacity: 0.6,
+                  }}
+                >
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Typography
+                      variant="body2"
+                      sx={{ width: 24, textAlign: "center" }}
+                    >
+                      {item.quantity}
+                    </Typography>
+                    <Box>
+                      <Typography variant="body2">{item.snapName}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {item.lineTotal.toFixed(2)}€
+                      </Typography>
+                    </Box>
+                  </Stack>
+
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Chip label="Sent" size="small" color="default" />
                   </Stack>
                 </Box>
               );
@@ -458,8 +496,9 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                   color="primary"
                   onClick={handlePrimaryAction}
                   disabled={
-                    orderStatus === "ACTIVE" &&
-                    ticketItems.every((i) => i.status === "SENT")
+                    ticketItems.length === 0 ||
+                    updateItemsMutation.isPending ||
+                    sendItemsMutation.isPending
                   }
                 >
                   {primaryLabel}
