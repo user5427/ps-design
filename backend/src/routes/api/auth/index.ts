@@ -16,6 +16,7 @@ import {
   ErrorResponseSchema,
   SuccessResponseSchema,
 } from "@ps-design/schemas/shared/response-types";
+import { AuditSecurityType } from "@/modules/audit";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -36,7 +37,13 @@ export default async function authRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
-        const result = await login(fastify, request, request.body);
+        const loginWrapped = await fastify.audit.security(
+          login,
+          AuditSecurityType.LOGIN,
+          request,
+        );
+        const result = await loginWrapped(fastify, request, request.body);
+
         setRefreshCookie(fastify, reply, result.refreshToken);
 
         return reply.send(result);
@@ -60,7 +67,13 @@ export default async function authRoutes(fastify: FastifyInstance) {
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
-        await logout(fastify, request);
+        const logoutWrapped = await fastify.audit.security(
+          logout,
+          AuditSecurityType.LOGOUT,
+          request,
+        );
+        await logoutWrapped(fastify, request);
+
         reply.clearCookie("refresh_token", { path: "/api/auth" });
         return reply.send({ success: true });
       } catch (err) {
@@ -115,7 +128,13 @@ export default async function authRoutes(fastify: FastifyInstance) {
           .send({ message: "Unauthorized" });
 
       try {
-        await changePassword(fastify, user.id, request.body);
+        const changePasswordWrapped = await fastify.audit.security(
+          changePassword,
+          AuditSecurityType.PASSWORD_CHANGE,
+          request,
+        );
+        await changePasswordWrapped(fastify, user.id, request.body);
+
         return reply.send({ success: true });
       } catch (err: any) {
         const statusCode = err?.code || httpStatus.INTERNAL_SERVER_ERROR;

@@ -33,6 +33,7 @@ import {
 } from "@ps-design/schemas/payments";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
+import { AuditActionType } from "@/modules/audit";
 
 const StatusUpdateSchema = z.object({
   status: AppointmentStatusEnum,
@@ -86,7 +87,20 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
       if (!userId) return;
 
       try {
-        await createAppointment(fastify, businessId, userId, request.body);
+        const createAppointmentWrapped = await fastify.audit.generic(
+          createAppointment,
+          AuditActionType.CREATE,
+          request,
+          reply,
+          "Appointment",
+        );
+
+        await createAppointmentWrapped(
+          fastify,
+          businessId,
+          userId,
+          request.body,
+        );
         return reply.code(httpStatus.CREATED).send();
       } catch (error) {
         return handleServiceError(error, reply);
@@ -154,7 +168,16 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
       const { appointmentId } = request.params;
 
       try {
-        await updateAppointment(
+        const updateAppointmentWrapped = await fastify.audit.generic(
+          updateAppointment,
+          AuditActionType.UPDATE,
+          request,
+          reply,
+          "Appointment",
+          appointmentId,
+        );
+
+        await updateAppointmentWrapped(
           fastify,
           businessId,
           appointmentId,
@@ -186,7 +209,16 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
       const { appointmentId } = request.params as AppointmentIdParams;
 
       try {
-        await updateAppointmentStatus(
+        const updateAppointmentStatusWrapped = await fastify.audit.generic(
+          updateAppointmentStatus,
+          AuditActionType.UPDATE,
+          request,
+          reply,
+          "Appointment",
+          appointmentId,
+        );
+
+        await updateAppointmentStatusWrapped(
           fastify,
           businessId,
           appointmentId,
@@ -260,7 +292,16 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
       const { appointmentId } = request.params;
 
       try {
-        await payAppointment(
+        const payAppointmentWrapped = await fastify.audit.generic(
+          payAppointment,
+          AuditActionType.UPDATE,
+          request,
+          reply,
+          "AppointmentPayment",
+          appointmentId,
+        );
+
+        await payAppointmentWrapped(
           fastify,
           businessId,
           appointmentId,
@@ -297,7 +338,16 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
       const { appointmentId } = request.params;
 
       try {
-        await refundAppointment(
+        const refundAppointmentWrapped = await fastify.audit.generic(
+          refundAppointment,
+          AuditActionType.UPDATE,
+          request,
+          reply,
+          "AppointmentPayment",
+          appointmentId,
+        );
+
+        await refundAppointmentWrapped(
           fastify,
           businessId,
           appointmentId,
