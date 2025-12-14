@@ -127,7 +127,23 @@ export const AvailabilityTimetable: React.FC<AvailabilityTimetableProps> = ({
   const handleBlockClick = (block: AvailabilityBlock) => {
     if (block.type === "FREE") {
       setSelectedBlock(block);
-      setSelectedTime(dayjs(block.startTime));
+
+      const blockStart = dayjs(block.startTime);
+      let initialTime = blockStart;
+
+      // If today, ensure we don't start in the past
+      if (dayjs(block.startTime).isSame(dayjs(), "day")) {
+        const now = dayjs();
+        // Round up to next 5 minutes
+        const remainder = 5 - (now.minute() % 5);
+        const nextInterval = now.add(remainder, "minute").startOf("minute");
+
+        if (nextInterval.isAfter(blockStart)) {
+          initialTime = nextInterval;
+        }
+      }
+
+      setSelectedTime(initialTime);
       setTimePickerError(null);
       setTimePickerOpen(true);
     }
@@ -252,7 +268,14 @@ export const AvailabilityTimetable: React.FC<AvailabilityTimetableProps> = ({
             alignItems="center"
             justifyContent="center"
           >
-            <IconButton onClick={handlePreviousDay} size="small">
+            <IconButton
+              onClick={handlePreviousDay}
+              size="small"
+              disabled={
+                selectedDate.isSame(dayjs(), "day") ||
+                selectedDate.isBefore(dayjs(), "day")
+              }
+            >
               <ChevronLeftIcon />
             </IconButton>
 
@@ -262,6 +285,7 @@ export const AvailabilityTimetable: React.FC<AvailabilityTimetableProps> = ({
               onChange={(newValue) => {
                 if (newValue) setSelectedDate(newValue);
               }}
+              disablePast
               slotProps={{
                 textField: {
                   size: "small",
@@ -341,9 +365,9 @@ export const AvailabilityTimetable: React.FC<AvailabilityTimetableProps> = ({
                                   transition: "all 0.2s",
                                   "&:hover": isFree
                                     ? {
-                                        bgcolor: "success.100",
-                                        boxShadow: 1,
-                                      }
+                                      bgcolor: "success.100",
+                                      boxShadow: 1,
+                                    }
                                     : {},
                                 }}
                               >
@@ -442,14 +466,24 @@ export const AvailabilityTimetable: React.FC<AvailabilityTimetableProps> = ({
               }}
               ampm={false}
               minTime={
-                selectedBlock ? dayjs(selectedBlock.startTime) : undefined
+                selectedBlock
+                  ? (() => {
+                    const blockStart = dayjs(selectedBlock.startTime);
+                    if (selectedDate.isSame(dayjs(), "day")) {
+                      // For today, prevent past times
+                      const now = dayjs();
+                      return blockStart.isAfter(now) ? blockStart : now;
+                    }
+                    return blockStart;
+                  })()
+                  : undefined
               }
               maxTime={
                 selectedBlock
                   ? dayjs(selectedBlock.endTime).subtract(
-                      durationMinutes,
-                      "minute",
-                    )
+                    durationMinutes,
+                    "minute",
+                  )
                   : undefined
               }
               minutesStep={5}
