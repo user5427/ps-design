@@ -174,10 +174,20 @@ export async function payOrder(
     }
 
     // Validate and redeem the gift card.
-    const giftCard = await fastify.db.giftCard.validateAndRedeem(
-      body.giftCardCode,
-      businessId,
-    );
+    // NOTE: validateAndRedeem must be implemented atomically to prevent race conditions.
+    let giftCard;
+    try {
+      giftCard = await fastify.db.giftCard.validateAndRedeem(
+        body.giftCardCode,
+        businessId,
+      );
+    } catch (err: any) {
+      // Handle race condition or already redeemed error
+      if (err && (err.code === "GIFT_CARD_ALREADY_REDEEMED" || err.message?.includes("already redeemed"))) {
+        throw new Error("Gift card has already been redeemed or is no longer valid");
+      }
+      throw err;
+    }
 
     const giftCardAmount = giftCard.value; // already in major units
     const amountToApply = Math.min(remaining, giftCardAmount);
