@@ -106,6 +106,11 @@ export const sidebarSections: Section[] = [
     path: URLS.GIFT_CARDS,
   },
   {
+    label: "Tax",
+    icon: <AssessmentIcon />,
+    path: URLS.TAX,
+  },
+  {
     label: "Audit Logs",
     icon: <AssessmentIcon />,
     children: [

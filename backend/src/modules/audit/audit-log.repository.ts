@@ -22,6 +22,7 @@ import { Availability } from "@/modules/appointments/availability/availability.e
 import { Appointment } from "@/modules/appointments/appointment/appointment.entity";
 import { AppointmentPayment } from "@/modules/appointments/appointment-payment/appointment-payment.entity";
 import { GiftCard } from "@/modules/gift-card/gift-card.entity";
+import { Tax } from "@/modules/tax/tax.entity";
 
 type EntityMap = {
   User: typeof User;
@@ -41,6 +42,7 @@ type EntityMap = {
   Appointment: typeof Appointment;
   AppointmentPayment: typeof AppointmentPayment;
   GiftCard: typeof GiftCard;
+  Tax: typeof Tax;
   AuditBusinessLog: typeof AuditBusinessLog;
   AuditSecurityLog: typeof AuditSecurityLog;
 };
@@ -63,6 +65,7 @@ const entityClassMap: EntityMap = {
   Appointment,
   AppointmentPayment,
   GiftCard,
+  Tax,
   AuditBusinessLog,
   AuditSecurityLog,
 };
