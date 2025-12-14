@@ -32,6 +32,7 @@ import {
   ErrorResponseSchema,
   SuccessResponseSchema,
 } from "@ps-design/schemas/shared/response-types";
+import { AuditActionType } from "@/modules/audit";
 
 export default async function businessRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -92,7 +93,16 @@ export default async function businessRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
-        const business = await createBusiness(fastify, request.body);
+        const createBusinessWrapped = await fastify.audit.business(
+          createBusiness,
+          AuditActionType.CREATE,
+          request,
+        );
+
+        const business = await createBusinessWrapped(
+          fastify,
+          request.body as CreateBusinessBody,
+        );
         return reply.code(httpStatus.CREATED).send(business);
       } catch (error) {
         return handleServiceError(error, reply);
@@ -153,7 +163,17 @@ export default async function businessRoutes(fastify: FastifyInstance) {
     ) => {
       try {
         const { businessId } = request.params;
-        const updated = await updateBusiness(fastify, businessId, request.body);
+        const updateBusinessWrapped = await fastify.audit.business(
+          updateBusiness,
+          AuditActionType.UPDATE,
+          request,
+        );
+
+        const updated = await updateBusinessWrapped(
+          fastify,
+          businessId,
+          request.body,
+        );
         return reply.send(updated);
       } catch (error) {
         return handleServiceError(error, reply);
@@ -184,7 +204,13 @@ export default async function businessRoutes(fastify: FastifyInstance) {
     ) => {
       try {
         const { businessId } = request.params;
-        await deleteBusiness(fastify, businessId);
+        const deleteBusinessWrapped = await fastify.audit.business(
+          deleteBusiness,
+          AuditActionType.DELETE,
+          request,
+        );
+
+        await deleteBusinessWrapped(fastify, businessId);
         return reply.send({ success: true });
       } catch (error) {
         return handleServiceError(error, reply);

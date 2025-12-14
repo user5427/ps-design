@@ -43,8 +43,8 @@ export async function createServiceDefinition(
   fastify: FastifyInstance,
   businessId: string,
   input: CreateServiceDefinitionBody,
-): Promise<void> {
-  await fastify.db.serviceDefinition.create({
+): Promise<ServiceDefinitionResponse> {
+  const created = await fastify.db.serviceDefinition.create({
     name: input.name,
     description: input.description,
     price: input.price,
@@ -53,6 +53,7 @@ export async function createServiceDefinition(
     categoryId: input.categoryId,
     businessId,
   });
+  return toDefinitionResponse(created);
 }
 
 export async function getServiceDefinitionById(
@@ -72,12 +73,17 @@ export async function updateServiceDefinition(
   businessId: string,
   definitionId: string,
   input: UpdateServiceDefinitionBody,
-): Promise<void> {
+): Promise<ServiceDefinitionResponse> {
   const { duration, ...rest } = input;
-  await fastify.db.serviceDefinition.update(definitionId, businessId, {
-    ...rest,
-    ...(duration !== undefined && { baseDuration: duration }),
-  });
+  const updated = await fastify.db.serviceDefinition.update(
+    definitionId,
+    businessId,
+    {
+      ...rest,
+      ...(duration !== undefined && { baseDuration: duration }),
+    },
+  );
+  return toDefinitionResponse(updated);
 }
 
 export async function bulkDeleteServiceDefinitions(

@@ -23,6 +23,7 @@ import {
 } from "@ps-design/schemas/gift-card";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
+import { AuditActionType } from "@/modules/audit";
 
 export default async function giftCardsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -66,7 +67,15 @@ export default async function giftCardsRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        const giftCard = await createGiftCard(
+        const createGiftCardWrapped = await fastify.audit.generic(
+          createGiftCard,
+          AuditActionType.CREATE,
+          request,
+          reply,
+          "GiftCard",
+        );
+
+        const giftCard = await createGiftCardWrapped(
           fastify,
           businessId,
           request.body,
@@ -134,7 +143,16 @@ export default async function giftCardsRoutes(fastify: FastifyInstance) {
       const { giftCardId } = request.params;
 
       try {
-        const updated = await updateGiftCard(
+        const updateGiftCardWrapped = await fastify.audit.generic(
+          updateGiftCard,
+          AuditActionType.UPDATE,
+          request,
+          reply,
+          "GiftCard",
+          giftCardId,
+        );
+
+        const updated = await updateGiftCardWrapped(
           fastify,
           businessId,
           giftCardId,
@@ -170,7 +188,16 @@ export default async function giftCardsRoutes(fastify: FastifyInstance) {
       const { giftCardId } = request.params;
 
       try {
-        await deleteGiftCard(fastify, businessId, giftCardId);
+        const deleteGiftCardWrapped = await fastify.audit.generic(
+          deleteGiftCard,
+          AuditActionType.DELETE,
+          request,
+          reply,
+          "GiftCard",
+          giftCardId,
+        );
+
+        await deleteGiftCardWrapped(fastify, businessId, giftCardId);
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);
