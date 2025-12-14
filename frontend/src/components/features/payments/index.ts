@@ -5,5 +5,3 @@ export { StripeCheckoutForm } from "./stripe-checkout-form";
 export { GiftCardSection } from "./gift-card-section";
 export { TipSection } from "./tip-section";
 export { PaymentSummarySection } from "./payment-summary-section";
-export { DiscountSection } from "./discount-section";
-
