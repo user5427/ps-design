@@ -233,7 +233,8 @@ export function useOrderPaymentModal({
               onSuccess?.();
               return;
             }
-          } catch {
+          } catch (error) {
+            console.error("Polling order status failed:", error);
           } finally {
             await new Promise((resolve) => setTimeout(resolve, interval));
             attempts++;
