@@ -1,8 +1,18 @@
 import { useMemo } from "react";
 import type { MRT_ColumnDef } from "material-react-table";
 import dayjs from "dayjs";
-import { RecordListView, type FormFieldDefinition, type ViewFieldDefinition, ValidationRules } from "@/components/elements/record-list-view";
-import { useTaxes, useCreateTax, useUpdateTax, useDeleteTax } from "@/hooks/tax";
+import {
+  RecordListView,
+  type FormFieldDefinition,
+  type ViewFieldDefinition,
+  ValidationRules,
+} from "@/components/elements/record-list-view";
+import {
+  useTaxes,
+  useCreateTax,
+  useUpdateTax,
+  useDeleteTax,
+} from "@/hooks/tax";
 import type { TaxResponse } from "@ps-design/schemas/tax";
 
 export const TaxesListView = () => {
@@ -20,13 +30,15 @@ export const TaxesListView = () => {
         accessorKey: "createdAt",
         header: "Created",
         size: 180,
-        Cell: ({ cell }) => dayjs(cell.getValue<string>()).format("YYYY-MM-DD HH:mm"),
+        Cell: ({ cell }) =>
+          dayjs(cell.getValue<string>()).format("YYYY-MM-DD HH:mm"),
       },
       {
         accessorKey: "updatedAt",
         header: "Updated",
         size: 180,
-        Cell: ({ cell }) => dayjs(cell.getValue<string>()).format("YYYY-MM-DD HH:mm"),
+        Cell: ({ cell }) =>
+          dayjs(cell.getValue<string>()).format("YYYY-MM-DD HH:mm"),
       },
     ],
     [],
@@ -39,9 +51,14 @@ export const TaxesListView = () => {
       label: "Rate (%)",
       type: "number",
       required: true,
-      validationRules: [ ValidationRules.min(0, "Rate must be >= 0") ],
+      validationRules: [ValidationRules.min(0, "Rate must be >= 0")],
     },
-    { name: "description", label: "Description", type: "text", required: false },
+    {
+      name: "description",
+      label: "Description",
+      type: "text",
+      required: false,
+    },
   ];
 
   const editFormFields: FormFieldDefinition[] = [
@@ -51,9 +68,14 @@ export const TaxesListView = () => {
       label: "Rate (%)",
       type: "number",
       required: false,
-      validationRules: [ ValidationRules.min(0, "Rate must be >= 0") ],
+      validationRules: [ValidationRules.min(0, "Rate must be >= 0")],
     },
-    { name: "description", label: "Description", type: "text", required: false },
+    {
+      name: "description",
+      label: "Description",
+      type: "text",
+      required: false,
+    },
   ];
 
   const viewFields: ViewFieldDefinition[] = [
@@ -86,8 +108,10 @@ export const TaxesListView = () => {
   const handleEdit = async (id: string, values: Partial<TaxResponse>) => {
     const data: any = {};
     if (values.name !== undefined) data.name = values.name;
-    if (values.rate !== undefined && values.rate !== null) data.rate = Number(values.rate);
-    if (values.description !== undefined) data.description = values.description ?? null;
+    if (values.rate !== undefined && values.rate !== null)
+      data.rate = Number(values.rate);
+    if (values.description !== undefined)
+      data.description = values.description ?? null;
 
     await updateMutation.mutateAsync({ id, data });
   };

@@ -28,53 +28,59 @@ export const CategoriesListView = () => {
   const assignTaxMutation = useAssignTaxToCategory();
   const removeTaxMutation = useRemoveTaxFromCategory();
 
-  const columns = useMemo<MRT_ColumnDef<Category>[]>(() => [
-    {
-      accessorKey: "name",
-      header: "Name",
-      size: 200,
-    },
-    {
-      accessorKey: "taxId",
-      header: "Tax",
-      size: 200,
-      Cell: ({ row }) => {
-        const category = row.original;
-        return (
-          <Select
-            size="small"
-            value={category.taxId ?? ""}
-            displayEmpty
-            onChange={async (e) => {
-              const taxId = e.target.value || null;
-              if (taxId) {
-                await assignTaxMutation.mutateAsync({ categoryId: category.id, taxId });
-              } else {
-                await removeTaxMutation.mutateAsync(category.id);
-              }
-              await refetch();
-            }}
-          >
-            <MenuItem value="">No Tax</MenuItem>
-            {taxes.map((tax: TaxResponse) => (
-              <MenuItem key={tax.id} value={tax.id}>
-                {tax.name} ({tax.rate}%)
-              </MenuItem>
-            ))}
-          </Select>
-        );
+  const columns = useMemo<MRT_ColumnDef<Category>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Name",
+        size: 200,
       },
-    },
-    {
-      accessorKey: "createdAt",
-      header: "Created",
-      size: 150,
-      Cell: ({ cell }) => {
-        const value = cell.getValue<string>();
-        return value ? new Date(value).toLocaleDateString() : "";
+      {
+        accessorKey: "taxId",
+        header: "Tax",
+        size: 200,
+        Cell: ({ row }) => {
+          const category = row.original;
+          return (
+            <Select
+              size="small"
+              value={category.taxId ?? ""}
+              displayEmpty
+              onChange={async (e) => {
+                const taxId = e.target.value || null;
+                if (taxId) {
+                  await assignTaxMutation.mutateAsync({
+                    categoryId: category.id,
+                    taxId,
+                  });
+                } else {
+                  await removeTaxMutation.mutateAsync(category.id);
+                }
+                await refetch();
+              }}
+            >
+              <MenuItem value="">No Tax</MenuItem>
+              {taxes.map((tax: TaxResponse) => (
+                <MenuItem key={tax.id} value={tax.id}>
+                  {tax.name} ({tax.rate}%)
+                </MenuItem>
+              ))}
+            </Select>
+          );
+        },
       },
-    },
-  ], [ taxes, assignTaxMutation, removeTaxMutation, refetch ]);
+      {
+        accessorKey: "createdAt",
+        header: "Created",
+        size: 150,
+        Cell: ({ cell }) => {
+          const value = cell.getValue<string>();
+          return value ? new Date(value).toLocaleDateString() : "";
+        },
+      },
+    ],
+    [taxes, assignTaxMutation, removeTaxMutation, refetch],
+  );
 
   const createFormFields: FormFieldDefinition[] = [
     {
@@ -99,7 +105,7 @@ export const CategoriesListView = () => {
       label: "Tax",
       render: (taxId) => {
         if (!taxId) return "No Tax";
-        const tax = taxes.find(t => t.id === taxId);
+        const tax = taxes.find((t) => t.id === taxId);
         return tax ? `${tax.name} (${tax.rate}%)` : "Unknown Tax";
       },
     },

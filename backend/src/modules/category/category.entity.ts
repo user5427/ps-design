@@ -14,7 +14,7 @@ import {
 import type { Business } from "@/modules/business/business.entity";
 import type { MenuItem } from "@/modules/menu/menu-item/menu-item.entity";
 import type { ServiceDefinition } from "@/modules/appointments/service-definition/service-definition.entity";
-import { Tax } from "@/modules/tax/tax.entity";
+import type { Tax } from "@/modules/tax/tax.entity";
 
 @Entity("Category")
 @Unique(["businessId", "name"])

@@ -1,11 +1,13 @@
 import { IsNull, type Repository } from "typeorm";
 import type { Tax } from "./tax.entity";
 import type { ICreateTax, IUpdateTax } from "./tax.types";
-import { Category } from "../category";
-
+import type { Category } from "../category";
 
 export class TaxRepository {
-  constructor(private repository: Repository<Tax>, private categoryRepository: Repository<Category>) {}
+  constructor(
+    private repository: Repository<Tax>,
+    private categoryRepository: Repository<Category>,
+  ) {}
 
   async findAll(): Promise<Tax[]> {
     return this.repository.find({
@@ -32,7 +34,11 @@ export class TaxRepository {
     return this.repository.save(tax);
   }
 
-  async update(id: string, businessId: string, data: IUpdateTax): Promise<Tax | null> {
+  async update(
+    id: string,
+    businessId: string,
+    data: IUpdateTax,
+  ): Promise<Tax | null> {
     await this.repository.update({ id, businessId, deletedAt: IsNull() }, data);
     return this.getById(id, businessId);
   }

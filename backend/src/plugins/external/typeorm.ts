@@ -173,7 +173,10 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
       dataSource.getRepository(Appointment),
     ),
     giftCard: new GiftCardRepository(dataSource.getRepository(GiftCard)),
-    tax: new TaxRepository(dataSource.getRepository(Tax), dataSource.getRepository(Category)),
+    tax: new TaxRepository(
+      dataSource.getRepository(Tax),
+      dataSource.getRepository(Category),
+    ),
     auditLogRepository: new AuditLogRepository(dataSource),
     auditLogService: new AuditLogService(dataSource),
   };

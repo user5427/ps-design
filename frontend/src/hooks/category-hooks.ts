@@ -57,8 +57,13 @@ export function useBulkDeleteCategories() {
 export function useAssignTaxToCategory() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ categoryId, taxId }: { categoryId: string; taxId: string }) =>
-      assignTaxToCategory(categoryId, taxId),
+    mutationFn: ({
+      categoryId,
+      taxId,
+    }: {
+      categoryId: string;
+      taxId: string;
+    }) => assignTaxToCategory(categoryId, taxId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: categoryKeys.all });
     },

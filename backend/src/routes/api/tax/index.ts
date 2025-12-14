@@ -32,7 +32,7 @@ export default async function taxesRoutes(fastify: FastifyInstance) {
   server.get(
     "/",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.TAX_READ) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.TAX_READ)],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);
@@ -46,7 +46,7 @@ export default async function taxesRoutes(fastify: FastifyInstance) {
   server.get<{ Params: TaxIdParams }>(
     "/:taxId",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.TAX_READ) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.TAX_READ)],
       schema: {
         params: TaxIdParam,
       },
@@ -72,7 +72,7 @@ export default async function taxesRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateTaxBody }>(
     "/",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.TAX_WRITE) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.TAX_WRITE)],
       schema: {
         body: CreateTaxSchema,
       },
@@ -93,11 +93,7 @@ export default async function taxesRoutes(fastify: FastifyInstance) {
           "Tax",
         );
 
-        const tax = await wrapCreateTax(
-          fastify,
-          businessId,
-          request.body,
-        );
+        const tax = await wrapCreateTax(fastify, businessId, request.body);
 
         return reply.code(httpStatus.CREATED).send(tax);
       } catch (error) {
@@ -109,7 +105,7 @@ export default async function taxesRoutes(fastify: FastifyInstance) {
   server.put<{ Params: TaxIdParams; Body: UpdateTaxBody }>(
     "/:taxId",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.TAX_WRITE) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.TAX_WRITE)],
       schema: {
         params: TaxIdParam,
         body: UpdateTaxSchema,
@@ -154,12 +150,12 @@ export default async function taxesRoutes(fastify: FastifyInstance) {
   server.delete<{ Params: TaxIdParams }>(
     "/:taxId",
     {
-      onRequest: [ fastify.authenticate, requireScope(ScopeNames.TAX_DELETE) ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.TAX_DELETE)],
       schema: {
         params: TaxIdParam,
       },
     },
-    async(
+    async (
       request: FastifyRequest<{ Params: TaxIdParams }>,
       reply: FastifyReply,
     ) => {
@@ -175,11 +171,7 @@ export default async function taxesRoutes(fastify: FastifyInstance) {
           "Tax",
           taxId,
         );
-        await wrapDeleteTax(
-          fastify,
-          businessId,
-          taxId,
-        );
+        await wrapDeleteTax(fastify, businessId, taxId);
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);

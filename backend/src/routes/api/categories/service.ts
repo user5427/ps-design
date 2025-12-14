@@ -88,9 +88,13 @@ export async function assignTaxToCategory(
   if (tax.businessId !== businessId) {
     throw new Error("Tax does not belong to the same business");
   }
-  
+
   category.taxId = taxId;
-  const updated = await fastify.db.category.update(category.id, businessId, category);
+  const updated = await fastify.db.category.update(
+    category.id,
+    businessId,
+    category,
+  );
 
   return toCategoryResponse(updated);
 }
@@ -100,10 +104,12 @@ export async function removeTaxFromCategory(
   businessId: string,
   categoryId: string,
 ): Promise<CategoryResponse> {
-  const category = await fastify.db.category.getById(categoryId,
-    businessId);
+  const category = await fastify.db.category.getById(categoryId, businessId);
   category.taxId = null;
-  const updated = await fastify.db.category.update(category.id, businessId, category);
+  const updated = await fastify.db.category.update(
+    category.id,
+    businessId,
+    category,
+  );
   return toCategoryResponse(updated);
 }
-

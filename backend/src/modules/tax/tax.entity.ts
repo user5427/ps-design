@@ -8,7 +8,7 @@ import {
   type Relation,
   UpdateDateColumn,
 } from "typeorm";
-import { Business } from "@/modules/business/business.entity";
+import type { Business } from "@/modules/business/business.entity";
 
 @Entity("Tax")
 export class Tax {

@@ -58,11 +58,7 @@ export async function updateTax(
   taxId: string,
   input: UpdateTaxBody,
 ): Promise<TaxResponse> {
-  const tax = await fastify.db.tax.update(
-    taxId,
-    businessId,
-    input,
-  );
+  const tax = await fastify.db.tax.update(taxId, businessId, input);
   if (!tax) {
     throw new Error("Tax not found");
   }

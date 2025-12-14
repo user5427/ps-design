@@ -9,28 +9,14 @@ export const TaxIdParam = z.object({
 });
 
 export const CreateTaxSchema = z.object({
-  name: z
-    .string()
-    .min(MIN_NAME_LENGTH)
-    .max(MAX_NAME_LENGTH),
-  rate: z
-    .number()
-    .min(0)
-    .max(100), // percentage
+  name: z.string().min(MIN_NAME_LENGTH).max(MAX_NAME_LENGTH),
+  rate: z.number().min(0).max(100), // percentage
   description: z.string().nullable().optional(),
 });
 
 export const UpdateTaxSchema = z.object({
-  name: z
-    .string()
-    .min(MIN_NAME_LENGTH)
-    .max(MAX_NAME_LENGTH)
-    .optional(),
-  rate: z
-    .number()
-    .min(0)
-    .max(100)
-    .optional(),
+  name: z.string().min(MIN_NAME_LENGTH).max(MAX_NAME_LENGTH).optional(),
+  rate: z.number().min(0).max(100).optional(),
   description: z.string().nullable().optional(),
 });
 

@@ -107,15 +107,15 @@ export const SCOPE_CONFIG: Record<
     name: ScopeNames.GIFT_CARDS_DELETE,
     description: "Delete gift cards data",
   },
-  [ ScopeNames.TAX_READ ]: {
+  [ScopeNames.TAX_READ]: {
     name: ScopeNames.TAX_READ,
     description: "Read tax data",
   },
-  [ ScopeNames.TAX_WRITE ]: {
+  [ScopeNames.TAX_WRITE]: {
     name: ScopeNames.TAX_WRITE,
     description: "Create and update tax data",
   },
-  [ ScopeNames.TAX_DELETE ]: {
+  [ScopeNames.TAX_DELETE]: {
     name: ScopeNames.TAX_DELETE,
     description: "Delete tax data",
   },

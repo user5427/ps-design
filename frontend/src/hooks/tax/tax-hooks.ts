@@ -1,20 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  getAllTaxes,
-  createTax,
-  updateTax,
-  deleteTax,
-} from "@/api/tax";
-import type {
-  CreateTaxBody,
-  UpdateTaxBody,
-} from "@ps-design/schemas/tax";
+import { getAllTaxes, createTax, updateTax, deleteTax } from "@/api/tax";
+import type { CreateTaxBody, UpdateTaxBody } from "@ps-design/schemas/tax";
 import { categoryKeys } from "@/hooks/category-hooks";
 
 export const taxKeys = {
-  all: [ "taxes" ] as const,
-  list: () => [ ...taxKeys.all ] as const,
-  detail: (id: string) => [ ...taxKeys.all, id ] as const,
+  all: ["taxes"] as const,
+  list: () => [...taxKeys.all] as const,
+  detail: (id: string) => [...taxKeys.all, id] as const,
 };
 
 export function useTaxes() {
