@@ -10,6 +10,7 @@ import {
   updateOrderItems,
   updateOrderTotals,
 } from "@/api/orders";
+import { floorKeys } from "@/hooks/orders/floor-hooks";
 import type {
   OrderResponse,
   UpdateOrderItemsBody,
@@ -113,10 +114,17 @@ export function useRefundOrder(orderId: string) {
     mutationFn: (body: { amount?: number; reason?: string }) =>
       refundOrderApi(orderId, body),
     onSuccess: (order: OrderResponse) => {
+      // Update the local order cache so the refund and totals show immediately
       queryClient.setQueryData<OrderResponse | undefined>(
         orderKeys.order(orderId),
         order,
       );
+
+      // Also refetch from the backend to ensure all derived fields are hydrated
+      queryClient.invalidateQueries({ queryKey: orderKeys.order(orderId) });
+
+      // And refresh the floor plan so table coloring / status updates instantly
+      queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
     },
   });
 }

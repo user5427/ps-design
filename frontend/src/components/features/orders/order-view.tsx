@@ -23,17 +23,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { floorKeys, useFloorPlan } from "@/hooks/orders/floor-hooks";
 import { URLS } from "@/constants/urls";
-import {
-  useCancelOrder,
-  useOrder,
-  usePayOrder,
-  useRefundOrder,
-  useSendOrderItems,
-  useUpdateOrderItems,
-  useUpdateOrderTotals,
-} from "@/hooks/orders/order-hooks";
+import { useCancelOrder, useOrder, useRefundOrder, useSendOrderItems, useUpdateOrderItems, useUpdateOrderTotals } from "@/hooks/orders/order-hooks";
 import { useMenuItems } from "@/hooks/menu";
 import type { OrderItemInput } from "@ps-design/schemas/order/order";
+import { OrderPayModal } from "./order-pay-modal";
 
 interface MenuItemEntry {
   id: string;
@@ -59,7 +52,6 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   const updateItemsMutation = useUpdateOrderItems(orderId);
   const sendItemsMutation = useSendOrderItems(orderId);
   const updateTotalsMutation = useUpdateOrderTotals(orderId);
-  const payOrderMutation = usePayOrder(orderId);
   const refundOrderMutation = useRefundOrder(orderId);
   const cancelOrderMutation = useCancelOrder(orderId);
 
@@ -73,8 +65,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
 
   const [tipInput, setTipInput] = useState<string>("");
   const [discountInput, setDiscountInput] = useState<string>("");
-  const [paymentAmountInput, setPaymentAmountInput] = useState<string>("");
-  const [giftCardCodeInput, setGiftCardCodeInput] = useState<string>("");
+    const [refundAmountInput, setRefundAmountInput] = useState<string>("");
+    const [isPayModalOpen, setIsPayModalOpen] = useState(false);
 
   // Derive table label from floor plan data when available
   const matchingTable = useMemo(() => {
@@ -144,9 +136,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
 
     setTipInput(order.totalTip.toFixed(2));
     setDiscountInput(order.totalDiscount.toFixed(2));
-
-    const suggested = remaining > 0 ? remaining : order.totalAmount;
-    setPaymentAmountInput(suggested.toFixed(2));
+    const suggestedRefund = remaining > 0 ? 0 : order.totalAmount;
+    setRefundAmountInput(suggestedRefund.toFixed(2));
   }, [order, remaining]);
 
   const handleBack = () => {
@@ -269,55 +260,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     );
   };
 
-  const handleAddPayment = (method: "CASH" | "CARD" | "GIFT_CARD") => {
-    if (!order) return;
-
-    if (method === "GIFT_CARD") {
-      const code = giftCardCodeInput.trim();
-      if (!code) {
-        window.alert("Enter a gift card code.");
-        return;
-      }
-
-      payOrderMutation.mutate(
-        { paymentMethod: method, amount: 0, giftCardCode: code },
-        {
-          onSuccess: () => {
-            setGiftCardCodeInput("");
-            queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
-          },
-          onError: () => {
-            window.alert("Could not apply gift card. Please check the code.");
-          },
-        },
-      );
-
-      return;
-    }
-
-    const amount = parseMoneyInput(paymentAmountInput);
-    if (amount <= 0) {
-      window.alert("Enter a valid payment amount.");
-      return;
-    }
-
-    payOrderMutation.mutate(
-      { paymentMethod: method, amount },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
-        },
-        onError: () => {
-          window.alert("Could not register payment. Please try again.");
-        },
-      },
-    );
-  };
-
   const handleRefund = () => {
     if (!order) return;
 
-    const amount = parseMoneyInput(paymentAmountInput);
+    const amount = parseMoneyInput(refundAmountInput);
     if (amount <= 0) {
       window.alert("Enter a valid refund amount.");
       return;
@@ -326,9 +272,6 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     refundOrderMutation.mutate(
       { amount },
       {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
-        },
         onError: () => {
           window.alert("Could not refund this order.");
         },
@@ -739,62 +682,40 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                   </Stack>
                 )}
 
-                <Stack
-                  direction={{ xs: "column", sm: "row" }}
-                  spacing={1}
-                  sx={{ mt: 1 }}
-                  alignItems={{ xs: "flex-start", sm: "center" }}
-                >
-                  <TextField
-                    label="Amount (€)"
-                    size="small"
-                    value={paymentAmountInput}
-                    onChange={(e) => setPaymentAmountInput(e.target.value)}
-                    sx={{ minWidth: 140 }}
-                  />
-                  <TextField
-                    label="Gift card code"
-                    size="small"
-                    value={giftCardCodeInput}
-                    onChange={(e) => setGiftCardCodeInput(e.target.value)}
-                    sx={{ minWidth: 160 }}
-                  />
-                  <Stack direction="row" spacing={1}>
+                <Stack spacing={1} sx={{ mt: 1 }}>
+                  {isOpen && remaining > 0 && (
                     <Button
                       variant="contained"
                       size="small"
-                      onClick={() => handleAddPayment("CASH")}
-                      disabled={payOrderMutation.isPending}
+                      onClick={() => setIsPayModalOpen(true)}
                     >
-                      Cash
+                      Take Payment
                     </Button>
-                    <Button
-                      variant="contained"
-                      size="small"
-                      onClick={() => handleAddPayment("CARD")}
-                      disabled={payOrderMutation.isPending}
-                    >
-                      Card
-                    </Button>
-                    <Button
-                      variant="contained"
-                      size="small"
-                      onClick={() => handleAddPayment("GIFT_CARD")}
-                      disabled={payOrderMutation.isPending}
-                    >
-                      Gift card
-                    </Button>
-                  </Stack>
+                  )}
+
                   {(order.status === "PAID" || order.status === "REFUNDED") && (
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      color="warning"
-                      onClick={handleRefund}
-                      disabled={refundOrderMutation.isPending}
+                    <Stack
+                      direction={{ xs: "column", sm: "row" }}
+                      spacing={1}
+                      alignItems={{ xs: "flex-start", sm: "center" }}
                     >
-                      Refund
-                    </Button>
+                      <TextField
+                        label="Refund amount (€)"
+                        size="small"
+                        value={refundAmountInput}
+                        onChange={(e) => setRefundAmountInput(e.target.value)}
+                        sx={{ minWidth: 160 }}
+                      />
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        color="warning"
+                        onClick={handleRefund}
+                        disabled={refundOrderMutation.isPending}
+                      >
+                        Refund
+                      </Button>
+                    </Stack>
                   )}
                 </Stack>
               </Box>
@@ -850,6 +771,15 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
           </Box>
         </Box>
       </Box>
+
+      <OrderPayModal
+        open={isPayModalOpen}
+        onClose={() => setIsPayModalOpen(false)}
+        order={order}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
+        }}
+      />
     </Box>
   );
 };
