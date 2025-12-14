@@ -116,10 +116,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
 
   const pendingItemsTotal = useMemo(
     () =>
-      ticketItems.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0,
-      ),
+      ticketItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [ticketItems],
   );
 
@@ -315,8 +312,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     );
   };
 
-  const primaryLabel =
-    "Send to Kitchen";
+  const primaryLabel = "Send to Kitchen";
 
   if (isLoading || isMenuLoading || !order) {
     return (
@@ -711,10 +707,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                   <Stack spacing={0.5}>
                     {payments.map((p) => (
                       <Typography key={p.id} variant="body2">
-                        {p.method} {p.isRefund ? "refund" : "payment"} —
-                        {" "}
-                        {p.amount.toFixed(2)}€ on
-                        {" "}
+                        {p.method} {p.isRefund ? "refund" : "payment"} —{" "}
+                        {p.amount.toFixed(2)}€ on{" "}
                         {new Date(p.createdAt).toLocaleString()}
                       </Typography>
                     ))}

@@ -12,10 +12,10 @@ import type { MenuItem } from "@/modules/menu/menu-item/menu-item.entity";
 import type { MenuItemVariation } from "@/modules/menu/menu-item-variation/menu-item-variation.entity";
 import type { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product/menu-item-base-product.entity";
 import type { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product/menu-item-variation-product.entity";
-import { Order, OrderStatus } from "./order.entity";
-import { OrderItem, OrderItemStatus } from "./order-item.entity";
-import { OrderItemVariation } from "./order-item-variation.entity";
-import { Payment, PaymentMethod } from "./payment.entity";
+import { type Order, OrderStatus } from "./order.entity";
+import { type OrderItem, OrderItemStatus } from "./order-item.entity";
+import type { OrderItemVariation } from "./order-item-variation.entity";
+import type { Payment, PaymentMethod } from "./payment.entity";
 
 export interface OrderItemInput {
   menuItemId: string;
@@ -170,16 +170,18 @@ export class OrderRepository {
         const unitSalePrice = basePrice + totalVariationPrice;
         const lineTotal = unitSalePrice * input.quantity;
 
-        const orderItem = manager.getRepository(this.orderItemRepo.target).create({
-          orderId,
-          menuItemId: menuItem.id,
-          snapName: menuItem.baseName,
-          snapBasePrice: basePrice,
-          unitSalePrice,
-          quantity: input.quantity,
-          status: OrderItemStatus.PENDING,
-          lineTotal,
-        });
+        const orderItem = manager
+          .getRepository(this.orderItemRepo.target)
+          .create({
+            orderId,
+            menuItemId: menuItem.id,
+            snapName: menuItem.baseName,
+            snapBasePrice: basePrice,
+            unitSalePrice,
+            quantity: input.quantity,
+            status: OrderItemStatus.PENDING,
+            lineTotal,
+          });
 
         const savedItem = await manager
           .getRepository(this.orderItemRepo.target)
@@ -242,7 +244,11 @@ export class OrderRepository {
         new Set(pendingItems.map((i) => i.menuItemId)),
       );
       const variationIds = Array.from(
-        new Set(pendingItems.flatMap((i) => i.variations.map((v) => v.menuItemVariationId))),
+        new Set(
+          pendingItems.flatMap((i) =>
+            i.variations.map((v) => v.menuItemVariationId),
+          ),
+        ),
       );
 
       const baseProducts = await manager
@@ -409,7 +415,9 @@ export class OrderRepository {
 
     const itemsTotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
 
-    const order = await orderRepo.findOne({ where: { id: orderId, businessId } });
+    const order = await orderRepo.findOne({
+      where: { id: orderId, businessId },
+    });
     if (!order) return;
 
     const totalAmount =

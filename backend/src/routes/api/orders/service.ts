@@ -11,7 +11,9 @@ import type {
 import { stripeService } from "@/modules/payment/stripe-service";
 import { MINIMUM_STRIPE_PAYMENT_AMOUNT } from "@ps-design/schemas/payments";
 
-function toOrderResponse(order: import("@/modules/order").Order): OrderResponse {
+function toOrderResponse(
+  order: import("@/modules/order").Order,
+): OrderResponse {
   return {
     id: order.id,
     businessId: order.businessId,
@@ -60,7 +62,10 @@ export async function createOrder(
     businessId,
     body.tableId ?? null,
   );
-  const full = await fastify.db.order.getByIdAndBusinessId(order.id, businessId);
+  const full = await fastify.db.order.getByIdAndBusinessId(
+    order.id,
+    businessId,
+  );
   return toOrderResponse(full);
 }
 
@@ -82,7 +87,11 @@ export async function updateOrderItems(
   orderId: string,
   body: UpdateOrderItemsBody,
 ): Promise<OrderResponse> {
-  const order = await fastify.db.order.updateItems(orderId, businessId, body.items);
+  const order = await fastify.db.order.updateItems(
+    orderId,
+    businessId,
+    body.items,
+  );
   return toOrderResponse(order);
 }
 
@@ -185,7 +194,10 @@ export async function initiateOrderStripePayment(
     throw new Error("Stripe is not configured");
   }
 
-  const order = await fastify.db.order.getByIdAndBusinessId(orderId, businessId);
+  const order = await fastify.db.order.getByIdAndBusinessId(
+    orderId,
+    businessId,
+  );
 
   const totalPaid = (order.payments ?? [])
     .filter((p) => !p.isRefund)

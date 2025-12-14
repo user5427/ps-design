@@ -10,7 +10,10 @@ import {
   updateOrderItems,
   updateOrderTotals,
 } from "@/api/orders";
-import type { OrderResponse, UpdateOrderItemsBody } from "@ps-design/schemas/order/order";
+import type {
+  OrderResponse,
+  UpdateOrderItemsBody,
+} from "@ps-design/schemas/order/order";
 
 export const orderKeys = {
   all: ["orders"] as const,
@@ -83,8 +86,10 @@ export function usePayOrder(orderId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (body: { paymentMethod: "CASH" | "CARD" | "GIFT_CARD"; amount: number }) =>
-      payOrderApi(orderId, body),
+    mutationFn: (body: {
+      paymentMethod: "CASH" | "CARD" | "GIFT_CARD";
+      amount: number;
+    }) => payOrderApi(orderId, body),
     onSuccess: (order: OrderResponse) => {
       queryClient.setQueryData<OrderResponse | undefined>(
         orderKeys.order(orderId),

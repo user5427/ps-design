@@ -9,14 +9,18 @@ import type {
   UpdateOrderTotalsBody,
 } from "@ps-design/schemas/order/order";
 
-export async function createOrder(body: CreateOrderBody): Promise<OrderResponse> {
+export async function createOrder(
+  body: CreateOrderBody,
+): Promise<OrderResponse> {
   const response = await apiClient.post<OrderResponse>("/orders", body);
   return response.data;
 }
 
 export async function getOrder(orderId: string): Promise<OrderResponse> {
   const params: OrderIdParams = { orderId };
-  const response = await apiClient.get<OrderResponse>(`/orders/${params.orderId}`);
+  const response = await apiClient.get<OrderResponse>(
+    `/orders/${params.orderId}`,
+  );
   return response.data;
 }
 
@@ -71,9 +75,7 @@ export async function refundOrderApi(
   return response.data;
 }
 
-export async function initiateOrderStripePayment(
-  orderId: string,
-): Promise<{
+export async function initiateOrderStripePayment(orderId: string): Promise<{
   clientSecret: string;
   paymentIntentId: string;
   finalAmount: number;
