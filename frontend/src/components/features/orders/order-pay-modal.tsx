@@ -74,7 +74,11 @@ export const OrderPayModal: React.FC<OrderPayModalProps> = ({
   }
 
   // Stripe checkout step
-  if (state.step === "stripe-checkout" && state.paymentIntent && stripePromise) {
+  if (
+    state.step === "stripe-checkout" &&
+    state.paymentIntent &&
+    stripePromise
+  ) {
     return (
       <Dialog open={open} onClose={actions.handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>
@@ -163,12 +167,15 @@ export const OrderPayModal: React.FC<OrderPayModalProps> = ({
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button
           onClick={actions.handleClose}
-          disabled={mutations.payMutation.isPending || state.isInitiatingPayment}
+          disabled={
+            mutations.payMutation.isPending || state.isInitiatingPayment
+          }
         >
           Cancel
         </Button>
 
-        {(state.paymentMethod === "CASH" || calculations.estimatedTotal === 0) && (
+        {(state.paymentMethod === "CASH" ||
+          calculations.estimatedTotal === 0) && (
           <Button
             variant="contained"
             color="primary"
@@ -182,30 +189,35 @@ export const OrderPayModal: React.FC<OrderPayModalProps> = ({
             onClick={actions.handleCashPayment}
             disabled={mutations.payMutation.isPending}
           >
-            {mutations.payMutation.isPending ? "Processing..." : "Confirm Payment"}
+            {mutations.payMutation.isPending
+              ? "Processing..."
+              : "Confirm Payment"}
           </Button>
         )}
 
-        {state.paymentMethod === "STRIPE" && calculations.estimatedTotal > 0 && (
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={
-              state.isInitiatingPayment ? (
-                <CircularProgress size={20} color="inherit" />
-              ) : (
-                <CreditCardIcon />
-              )
-            }
-            onClick={actions.handleInitiateStripePayment}
-            disabled={
-              state.isInitiatingPayment ||
-              calculations.estimatedTotal < MINIMUM_STRIPE_PAYMENT_AMOUNT
-            }
-          >
-            {state.isInitiatingPayment ? "Preparing..." : "Continue to Card Payment"}
-          </Button>
-        )}
+        {state.paymentMethod === "STRIPE" &&
+          calculations.estimatedTotal > 0 && (
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={
+                state.isInitiatingPayment ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  <CreditCardIcon />
+                )
+              }
+              onClick={actions.handleInitiateStripePayment}
+              disabled={
+                state.isInitiatingPayment ||
+                calculations.estimatedTotal < MINIMUM_STRIPE_PAYMENT_AMOUNT
+              }
+            >
+              {state.isInitiatingPayment
+                ? "Preparing..."
+                : "Continue to Card Payment"}
+            </Button>
+          )}
       </DialogActions>
     </Dialog>
   );
