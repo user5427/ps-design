@@ -4,6 +4,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { URLS } from "@/constants/urls";
 import { useAuthStore } from "@/store/auth";
 import { useAuthUser } from "@/hooks/auth/auth-hooks";
+import type { AvailabilityFormData } from "@/components/features/availability/availability-form";
 import { AvailabilityForm } from "@/components/features/availability/availability-form";
 import {
   useUserAvailability,
@@ -41,7 +42,7 @@ function AvailabilityPage() {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: AvailabilityFormData) => {
     if (!user?.id) return;
 
     try {

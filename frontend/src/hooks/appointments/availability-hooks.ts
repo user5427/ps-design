@@ -21,10 +21,14 @@ export const availabilityKeys = {
 };
 
 export function useUserAvailability(userId: string | undefined) {
+  const enabled = !!userId;
+
   return useQuery({
-    queryKey: availabilityKeys.user(userId!),
-    queryFn: () => getAvailabilityByUserId(userId!),
-    enabled: !!userId,
+    queryKey: enabled
+      ? availabilityKeys.user(userId as string)
+      : ("availability/user/disabled" as const),
+    queryFn: () => getAvailabilityByUserId(userId as string),
+    enabled,
   });
 }
 

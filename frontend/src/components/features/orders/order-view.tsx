@@ -100,7 +100,9 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
 
   const menuCategories: MenuCategory[] = useMemo(() => {
     const set = new Set<string>();
-    menuEntries.forEach((item) => set.add(item.category));
+    menuEntries.forEach((item) => {
+      set.add(item.category);
+    });
     return ["All", ...Array.from(set).sort()];
   }, [menuEntries]);
 

@@ -29,7 +29,6 @@ function getBackgroundColor(status: TableStatus, reserved?: boolean): string {
       return "#2ECC71"; // Green for tables with an open order
     case "ATTENTION":
       return "#F39C12"; // Orange for tables that need attention
-    case "AVAILABLE":
     default:
       return "#F5F5F5"; // Light gray / white for free tables
   }
