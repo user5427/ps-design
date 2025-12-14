@@ -131,6 +131,25 @@ export async function payOrder(
   body: PayOrderBody,
 ): Promise<OrderResponse> {
   const method = body.paymentMethod as import("@/modules/order").PaymentMethod;
+
+  // Guard against duplicate Stripe webhook deliveries or retries by
+  // short‑circuiting if we already have a non‑refund payment recorded
+  // for this paymentIntentId.
+  if (method === "CARD" && body.paymentIntentId) {
+    const existing = await fastify.db.order.getByIdAndBusinessId(
+      orderId,
+      businessId,
+    );
+
+    const alreadyRecorded = (existing.payments ?? []).some(
+      (p) => !p.isRefund && p.externalReferenceId === body.paymentIntentId,
+    );
+
+    if (alreadyRecorded) {
+      return toOrderResponse(existing);
+    }
+  }
+
   // Special handling for gift card payments: validate and redeem code, and
   // apply up to the remaining order amount from the card's value.
   if (method === "GIFT_CARD") {
