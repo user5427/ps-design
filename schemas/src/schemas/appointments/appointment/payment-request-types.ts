@@ -1,0 +1,18 @@
+import { z } from "zod";
+
+export const PaymentMethodEnum = z.enum(["CASH", "GIFTCARD", "STRIPE"]);
+
+export const PayAppointmentSchema = z.object({
+  paymentMethod: PaymentMethodEnum,
+  tipAmount: z.number().int().min(0).optional(), // cents
+  giftCardCode: z.string().max(50).optional(),
+  paymentIntentId: z.string().optional(), // Stripe PaymentIntent ID for STRIPE payments
+});
+
+export const RefundAppointmentSchema = z.object({
+  reason: z.string().max(500).optional(),
+});
+
+export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
+export type PayAppointmentBody = z.infer<typeof PayAppointmentSchema>;
+export type RefundAppointmentBody = z.infer<typeof RefundAppointmentSchema>;

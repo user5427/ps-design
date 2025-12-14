@@ -9,7 +9,7 @@ import { BadRequestError, ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
 import type { Product } from "@/modules/inventory/product/product.entity";
 import type { StockLevel } from "@/modules/inventory/stock-level/stock-level.entity";
-import type { MenuItemCategory } from "@/modules/menu/menu-item-category/menu-item-category.entity";
+import type { Category } from "@/modules/category/category.entity";
 import type { MenuItem } from "./menu-item.entity";
 import type { MenuItemVariation } from "@/modules/menu/menu-item-variation/menu-item-variation.entity";
 import type { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product/menu-item-base-product.entity";
@@ -36,7 +36,7 @@ export class MenuItemRepository {
   constructor(
     private dataSource: DataSource,
     private repository: Repository<MenuItem>,
-    private categoryRepository: Repository<MenuItemCategory>,
+    private categoryRepository: Repository<Category>,
     private variationRepository: Repository<MenuItemVariation>,
     private baseProductRepository: Repository<MenuItemBaseProduct>,
     private variationProductRepository: Repository<MenuItemVariationProduct>,

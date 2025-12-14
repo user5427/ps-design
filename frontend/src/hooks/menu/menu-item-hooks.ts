@@ -10,7 +10,7 @@ import type {
   CreateMenuItemBody,
   UpdateMenuItemBody,
 } from "@ps-design/schemas/menu/items";
-import { menuCategoryKeys } from "./menu-category-hooks";
+import { categoryKeys } from "@/hooks/category-hooks";
 
 export const menuItemKeys = {
   all: ["menu", "items"] as const,
@@ -38,7 +38,7 @@ export function useCreateMenuItem() {
     mutationFn: (data: CreateMenuItemBody) => createMenuItem(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: menuItemKeys.all });
-      queryClient.invalidateQueries({ queryKey: menuCategoryKeys.all });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.all });
     },
   });
 }

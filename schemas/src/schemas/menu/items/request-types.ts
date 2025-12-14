@@ -21,6 +21,7 @@ const CreateVariationSchema = z.object({
   type: MenuItemVariationTypeSchema,
   priceAdjustment: z
     .number()
+    .int("Price adjustment must be an integer (cents)")
     .nonnegative("Price adjustment must be non-negative")
     .default(0),
   isDisabled: z.boolean().default(false),
@@ -37,6 +38,7 @@ const UpdateVariationSchema = z.object({
   type: MenuItemVariationTypeSchema.optional(),
   priceAdjustment: z
     .number()
+    .int("Price adjustment must be an integer (cents)")
     .nonnegative("Price adjustment must be non-negative")
     .optional(),
   isDisabled: z.boolean().optional(),
@@ -50,7 +52,10 @@ export const CreateMenuItemSchema = z.object({
     .string()
     .min(MIN_NAME_LENGTH, MIN_NAME_MESSAGE)
     .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE),
-  basePrice: z.number().nonnegative("Base price must be non-negative"),
+  basePrice: z
+    .number()
+    .int("Base price must be an integer (cents)")
+    .nonnegative("Base price must be non-negative"),
   categoryId: uuid().nullable().optional(),
   isDisabled: z.boolean().default(false),
   baseProducts: z
@@ -67,6 +72,7 @@ export const UpdateMenuItemSchema = z.object({
     .optional(),
   basePrice: z
     .number()
+    .int("Base price must be an integer (cents)")
     .nonnegative("Base price must be non-negative")
     .optional(),
   categoryId: uuid().nullable().optional(),

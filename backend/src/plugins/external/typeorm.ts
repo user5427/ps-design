@@ -3,6 +3,7 @@ import fp from "fastify-plugin";
 import type { DataSource } from "typeorm";
 import { createDataSource } from "@/database/data-source";
 import { Business, BusinessRepository } from "@/modules/business";
+import { Category, CategoryRepository } from "@/modules/category";
 import { Product, ProductRepository } from "@/modules/inventory/product";
 import {
   ProductUnit,
@@ -29,14 +30,32 @@ import {
   RoleScope,
   RoleScopeRepository,
 } from "@/modules/user";
-import {
-  MenuItemCategory,
-  MenuItemCategoryRepository,
-} from "@/modules/menu/menu-item-category";
 import { MenuItem, MenuItemRepository } from "@/modules/menu/menu-item";
 import { MenuItemVariation } from "@/modules/menu/menu-item-variation";
 import { MenuItemBaseProduct } from "@/modules/menu/menu-item-base-product";
 import { MenuItemVariationProduct } from "@/modules/menu/menu-item-variation-product";
+import {
+  ServiceDefinition,
+  ServiceDefinitionRepository,
+} from "@/modules/appointments/service-definition";
+import {
+  StaffService,
+  StaffServiceRepository,
+} from "@/modules/appointments/staff-service";
+import {
+  Availability,
+  AvailabilityRepository,
+} from "@/modules/appointments/availability";
+import {
+  Appointment,
+  AppointmentRepository,
+} from "@/modules/appointments/appointment";
+import {
+  AppointmentPayment,
+  PaymentLineItem,
+  AppointmentPaymentRepository,
+} from "@/modules/appointments/appointment-payment";
+import { GiftCard, GiftCardRepository } from "@/modules/gift-card";
 
 export interface Services {
   dataSource: DataSource;
@@ -51,8 +70,14 @@ export interface Services {
   product: ProductRepository;
   stockLevel: StockLevelRepository;
   stockChange: StockChangeRepository;
-  menuItemCategory: MenuItemCategoryRepository;
+  category: CategoryRepository;
   menuItem: MenuItemRepository;
+  serviceDefinition: ServiceDefinitionRepository;
+  staffService: StaffServiceRepository;
+  availability: AvailabilityRepository;
+  appointment: AppointmentRepository;
+  appointmentPayment: AppointmentPaymentRepository;
+  giftCard: GiftCardRepository;
 }
 
 declare module "fastify" {
@@ -72,6 +97,12 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
 
   await dataSource.initialize();
   fastify.log.info("TypeORM DataSource initialized");
+
+  const availabilityRepo = new AvailabilityRepository(
+    dataSource,
+    dataSource.getRepository(Availability),
+    dataSource.getRepository(User),
+  );
 
   const services: Services = {
     dataSource,
@@ -98,20 +129,45 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
       dataSource.getRepository(Product),
       dataSource,
     ),
-    menuItemCategory: new MenuItemCategoryRepository(
-      dataSource.getRepository(MenuItemCategory),
+    category: new CategoryRepository(
+      dataSource.getRepository(Category),
       dataSource.getRepository(MenuItem),
+      dataSource.getRepository(ServiceDefinition),
     ),
     menuItem: new MenuItemRepository(
       dataSource,
       dataSource.getRepository(MenuItem),
-      dataSource.getRepository(MenuItemCategory),
+      dataSource.getRepository(Category),
       dataSource.getRepository(MenuItemVariation),
       dataSource.getRepository(MenuItemBaseProduct),
       dataSource.getRepository(MenuItemVariationProduct),
       dataSource.getRepository(Product),
       dataSource.getRepository(StockLevel),
     ),
+    serviceDefinition: new ServiceDefinitionRepository(
+      dataSource.getRepository(ServiceDefinition),
+      dataSource.getRepository(Category),
+      dataSource.getRepository(StaffService),
+    ),
+    staffService: new StaffServiceRepository(
+      dataSource.getRepository(StaffService),
+      dataSource.getRepository(User),
+      dataSource.getRepository(ServiceDefinition),
+    ),
+    availability: availabilityRepo,
+    appointment: new AppointmentRepository(
+      dataSource,
+      dataSource.getRepository(Appointment),
+      dataSource.getRepository(StaffService),
+      availabilityRepo,
+    ),
+    appointmentPayment: new AppointmentPaymentRepository(
+      dataSource,
+      dataSource.getRepository(AppointmentPayment),
+      dataSource.getRepository(PaymentLineItem),
+      dataSource.getRepository(Appointment),
+    ),
+    giftCard: new GiftCardRepository(dataSource.getRepository(GiftCard)),
   };
 
   fastify.decorate("db", services);
