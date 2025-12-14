@@ -48,14 +48,32 @@ export async function getFloorPlan(
   }
 
   return {
-    tables: tables.map((table) => ({
-      id: table.id,
-      label: table.label,
-      capacity: table.capacity,
-      status: table.status,
-      reserved: table.reserved ?? false,
-      orderId: orderByTableId.get(table.id) ?? null,
-    })),
+    tables: tables.map((table) => {
+      const hasOpenOrder = orderByTableId.has(table.id);
+
+      // Derive the visual status for the floor plan from the
+      // actual order state:
+      // - ATTENTION is preserved as a special highlight.
+      // - Tables with an OPEN order become ACTIVE (green).
+      // - All others are AVAILABLE (white).
+      let status: DiningTableStatus;
+      if (table.status === DiningTableStatus.ATTENTION) {
+        status = DiningTableStatus.ATTENTION;
+      } else if (hasOpenOrder) {
+        status = DiningTableStatus.ACTIVE;
+      } else {
+        status = DiningTableStatus.AVAILABLE;
+      }
+
+      return {
+        id: table.id,
+        label: table.label,
+        capacity: table.capacity,
+        status,
+        reserved: table.reserved ?? false,
+        orderId: orderByTableId.get(table.id) ?? null,
+      };
+    }),
   };
 }
 

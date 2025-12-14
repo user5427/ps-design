@@ -37,8 +37,6 @@ interface MenuItemEntry {
 }
 type MenuCategory = string;
 
-type OrderUiStatus = "NEW" | "ACTIVE";
-
 interface OrderViewProps {
   orderId: string;
 }
@@ -51,7 +49,6 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   const updateItemsMutation = useUpdateOrderItems(orderId);
   const sendItemsMutation = useSendOrderItems(orderId);
 
-  const [orderStatus] = useState<OrderUiStatus>("ACTIVE");
   const [tableLabel, setTableLabel] = useState<string | null>(null);
   const [servedBy] = useState<string>("Demo Waiter");
 
@@ -172,8 +169,6 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   const primaryLabel =
     "Send to Kitchen";
 
-  const statusChipColor = orderStatus === "NEW" ? "default" : "success";
-
   if (isLoading || isMenuLoading || !order) {
     return (
       <Box
@@ -239,8 +234,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
           </Box>
           <Stack direction="row" spacing={2} alignItems="center">
             <Chip
-              label={orderStatus}
-              color={statusChipColor}
+              label={order.status}
+              color="default"
               variant="outlined"
             />
             <Typography variant="body2" color="text.secondary">
