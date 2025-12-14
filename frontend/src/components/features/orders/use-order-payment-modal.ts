@@ -283,10 +283,7 @@ export function useOrderPaymentModal({
       onClose();
       onSuccess?.();
     } catch (error) {
-      const errorMessage = getReadableError(
-        error,
-        "Failed to process payment",
-      );
+      const errorMessage = getReadableError(error, "Failed to process payment");
       setStripeError(errorMessage);
     }
   }, [

@@ -23,7 +23,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { floorKeys, useFloorPlan } from "@/hooks/orders/floor-hooks";
 import { URLS } from "@/constants/urls";
-import { useCancelOrder, useOrder, useRefundOrder, useSendOrderItems, useUpdateOrderItems, useUpdateOrderTotals } from "@/hooks/orders/order-hooks";
+import {
+  useCancelOrder,
+  useOrder,
+  useRefundOrder,
+  useSendOrderItems,
+  useUpdateOrderItems,
+  useUpdateOrderTotals,
+} from "@/hooks/orders/order-hooks";
 import { useMenuItems } from "@/hooks/menu";
 import type { OrderItemInput } from "@ps-design/schemas/order/order";
 import { OrderPayModal } from "./order-pay-modal";
@@ -65,8 +72,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
 
   const [tipInput, setTipInput] = useState<string>("");
   const [discountInput, setDiscountInput] = useState<string>("");
-    const [refundAmountInput, setRefundAmountInput] = useState<string>("");
-    const [isPayModalOpen, setIsPayModalOpen] = useState(false);
+  const [refundAmountInput, setRefundAmountInput] = useState<string>("");
+  const [isPayModalOpen, setIsPayModalOpen] = useState(false);
 
   // Derive table label from floor plan data when available
   const matchingTable = useMemo(() => {
