@@ -64,6 +64,7 @@ import {
 } from "@/modules/order";
 import { OrderRepository } from "@/modules/order/order.repository";
 import { AuditLogService, AuditLogRepository } from "@/modules/audit";
+import { TaxRepository, Tax } from "@/modules/tax";
 
 export interface Services {
   dataSource: DataSource;
@@ -87,6 +88,7 @@ export interface Services {
   appointment: AppointmentRepository;
   appointmentPayment: AppointmentPaymentRepository;
   giftCard: GiftCardRepository;
+  tax: TaxRepository;
   auditLogRepository: AuditLogRepository;
   auditLogService: AuditLogService;
 }
@@ -193,6 +195,10 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
       dataSource.getRepository(Appointment),
     ),
     giftCard: new GiftCardRepository(dataSource.getRepository(GiftCard)),
+    tax: new TaxRepository(
+      dataSource.getRepository(Tax),
+      dataSource.getRepository(Category),
+    ),
     auditLogRepository: new AuditLogRepository(dataSource),
     auditLogService: new AuditLogService(dataSource),
   };

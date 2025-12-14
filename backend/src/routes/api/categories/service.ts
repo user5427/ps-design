@@ -11,6 +11,7 @@ function toCategoryResponse(category: Category): CategoryResponse {
     id: category.id,
     name: category.name,
     businessId: category.businessId,
+    taxId: category.taxId ?? null,
     createdAt: category.createdAt.toISOString(),
     updatedAt: category.updatedAt.toISOString(),
     deletedAt: category.deletedAt?.toISOString() ?? null,
@@ -69,4 +70,46 @@ export async function bulkDeleteCategories(
   ids: string[],
 ): Promise<void> {
   await fastify.db.category.bulkDelete(ids, businessId);
+}
+
+export async function assignTaxToCategory(
+  fastify: FastifyInstance,
+  businessId: string,
+  categoryId: string,
+  taxId: string,
+): Promise<CategoryResponse> {
+  const category = await fastify.db.category.getById(categoryId, businessId);
+  const tax = await fastify.db.tax.getById(taxId, businessId);
+
+  if (!tax) {
+    throw new Error("Tax not found");
+  }
+
+  if (tax.businessId !== businessId) {
+    throw new Error("Tax does not belong to the same business");
+  }
+
+  category.taxId = taxId;
+  const updated = await fastify.db.category.update(
+    category.id,
+    businessId,
+    category,
+  );
+
+  return toCategoryResponse(updated);
+}
+
+export async function removeTaxFromCategory(
+  fastify: FastifyInstance,
+  businessId: string,
+  categoryId: string,
+): Promise<CategoryResponse> {
+  const category = await fastify.db.category.getById(categoryId, businessId);
+  category.taxId = null;
+  const updated = await fastify.db.category.update(
+    category.id,
+    businessId,
+    category,
+  );
+  return toCategoryResponse(updated);
 }
