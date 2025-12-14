@@ -116,56 +116,15 @@ export class DiscountRepository {
    * Priority: ORDER > MENU_ITEM
    * Only one discount is applied.
    */
+
+  // TODO: implement this properly
+
   async findApplicableForOrder(
     businessId: string,
     menuItemIds: string[],
     orderTotal: number,
   ): Promise<ApplicableDiscountResult | null> {
     const now = new Date();
-
-    const orderDiscount = await this.findActiveDiscount(
-      businessId,
-      "ORDER",
-      now,
-    );
-    if (orderDiscount) {
-      return {
-        discount: orderDiscount,
-        calculatedAmount: this.calculateDiscountAmount(
-          orderDiscount,
-          orderTotal,
-        ),
-      };
-    }
-
-    if (menuItemIds.length > 0) {
-      const itemDiscounts = await this.repository.find({
-        where: {
-          businessId,
-          deletedAt: IsNull(),
-          isDisabled: false,
-          targetType: "MENU_ITEM",
-          menuItemId: In(menuItemIds),
-        },
-        relations: ["menuItem"],
-      });
-
-      // Filter by date and find matching menu items
-      for (const discount of itemDiscounts) {
-        if (!this.isDiscountActive(discount, now)) continue;
-        if (discount.menuItemId && menuItemIds.includes(discount.menuItemId)) {
-          // For item-specific discounts, we apply to the order total for simplicity
-          // In a more complex implementation, you'd calculate per-item
-          return {
-            discount,
-            calculatedAmount: this.calculateDiscountAmount(
-              discount,
-              orderTotal,
-            ),
-          };
-        }
-      }
-    }
 
     return null;
   }
