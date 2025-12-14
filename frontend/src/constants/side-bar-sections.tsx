@@ -5,6 +5,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
+import RestaurantIcon from "@mui/icons-material/Restaurant";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AddIcon from "@mui/icons-material/Add";
@@ -20,6 +21,11 @@ export const sidebarSections: Section[] = [
     label: "Dashboard",
     icon: <DashboardIcon />,
     path: URLS.DASHBOARD,
+  },
+  {
+    label: "Orders",
+    icon: <RestaurantIcon />,
+    path: URLS.FLOOR_PLAN,
   },
   {
     label: "Manage Businesses",

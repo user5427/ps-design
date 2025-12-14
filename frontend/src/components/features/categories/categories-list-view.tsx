@@ -114,10 +114,8 @@ export const CategoriesListView = () => {
   ];
 
   const handleCreate = async (values: Partial<Category>) => {
-    // Ensure taxId is explicitly null
     await createMutation.mutateAsync({
       name: String(values.name),
-      taxId: null,
     });
     await refetch(); // immediately refresh the table
   };
@@ -127,7 +125,6 @@ export const CategoriesListView = () => {
       id,
       data: {
         name: values.name,
-        taxId: values.taxId ?? null,
       },
     });
     await refetch(); // refresh table to sync changes

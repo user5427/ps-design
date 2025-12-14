@@ -2,6 +2,7 @@
 export const URLS = {
   DASHBOARD: "/dashboard",
   AVAILABILITY: "/availability",
+  FLOOR_PLAN: "/floor-plan",
   LOGIN: "/auth/login",
   CHANGE_PASSWORD: "/auth/change-password",
   HOME: "/",
@@ -18,6 +19,8 @@ export const URLS = {
   CATEGORIES: "/categories",
   // Menu
   MENU_ITEMS: "/menu/items",
+  // Orders
+  ORDER_VIEW: (orderId: string) => `/orders/${orderId}`,
   // Appointments
   APPOINTMENTS_SERVICE_DEFINITIONS: "/appointments/service-definitions",
   APPOINTMENTS_STAFF_SERVICES: "/appointments/staff-services",
