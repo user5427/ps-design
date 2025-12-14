@@ -25,9 +25,7 @@ export function useUserAvailability(userId: string | undefined) {
   const enabled = !!userId;
 
   return useQuery<AvailabilityResponse[]>({
-    queryKey: enabled
-      ? availabilityKeys.user(userId as string)
-      : undefined,
+    queryKey: enabled ? availabilityKeys.user(userId as string) : undefined,
     queryFn: () => getAvailabilityByUserId(userId as string),
     enabled,
   });
