@@ -294,7 +294,7 @@ export async function payAppointment(
   if (applicableDiscount) {
     lineItems.push({
       type: "DISCOUNT",
-      label: applicableDiscount.discount.name,
+      label: `Discount (${applicableDiscount.discount.name})`,
       amount: -discountAmount,
     });
   }
