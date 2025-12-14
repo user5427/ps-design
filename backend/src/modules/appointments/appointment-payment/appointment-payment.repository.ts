@@ -39,7 +39,7 @@ export class AppointmentPaymentRepository {
     private repository: Repository<AppointmentPayment>,
     private lineItemRepository: Repository<PaymentLineItem>,
     private appointmentRepository: Repository<Appointment>,
-  ) { }
+  ) {}
 
   async findByAppointmentId(
     appointmentId: string,
