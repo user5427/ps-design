@@ -224,7 +224,11 @@ export async function refundOrder(
 
   const totalCardPaid = cardPayments.reduce((sum, p) => sum + p.amount, 0);
 
-  if (stripeService.isConfigured() && cardPayments.length > 0 && totalCardPaid > 0) {
+  if (
+    stripeService.isConfigured() &&
+    cardPayments.length > 0 &&
+    totalCardPaid > 0
+  ) {
     // Only refund up to the total amount that was actually paid by card
     const stripeRefundAmount = Math.min(amount, totalCardPaid);
 
