@@ -5,12 +5,6 @@ import { Business } from "@/modules/business";
 import { User, Role, ScopeEntity, UserRole, RoleScope } from "@/modules/user";
 import { ScopeNames, SCOPE_CONFIG } from "@/modules/user/scope.types";
 import { Scope } from "@/modules/user/scope.entity";
-import {
-  DiningTable,
-  DiningTableStatus,
-  Order,
-  OrderStatus,
-} from "@/modules/order";
 
 async function main() {
   const connectionString = process.env.DATABASE_URL;
@@ -33,8 +27,6 @@ async function main() {
   const scopeRepo = dataSource.getRepository(ScopeEntity);
   const userRoleRepo = dataSource.getRepository(UserRole);
   const roleScopeRepo = dataSource.getRepository(RoleScope);
-  const tableRepo = dataSource.getRepository(DiningTable);
-  const orderRepo = dataSource.getRepository(Order);
 
   try {
     // Create or reuse a default business
@@ -211,87 +203,6 @@ async function main() {
         }
       } else {
         console.log(`User already exists: ${existing.email}`);
-      }
-    }
-
-    // Seed a few dining tables for the default business
-    const existingTables = await tableRepo.find({
-      where: { businessId: business.id },
-    });
-
-    if (existingTables.length === 0) {
-      const tablesToCreate: Array<Partial<DiningTable>> = [
-        { label: "1A", capacity: 2, status: DiningTableStatus.AVAILABLE },
-        { label: "2A", capacity: 4, status: DiningTableStatus.ACTIVE },
-        { label: "3A", capacity: 4, status: DiningTableStatus.ATTENTION },
-        { label: "1B", capacity: 2, status: DiningTableStatus.AVAILABLE },
-        {
-          label: "2B",
-          capacity: 4,
-          status: DiningTableStatus.AVAILABLE,
-          reserved: true,
-        },
-        { label: "3B", capacity: 6, status: DiningTableStatus.ACTIVE },
-      ];
-
-      const createdTables: DiningTable[] = [];
-
-      for (const t of tablesToCreate) {
-        const table = tableRepo.create({
-          businessId: business.id,
-          label: t.label!,
-          capacity: t.capacity!,
-          status: t.status!,
-          reserved: t.reserved ?? false,
-        });
-        createdTables.push(await tableRepo.save(table));
-        console.log(`Created table: ${table.label} (${table.capacity} seats)`);
-      }
-
-      // Seed a couple of open orders for ACTIVE/ATTENTION tables
-      const [table2A, table3A, table3B] = [
-        createdTables.find((t) => t.label === "2A"),
-        createdTables.find((t) => t.label === "3A"),
-        createdTables.find((t) => t.label === "3B"),
-      ];
-
-      const employeeUser = await userRepo.findOne({
-        where: { email: "user@demo.local" },
-      });
-
-      const baseTotals = {
-        itemsTotal: 25,
-        totalTax: 5,
-        totalTip: 0,
-        totalDiscount: 0,
-      };
-
-      const tablesForOrders = [table2A, table3A, table3B].filter(
-        (t): t is DiningTable => !!t,
-      );
-
-      for (const t of tablesForOrders) {
-        const existingOrder = await orderRepo.findOne({
-          where: { tableId: t.id, status: OrderStatus.OPEN },
-        });
-
-        if (!existingOrder) {
-          const order = orderRepo.create({
-            businessId: business.id,
-            tableId: t.id,
-            status: OrderStatus.OPEN,
-            ...baseTotals,
-            totalAmount:
-              baseTotals.itemsTotal +
-              baseTotals.totalTax +
-              baseTotals.totalTip -
-              baseTotals.totalDiscount,
-          });
-          const savedOrder = await orderRepo.save(order);
-          console.log(
-            `Created open order ${savedOrder.id} for table ${t.label}`,
-          );
-        }
       }
     }
 
