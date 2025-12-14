@@ -262,13 +262,20 @@ export async function refundOrder(
     const stripeRefundAmount = Math.min(amount, totalCardPaid);
 
     if (stripeRefundAmount > 0) {
-      const paymentIntentId = cardPayments[cardPayments.length - 1]
-        .externalReferenceId as string;
-
-      await stripeService.refundPayment({
-        paymentIntentId,
-        amount: Math.round(stripeRefundAmount * 100),
-      });
+      let remainingRefund = stripeRefundAmount;
+      for (const cardPayment of cardPayments) {
+        if (remainingRefund <= 0) break;
+        const paymentIntentId = cardPayment.externalReferenceId as string;
+        // Calculate the max refundable for this payment (in case of partial refunds in the future)
+        const maxRefundable = Math.min(cardPayment.amount, remainingRefund);
+        if (maxRefundable > 0) {
+          await stripeService.refundPayment({
+            paymentIntentId,
+            amount: Math.round(maxRefundable * 100),
+          });
+          remainingRefund -= maxRefundable;
+        }
+      }
     }
   }
 
