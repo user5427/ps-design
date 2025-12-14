@@ -1,3 +1,4 @@
+import { CreateStaffService } from "./../../../../../../frontend/src/schemas/appointments/index";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
@@ -24,6 +25,7 @@ import {
 } from "@ps-design/schemas/shared";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
+import { AuditActionType } from "@/modules/audit";
 
 export default async function staffServicesRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -67,7 +69,15 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        await createStaffService(fastify, businessId, request.body);
+        const CreateStaffServiceWrapped = await fastify.audit.generic(
+          createStaffService,
+          AuditActionType.CREATE,
+          request,
+          reply,
+          "StaffService",
+        );
+
+        await CreateStaffServiceWrapped(fastify, businessId, request.body);
         return reply.code(httpStatus.CREATED).send();
       } catch (error) {
         return handleServiceError(error, reply);
@@ -135,7 +145,21 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
       const { serviceId } = request.params;
 
       try {
-        await updateStaffService(fastify, businessId, serviceId, request.body);
+        const updateStaffServiceWrapped = await fastify.audit.generic(
+          updateStaffService,
+          AuditActionType.UPDATE,
+          request,
+          reply,
+          "StaffService",
+          serviceId,
+        );
+
+        await updateStaffServiceWrapped(
+          fastify,
+          businessId,
+          serviceId,
+          request.body,
+        );
         return reply.send();
       } catch (error) {
         return handleServiceError(error, reply);
@@ -164,7 +188,20 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        await bulkDeleteStaffServices(fastify, businessId, request.body.ids);
+        const wrapBulkDeleteStaffServices = await fastify.audit.generic(
+          bulkDeleteStaffServices,
+          AuditActionType.DELETE,
+          request,
+          reply,
+          "StaffService",
+          request.body.ids,
+        );
+
+        await wrapBulkDeleteStaffServices(
+          fastify,
+          businessId,
+          request.body.ids,
+        );
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);

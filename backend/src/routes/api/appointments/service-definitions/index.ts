@@ -25,6 +25,7 @@ import {
 } from "@ps-design/schemas/shared";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
+import { AuditActionType } from "@/modules/audit";
 
 const ServiceDefinitionFilterSchema = z.object({
   active: z.string().optional(),
@@ -85,7 +86,15 @@ export default async function serviceDefinitionsRoutes(
       if (!businessId) return;
 
       try {
-        await createServiceDefinition(fastify, businessId, request.body);
+        const createServiceDefinitionWrapped = await fastify.audit.generic(
+          createServiceDefinition,
+          AuditActionType.CREATE,
+          request,
+          reply,
+          "ServiceDefinition",
+        );
+
+        await createServiceDefinitionWrapped(fastify, businessId, request.body);
         return reply.code(httpStatus.CREATED).send();
       } catch (error) {
         return handleServiceError(error, reply);
@@ -156,7 +165,16 @@ export default async function serviceDefinitionsRoutes(
       const { serviceDefinitionId } = request.params;
 
       try {
-        await updateServiceDefinition(
+        const updateServiceDefinitionWrapped = await fastify.audit.generic(
+          updateServiceDefinition,
+          AuditActionType.UPDATE,
+          request,
+          reply,
+          "ServiceDefinition",
+          serviceDefinitionId,
+        );
+
+        await updateServiceDefinitionWrapped(
           fastify,
           businessId,
           serviceDefinitionId,
@@ -190,7 +208,16 @@ export default async function serviceDefinitionsRoutes(
       if (!businessId) return;
 
       try {
-        await bulkDeleteServiceDefinitions(
+        const bulkDeleteServiceDefinitionsWrapped = await fastify.audit.generic(
+          bulkDeleteServiceDefinitions,
+          AuditActionType.DELETE,
+          request,
+          reply,
+          "ServiceDefinition",
+          request.body.ids,
+        );
+
+        await bulkDeleteServiceDefinitionsWrapped(
           fastify,
           businessId,
           request.body.ids,

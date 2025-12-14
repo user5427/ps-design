@@ -112,6 +112,22 @@ export const sidebarSections: Section[] = [
     path: URLS.GIFT_CARDS,
   },
   {
+    label: "Audit Logs",
+    icon: <AssessmentIcon />,
+    children: [
+      {
+        label: "Business Logs",
+        icon: <BusinessIcon />,
+        path: URLS.AUDIT_BUSINESS_LOGS,
+      },
+      {
+        label: "Security Logs",
+        icon: <AssessmentIcon />,
+        path: URLS.AUDIT_SECURITY_LOGS,
+      },
+    ],
+  },
+  {
     label: "Settings",
     icon: <SettingsIcon />,
     path: "/settings",

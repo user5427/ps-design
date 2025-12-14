@@ -24,6 +24,7 @@ import {
 } from "@ps-design/schemas/shared";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
+import { AuditActionType } from "@/modules/audit";
 
 export default async function categoriesRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -61,7 +62,15 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        const category = await createCategory(
+        const wrapCreateCategory = await fastify.audit.generic(
+          createCategory,
+          AuditActionType.CREATE,
+          request,
+          reply,
+          "Category",
+        );
+
+        const category = await wrapCreateCategory(
           fastify,
           businessId,
           request.body,
@@ -123,7 +132,16 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
       const { categoryId } = request.params;
 
       try {
-        const updated = await updateCategory(
+        const wrapUpdateCategory = await fastify.audit.generic(
+          updateCategory,
+          AuditActionType.UPDATE,
+          request,
+          reply,
+          "Category",
+          categoryId,
+        );
+
+        const updated = await wrapUpdateCategory(
           fastify,
           businessId,
           categoryId,
@@ -154,7 +172,15 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        await bulkDeleteCategories(fastify, businessId, request.body.ids);
+        const wrapBulkDeleteCategories = await fastify.audit.generic(
+          bulkDeleteCategories,
+          AuditActionType.DELETE,
+          request,
+          reply,
+          "Category",
+          request.body.ids,
+        );
+        await wrapBulkDeleteCategories(fastify, businessId, request.body.ids);
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);

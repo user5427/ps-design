@@ -24,7 +24,7 @@ import {
 } from "@ps-design/schemas/shared";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
-import { bulkDeleteUnits } from "../units/service";
+import { AuditActionType } from "@/modules/audit";
 
 export default async function productsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -69,7 +69,19 @@ export default async function productsRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        const product = await createProduct(fastify, businessId, request.body);
+        const createProductWrapped = await fastify.audit.generic(
+          createProduct,
+          AuditActionType.CREATE,
+          request,
+          reply,
+          "Product",
+        );
+
+        const product = await createProductWrapped(
+          fastify,
+          businessId,
+          request.body,
+        );
         return reply.code(httpStatus.CREATED).send(product);
       } catch (error) {
         return handleServiceError(error, reply);
@@ -133,7 +145,16 @@ export default async function productsRoutes(fastify: FastifyInstance) {
       const { productId } = request.params;
 
       try {
-        const updated = await updateProduct(
+        const updateProductWrapped = await fastify.audit.generic(
+          updateProduct,
+          AuditActionType.UPDATE,
+          request,
+          reply,
+          "Product",
+          productId,
+        );
+
+        const updated = await updateProductWrapped(
           fastify,
           businessId,
           productId,
@@ -167,7 +188,15 @@ export default async function productsRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        await bulkDeleteUnits(fastify, businessId, request.body.ids);
+        const bulkDeleteUnitsWrapped = await fastify.audit.generic(
+          bulkDeleteProducts,
+          AuditActionType.DELETE,
+          request,
+          reply,
+          "Product",
+          request.body.ids,
+        );
+        await bulkDeleteUnitsWrapped(fastify, businessId, request.body.ids);
         return reply.code(httpStatus.NO_CONTENT).send();
       } catch (error) {
         return handleServiceError(error, reply);

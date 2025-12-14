@@ -63,6 +63,7 @@ import {
   Payment as OrderPayment,
 } from "@/modules/order";
 import { OrderRepository } from "@/modules/order/order.repository";
+import { AuditLogService, AuditLogRepository } from "@/modules/audit";
 
 export interface Services {
   dataSource: DataSource;
@@ -86,6 +87,8 @@ export interface Services {
   appointment: AppointmentRepository;
   appointmentPayment: AppointmentPaymentRepository;
   giftCard: GiftCardRepository;
+  auditLogRepository: AuditLogRepository;
+  auditLogService: AuditLogService;
 }
 
 declare module "fastify" {
@@ -190,6 +193,8 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
       dataSource.getRepository(Appointment),
     ),
     giftCard: new GiftCardRepository(dataSource.getRepository(GiftCard)),
+    auditLogRepository: new AuditLogRepository(dataSource),
+    auditLogService: new AuditLogService(dataSource),
   };
 
   fastify.decorate("db", services);

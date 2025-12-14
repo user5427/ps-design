@@ -19,6 +19,7 @@ import {
   type StockQuery,
   StockQuerySchema,
 } from "@ps-design/schemas/inventory/stock";
+import { AuditActionType } from "@/modules/audit";
 
 export default async function stockRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -99,7 +100,15 @@ export default async function stockRoutes(fastify: FastifyInstance) {
       const user = request.authUser!;
 
       try {
-        const stockChange = await createStockChange(
+        const wrapCreateStockChange = await fastify.audit.generic(
+          createStockChange,
+          AuditActionType.CREATE,
+          request,
+          reply,
+          "StockChange",
+        );
+
+        const stockChange = await wrapCreateStockChange(
           fastify,
           businessId,
           user.id,
