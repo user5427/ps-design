@@ -8,7 +8,6 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   type Relation,
-  Unique,
   UpdateDateColumn,
 } from "typeorm";
 import type { Business } from "@/modules/business/business.entity";
@@ -16,7 +15,10 @@ import type { MenuItem } from "@/modules/menu/menu-item/menu-item.entity";
 import type { ServiceDefinition } from "@/modules/appointments/service-definition/service-definition.entity";
 
 @Entity("Category")
-@Unique(["businessId", "name"])
+@Index("IDX_category_business_name_unique_active", ["businessId", "name"], {
+  unique: true,
+  where: '"deletedAt" IS NULL',
+})
 export class Category {
   @PrimaryGeneratedColumn("uuid")
   id: string;

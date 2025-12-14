@@ -7,13 +7,15 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   type Relation,
-  Unique,
   UpdateDateColumn,
 } from "typeorm";
 import type { Business } from "@/modules/business/business.entity";
 
 @Entity("GiftCard")
-@Unique(["businessId", "code"])
+@Index("IDX_gift_card_business_code_unique_active", ["businessId", "code"], {
+  unique: true,
+  where: '"deletedAt" IS NULL',
+})
 export class GiftCard {
   @PrimaryGeneratedColumn("uuid")
   id: string;

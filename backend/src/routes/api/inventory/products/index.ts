@@ -24,7 +24,6 @@ import {
 } from "@ps-design/schemas/shared";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
-import { bulkDeleteUnits } from "../units/service";
 import { AuditActionType } from "@/modules/audit";
 
 export default async function productsRoutes(fastify: FastifyInstance) {
@@ -190,7 +189,7 @@ export default async function productsRoutes(fastify: FastifyInstance) {
 
       try {
         const bulkDeleteUnitsWrapped = await fastify.audit.generic(
-          bulkDeleteUnits,
+          bulkDeleteProducts,
           AuditActionType.DELETE,
           request,
           reply,
