@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import type { Appointment } from "@/schemas/appointments";
+import { getAppointmentById } from "@/api/appointments";
 import type { GiftCardResponse } from "@ps-design/schemas/gift-card";
 import type { InitiatePaymentResponse } from "@ps-design/schemas/payments";
 import { usePayAppointment } from "@/hooks/appointments";
@@ -209,40 +210,43 @@ export function usePaymentModal({
   ]);
 
   const handleStripeSuccess = useCallback(
-    async (paymentIntentId: string) => {
+    async (_paymentIntentId: string) => {
       if (!appointment) return;
 
+      setIsInitiatingPayment(true);
+
       try {
-        await payMutation.mutateAsync({
-          id: appointment.id,
-          data: {
-            paymentMethod: "STRIPE",
-            tipAmount: paymentIntent?.breakdown.tipAmount,
-            giftCardCode: validatedGiftCard ? giftCardCode : undefined,
-            paymentIntentId,
-          },
-        });
-        resetForm();
-        onClose();
-        onSuccess?.();
+        // Poll for status update
+        let attempts = 0;
+        const maxAttempts = 10;
+        const interval = 1000;
+
+        while (attempts < maxAttempts) {
+          const updatedAppointment = await getAppointmentById(appointment.id);
+          if (updatedAppointment.status === "PAID") {
+            resetForm();
+            onClose();
+            onSuccess?.();
+            return;
+          }
+          await new Promise((resolve) => setTimeout(resolve, interval));
+          attempts++;
+        }
+
+        setStripeError(
+          "Payment successful, but appointment status update is delayed. Please refresh the page.",
+        );
       } catch (error) {
         const errorMessage = getReadableError(
           error,
           "Payment processed but failed to update appointment. Please refresh the page.",
         );
         setStripeError(errorMessage);
+      } finally {
+        setIsInitiatingPayment(false);
       }
     },
-    [
-      appointment,
-      payMutation,
-      paymentIntent,
-      validatedGiftCard,
-      giftCardCode,
-      resetForm,
-      onClose,
-      onSuccess,
-    ],
+    [appointment, resetForm, onClose, onSuccess],
   );
 
   const handleStripeError = useCallback((message: string) => {
