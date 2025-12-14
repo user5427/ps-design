@@ -19,6 +19,9 @@ export enum ScopeNames {
   GIFT_CARDS_READ = "GIFT_CARDS_READ",
   GIFT_CARDS_WRITE = "GIFT_CARDS_WRITE",
   GIFT_CARDS_DELETE = "GIFT_CARDS_DELETE",
+  DISCOUNTS_READ = "DISCOUNTS_READ",
+  DISCOUNTS_WRITE = "DISCOUNTS_WRITE",
+  DISCOUNTS_DELETE = "DISCOUNTS_DELETE",
   TAX_READ = "TAX_READ",
   TAX_WRITE = "TAX_WRITE",
   TAX_DELETE = "TAX_DELETE",
@@ -108,6 +111,18 @@ export const SCOPE_CONFIG: Record<
   [ScopeNames.GIFT_CARDS_DELETE]: {
     name: ScopeNames.GIFT_CARDS_DELETE,
     description: "Delete gift cards data",
+  },
+  [ScopeNames.DISCOUNTS_READ]: {
+    name: ScopeNames.DISCOUNTS_READ,
+    description: "Read discounts data",
+  },
+  [ScopeNames.DISCOUNTS_WRITE]: {
+    name: ScopeNames.DISCOUNTS_WRITE,
+    description: "Create and update discounts data",
+  },
+  [ScopeNames.DISCOUNTS_DELETE]: {
+    name: ScopeNames.DISCOUNTS_DELETE,
+    description: "Delete discounts data",
   },
   [ScopeNames.TAX_READ]: {
     name: ScopeNames.TAX_READ,

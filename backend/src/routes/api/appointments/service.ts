@@ -157,6 +157,7 @@ export async function initiatePayment(
     servicePrice: number;
     tipAmount: number;
     giftCardDiscount: number;
+    discountAmount: number;
   };
 }> {
   if (!stripeService.isConfigured()) {
@@ -179,6 +180,13 @@ export async function initiatePayment(
   const servicePrice = appointment.service.serviceDefinition.price;
   const tipAmount = input.tipAmount ?? 0;
 
+  const applicableDiscount = await fastify.db.discount.findApplicableForService(
+    businessId,
+    appointment.service.serviceDefinition.id,
+    servicePrice,
+  );
+  const discountAmount = applicableDiscount?.calculatedAmount ?? 0;
+
   let giftCardDiscount = 0;
   if (input.giftCardCode) {
     const giftCard = await fastify.db.giftCard.findByCodeAndBusinessId(
@@ -194,10 +202,15 @@ export async function initiatePayment(
     if (giftCard.expiresAt && new Date(giftCard.expiresAt) < new Date()) {
       throw new Error("Gift card has expired");
     }
-    giftCardDiscount = Math.min(giftCard.value, servicePrice);
+    // Discount is applied first, then should we apply gift card  to remainder?
+    const priceAfterDiscount = Math.max(0, servicePrice - discountAmount);
+    giftCardDiscount = Math.min(giftCard.value, priceAfterDiscount);
   }
 
-  const finalAmount = Math.max(0, servicePrice + tipAmount - giftCardDiscount);
+  const finalAmount = Math.max(
+    0,
+    servicePrice + tipAmount - discountAmount - giftCardDiscount,
+  );
 
   if (finalAmount < MINIMUM_STRIPE_PAYMENT_AMOUNT) {
     throw new Error(
@@ -213,6 +226,7 @@ export async function initiatePayment(
       businessId,
       tipAmount: tipAmount.toString(),
       giftCardCode: input.giftCardCode ?? "",
+      discountId: applicableDiscount?.discount.id ?? "",
     },
   });
 
@@ -224,6 +238,7 @@ export async function initiatePayment(
       servicePrice,
       tipAmount,
       giftCardDiscount,
+      discountAmount,
     },
   };
 }
@@ -269,13 +284,33 @@ export async function payAppointment(
     });
   }
 
+  const applicableDiscount = await fastify.db.discount.findApplicableForService(
+    businessId,
+    serviceDefinition.id,
+    serviceDefinition.price,
+  );
+  const discountAmount = applicableDiscount?.calculatedAmount ?? 0;
+
+  if (applicableDiscount) {
+    lineItems.push({
+      type: "DISCOUNT",
+      label: `Discount (${applicableDiscount.discount.name})`,
+      amount: -discountAmount,
+    });
+  }
+
   let giftCardDiscount = 0;
   if (input.giftCardCode) {
     const giftCard = await fastify.db.giftCard.validateAndRedeem(
       input.giftCardCode,
       businessId,
     );
-    giftCardDiscount = Math.min(giftCard.value, serviceDefinition.price);
+    const priceAfterDiscount = Math.max(
+      0,
+      serviceDefinition.price - discountAmount,
+    );
+    giftCardDiscount = Math.min(giftCard.value, priceAfterDiscount);
+
     lineItems.push({
       type: "DISCOUNT",
       label: `Gift Card (${input.giftCardCode})`,
