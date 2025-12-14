@@ -19,7 +19,7 @@ import dayjs from "dayjs";
 
 import type { Appointment } from "@/schemas/appointments";
 import { MINIMUM_STRIPE_PAYMENT_AMOUNT } from "@ps-design/schemas/payments";
-import { usePaymentModal } from "@/hooks/payments";
+import { usePaymentModal } from "./use-payment-modal";
 import {
   DetailRow,
   PayModalTitle,
@@ -111,7 +111,6 @@ export const PayModal: React.FC<PayModalProps> = ({
       </DialogTitle>
       <DialogContent>
         <Stack sx={{ py: 2 }} spacing={3}>
-          {/* Appointment Details */}
           <Box>
             <Typography variant="subtitle2" color="text.secondary" gutterBottom>
               Appointment Details
@@ -130,7 +129,6 @@ export const PayModal: React.FC<PayModalProps> = ({
 
           <Divider />
 
-          {/* Gift Card */}
           <GiftCardSection
             giftCardCode={state.giftCardCode}
             onGiftCardCodeChange={actions.setGiftCardCode}
@@ -143,7 +141,6 @@ export const PayModal: React.FC<PayModalProps> = ({
 
           <Divider />
 
-          {/* Tip */}
           <TipSection
             tipAmount={state.tipAmount}
             onTipChange={actions.setTipAmount}
@@ -151,7 +148,6 @@ export const PayModal: React.FC<PayModalProps> = ({
 
           <Divider />
 
-          {/* Payment Summary and Method Selection */}
           <PaymentSummarySection
             price={calculations.price}
             tipAmountCents={calculations.tipAmountCents}
@@ -173,7 +169,6 @@ export const PayModal: React.FC<PayModalProps> = ({
           Cancel
         </Button>
 
-        {/* Cash or fully-covered payment */}
         {(state.paymentMethod === "CASH" ||
           calculations.estimatedTotal === 0) && (
           <Button
@@ -195,7 +190,6 @@ export const PayModal: React.FC<PayModalProps> = ({
           </Button>
         )}
 
-        {/* Stripe payment - proceed to checkout */}
         {state.paymentMethod === "STRIPE" &&
           calculations.estimatedTotal > 0 && (
             <Button
