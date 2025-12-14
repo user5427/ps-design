@@ -8,6 +8,7 @@ import type {
   UpdateOrderItemsBody,
   UpdateOrderTotalsBody,
 } from "@ps-design/schemas/order/order";
+import type { GiftCard } from "@/modules/gift-card/gift-card.entity";
 import { stripeService } from "@/modules/payment/stripe-service";
 import { MINIMUM_STRIPE_PAYMENT_AMOUNT } from "@ps-design/schemas/payments";
 
@@ -175,16 +176,23 @@ export async function payOrder(
 
     // Validate and redeem the gift card.
     // NOTE: validateAndRedeem must be implemented atomically to prevent race conditions.
-    let giftCard;
+    let giftCard: GiftCard;
     try {
       giftCard = await fastify.db.giftCard.validateAndRedeem(
         body.giftCardCode,
         businessId,
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Handle race condition or already redeemed error
-      if (err && (err.code === "GIFT_CARD_ALREADY_REDEEMED" || err.message?.includes("already redeemed"))) {
-        throw new Error("Gift card has already been redeemed or is no longer valid");
+      const error = err as { code?: string; message?: string };
+      if (
+        error &&
+        (error.code === "GIFT_CARD_ALREADY_REDEEMED" ||
+          error.message?.includes("already redeemed"))
+      ) {
+        throw new Error(
+          "Gift card has already been redeemed or is no longer valid",
+        );
       }
       throw err;
     }

@@ -1,15 +1,15 @@
 import fp from "fastify-plugin";
-import { auditLogWrapper } from "@/modules/audit";
+import { auditLogWrapper, type EntityName } from "@/modules/audit";
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import type { BusinessIdParams } from "@ps-design/schemas/business";
-import { AuditActionType } from "@/modules/audit";
+import { AuditActionType, AuditSecurityType, type AuditType } from "@/modules/audit";
 import { getBusinessId } from "@/shared/auth-utils";
 
 export default fp(async (fastify: FastifyInstance) => {
   fastify.decorate("audit", {
     business: async (
-      fn: (...args: any[]) => any,
-      auditType: any,
+      fn: (...args: any[]) => Promise<any>,
+      auditType: AuditActionType,
       request:
         | FastifyRequest
         | FastifyRequest<{ Params: { businessId: string } }>,
@@ -22,7 +22,7 @@ export default fp(async (fastify: FastifyInstance) => {
       const baseParams = {
         userId: userContext.userId,
         ip: request.ip,
-        entityType: "Business",
+        entityType: "Business" as EntityName,
       };
 
       if (auditType === AuditActionType.CREATE) {
@@ -45,24 +45,31 @@ export default fp(async (fastify: FastifyInstance) => {
           ? [userContext.businessId]
           : undefined;
 
+      const businessIdValue = userContext.businessId;
+      if (!businessIdValue) {
+        throw new Error("Business ID not found");
+      }
+
       return auditLogWrapper(fn, fastify.db.auditLogService, auditType, {
         ...baseParams,
-        businessId: userContext.businessId!,
+        businessId: businessIdValue,
         entityId: entityIds,
       });
     },
 
     security: async (
-      fn: (...args: any[]) => any,
-      auditType: any,
+      fn: (...args: any[]) => Promise<any>,
+      auditType: AuditSecurityType,
       request: FastifyRequest,
     ) => {
       let userId = request.user?.userId || null;
 
       if (!userId) {
-        const user = await fastify.db.user.findByEmail(
-          (request.body as any).email,
-        );
+        const body = request.body as { email?: string } | undefined;
+        const email = body?.email;
+        const user = email
+          ? await fastify.db.user.findByEmail(email)
+          : null;
         userId = user ? user.id : null;
       }
 
@@ -77,8 +84,8 @@ export default fp(async (fastify: FastifyInstance) => {
     },
 
     generic: async (
-      fn: (...args: any[]) => any,
-      auditType: any,
+      fn: (...args: any[]) => Promise<any>,
+      auditType: AuditType,
       request: FastifyRequest,
       reply: FastifyReply,
       entityType: string,
@@ -87,10 +94,14 @@ export default fp(async (fastify: FastifyInstance) => {
       const businessId = getBusinessId(request, reply);
       if (!businessId) throw new Error("Business ID not found");
 
-      const baseParams = {
+      const baseParams: {
+        userId: string;
+        ip: string;
+        entityType: EntityName;
+      } = {
         userId: (request.user as { userId: string }).userId,
         ip: request.ip,
-        entityType,
+        entityType: entityType as EntityName,
       };
 
       return auditLogWrapper(fn, fastify.db.auditLogService, auditType, {

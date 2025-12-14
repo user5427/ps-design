@@ -215,7 +215,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       const { categoryId } = request.params;
-      const { taxId } = request.body;
+      const { taxId } = request.body as AssignTaxToCategoryBody;
 
       try {
         const wrapAssignTax = await fastify.audit.generic(

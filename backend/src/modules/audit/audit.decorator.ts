@@ -1,4 +1,7 @@
-import type { AuditLogService } from "../audit/audit-log.service";
+import type {
+  AuditLogService,
+  EntityName,
+} from "../audit/audit-log.service";
 import {
   AuditActionType,
   type AuditSecurityType,
@@ -6,11 +9,13 @@ import {
   ActionResult,
 } from "../audit/audit-log.types";
 
-export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
+export function auditActionWrapper<
+  T extends (...args: any[]) => Promise<any>,
+>(
   fn: T,
   auditLogService: AuditLogService,
   action: AuditActionType,
-  entityType: string,
+  entityType: EntityName,
   businessId: string | null,
   userId: string,
   entityIds: string | string[] | null,
@@ -24,12 +29,12 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
         : [];
 
     // Fetch old snapshots
-    const oldValuesMap: Record<string, any> = {};
+    const oldValuesMap: Record<string, Record<string, unknown> | null> = {};
     if (action !== AuditActionType.CREATE && ids.length) {
       await Promise.all(
         ids.map(async (id) => {
           oldValuesMap[id] = await auditLogService.getEntitySnapshot(
-            entityType as any,
+            entityType,
             id,
           );
         }),
@@ -41,14 +46,14 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
     let finalIds = ids;
 
     try {
-      res = await fn(...args);
+      res = (await fn(...args)) as Awaited<ReturnType<T>>;
 
       // For CREATE, the returned entity (or entities) provide new IDs
       if (action === AuditActionType.CREATE) {
         if (Array.isArray(res)) {
-          finalIds = res.map((r: any) => r.id);
+          finalIds = (res as { id: string }[]).map((r) => r.id);
         } else {
-          finalIds = [res.id];
+          finalIds = [(res as { id: string }).id];
         }
       }
 
@@ -57,7 +62,7 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
       await Promise.all(
         finalIds.map(async (id) => {
           const newValues = await auditLogService.getEntitySnapshot(
-            entityType as any,
+            entityType,
             id,
           );
           await auditLogService.logBusiness({
@@ -91,7 +96,7 @@ export function auditSecurityWrapper<
   return async (...args: Parameters<T>): Promise<Awaited<ReturnType<T>>> => {
     let result: ActionResult = ActionResult.FAILURE;
     try {
-      const res = await fn(...args);
+      const res = (await fn(...args)) as Awaited<ReturnType<T>>;
       result = ActionResult.SUCCESS;
       return res;
     } finally {
@@ -105,12 +110,14 @@ export function auditSecurityWrapper<
   };
 }
 
-export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
+export function auditLogWrapper<
+  T extends (...args: any[]) => Promise<any>,
+>(
   fn: T,
   auditLogService: AuditLogService,
   auditType: AuditType,
   params: {
-    entityType?: string;
+    entityType?: EntityName;
     businessId?: string | null;
     entityId?: string | string[] | null;
     userId: string;
