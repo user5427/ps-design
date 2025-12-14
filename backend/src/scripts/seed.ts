@@ -96,27 +96,7 @@ async function main() {
       },
       {
         roleName: "ADMIN",
-        scopes: [
-          ScopeNames.INVENTORY_READ,
-          ScopeNames.INVENTORY_WRITE,
-          ScopeNames.USER_READ,
-          ScopeNames.USER_WRITE,
-          ScopeNames.BUSINESS_READ,
-          ScopeNames.MENU_DELETE,
-          ScopeNames.MENU_READ,
-          ScopeNames.MENU_WRITE,
-          ScopeNames.APPOINTMENTS_READ,
-          ScopeNames.APPOINTMENTS_WRITE,
-          ScopeNames.APPOINTMENTS_DELETE,
-          ScopeNames.GIFT_CARDS_READ,
-          ScopeNames.GIFT_CARDS_WRITE,
-          ScopeNames.GIFT_CARDS_DELETE,
-          ScopeNames.TAX_READ,
-          ScopeNames.TAX_WRITE,
-          ScopeNames.TAX_DELETE,
-          ScopeNames.AUDIT_BUSINESS_READ,
-          ScopeNames.AUDIT_SECURITY_READ,
-        ],
+        scopes: Object.values(ScopeNames), // All scopes
       },
       {
         roleName: "USER",

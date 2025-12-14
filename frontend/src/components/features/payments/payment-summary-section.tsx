@@ -17,6 +17,8 @@ interface PaymentSummarySectionProps {
   price: number;
   tipAmountCents: number;
   giftCardDiscount: number;
+  discountAmount?: number;
+  discountName?: string;
   estimatedTotal: number;
   paymentMethod: PaymentMethod;
   onPaymentMethodChange: (method: PaymentMethod) => void;
@@ -27,6 +29,8 @@ export const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
   price,
   tipAmountCents,
   giftCardDiscount,
+  discountAmount = 0,
+  discountName,
   estimatedTotal,
   paymentMethod,
   onPaymentMethodChange,
@@ -47,6 +51,12 @@ export const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
       <Box>
         <Stack spacing={1}>
           <DetailRow label="Service" value={formatPrice(price)} />
+          {discountAmount > 0 && (
+            <DetailRow
+              label={discountName ? `Discount (${discountName})` : "Discount"}
+              value={`-${formatPrice(discountAmount)}`}
+            />
+          )}
           {giftCardDiscount > 0 && (
             <DetailRow
               label="Gift Card Discount"

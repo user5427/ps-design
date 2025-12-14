@@ -26,6 +26,7 @@ export const URLS = {
   APPOINTMENTS_STAFF_SERVICES: "/appointments/staff-services",
   APPOINTMENTS_LIST: "/appointments/appointments",
   GIFT_CARDS: "/gift-cards",
+  DISCOUNTS: "/discounts",
   // Audit Logs
   AUDIT_BUSINESS_LOGS: "/audit/business-logs",
   AUDIT_SECURITY_LOGS: "/audit/security-logs",
