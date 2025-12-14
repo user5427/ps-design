@@ -8,7 +8,10 @@ import type {
 import type { InitiatePaymentBody } from "@ps-design/schemas/payments";
 import { MINIMUM_STRIPE_PAYMENT_AMOUNT } from "@ps-design/schemas/payments";
 import type { Appointment } from "@/modules/appointments/appointment/appointment.entity";
-import type { ICreatePaymentLineItem } from "@/modules/appointments/appointment-payment";
+import type {
+  AppointmentPayment,
+  ICreatePaymentLineItem,
+} from "@/modules/appointments/appointment-payment";
 import { stripeService } from "@/modules/payment/stripe-service";
 
 function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
@@ -80,17 +83,19 @@ export async function createAppointment(
   businessId: string,
   createdById: string,
   input: CreateAppointmentBody,
-): Promise<void> {
-  await fastify.db.appointment.create({
-    customerName: input.customerName,
-    customerPhone: input.customerPhone,
-    customerEmail: input.customerEmail,
-    startTime: new Date(input.startTime),
-    notes: input.notes,
-    serviceId: input.serviceId,
-    businessId,
-    createdById,
-  });
+): Promise<AppointmentResponse> {
+  return toAppointmentResponse(
+    await fastify.db.appointment.create({
+      customerName: input.customerName,
+      customerPhone: input.customerPhone,
+      customerEmail: input.customerEmail,
+      startTime: new Date(input.startTime),
+      notes: input.notes,
+      serviceId: input.serviceId,
+      businessId,
+      createdById,
+    }),
+  );
 }
 
 export async function getAppointmentById(
@@ -110,13 +115,15 @@ export async function updateAppointment(
   businessId: string,
   appointmentId: string,
   input: UpdateAppointmentBody,
-): Promise<void> {
-  await fastify.db.appointment.update(appointmentId, businessId, {
-    customerName: input.customerName,
-    customerPhone: input.customerPhone,
-    customerEmail: input.customerEmail,
-    notes: input.notes,
-  });
+): Promise<AppointmentResponse> {
+  return toAppointmentResponse(
+    await fastify.db.appointment.update(appointmentId, businessId, {
+      customerName: input.customerName,
+      customerPhone: input.customerPhone,
+      customerEmail: input.customerEmail,
+      notes: input.notes,
+    }),
+  );
 }
 
 export async function updateAppointmentStatus(
@@ -232,7 +239,7 @@ export async function payAppointment(
     giftCardCode?: string;
     paymentIntentId?: string;
   },
-): Promise<void> {
+): Promise<AppointmentPayment> {
   const appointment = await fastify.db.appointment.getById(
     appointmentId,
     businessId,
@@ -276,7 +283,7 @@ export async function payAppointment(
     });
   }
 
-  await fastify.db.appointmentPayment.create({
+  return await fastify.db.appointmentPayment.create({
     appointmentId,
     businessId,
     paidById,
@@ -299,7 +306,7 @@ export async function refundAppointment(
   appointmentId: string,
   refundedById: string,
   input: { reason?: string },
-): Promise<void> {
+): Promise<AppointmentPayment> {
   const payment =
     await fastify.db.appointmentPayment.findByAppointmentIdAndBusinessId(
       appointmentId,
@@ -320,7 +327,7 @@ export async function refundAppointment(
     });
   }
 
-  await fastify.db.appointmentPayment.refund(appointmentId, businessId, {
+  return await fastify.db.appointmentPayment.refund(appointmentId, businessId, {
     refundedById,
     reason: input.reason,
   });
