@@ -365,9 +365,9 @@ export const AvailabilityTimetable: React.FC<AvailabilityTimetableProps> = ({
                                   transition: "all 0.2s",
                                   "&:hover": isFree
                                     ? {
-                                      bgcolor: "success.100",
-                                      boxShadow: 1,
-                                    }
+                                        bgcolor: "success.100",
+                                        boxShadow: 1,
+                                      }
                                     : {},
                                 }}
                               >
@@ -468,22 +468,22 @@ export const AvailabilityTimetable: React.FC<AvailabilityTimetableProps> = ({
               minTime={
                 selectedBlock
                   ? (() => {
-                    const blockStart = dayjs(selectedBlock.startTime);
-                    if (selectedDate.isSame(dayjs(), "day")) {
-                      // For today, prevent past times
-                      const now = dayjs();
-                      return blockStart.isAfter(now) ? blockStart : now;
-                    }
-                    return blockStart;
-                  })()
+                      const blockStart = dayjs(selectedBlock.startTime);
+                      if (selectedDate.isSame(dayjs(), "day")) {
+                        // For today, prevent past times
+                        const now = dayjs();
+                        return blockStart.isAfter(now) ? blockStart : now;
+                      }
+                      return blockStart;
+                    })()
                   : undefined
               }
               maxTime={
                 selectedBlock
                   ? dayjs(selectedBlock.endTime).subtract(
-                    durationMinutes,
-                    "minute",
-                  )
+                      durationMinutes,
+                      "minute",
+                    )
                   : undefined
               }
               minutesStep={5}
