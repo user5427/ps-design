@@ -1,9 +1,10 @@
 import {
+  In,
   IsNull,
-  type Repository,
   LessThanOrEqual,
   MoreThanOrEqual,
   Or,
+  type Repository,
 } from "typeorm";
 import { ConflictError, NotFoundError, BadRequestError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
@@ -122,7 +123,6 @@ export class DiscountRepository {
   ): Promise<ApplicableDiscountResult | null> {
     const now = new Date();
 
-    // First, try to find an ORDER-level discount
     const orderDiscount = await this.findActiveDiscount(
       businessId,
       "ORDER",
@@ -138,7 +138,6 @@ export class DiscountRepository {
       };
     }
 
-    // If no ORDER discount, look for MENU_ITEM discounts that match order items
     if (menuItemIds.length > 0) {
       const itemDiscounts = await this.repository.find({
         where: {
@@ -146,6 +145,7 @@ export class DiscountRepository {
           deletedAt: IsNull(),
           isDisabled: false,
           targetType: "MENU_ITEM",
+          menuItemId: In(menuItemIds),
         },
         relations: ["menuItem"],
       });
@@ -206,6 +206,8 @@ export class DiscountRepository {
         isDisabled: false,
         targetType: "SERVICE",
         serviceDefinitionId,
+        startsAt: Or(IsNull(), LessThanOrEqual(now)),
+        expiresAt: Or(IsNull(), MoreThanOrEqual(now)),
       },
     });
 

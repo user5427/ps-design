@@ -134,7 +134,6 @@ export const AvailabilityTimetable: React.FC<AvailabilityTimetableProps> = ({
       // If today, ensure we don't start in the past
       if (dayjs(block.startTime).isSame(dayjs(), "day")) {
         const now = dayjs();
-        // Round up to next 5 minutes
         const remainder = 5 - (now.minute() % 5);
         const nextInterval = now.add(remainder, "minute").startOf("minute");
 

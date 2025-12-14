@@ -203,8 +203,8 @@ export async function initiatePayment(
       throw new Error("Gift card has expired");
     }
     // Discount is applied first, then should we apply gift card  to remainder?
-    const paramPrice = Math.max(0, servicePrice - discountAmount);
-    giftCardDiscount = Math.min(giftCard.value, paramPrice);
+    const priceAfterDiscount = Math.max(0, servicePrice - discountAmount);
+    giftCardDiscount = Math.min(giftCard.value, priceAfterDiscount);
   }
 
   const finalAmount = Math.max(

@@ -198,6 +198,19 @@ export const DiscountsListView = () => {
       label: "Expiration Date",
       type: "date",
       required: false,
+      validationRules: [
+        ValidationRules.custom((value, allValues) => {
+          if (allValues?.startsAt === undefined) return true;
+          const startsAt = allValues.startsAt
+            ? dayjs(allValues.startsAt as string)
+            : null;
+          const expiresAt = value ? dayjs(value as string) : null;
+          if (startsAt && expiresAt && expiresAt.isBefore(startsAt)) {
+            return false;
+          }
+          return true;
+        }, "Expiration date cannot be before start date"),
+      ],
     },
     {
       name: "isDisabled",

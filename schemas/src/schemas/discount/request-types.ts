@@ -10,7 +10,7 @@ export const CreateDiscountSchema = z
   .object({
     name: z.string().min(1, "Name is required").max(100, "Name is too long"),
     type: DiscountTypeSchema,
-    value: z.number().int().min(1),
+    value: z.number().int().min(0),
     targetType: DiscountTargetTypeSchema,
     menuItemId: uuid().nullable().optional(),
     serviceDefinitionId: uuid().nullable().optional(),
@@ -27,6 +27,18 @@ export const CreateDiscountSchema = z
     },
     {
       message: "Percentage discount must be between 0 and 100",
+      path: ["value"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.type === "FIXED_AMOUNT" && data.value < 1) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Fixed amount discount must be at least 1 cent",
       path: ["value"],
     },
   )
@@ -55,17 +67,74 @@ export const CreateDiscountSchema = z
     },
   );
 
-export const UpdateDiscountSchema = z.object({
-  name: z.string().min(1).max(100).optional(),
-  type: DiscountTypeSchema.optional(),
-  value: z.number().int().min(1).optional(),
-  targetType: DiscountTargetTypeSchema.optional(),
-  menuItemId: uuid().nullable().optional(),
-  serviceDefinitionId: uuid().nullable().optional(),
-  startsAt: datetime().nullable().optional(),
-  expiresAt: datetime().nullable().optional(),
-  isDisabled: z.boolean().optional(),
-});
+export const UpdateDiscountSchema = z
+  .object({
+    name: z.string().min(1).max(100).optional(),
+    type: DiscountTypeSchema.optional(),
+    value: z.number().int().min(0).optional(),
+    targetType: DiscountTargetTypeSchema.optional(),
+    menuItemId: uuid().nullable().optional(),
+    serviceDefinitionId: uuid().nullable().optional(),
+    startsAt: datetime().nullable().optional(),
+    expiresAt: datetime().nullable().optional(),
+    isDisabled: z.boolean().optional(),
+  })
+  .refine(
+    (data) => {
+      if (
+        data.type === "PERCENTAGE" &&
+        data.value !== undefined &&
+        (data.value < 0 || data.value > 100)
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Percentage discount must be between 0 and 100",
+      path: ["value"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (
+        data.type === "FIXED_AMOUNT" &&
+        data.value !== undefined &&
+        data.value < 1
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Fixed amount discount must be at least 1 cent",
+      path: ["value"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.targetType === "MENU_ITEM" && !data.menuItemId) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Menu item ID is required for MENU_ITEM discounts",
+      path: ["menuItemId"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.targetType === "SERVICE" && !data.serviceDefinitionId) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Service definition ID is required for SERVICE discounts",
+      path: ["serviceDefinitionId"],
+    },
+  );
 
 export const GetApplicableOrderDiscountSchema = z.object({
   menuItemIds: z.array(uuid()),
