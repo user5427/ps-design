@@ -192,24 +192,24 @@ export const PayModal: React.FC<PayModalProps> = ({
 
         {(state.paymentMethod === "CASH" ||
           calculations.estimatedTotal === 0) && (
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={
-                mutations.payMutation.isPending ? (
-                  <CircularProgress size={20} color="inherit" />
-                ) : (
-                  <PaymentIcon />
-                )
-              }
-              onClick={actions.handleCashPayment}
-              disabled={mutations.payMutation.isPending}
-            >
-              {mutations.payMutation.isPending
-                ? "Processing..."
-                : "Confirm Payment"}
-            </Button>
-          )}
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={
+              mutations.payMutation.isPending ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                <PaymentIcon />
+              )
+            }
+            onClick={actions.handleCashPayment}
+            disabled={mutations.payMutation.isPending}
+          >
+            {mutations.payMutation.isPending
+              ? "Processing..."
+              : "Confirm Payment"}
+          </Button>
+        )}
 
         {state.paymentMethod === "STRIPE" &&
           calculations.estimatedTotal > 0 && (
