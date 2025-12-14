@@ -5,6 +5,7 @@ import type { GiftCardResponse } from "@ps-design/schemas/gift-card";
 import type { InitiatePaymentResponse } from "@ps-design/schemas/payments";
 import { usePayAppointment } from "@/hooks/appointments";
 import { useValidateGiftCard } from "@/hooks/gift-cards";
+import { useApplicableServiceDiscount } from "@/hooks/discounts";
 import { initiatePayment } from "@/api/payments";
 import { getReadableError } from "@/utils/get-readable-error";
 
@@ -49,6 +50,8 @@ export interface PaymentModalCalculations {
   duration: number;
   tipAmountCents: number;
   giftCardDiscount: number;
+  discountAmount: number;
+  discountName: string | null;
   estimatedTotal: number;
 }
 
@@ -101,6 +104,15 @@ export function usePaymentModal({
   const payMutation = usePayAppointment();
   const validateGiftCardMutation = useValidateGiftCard();
 
+  const serviceDefinitionId = appointment?.service?.serviceDefinition?.id;
+  const servicePrice = appointment?.service?.serviceDefinition?.price ?? 0;
+  const { data: applicableDiscount } =
+    useApplicableServiceDiscount(
+      serviceDefinitionId ?? "",
+      servicePrice,
+      !!serviceDefinitionId && servicePrice > 0,
+    );
+
   const calculations = useMemo<PaymentModalCalculations>(() => {
     const price = appointment?.service?.serviceDefinition?.price ?? 0;
     const serviceName =
@@ -113,9 +125,11 @@ export function usePaymentModal({
     const giftCardDiscount = validatedGiftCard
       ? Math.min(validatedGiftCard.value, price)
       : 0;
+    const discountAmount = applicableDiscount?.calculatedAmount ?? 0;
+    const discountName = applicableDiscount?.name ?? null;
     const estimatedTotal = Math.max(
       0,
-      price + tipAmountCents - giftCardDiscount,
+      price + tipAmountCents - giftCardDiscount - discountAmount,
     );
 
     return {
@@ -126,9 +140,11 @@ export function usePaymentModal({
       duration,
       tipAmountCents,
       giftCardDiscount,
+      discountAmount,
+      discountName,
       estimatedTotal,
     };
-  }, [appointment, tipAmount, validatedGiftCard]);
+  }, [appointment, tipAmount, validatedGiftCard, applicableDiscount]);
 
   const resetForm = useCallback(() => {
     setStep("details");
