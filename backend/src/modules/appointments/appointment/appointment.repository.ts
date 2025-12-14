@@ -2,7 +2,7 @@ import { IsNull, type Repository, type DataSource } from "typeorm";
 import { BadRequestError, ConflictError, NotFoundError } from "@/shared/errors";
 import type { StaffService } from "@/modules/appointments/staff-service/staff-service.entity";
 import type { AvailabilityRepository } from "@/modules/appointments/availability/availability.repository";
-import type { Appointment, AppointmentStatus } from "./appointment.entity";
+import { Appointment, type AppointmentStatus } from "./appointment.entity";
 import type {
   ICreateAppointment,
   IUpdateAppointment,
@@ -23,7 +23,7 @@ export class AppointmentRepository {
     private repository: Repository<Appointment>,
     private staffServiceRepository: Repository<StaffService>,
     private availabilityRepository: AvailabilityRepository,
-  ) {}
+  ) { }
 
   async findAllByBusinessId(businessId: string): Promise<Appointment[]> {
     const queryBuilder = this.repository
@@ -108,7 +108,11 @@ export class AppointmentRepository {
         createdById: data.createdById,
       });
 
-      return appointment;
+      const savedAppointment = await manager.save(appointment);
+      return manager.findOne(Appointment, {
+        where: { id: savedAppointment.id },
+        relations: APPOINTMENT_RELATIONS,
+      }) as Promise<Appointment>;
     });
   }
 
