@@ -59,6 +59,27 @@ export const PayModal: React.FC<PayModalProps> = ({
     "YYYY-MM-DD HH:mm",
   );
 
+  // Verification step (polling)
+  if (state.isVerifying) {
+    return (
+      <Dialog open={open} maxWidth="sm" fullWidth>
+        <DialogContent sx={{ textAlign: "center", py: 8 }}>
+          <Stack alignItems="center" spacing={2}>
+            <CircularProgress size={48} />
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                Verifying Payment
+              </Typography>
+              <Typography color="text.secondary">
+                Please wait while we confirm the transaction...
+              </Typography>
+            </Box>
+          </Stack>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   // Stripe checkout step
   if (
     state.step === "stripe-checkout" &&
@@ -171,24 +192,24 @@ export const PayModal: React.FC<PayModalProps> = ({
 
         {(state.paymentMethod === "CASH" ||
           calculations.estimatedTotal === 0) && (
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={
-              mutations.payMutation.isPending ? (
-                <CircularProgress size={20} color="inherit" />
-              ) : (
-                <PaymentIcon />
-              )
-            }
-            onClick={actions.handleCashPayment}
-            disabled={mutations.payMutation.isPending}
-          >
-            {mutations.payMutation.isPending
-              ? "Processing..."
-              : "Confirm Payment"}
-          </Button>
-        )}
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={
+                mutations.payMutation.isPending ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  <PaymentIcon />
+                )
+              }
+              onClick={actions.handleCashPayment}
+              disabled={mutations.payMutation.isPending}
+            >
+              {mutations.payMutation.isPending
+                ? "Processing..."
+                : "Confirm Payment"}
+            </Button>
+          )}
 
         {state.paymentMethod === "STRIPE" &&
           calculations.estimatedTotal > 0 && (

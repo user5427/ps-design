@@ -38,6 +38,7 @@ export interface PaymentModalState {
 
   // Loading states
   isInitiatingPayment: boolean;
+  isVerifying: boolean;
 }
 
 export interface PaymentModalCalculations {
@@ -64,6 +65,7 @@ export interface PaymentModalActions {
   handleBack: () => void;
   handleClose: () => void;
   resetForm: () => void;
+  setShowLoader: (show: boolean) => void;
 }
 
 export interface UsePaymentModalReturn {
@@ -94,6 +96,7 @@ export function usePaymentModal({
     useState<InitiatePaymentResponse | null>(null);
   const [stripeError, setStripeError] = useState<string>("");
   const [isInitiatingPayment, setIsInitiatingPayment] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const payMutation = usePayAppointment();
   const validateGiftCardMutation = useValidateGiftCard();
@@ -136,6 +139,7 @@ export function usePaymentModal({
     setGiftCardError("");
     setPaymentIntent(null);
     setStripeError("");
+    setIsVerifying(false);
   }, []);
 
   const handleClose = useCallback(() => {
@@ -213,7 +217,7 @@ export function usePaymentModal({
     async (_paymentIntentId: string) => {
       if (!appointment) return;
 
-      setIsInitiatingPayment(true);
+      setIsVerifying(true);
 
       try {
         // Poll for status update
@@ -222,15 +226,19 @@ export function usePaymentModal({
         const interval = 1000;
 
         while (attempts < maxAttempts) {
-          const updatedAppointment = await getAppointmentById(appointment.id);
-          if (updatedAppointment.status === "PAID") {
-            resetForm();
-            onClose();
-            onSuccess?.();
-            return;
+          try {
+            const updatedAppointment = await getAppointmentById(appointment.id);
+            if (updatedAppointment.status === "PAID") {
+              resetForm();
+              onClose();
+              onSuccess?.();
+              return;
+            }
+          } catch {
+          } finally {
+            await new Promise((resolve) => setTimeout(resolve, interval));
+            attempts++;
           }
-          await new Promise((resolve) => setTimeout(resolve, interval));
-          attempts++;
         }
 
         setStripeError(
@@ -243,7 +251,7 @@ export function usePaymentModal({
         );
         setStripeError(errorMessage);
       } finally {
-        setIsInitiatingPayment(false);
+        setIsVerifying(false);
       }
     },
     [appointment, resetForm, onClose, onSuccess],
@@ -295,6 +303,10 @@ export function usePaymentModal({
     setStripeError("");
   }, []);
 
+  const setShowLoader = useCallback((show: boolean) => {
+    setIsVerifying(show);
+  }, []);
+
   return {
     state: {
       step,
@@ -306,6 +318,7 @@ export function usePaymentModal({
       giftCardError,
       stripeError,
       isInitiatingPayment,
+      isVerifying,
     },
     calculations,
     actions: {
@@ -321,6 +334,7 @@ export function usePaymentModal({
       handleBack,
       handleClose,
       resetForm,
+      setShowLoader,
     },
     mutations: {
       payMutation,
