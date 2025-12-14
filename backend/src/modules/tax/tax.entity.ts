@@ -2,14 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   type Relation,
   UpdateDateColumn,
 } from "typeorm";
-import type { Country } from "@/modules/country/country.entity";
+import type { Business } from "@/modules/business/business.entity";
 
 @Entity("Tax")
 export class Tax {
@@ -17,12 +16,14 @@ export class Tax {
   id: string;
 
   @Column({ type: "uuid" })
-  @Index()
-  countryId: string;
+  businessId: string;
 
-  @ManyToOne("Country", "taxes", { onDelete: "CASCADE" })
-  @JoinColumn({ name: "countryId" })
-  country: Relation<Country>;
+  @ManyToOne("Business", "taxes", { onDelete: "CASCADE" })
+  @JoinColumn({ name: "businessId" })
+  business: Relation<Business>;
+
+  @Column({ type: "decimal", precision: 5, scale: 2 })
+  rate: number;
 
   @Column({ type: "varchar" })
   name: string;

@@ -1,10 +1,12 @@
 export interface ICreateTax {
-  countryId: string;
+  businessId: string;
   name: string;
+  rate: number;
   description?: string | null;
 }
 
 export interface IUpdateTax {
   name?: string;
+  rate?: number;
   description?: string | null;
 }

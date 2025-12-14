@@ -36,3 +36,23 @@ export async function updateCategory(
 export async function bulkDeleteCategories(ids: string[]): Promise<void> {
   await apiClient.post("/categories/bulk-delete", { ids });
 }
+
+export async function assignTaxToCategory(
+  categoryId: string,
+  taxId: string,
+): Promise<CategoryResponse> {
+  const response = await apiClient.patch<CategoryResponse>(
+    `/categories/${categoryId}/tax`,
+    { taxId },
+  );
+  return response.data;
+}
+
+export async function removeTaxFromCategory(
+  categoryId: string,
+): Promise<CategoryResponse> {
+  const response = await apiClient.delete<CategoryResponse>(
+    `/categories/${categoryId}/tax`,
+  );
+  return response.data;
+}

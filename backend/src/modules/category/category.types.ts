@@ -14,4 +14,5 @@ export interface ICreateCategory {
 
 export interface IUpdateCategory {
   name?: string;
+  taxId?: string | null;
 }
