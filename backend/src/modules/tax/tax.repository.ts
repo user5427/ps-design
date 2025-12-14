@@ -1,30 +1,29 @@
 import { IsNull, type Repository } from "typeorm";
 import type { Tax } from "./tax.entity";
 import type { ICreateTax, IUpdateTax } from "./tax.types";
+import { Category } from "../category";
+
 
 export class TaxRepository {
-  constructor(private repository: Repository<Tax>) {}
+  constructor(private repository: Repository<Tax>, private categoryRepository: Repository<Category>) {}
 
   async findAll(): Promise<Tax[]> {
     return this.repository.find({
       where: { deletedAt: IsNull() },
       order: { name: "ASC" },
-      relations: ["country"],
     });
   }
 
-  async findById(id: string): Promise<Tax | null> {
-    return this.repository.findOne({
-      where: { id, deletedAt: IsNull() },
-      relations: ["country"],
-    });
-  }
-
-  async findByCountryId(countryId: string): Promise<Tax[]> {
+  async findAllByBusinessId(businessId: string): Promise<Tax[]> {
     return this.repository.find({
-      where: { countryId, deletedAt: IsNull() },
+      where: { businessId, deletedAt: IsNull() },
       order: { name: "ASC" },
-      relations: ["country"],
+    });
+  }
+
+  async getById(id: string, businessId: string): Promise<Tax | null> {
+    return this.repository.findOne({
+      where: { id, businessId, deletedAt: IsNull() },
     });
   }
 
@@ -33,22 +32,24 @@ export class TaxRepository {
     return this.repository.save(tax);
   }
 
-  async update(id: string, data: IUpdateTax): Promise<Tax | null> {
-    await this.repository.update({ id, deletedAt: IsNull() }, data);
-    return this.findById(id);
+  async update(id: string, businessId: string, data: IUpdateTax): Promise<Tax | null> {
+    await this.repository.update({ id, businessId, deletedAt: IsNull() }, data);
+    return this.getById(id, businessId);
   }
 
-  async delete(id: string): Promise<void> {
+  async softDelete(id: string, businessId: string): Promise<void> {
     await this.repository.update(
-      { id, deletedAt: IsNull() },
+      { id, businessId, deletedAt: IsNull() },
       { deletedAt: new Date() },
     );
-  }
 
-  async deleteByCountryId(countryId: string): Promise<void> {
-    await this.repository.update(
-      { countryId, deletedAt: IsNull() },
-      { deletedAt: new Date() },
-    );
+    // Unlink tax from categories
+    await this.categoryRepository
+      .createQueryBuilder()
+      .update()
+      .set({ taxId: null })
+      .where("taxId = :taxId", { taxId: id })
+      .andWhere("businessId = :businessId", { businessId })
+      .execute();
   }
 }

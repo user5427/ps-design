@@ -4,6 +4,8 @@ import {
   createCategory,
   getCategories,
   updateCategory,
+  assignTaxToCategory,
+  removeTaxFromCategory,
 } from "@/api/categories";
 import type {
   CreateCategoryBody,
@@ -46,6 +48,27 @@ export function useBulkDeleteCategories() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (ids: string[]) => bulkDeleteCategories(ids),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: categoryKeys.all });
+    },
+  });
+}
+
+export function useAssignTaxToCategory() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ categoryId, taxId }: { categoryId: string; taxId: string }) =>
+      assignTaxToCategory(categoryId, taxId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: categoryKeys.all });
+    },
+  });
+}
+
+export function useRemoveTaxFromCategory() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (categoryId: string) => removeTaxFromCategory(categoryId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: categoryKeys.all });
     },

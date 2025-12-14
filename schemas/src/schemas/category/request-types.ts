@@ -26,6 +26,11 @@ export const UpdateCategorySchema = z.object({
     .optional(),
 });
 
+export const AssignTaxToCategorySchema = z.object({
+  taxId: uuid(),
+});
+
 export type CreateCategoryBody = z.infer<typeof CreateCategorySchema>;
 export type UpdateCategoryBody = z.infer<typeof UpdateCategorySchema>;
 export type CategoryIdParams = z.infer<typeof CategoryIdParam>;
+export type AssignTaxToCategoryBody = z.infer<typeof AssignTaxToCategorySchema>;

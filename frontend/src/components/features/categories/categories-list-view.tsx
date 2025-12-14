@@ -1,5 +1,6 @@
-import type { MRT_ColumnDef } from "material-react-table";
 import { useMemo } from "react";
+import type { MRT_ColumnDef } from "material-react-table";
+import { Select, MenuItem } from "@mui/material";
 import {
   RecordListView,
   type FormFieldDefinition,
@@ -11,34 +12,69 @@ import {
   useCreateCategory,
   useUpdateCategory,
   useBulkDeleteCategories,
+  useAssignTaxToCategory,
+  useRemoveTaxFromCategory,
 } from "@/hooks/category-hooks";
+import { useTaxes } from "@/hooks/tax";
 import type { Category } from "@/schemas/category";
+import type { TaxResponse } from "@ps-design/schemas/tax";
 
 export const CategoriesListView = () => {
   const { data: categories = [], isLoading, error, refetch } = useCategories();
+  const { data: taxes = [] } = useTaxes();
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
   const bulkDeleteMutation = useBulkDeleteCategories();
+  const assignTaxMutation = useAssignTaxToCategory();
+  const removeTaxMutation = useRemoveTaxFromCategory();
 
-  const columns = useMemo<MRT_ColumnDef<Category>[]>(
-    () => [
-      {
-        accessorKey: "name",
-        header: "Name",
-        size: 200,
+  const columns = useMemo<MRT_ColumnDef<Category>[]>(() => [
+    {
+      accessorKey: "name",
+      header: "Name",
+      size: 200,
+    },
+    {
+      accessorKey: "taxId",
+      header: "Tax",
+      size: 200,
+      Cell: ({ row }) => {
+        const category = row.original;
+        return (
+          <Select
+            size="small"
+            value={category.taxId ?? ""}
+            displayEmpty
+            onChange={async (e) => {
+              const taxId = e.target.value || null;
+              if (taxId) {
+                await assignTaxMutation.mutateAsync({ categoryId: category.id, taxId });
+              } else {
+                await removeTaxMutation.mutateAsync(category.id);
+              }
+              await refetch();
+            }}
+          >
+            <MenuItem value="">No Tax</MenuItem>
+            {taxes.map((tax: TaxResponse) => (
+              <MenuItem key={tax.id} value={tax.id}>
+                {tax.name} ({tax.rate}%)
+              </MenuItem>
+            ))}
+          </Select>
+        );
       },
-      {
-        accessorKey: "createdAt",
-        header: "Created",
-        size: 150,
-        Cell: ({ cell }) => {
-          const value = cell.getValue<string>();
-          return value ? new Date(value).toLocaleDateString() : "";
-        },
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Created",
+      size: 150,
+      Cell: ({ cell }) => {
+        const value = cell.getValue<string>();
+        return value ? new Date(value).toLocaleDateString() : "";
       },
-    ],
-    [],
-  );
+    },
+  ], [ taxes, assignTaxMutation, removeTaxMutation, refetch ]);
 
   const createFormFields: FormFieldDefinition[] = [
     {
@@ -58,14 +94,26 @@ export const CategoriesListView = () => {
   const viewFields: ViewFieldDefinition[] = [
     { name: "id", label: "ID" },
     { name: "name", label: "Name" },
+    {
+      name: "taxId",
+      label: "Tax",
+      render: (taxId) => {
+        if (!taxId) return "No Tax";
+        const tax = taxes.find(t => t.id === taxId);
+        return tax ? `${tax.name} (${tax.rate}%)` : "Unknown Tax";
+      },
+    },
     { name: "createdAt", label: "Created At" },
     { name: "updatedAt", label: "Updated At" },
   ];
 
   const handleCreate = async (values: Partial<Category>) => {
+    // Ensure taxId is explicitly null
     await createMutation.mutateAsync({
       name: String(values.name),
+      taxId: null,
     });
+    await refetch(); // immediately refresh the table
   };
 
   const handleEdit = async (id: string, values: Partial<Category>) => {
@@ -73,12 +121,15 @@ export const CategoriesListView = () => {
       id,
       data: {
         name: values.name,
+        taxId: values.taxId ?? null,
       },
     });
+    await refetch(); // refresh table to sync changes
   };
 
   const handleDelete = async (ids: string[]) => {
     await bulkDeleteMutation.mutateAsync(ids);
+    await refetch();
   };
 
   return (
