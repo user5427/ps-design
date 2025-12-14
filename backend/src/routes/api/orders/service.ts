@@ -160,7 +160,7 @@ export async function payOrder(
       businessId,
     );
 
-    const giftCardAmount = giftCard.value / 100; // convert cents to major units
+    const giftCardAmount = giftCard.value; // already in major units
     const amountToApply = Math.min(remaining, giftCardAmount);
 
     if (amountToApply <= 0) {
