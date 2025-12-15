@@ -9,6 +9,8 @@ import { FormAlert, FormField } from "@/components/elements/form";
 import { useChangePassword } from "@/queries/auth";
 import { checkPasswordStrength } from "@/utils/auth";
 import { getReadableError } from "@/utils/get-readable-error";
+import { useNavigate } from "@tanstack/react-router";
+import { URLS } from "@/constants/urls";
 
 export const ChangePassword: React.FC = () => {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -17,6 +19,8 @@ export const ChangePassword: React.FC = () => {
   const [passwordStrength, setPasswordStrength] = useState(
     checkPasswordStrength(""),
   );
+
+  const navigate = useNavigate();
 
   const clearInputs = () => {
     setCurrentPassword("");
@@ -89,10 +93,21 @@ export const ChangePassword: React.FC = () => {
       )}
 
       {changePasswordMutation.isSuccess && (
-        <FormAlert
-          message="Password changed successfully!"
-          severity="success"
-        />
+        <>
+          <FormAlert
+            message="Password changed successfully!"
+            severity="success"
+          />
+          <Button
+            fullWidth
+            variant="outlined"
+            size="medium"
+            onClick={() => navigate({ to: URLS.DASHBOARD })}
+            sx={{ mt: 2, mb: 2 }}
+          >
+            Go to dashboard
+          </Button>
+        </>
       )}
 
       <FormField
