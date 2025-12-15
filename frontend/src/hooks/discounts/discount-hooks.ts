@@ -6,10 +6,20 @@ import {
   updateDiscount,
   getApplicableOrderDiscount,
   getApplicableServiceDiscount,
+  getServiceDiscounts,
+  createServiceDiscount,
+  updateServiceDiscount,
+  getMenuDiscounts,
+  createMenuDiscount,
+  updateMenuDiscount,
 } from "@/api/discounts";
 import type {
   CreateDiscountBody,
   UpdateDiscountBody,
+  CreateServiceDiscountBody,
+  UpdateServiceDiscountBody,
+  CreateMenuDiscountBody,
+  UpdateMenuDiscountBody,
 } from "@ps-design/schemas/discount";
 
 export const discountKeys = {
@@ -104,8 +114,7 @@ export function useApplicableServiceDiscount(
 export function useServiceDiscounts() {
   return useQuery({
     queryKey: [...discountKeys.list(), "service"],
-    queryFn: () =>
-      import("@/api/discounts").then((m) => m.getServiceDiscounts()),
+    queryFn: () => getServiceDiscounts(),
   });
 }
 
@@ -113,9 +122,8 @@ export function useCreateServiceDiscount() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (
-      data: import("@ps-design/schemas/discount").CreateServiceDiscountBody,
-    ) =>
-      import("@/api/discounts").then((m) => m.createServiceDiscount(data)),
+      data: CreateServiceDiscountBody,
+    ) => createServiceDiscount(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: discountKeys.all });
     },
@@ -130,11 +138,8 @@ export function useUpdateServiceDiscount() {
       data,
     }: {
       id: string;
-      data: import("@ps-design/schemas/discount").UpdateServiceDiscountBody;
-    }) =>
-      import("@/api/discounts").then((m) =>
-        m.updateServiceDiscount(id, data),
-      ),
+      data: UpdateServiceDiscountBody;
+    }) => updateServiceDiscount(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: discountKeys.all });
     },
@@ -144,7 +149,7 @@ export function useUpdateServiceDiscount() {
 export function useMenuDiscounts() {
   return useQuery({
     queryKey: [...discountKeys.list(), "menu"],
-    queryFn: () => import("@/api/discounts").then((m) => m.getMenuDiscounts()),
+    queryFn: () => getMenuDiscounts(),
   });
 }
 
@@ -152,8 +157,8 @@ export function useCreateMenuDiscount() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (
-      data: import("@ps-design/schemas/discount").CreateMenuDiscountBody,
-    ) => import("@/api/discounts").then((m) => m.createMenuDiscount(data)),
+      data: CreateMenuDiscountBody,
+    ) => createMenuDiscount(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: discountKeys.all });
     },
@@ -168,9 +173,8 @@ export function useUpdateMenuDiscount() {
       data,
     }: {
       id: string;
-      data: import("@ps-design/schemas/discount").UpdateMenuDiscountBody;
-    }) =>
-      import("@/api/discounts").then((m) => m.updateMenuDiscount(id, data)),
+      data: UpdateMenuDiscountBody;
+    }) => updateMenuDiscount(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: discountKeys.all });
     },

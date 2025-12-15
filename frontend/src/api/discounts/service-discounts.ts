@@ -25,7 +25,7 @@ export async function updateServiceDiscount(
     data: UpdateServiceDiscountBody,
 ): Promise<DiscountResponse> {
     const response = await apiClient.put<DiscountResponse>(
-        `/discounts/${id}`,
+        `/discounts/services/${id}`,
         data,
     );
     return response.data;

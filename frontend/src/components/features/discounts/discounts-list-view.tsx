@@ -10,39 +10,45 @@ import {
 } from "@/components/elements/record-list-view";
 import { useMenuItems } from "@/hooks/menu/menu-item-hooks";
 import { useServiceDefinitions } from "@/hooks/appointments/service-definition-hooks";
-import type { DiscountResponse } from "@ps-design/schemas/discount";
+import type {
+  DiscountResponse,
+  CreateDiscountBody,
+  UpdateDiscountBody,
+} from "@ps-design/schemas/discount";
 import { formatPrice } from "@/utils/price";
 import dayjs from "dayjs";
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query";
 
-interface DiscountsListViewProps {
+interface DiscountsListViewProps<TCreate, TUpdate> {
   useDiscounts: () => UseQueryResult<DiscountResponse[], Error>;
-  useCreateDiscount: () => UseMutationResult<
-    DiscountResponse,
-    Error,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any
-  >;
+  useCreateDiscount: () => UseMutationResult<DiscountResponse, Error, TCreate>;
   useUpdateDiscount: () => UseMutationResult<
     DiscountResponse,
     Error,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    { id: string; data: any }
+    { id: string; data: TUpdate }
   >;
   useDeleteDiscount: () => UseMutationResult<void, Error, string>;
   allowedTargetTypes: ("SERVICE" | "MENU_ITEM" | "ORDER")[];
   title: string;
 }
 
-export const DiscountsListView = ({
+export const DiscountsListView = <
+  TCreate extends CreateDiscountBody,
+  TUpdate extends UpdateDiscountBody,
+>({
   useDiscounts,
   useCreateDiscount,
   useUpdateDiscount,
   useDeleteDiscount,
   allowedTargetTypes,
   title,
-}: DiscountsListViewProps) => {
-  const { data: discounts = [], isLoading, error, refetch } = useDiscounts();
+}: DiscountsListViewProps<TCreate, TUpdate>) => {
+  const {
+    data: discounts = [],
+    isLoading,
+    error,
+    refetch,
+  } = useDiscounts();
   const { data: menuItems = [] } = useMenuItems();
   const { data: serviceDefinitions = [] } = useServiceDefinitions();
   const createMutation = useCreateDiscount();
@@ -319,7 +325,7 @@ export const DiscountsListView = ({
         ? Math.round(Number(values.value) * 100) // Convert euros to cents
         : Number(values.value);
 
-    await createMutation.mutateAsync({
+    const payload = {
       name: String(values.name),
       type: values.type,
       value,
@@ -339,11 +345,13 @@ export const DiscountsListView = ({
         ? dayjs(values.expiresAt).endOf("day").toISOString()
         : null,
       isDisabled: Boolean(values.isDisabled),
-    });
+    } as unknown as TCreate;
+
+    await createMutation.mutateAsync(payload);
   };
 
   const handleEdit = async (id: string, values: Partial<DiscountResponse>) => {
-    const data: any = {}; // Use any to match generic mutation input
+    const data: any = {};
 
     if (values.name !== undefined) data.name = values.name;
     if (values.type !== undefined) data.type = values.type;
@@ -369,7 +377,7 @@ export const DiscountsListView = ({
     }
     if (values.isDisabled !== undefined) data.isDisabled = values.isDisabled;
 
-    await updateMutation.mutateAsync({ id, data });
+    await updateMutation.mutateAsync({ id, data: data as TUpdate });
   };
 
   const handleDelete = async (ids: string[]) => {

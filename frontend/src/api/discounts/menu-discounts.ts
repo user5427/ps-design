@@ -25,7 +25,7 @@ export async function updateMenuDiscount(
     data: UpdateMenuDiscountBody,
 ): Promise<DiscountResponse> {
     const response = await apiClient.put<DiscountResponse>(
-        `/discounts/${id}`,
+        `/discounts/menu/${id}`,
         data,
     );
     return response.data;

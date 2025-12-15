@@ -21,8 +21,10 @@ import {
   type CreateMenuDiscountBody,
   DiscountIdParam,
   type DiscountIdParams,
-  type UpdateDiscountBody,
-  UpdateDiscountSchema,
+  UpdateServiceDiscountSchema,
+  UpdateMenuDiscountSchema,
+  UpdateServiceDiscountBody,
+  UpdateMenuDiscountBody,
   GetApplicableOrderDiscountSchema,
   type GetApplicableOrderDiscountQuery,
   GetApplicableServiceDiscountSchema,
@@ -38,25 +40,6 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope } = createScopeMiddleware(fastify);
 
-  // Get all discounts
-  server.get(
-    "/",
-    {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.DISCOUNTS_READ),
-      ],
-    },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const businessId = getBusinessId(request, reply);
-      if (!businessId) return;
-
-      const discounts = await getAllDiscounts(fastify, businessId);
-      return reply.send(discounts);
-    },
-  );
-
-  // Get service discounts
   server.get(
     "/services",
     {
@@ -77,7 +60,6 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  // Create service discount
   server.post<{ Body: CreateServiceDiscountBody }>(
     "/services",
     {
@@ -120,7 +102,6 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  // Get menu discounts
   server.get(
     "/menu",
     {
@@ -141,7 +122,6 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  // Create menu discount
   server.post<{ Body: CreateMenuDiscountBody }>(
     "/menu",
     {
@@ -183,85 +163,9 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  // Create discount (Generic - keeping for compatibility/admin if needed, or deprecate?)
-  // User asked to "create api endpoint specific...", didn't explicitly say delete the old one, but said "do not forget to delete unused schemas/types".
-  // I will keep the generic one for now but the UI will switch to specific ones.
-  server.post<{ Body: CreateDiscountBody }>(
-    "/",
-    {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.DISCOUNTS_WRITE),
-      ],
-      schema: {
-        body: CreateDiscountSchema,
-      },
-    },
-    async (
-      request: FastifyRequest<{
-        Body: CreateDiscountBody;
-      }>,
-      reply: FastifyReply,
-    ) => {
-      const businessId = getBusinessId(request, reply);
-      if (!businessId) return;
-
-      try {
-        const createDiscountWrapped = await fastify.audit.generic(
-          createDiscount,
-          AuditActionType.CREATE,
-          request,
-          reply,
-          "Discount",
-        );
-
-        const discount = await createDiscountWrapped(
-          fastify,
-          businessId,
-          request.body,
-        );
-        return reply.code(httpStatus.CREATED).send(discount);
-      } catch (error) {
-        return handleServiceError(error, reply);
-      }
-    },
-  );
-
-  // Get discount by ID
-  server.get<{ Params: DiscountIdParams }>(
-    "/:discountId",
-    {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.DISCOUNTS_READ),
-      ],
-      schema: {
-        params: DiscountIdParam,
-      },
-    },
-    async (
-      request: FastifyRequest<{
-        Params: DiscountIdParams;
-      }>,
-      reply: FastifyReply,
-    ) => {
-      const businessId = getBusinessId(request, reply);
-      if (!businessId) return;
-
-      const { discountId } = request.params;
-
-      try {
-        const discount = await getDiscountById(fastify, businessId, discountId);
-        return reply.send(discount);
-      } catch (error) {
-        return handleServiceError(error, reply);
-      }
-    },
-  );
-
-  // Update discount
-  server.put<{ Params: DiscountIdParams; Body: UpdateDiscountBody }>(
-    "/:discountId",
+  // Update service discount
+  server.put<{ Params: DiscountIdParams; Body: UpdateServiceDiscountBody }>(
+    "/services/:discountId",
     {
       onRequest: [
         fastify.authenticate,
@@ -269,13 +173,13 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
       ],
       schema: {
         params: DiscountIdParam,
-        body: UpdateDiscountSchema,
+        body: UpdateServiceDiscountSchema,
       },
     },
     async (
       request: FastifyRequest<{
         Params: DiscountIdParams;
-        Body: UpdateDiscountBody;
+        Body: UpdateServiceDiscountBody;
       }>,
       reply: FastifyReply,
     ) => {
@@ -307,7 +211,84 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  // Delete discount
+  server.put<{ Params: DiscountIdParams; Body: UpdateMenuDiscountBody }>(
+    "/menu/:discountId",
+    {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.DISCOUNTS_WRITE),
+      ],
+      schema: {
+        params: DiscountIdParam,
+        body: UpdateMenuDiscountSchema,
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Params: DiscountIdParams;
+        Body: UpdateMenuDiscountBody;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
+
+      const { discountId } = request.params;
+
+      try {
+        const updateDiscountWrapped = await fastify.audit.generic(
+          updateDiscount,
+          AuditActionType.UPDATE,
+          request,
+          reply,
+          "Discount",
+          discountId,
+        );
+
+        const updated = await updateDiscountWrapped(
+          fastify,
+          businessId,
+          discountId,
+          request.body,
+        );
+        return reply.send(updated);
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
+
+  server.get<{ Params: DiscountIdParams }>(
+    "/:discountId",
+    {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.DISCOUNTS_READ),
+      ],
+      schema: {
+        params: DiscountIdParam,
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Params: DiscountIdParams;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
+
+      const { discountId } = request.params;
+
+      try {
+        const discount = await getDiscountById(fastify, businessId, discountId);
+        return reply.send(discount);
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
+
   server.delete<{ Params: DiscountIdParams }>(
     "/:discountId",
     {
@@ -348,7 +329,6 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  // Get applicable discount for order (for checkout flow)
   server.get<{ Querystring: GetApplicableOrderDiscountQuery }>(
     "/applicable/order",
     {
@@ -381,7 +361,6 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  // Get applicable discount for service (for appointment checkout flow)
   server.get<{ Querystring: GetApplicableServiceDiscountQuery }>(
     "/applicable/service",
     {

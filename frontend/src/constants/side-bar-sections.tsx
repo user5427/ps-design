@@ -131,12 +131,18 @@ export const sidebarSections: Section[] = [
   {
     label: "Discounts",
     icon: <LocalOfferIcon />,
-    path: "/discounts/services",
-  },
-  {
-    label: "Discounts",
-    icon: <LocalOfferIcon />,
-    path: "/discounts/menu",
+    children: [
+      {
+        label: "Service Discounts",
+        icon: <LocalOfferIcon />,
+        path: URLS.DISCOUNTS_SERVICES,
+      },
+      {
+        label: "Menu Discounts",
+        icon: <LocalOfferIcon />,
+        path: URLS.DISCOUNTS_MENU,
+      },
+    ],
   },
 
   {
