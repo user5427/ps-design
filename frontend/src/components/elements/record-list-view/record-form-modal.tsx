@@ -156,6 +156,20 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
     const value = values[field.name] ?? "";
     const error = errors[field.name];
 
+    // If custom renderer is provided, use it
+    if (field.renderCustomField) {
+      return (
+        <Box key={field.name}>
+          {field.renderCustomField({
+            value,
+            onChange: (newValue) => handleChange(field.name, newValue),
+            error,
+            disabled: isSubmitting,
+          })}
+        </Box>
+      );
+    }
+
     switch (field.type) {
       case "autocomplete": {
         const selectedOption =

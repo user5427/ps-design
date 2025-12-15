@@ -1,8 +1,19 @@
-import * as crypto from "crypto";
+import * as crypto from "node:crypto";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import httpStatus from "http-status";
 import type { RefreshToken } from "@/modules/refresh-token";
-import type { User } from "@/modules/user";
+import type { User, IAuthUser } from "@/modules/user";
+
+export function requireAuthUser(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): IAuthUser | undefined {
+  if (!request.authUser) {
+    reply.code(httpStatus.UNAUTHORIZED).send({ message: "Unauthorized" });
+    return undefined;
+  }
+  return request.authUser;
+}
 
 export function getBusinessId(
   request: FastifyRequest,

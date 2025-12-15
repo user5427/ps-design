@@ -8,9 +8,9 @@ import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import AddIcon from "@mui/icons-material/Add";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import EventIcon from "@mui/icons-material/Event";
+import SecurityIcon from "@mui/icons-material/Security";
 import PersonIcon from "@mui/icons-material/Person";
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
@@ -29,18 +29,34 @@ export const sidebarSections: Section[] = [
     path: URLS.FLOOR_PLAN,
   },
   {
-    label: "Manage Businesses",
+    label: "My Business",
     icon: <BusinessIcon />,
     children: [
       {
-        label: "View Businesses",
+        label: "Roles",
+        icon: <SecurityIcon />,
+        path: "/my-business/roles",
+      },
+    ],
+  },
+  {
+    label: "Manage",
+    icon: <BusinessIcon />,
+    children: [
+      {
+        label: "Businesses",
         icon: <ViewListIcon />,
-        path: URLS.BUSINESS_LIST,
+        path: URLS.MANAGE_BUSINESSES,
       },
       {
-        label: "Create Business",
-        icon: <AddIcon />,
-        path: URLS.BUSINESS_CREATE,
+        label: "Users",
+        icon: <PersonIcon />,
+        path: URLS.MANAGE_USERS,
+      },
+      {
+        label: "Roles",
+        icon: <SecurityIcon />,
+        path: URLS.MANAGE_ROLES,
       },
     ],
   },

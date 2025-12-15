@@ -10,7 +10,7 @@ import {
 import type { Product } from "@/modules/inventory/product/product.entity";
 import type { ProductUnit } from "@/modules/inventory/product-unit/product-unit.entity";
 import type { StockChange } from "@/modules/inventory/stock-change/stock-change.entity";
-import type { User } from "@/modules/user/user.entity";
+import { User } from "@/modules/user/user.entity";
 import type { Category } from "@/modules/category/category.entity";
 import type { MenuItem } from "@/modules/menu/menu-item/menu-item.entity";
 import type { ServiceDefinition } from "@/modules/appointments/service-definition/service-definition.entity";
@@ -25,7 +25,13 @@ export class Business {
   @Column({ type: "varchar" })
   name: string;
 
-  @OneToMany("User", "business")
+  @Column({ type: "boolean", default: false })
+  isDefault: boolean;
+
+  @OneToMany(
+    () => User,
+    (user) => user.business,
+  )
   users: Relation<User[]>;
 
   @OneToMany("ProductUnit", "business")

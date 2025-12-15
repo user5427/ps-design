@@ -7,24 +7,40 @@ import type {
   BusinessUserResponse,
 } from "@ps-design/schemas/business";
 import { BusinessResponseSchema } from "@ps-design/schemas/business";
+import { ScopeNames } from "@/modules/user";
 
 export async function getBusinessesPaginated(
   fastify: FastifyInstance,
   page: number,
   limit: number,
   search?: string,
+  authUser?: any,
 ): Promise<PaginatedBusinessResponse> {
   const result = await fastify.db.business.findAllPaginated(
     page,
     limit,
     search,
   );
+
+  let items = result.items;
+
+  // If user is not superadmin, filter to only show their business
+  if (authUser?.businessId) {
+    const userScopes = await fastify.db.role.getUserScopesFromRoles(
+      authUser.roleIds,
+    );
+
+    if (!userScopes.includes(ScopeNames.SUPERADMIN)) {
+      items = items.filter((item) => item.id === authUser.businessId);
+    }
+  }
+
   return {
-    items: result.items.map((item) => BusinessResponseSchema.parse(item)),
-    total: result.total,
-    page: result.page,
-    limit: result.limit,
-    pages: result.pages,
+    items: items.map((item) => BusinessResponseSchema.parse(item)),
+    total: items.length,
+    page: page,
+    limit: limit,
+    pages: Math.ceil(items.length / limit),
   };
 }
 
@@ -34,6 +50,25 @@ export async function createBusiness(
 ): Promise<BusinessResponse> {
   const { name } = input;
   const business = await fastify.db.business.create({ name });
+
+  // Create default OWNER role for the new business
+  const ownerRole = await fastify.db.role.create({
+    name: "OWNER",
+    description: "Business owner with full permissions",
+    businessId: business.id,
+    isSystemRole: true,
+    isDeletable: false,
+  });
+
+  // Assign owner scopes to the role
+  const ownerScopes = Object.values(ScopeNames).filter(
+    (scope) => scope !== ScopeNames.SUPERADMIN,
+  );
+
+  for (const scopeName of ownerScopes) {
+    await fastify.db.roleScope.assignScope(ownerRole.id, scopeName as any);
+  }
+
   return BusinessResponseSchema.parse(business);
 }
 

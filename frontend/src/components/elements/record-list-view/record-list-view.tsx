@@ -48,6 +48,7 @@ export function RecordListView<T extends Record<string, unknown>>({
   renderRowActions,
   enableMultiRowSelection,
   canEditRow,
+  enableRowDeletion,
 }: RecordListViewProps<T>) {
   // Compute whether to show actions - defaults to true when handler is provided
   const showEditAction = hasEditAction ?? !!onEdit;
@@ -218,19 +219,20 @@ export function RecordListView<T extends Record<string, unknown>>({
                 </IconButton>
               </Tooltip>
             )}
-            {showDeleteAction && (
-              <Tooltip title="Delete">
-                <IconButton
-                  size="small"
-                  color="error"
-                  onClick={() =>
-                    openDeleteDialog([String(row.original[idKey])])
-                  }
-                >
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            )}
+            {showDeleteAction &&
+              (!enableRowDeletion || enableRowDeletion(row)) && (
+                <Tooltip title="Delete">
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() =>
+                      openDeleteDialog([String(row.original[idKey])])
+                    }
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              )}
             {renderRowActions?.({
               row: row.original,
               openViewModal,
@@ -252,12 +254,15 @@ export function RecordListView<T extends Record<string, unknown>>({
     openDeleteDialog,
     renderRowActions,
     canEditRow,
+    enableRowDeletion,
   ]);
 
   const table = useMaterialReactTable({
     columns: tableColumns,
     data,
-    enableRowSelection: enableMultiRowSelection ?? !!onDelete,
+    enableRowSelection: enableRowDeletion
+      ? enableRowDeletion
+      : (enableMultiRowSelection ?? !!onDelete),
     enableColumnResizing: true,
     enableGlobalFilter: true,
     enableStickyHeader: true,
@@ -287,24 +292,27 @@ export function RecordListView<T extends Record<string, unknown>>({
           {title}
         </Typography>
         <Box sx={{ display: "flex", gap: 1 }}>
-          <Button
-            variant="outlined"
-            color="error"
-            startIcon={<DeleteIcon />}
-            onClick={() => openDeleteDialog(selectedIds)}
-            disabled={selectedIds.length === 0 || !onDelete}
-          >
-            Delete{selectedIds.length > 0 ? ` (${selectedIds.length})` : ""}
-          </Button>
+          {onDelete && (
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteIcon />}
+              onClick={() => openDeleteDialog(selectedIds)}
+              disabled={selectedIds.length === 0}
+            >
+              Delete{selectedIds.length > 0 ? ` (${selectedIds.length})` : ""}
+            </Button>
+          )}
 
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setCreateModalOpen(true)}
-            disabled={!onCreate}
-          >
-            New
-          </Button>
+          {onCreate && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setCreateModalOpen(true)}
+            >
+              New
+            </Button>
+          )}
         </Box>
       </Box>
 

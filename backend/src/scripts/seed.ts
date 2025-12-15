@@ -4,7 +4,6 @@ import { createDataSource } from "@/database/data-source";
 import { Business } from "@/modules/business";
 import { User, Role, ScopeEntity, UserRole, RoleScope } from "@/modules/user";
 import { ScopeNames, SCOPE_CONFIG } from "@/modules/user/scope.types";
-import { Scope } from "@/modules/user/scope.entity";
 
 async function main() {
   const connectionString = process.env.DATABASE_URL;
@@ -30,12 +29,12 @@ async function main() {
 
   try {
     // Create or reuse a default business
-    const businessName = "Default Business";
+    const businessName = "UniServe";
     let business = await businessRepo.findOne({
       where: { name: businessName },
     });
     if (!business) {
-      business = businessRepo.create({ name: businessName });
+      business = businessRepo.create({ name: businessName, isDefault: true });
       business = await businessRepo.save(business);
       console.log(`Created business: ${business.name}`);
     } else {
@@ -46,23 +45,55 @@ async function main() {
     const defaultPassword = "Geras@123";
     const passwordHash = await bcrypt.hash(defaultPassword, 10);
 
-    // Seed Roles
-    const roleNames = ["SUPER_ADMIN", "ADMIN", "USER"];
+    // Seed Roles - All roles are business-based
+    const roleConfigs: Array<{
+      name: string;
+      businessId: string;
+      isSystemRole: boolean;
+      isDeletable: boolean;
+    }> = [
+      {
+        name: "SUPERADMIN",
+        businessId: business.id,
+        isSystemRole: true,
+        isDeletable: false,
+      },
+      {
+        name: "OWNER",
+        businessId: business.id,
+        isSystemRole: true,
+        isDeletable: false,
+      },
+      {
+        name: "USER",
+        businessId: business.id,
+        isSystemRole: false,
+        isDeletable: true,
+      },
+    ];
+
     const roles = new Map<string, Role>();
 
-    for (const roleName of roleNames) {
-      let role = await roleRepo.findOne({ where: { name: roleName } });
+    for (const config of roleConfigs) {
+      let role = await roleRepo.findOne({
+        where: { name: config.name, businessId: config.businessId },
+      });
       if (!role) {
         role = roleRepo.create({
-          name: roleName,
-          description: `${roleName} role with appropriate permissions`,
+          name: config.name,
+          description: `${config.name} role with appropriate permissions`,
+          businessId: config.businessId,
+          isSystemRole: config.isSystemRole,
+          isDeletable: config.isDeletable,
         });
         role = await roleRepo.save(role);
-        console.log(`Created role: ${role.name}`);
+        console.log(
+          `Created role: ${role.name} for business ${config.businessId}`,
+        );
       } else {
         console.log(`Role already exists: ${role.name}`);
       }
-      roles.set(roleName, role);
+      roles.set(config.name, role);
     }
 
     // Seed Scopes
@@ -91,12 +122,14 @@ async function main() {
       scopes: string[];
     }> = [
       {
-        roleName: "SUPER_ADMIN",
+        roleName: "SUPERADMIN",
         scopes: Object.values(ScopeNames), // All scopes
       },
       {
-        roleName: "ADMIN",
-        scopes: Object.values(ScopeNames), // All scopes
+        roleName: "OWNER",
+        scopes: Object.values(ScopeNames).filter(
+          (name) => name !== ScopeNames.SUPERADMIN,
+        ),
       },
       {
         roleName: "USER",
@@ -136,15 +169,15 @@ async function main() {
     }> = [
       {
         email: "superadmin@demo.local",
-        name: "SupAdminas",
-        roleNames: ["SUPER_ADMIN"],
-        businessId: null,
+        name: "Super Administrator",
+        roleNames: ["SUPERADMIN"],
+        businessId: business.id,
         isPasswordResetRequired: true,
       },
       {
-        email: "admin@demo.local",
-        name: "AdminasUseris",
-        roleNames: ["ADMIN"],
+        email: "owner@demo.local",
+        name: "Business Owner",
+        roleNames: ["OWNER"],
         businessId: business.id,
         isPasswordResetRequired: true,
       },

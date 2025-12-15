@@ -56,8 +56,6 @@ import {
   AppointmentPaymentRepository,
 } from "@/modules/appointments/appointment-payment";
 import { GiftCard, GiftCardRepository } from "@/modules/gift-card";
-import { AuditLogService, AuditLogRepository } from "@/modules/audit";
-import { TaxRepository, Tax } from "@/modules/tax";
 import { Discount, DiscountRepository } from "@/modules/discount";
 import {
   Order,
@@ -66,6 +64,8 @@ import {
   Payment as OrderPayment,
 } from "@/modules/order";
 import { OrderRepository } from "@/modules/order/order.repository";
+import { AuditLogService, AuditLogRepository } from "@/modules/audit";
+import { TaxRepository, Tax } from "@/modules/tax";
 
 export interface Services {
   dataSource: DataSource;
