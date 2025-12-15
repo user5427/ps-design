@@ -24,7 +24,7 @@ export class AppointmentRepository {
     private repository: Repository<Appointment>,
     private staffServiceRepository: Repository<StaffService>,
     private availabilityRepository: AvailabilityRepository,
-  ) { }
+  ) {}
 
   async findAllByBusinessId(businessId: string): Promise<Appointment[]> {
     const queryBuilder = this.repository
