@@ -33,7 +33,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
   server.get(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU)],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);
@@ -47,7 +47,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateMenuItemBody }>(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_WRITE)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU)],
       schema: {
         body: CreateMenuItemSchema,
       },
@@ -85,7 +85,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
   server.get<{ Params: MenuItemIdParams }>(
     "/:menuItemId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU)],
       schema: {
         params: MenuItemIdParam,
       },
@@ -113,7 +113,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
   server.put<{ Params: MenuItemIdParams; Body: UpdateMenuItemBody }>(
     "/:menuItemId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_WRITE)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU)],
       schema: {
         params: MenuItemIdParam,
         body: UpdateMenuItemSchema,
@@ -157,7 +157,7 @@ export default async function menuItemsRoutes(fastify: FastifyInstance) {
   server.post<{ Body: BulkDeleteBody }>(
     "/bulk-delete",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_DELETE)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU)],
       schema: {
         body: BulkDeleteSchema,
       },

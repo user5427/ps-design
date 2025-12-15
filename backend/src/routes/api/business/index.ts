@@ -41,7 +41,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.get<{ Querystring: BusinessQuery }>(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS)],
       schema: {
         querystring: BusinessQuerySchema,
         response: {
@@ -75,10 +75,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateBusinessBody }>(
     "/",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.BUSINESS_CREATE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS)],
       schema: {
         body: CreateBusinessSchema,
         response: {
@@ -114,7 +111,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.get<{ Params: BusinessIdParams }>(
     "/:businessId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS)],
       schema: {
         params: BusinessIdParam,
         response: {
@@ -142,10 +139,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.put<{ Params: BusinessIdParams; Body: UpdateBusinessBody }>(
     "/:businessId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.BUSINESS_WRITE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS)],
       schema: {
         params: BusinessIdParam,
         body: UpdateBusinessSchema,
@@ -185,10 +179,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.delete<{ Params: BusinessIdParams }>(
     "/:businessId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.BUSINESS_DELETE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS)],
       schema: {
         params: BusinessIdParam,
         response: {
@@ -223,7 +214,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.get<{ Params: BusinessIdParams }>(
     "/:businessId/users",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS)],
       schema: {
         params: BusinessIdParam,
         response: {

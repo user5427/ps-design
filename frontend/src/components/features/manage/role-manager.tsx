@@ -66,6 +66,7 @@ export function RoleManager({
   const { data: scopes = [] } = useScopes(businessId);
   const { data: users = [] } = useUsers(businessId);
 
+  // Backend filters roles to only return those the user can assign
   const roles = Array.isArray(rolesData) ? rolesData : [];
 
   const handleCreateRole = async () => {

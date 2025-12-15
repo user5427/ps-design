@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { AdminUsersManagement } from "@/components/features/admin/users";
+import { UsersManagement } from "@/components/features/manage/users";
 import { useAuthStore } from "@/store/auth";
 import { URLS } from "@/constants/urls";
 
@@ -15,5 +15,5 @@ export const Route = createFileRoute("/manage/users")({
 });
 
 function ManageUsersPage() {
-  return <AdminUsersManagement />;
+  return <UsersManagement />;
 }

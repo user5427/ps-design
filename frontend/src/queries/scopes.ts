@@ -14,5 +14,7 @@ export function useScopes(businessId?: string) {
       });
       return response.data;
     },
+    staleTime: 0,
+    gcTime: 0,
   });
 }
