@@ -22,13 +22,12 @@ export const sidebarSections: Section[] = [
     icon: <DashboardIcon />,
     path: URLS.DASHBOARD,
   },
-  // ORDERS
   {
     label: "Orders",
     icon: <RestaurantIcon />,
     path: URLS.FLOOR_PLAN,
+    scope: "ORDERS",
   },
-  // ROLES AND USERS
   {
     label: "My Business",
     icon: <BusinessIcon />,
@@ -37,10 +36,10 @@ export const sidebarSections: Section[] = [
         label: "Roles",
         icon: <SecurityIcon />,
         path: "/my-business/roles",
+        scope: "ROLE",
       },
     ],
   },
-  // SUPERADMIN ONLY
   {
     label: "Manage",
     icon: <BusinessIcon />,
@@ -49,20 +48,22 @@ export const sidebarSections: Section[] = [
         label: "Businesses",
         icon: <ViewListIcon />,
         path: URLS.MANAGE_BUSINESSES,
+        scope: "SUPERADMIN",
       },
       {
         label: "Users",
         icon: <PersonIcon />,
         path: URLS.MANAGE_USERS,
+        scope: "SUPERADMIN",
       },
       {
         label: "Roles",
         icon: <SecurityIcon />,
         path: URLS.MANAGE_ROLES,
+        scope: "SUPERADMIN",
       },
     ],
   },
-  // INVENTORY
   {
     label: "Inventory",
     icon: <Inventory2Icon />,
@@ -71,31 +72,34 @@ export const sidebarSections: Section[] = [
         label: "Product Units",
         icon: <CategoryIcon />,
         path: URLS.INVENTORY_UNITS,
+        scope: "INVENTORY",
       },
       {
         label: "Products",
         icon: <ShoppingCartIcon />,
         path: URLS.INVENTORY_PRODUCTS,
+        scope: "INVENTORY",
       },
       {
         label: "Stock Changes",
         icon: <Inventory2Icon />,
         path: URLS.INVENTORY_STOCK,
+        scope: "INVENTORY",
       },
       {
         label: "Stock Levels",
         icon: <AssessmentIcon />,
         path: URLS.INVENTORY_STOCK_LEVELS,
+        scope: "INVENTORY",
       },
     ],
   },
-  // CATEGORIES
   {
     label: "Categories",
     icon: <CategoryIcon />,
     path: URLS.CATEGORIES,
+    scope: "CATEGORIES",
   },
-  // MENU
   {
     label: "Menu",
     icon: <MenuBookIcon />,
@@ -104,10 +108,10 @@ export const sidebarSections: Section[] = [
         label: "Items",
         icon: <RestaurantMenuIcon />,
         path: URLS.MENU_ITEMS,
+        scope: "MENU",
       },
     ],
   },
-  // APPOINTMENTS
   {
     label: "Appointments",
     icon: <EventIcon />,
@@ -116,52 +120,55 @@ export const sidebarSections: Section[] = [
         label: "Appointments",
         icon: <EventIcon />,
         path: URLS.APPOINTMENTS_LIST,
+        scope: "APPOINTMENTS",
       },
       {
         label: "Services",
         icon: <ShoppingCartIcon />,
         path: URLS.APPOINTMENTS_SERVICE_DEFINITIONS,
+        scope: "APPOINTMENTS",
       },
       {
         label: "Staff Services",
         icon: <PersonIcon />,
         path: URLS.APPOINTMENTS_STAFF_SERVICES,
+        scope: "APPOINTMENTS",
       },
     ],
   },
-  // GIFT CARDS
   {
     label: "Gift Cards",
     icon: <CardGiftcardIcon />,
     path: URLS.GIFT_CARDS,
+    scope: "GIFT_CARDS",
   },
-  // DISCOUNTS
   {
     label: "Discounts",
     icon: <LocalOfferIcon />,
     path: URLS.DISCOUNTS,
+    scope: "DISCOUNTS",
   },
-  // TAX
   {
     label: "Tax",
     icon: <AssessmentIcon />,
     path: URLS.TAX,
+    scope: "TAX",
   },
   {
     label: "Audit Logs",
     icon: <AssessmentIcon />,
     children: [
-      // AUDIT BUSINESS
       {
         label: "Business Logs",
         icon: <BusinessIcon />,
         path: URLS.AUDIT_BUSINESS_LOGS,
+        scope: "AUDIT_BUSINESS",
       },
-      // AUDIT SECURITY
       {
         label: "Security Logs",
         icon: <AssessmentIcon />,
         path: URLS.AUDIT_SECURITY_LOGS,
+        scope: "AUDIT_SECURITY",
       },
     ],
   },

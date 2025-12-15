@@ -11,7 +11,7 @@ export enum ScopeNames {
   APPOINTMENTS = "APPOINTMENTS",
   GIFT_CARDS = "GIFT_CARDS",
   DISCOUNTS = "DISCOUNTS",
-  MENU_ORDERS = "MENU_ORDERS",
+  ORDERS = "ORDERS",
   TAX = "TAX",
   AUDIT_BUSINESS = "AUDIT_BUSINESS",
   AUDIT_SECURITY = "AUDIT_SECURITY",
@@ -66,8 +66,8 @@ export const SCOPE_CONFIG: Record<
     name: ScopeNames.DISCOUNTS,
     description: "Full access to discounts management (read, create, update, delete)",
   },
-  [ScopeNames.MENU_ORDERS]: {
-    name: ScopeNames.MENU_ORDERS,
+  [ScopeNames.ORDERS]: {
+    name: ScopeNames.ORDERS,
     description: "Full access to restaurant orders (read, create, update)",
   },
   [ScopeNames.TAX]: {
