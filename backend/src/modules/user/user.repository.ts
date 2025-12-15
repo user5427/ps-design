@@ -70,7 +70,17 @@ export class UserRepository {
   }
 
   async update(id: string, data: IUpdateUser): Promise<User | null> {
-    await this.repository.update(id, data);
+    const { businessId, ...rest } = data;
+
+    const updatePayload: Partial<User> & { businessId?: string } = {
+      ...rest,
+    } as Partial<User> & { businessId?: string };
+
+    if (businessId !== undefined && businessId !== null) {
+      updatePayload.businessId = businessId;
+    }
+
+    await this.repository.update(id, updatePayload);
     return this.findById(id);
   }
 

@@ -192,6 +192,7 @@ export function useOrderPaymentModal({
           servicePrice: Math.round(result.finalAmount * 100),
           tipAmount: 0,
           giftCardDiscount: 0,
+          discountAmount: 0,
         },
       });
       setStep("stripe-checkout");

@@ -56,14 +56,14 @@ export const BusinessEdit: React.FC = () => {
 
     try {
       await updateMutation.mutateAsync({ name });
-      navigate({ to: URLS.BUSINESS_LIST });
+      navigate({ to: URLS.MANAGE_BUSINESSES });
     } catch (error) {
       console.error("Update error:", error);
     }
   };
 
   const handleCancel = () => {
-    navigate({ to: URLS.BUSINESS_LIST });
+    navigate({ to: URLS.MANAGE_BUSINESSES });
   };
 
   if (isLoadingBusiness) {

@@ -47,9 +47,6 @@ export class User {
   @OneToMany("UserRole", "user")
   roles: Relation<UserRole[]>;
 
-  @OneToMany("UserRole", "user")
-  roles: Relation<UserRole[]>;
-
   @OneToMany("RefreshToken", "user")
   refreshTokens: Relation<RefreshToken[]>;
 

@@ -3,16 +3,20 @@ import {
   Box,
   Button,
   Chip,
+  CircularProgress,
   Divider,
+  FormControl,
   IconButton,
+  InputLabel,
+  MenuItem as MuiMenuItem,
+  Paper,
+  Select,
   Stack,
   Tab,
   Tabs,
   TextField,
   Toolbar,
   Typography,
-  Paper,
-  CircularProgress,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -29,10 +33,14 @@ import {
   useRefundOrder,
   useSendOrderItems,
   useUpdateOrderItems,
+  useUpdateOrderWaiter,
   useUpdateOrderTotals,
 } from "@/hooks/orders/order-hooks";
 import { useMenuItems } from "@/hooks/menu";
+import { useAuthUser } from "@/hooks/auth";
+import { useBusinessUsers } from "@/hooks/business";
 import type { OrderItemInput } from "@ps-design/schemas/order/order";
+import type { BusinessUserResponse } from "@ps-design/schemas/business";
 import { OrderPayModal } from "./order-pay-modal";
 
 interface MenuItemEntry {
@@ -43,6 +51,9 @@ interface MenuItemEntry {
   stock: number;
   quantity: number;
   status?: "UNSENT" | "SENT";
+  // Optional selected variation for this line
+  variationId?: string | null;
+  variationLabel?: string | null;
 }
 type MenuCategory = string;
 
@@ -61,9 +72,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   const updateTotalsMutation = useUpdateOrderTotals(orderId);
   const refundOrderMutation = useRefundOrder(orderId);
   const cancelOrderMutation = useCancelOrder(orderId);
+  const updateWaiterMutation = useUpdateOrderWaiter(orderId);
+  const { data: authUser } = useAuthUser();
+  const { data: businessUsers = [] } = useBusinessUsers(
+    authUser?.businessId ?? undefined,
+  );
 
   const [tableLabel, setTableLabel] = useState<string | null>(null);
-  const [servedBy] = useState<string>("Demo Waiter");
+  const [selectedWaiterId, setSelectedWaiterId] = useState<string | "">("");
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<MenuCategory>("All");
@@ -74,6 +90,33 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   const [discountInput, setDiscountInput] = useState<string>("");
   const [refundAmountInput, setRefundAmountInput] = useState<string>("");
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
+
+  const waiterOptions = useMemo(
+    () =>
+      (businessUsers as BusinessUserResponse[]).map((u) => ({
+        id: u.id,
+        name: u.name,
+      })),
+    [businessUsers],
+  );
+
+  useEffect(() => {
+    if (order?.servedByUserId) {
+      setSelectedWaiterId(order.servedByUserId);
+    } else {
+      // Default to unassigned when no waiter is set on the order
+      setSelectedWaiterId("");
+    }
+  }, [order?.servedByUserId]);
+
+  const handleChangeWaiter = (newWaiterId: string | "") => {
+    setSelectedWaiterId(newWaiterId);
+
+    // Persist to backend; allow unassigned by sending null
+    updateWaiterMutation.mutate({
+      servedByUserId: newWaiterId || null,
+    });
+  };
 
   // Derive table label from floor plan data when available
   const matchingTable = useMemo(() => {
@@ -154,14 +197,25 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   const handleAddMenuItem = (menuItem: MenuItemEntry) => {
     if (!isOpen) return;
     if (menuItem.stock === 0) return;
+    // For now, default to the base item (no variation preselected).
     setTicketItems((prev) => {
-      const existing = prev.find((item) => item.id === menuItem.id);
+      const existing = prev.find(
+        (item) => item.id === menuItem.id && !item.variationId,
+      );
       if (existing) {
         return prev.map((item) =>
           item === existing ? { ...item, quantity: item.quantity + 1 } : item,
         );
       }
-      return [...prev, { ...menuItem, quantity: 1 }];
+      return [
+        ...prev,
+        {
+          ...menuItem,
+          quantity: 1,
+          variationId: menuItem.variationId ?? null,
+          variationLabel: menuItem.variationLabel ?? null,
+        },
+      ];
     });
   };
 
@@ -192,7 +246,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     const itemsInput: OrderItemInput[] = ticketItems.map((item) => ({
       menuItemId: item.id,
       quantity: item.quantity,
-      variationIds: [],
+      variationIds: item.variationId ? [item.variationId] : [],
     }));
 
     updateItemsMutation.mutate(
@@ -365,9 +419,27 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
               }
               variant={order.status === "OPEN" ? "outlined" : "filled"}
             />
-            <Typography variant="body2" color="text.secondary">
-              Served by {servedBy}
-            </Typography>
+            <FormControl size="small" sx={{ minWidth: 160 }}>
+              <InputLabel id="order-waiter-label" shrink>
+                Served by
+              </InputLabel>
+              <Select
+                labelId="order-waiter-label"
+                label="Served by"
+                value={selectedWaiterId}
+                onChange={(e) => handleChangeWaiter(e.target.value)}
+                displayEmpty
+              >
+                <MuiMenuItem value="">
+                  <em>Unassigned</em>
+                </MuiMenuItem>
+                {waiterOptions.map((w) => (
+                  <MuiMenuItem key={w.id} value={w.id}>
+                    {w.name}
+                  </MuiMenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Stack>
         </Toolbar>
       </AppBar>
@@ -535,6 +607,15 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
 
                     <Box>
                       <Typography variant="body2">{item.name}</Typography>
+                      {item.variationLabel && (
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ display: "block" }}
+                        >
+                          {item.variationLabel}
+                        </Typography>
+                      )}
                       <Typography variant="caption" color="text.secondary">
                         {lineTotal.toFixed(2)}€
                       </Typography>

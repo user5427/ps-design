@@ -46,14 +46,14 @@ export const BusinessCreate: React.FC = () => {
 
     try {
       await createMutation.mutateAsync({ name });
-      navigate({ to: URLS.BUSINESS_LIST });
+      navigate({ to: URLS.MANAGE_BUSINESSES });
     } catch (error) {
       console.error("Create error:", error);
     }
   };
 
   const handleCancel = () => {
-    navigate({ to: URLS.BUSINESS_LIST });
+    navigate({ to: URLS.MANAGE_BUSINESSES });
   };
 
   return (

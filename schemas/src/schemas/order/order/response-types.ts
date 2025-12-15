@@ -34,6 +34,8 @@ export const OrderResponseSchema = z.object({
   id: uuid(),
   businessId: uuid(),
   tableId: uuid().nullable(),
+  servedByUserId: uuid().nullable(),
+  servedByUserName: z.string().nullable(),
   status: OrderStatusEnum,
   itemsTotal: z.number(),
   totalTax: z.number(),

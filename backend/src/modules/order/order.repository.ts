@@ -40,7 +40,12 @@ export class OrderRepository {
   async getByIdAndBusinessId(id: string, businessId: string): Promise<Order> {
     const order = await this.orderRepo.findOne({
       where: { id, businessId },
-      relations: ["orderItems", "orderItems.variations", "payments"],
+      relations: [
+        "orderItems",
+        "orderItems.variations",
+        "payments",
+        "servedByUser",
+      ],
     });
 
     if (!order) {
@@ -328,6 +333,22 @@ export class OrderRepository {
 
       return this.getByIdAndBusinessId(orderId, businessId);
     });
+  }
+
+  async updateWaiter(
+    orderId: string,
+    businessId: string,
+    servedByUserId: string | null,
+  ): Promise<Order> {
+    const order = await this.getByIdAndBusinessId(orderId, businessId);
+
+    if (order.status !== OrderStatus.OPEN) {
+      throw new BadRequestError("Cannot change waiter for a closed order");
+    }
+
+    await this.orderRepo.update(orderId, { servedByUserId });
+
+    return this.getByIdAndBusinessId(orderId, businessId);
   }
 
   async addPayment(

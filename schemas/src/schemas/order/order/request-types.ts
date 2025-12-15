@@ -39,6 +39,10 @@ export const RefundOrderSchema = z.object({
   reason: z.string().max(500).optional(),
 });
 
+export const UpdateOrderWaiterSchema = z.object({
+  servedByUserId: uuid().nullable(),
+});
+
 export type OrderIdParams = z.infer<typeof OrderIdParam>;
 export type CreateOrderBody = z.infer<typeof CreateOrderSchema>;
 export type OrderItemInput = z.infer<typeof OrderItemInputSchema>;
@@ -46,3 +50,4 @@ export type UpdateOrderItemsBody = z.infer<typeof UpdateOrderItemsSchema>;
 export type UpdateOrderTotalsBody = z.infer<typeof UpdateOrderTotalsSchema>;
 export type PayOrderBody = z.infer<typeof PayOrderSchema>;
 export type RefundOrderBody = z.infer<typeof RefundOrderSchema>;
+export type UpdateOrderWaiterBody = z.infer<typeof UpdateOrderWaiterSchema>;

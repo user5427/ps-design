@@ -15,6 +15,7 @@ import type { Business } from "@/modules/business/business.entity";
 import type { DiningTable } from "@/modules/order/table.entity";
 import type { OrderItem } from "@/modules/order/order-item.entity";
 import type { Payment } from "@/modules/order/payment.entity";
+import type { User } from "@/modules/user";
 
 export enum OrderStatus {
   OPEN = "OPEN",
@@ -44,6 +45,14 @@ export class Order {
   @ManyToOne("DiningTable", "orders", { nullable: true, onDelete: "SET NULL" })
   @JoinColumn({ name: "tableId" })
   table: Relation<DiningTable> | null;
+
+  @Column({ type: "uuid", nullable: true })
+  @Index()
+  servedByUserId: string | null;
+
+  @ManyToOne("User", { nullable: true, onDelete: "SET NULL" })
+  @JoinColumn({ name: "servedByUserId" })
+  servedByUser: Relation<User> | null;
 
   @Column({ type: "enum", enum: OrderStatus, default: OrderStatus.OPEN })
   status: OrderStatus;
