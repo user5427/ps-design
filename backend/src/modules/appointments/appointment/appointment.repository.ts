@@ -13,6 +13,7 @@ const APPOINTMENT_RELATIONS = [
   "service.employee",
   "service.serviceDefinition",
   "service.serviceDefinition.category",
+  "service.serviceDefinition.category.tax",
   "payment",
   "payment.lineItems",
 ];
@@ -32,6 +33,7 @@ export class AppointmentRepository {
       .leftJoinAndSelect("service.employee", "employee")
       .leftJoinAndSelect("service.serviceDefinition", "serviceDefinition")
       .leftJoinAndSelect("serviceDefinition.category", "category")
+      .leftJoinAndSelect("category.tax", "tax")
       .leftJoinAndSelect("appointment.payment", "payment")
       .leftJoinAndSelect("payment.lineItems", "lineItems")
       .where("appointment.businessId = :businessId", { businessId })

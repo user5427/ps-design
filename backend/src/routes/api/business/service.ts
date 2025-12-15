@@ -94,6 +94,11 @@ export async function deleteBusiness(
   businessId: string,
 ): Promise<void> {
   await fastify.db.business.softDelete(businessId);
+
+  const connectedUsers = await fastify.db.user.findByBusinessId(businessId);
+  for (const user of connectedUsers) {
+    await fastify.db.refreshToken.revokeAllByUserId(user.id);
+  }
 }
 
 export async function getBusinessUsers(

@@ -175,6 +175,7 @@ export const PayModal: React.FC<PayModalProps> = ({
             giftCardDiscount={calculations.giftCardDiscount}
             discountAmount={calculations.discountAmount}
             discountName={calculations.discountName ?? undefined}
+            taxAmount={calculations.taxAmount}
             estimatedTotal={calculations.estimatedTotal}
             paymentMethod={state.paymentMethod}
             onPaymentMethodChange={actions.setPaymentMethod}

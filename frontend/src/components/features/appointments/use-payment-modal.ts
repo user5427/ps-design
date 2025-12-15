@@ -52,6 +52,7 @@ export interface PaymentModalCalculations {
   giftCardDiscount: number;
   discountAmount: number;
   discountName: string | null;
+  taxAmount: number;
   estimatedTotal: number;
 }
 
@@ -126,9 +127,16 @@ export function usePaymentModal({
       : 0;
     const discountAmount = applicableDiscount?.calculatedAmount ?? 0;
     const discountName = applicableDiscount?.name ?? null;
+
+    const tax = appointment?.service?.serviceDefinition?.category?.tax;
+    const taxableAmount = Math.max(0, price - discountAmount);
+    const taxAmount = tax
+      ? Math.round(taxableAmount * (Number(tax.rate) / 100))
+      : 0;
+
     const estimatedTotal = Math.max(
       0,
-      price + tipAmountCents - giftCardDiscount - discountAmount,
+      price + tipAmountCents - giftCardDiscount - discountAmount + taxAmount,
     );
 
     return {
@@ -141,6 +149,7 @@ export function usePaymentModal({
       giftCardDiscount,
       discountAmount,
       discountName,
+      taxAmount,
       estimatedTotal,
     };
   }, [appointment, tipAmount, validatedGiftCard, applicableDiscount]);
