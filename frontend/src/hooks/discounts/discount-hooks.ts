@@ -100,3 +100,79 @@ export function useApplicableServiceDiscount(
     enabled: enabled && !!serviceDefinitionId && servicePrice > 0,
   });
 }
+
+export function useServiceDiscounts() {
+  return useQuery({
+    queryKey: [...discountKeys.list(), "service"],
+    queryFn: () =>
+      import("@/api/discounts").then((m) => m.getServiceDiscounts()),
+  });
+}
+
+export function useCreateServiceDiscount() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (
+      data: import("@ps-design/schemas/discount").CreateServiceDiscountBody,
+    ) =>
+      import("@/api/discounts").then((m) => m.createServiceDiscount(data)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: discountKeys.all });
+    },
+  });
+}
+
+export function useUpdateServiceDiscount() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: import("@ps-design/schemas/discount").UpdateServiceDiscountBody;
+    }) =>
+      import("@/api/discounts").then((m) =>
+        m.updateServiceDiscount(id, data),
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: discountKeys.all });
+    },
+  });
+}
+
+export function useMenuDiscounts() {
+  return useQuery({
+    queryKey: [...discountKeys.list(), "menu"],
+    queryFn: () => import("@/api/discounts").then((m) => m.getMenuDiscounts()),
+  });
+}
+
+export function useCreateMenuDiscount() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (
+      data: import("@ps-design/schemas/discount").CreateMenuDiscountBody,
+    ) => import("@/api/discounts").then((m) => m.createMenuDiscount(data)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: discountKeys.all });
+    },
+  });
+}
+
+export function useUpdateMenuDiscount() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: import("@ps-design/schemas/discount").UpdateMenuDiscountBody;
+    }) =>
+      import("@/api/discounts").then((m) => m.updateMenuDiscount(id, data)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: discountKeys.all });
+    },
+  });
+}

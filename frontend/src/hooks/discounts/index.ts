@@ -6,4 +6,10 @@ export {
   useDeleteDiscount,
   useApplicableOrderDiscount,
   useApplicableServiceDiscount,
+  useServiceDiscounts,
+  useCreateServiceDiscount,
+  useUpdateServiceDiscount,
+  useMenuDiscounts,
+  useCreateMenuDiscount,
+  useUpdateMenuDiscount,
 } from "./discount-hooks";

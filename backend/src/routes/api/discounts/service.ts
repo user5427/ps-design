@@ -4,7 +4,7 @@ import type {
   UpdateDiscountBody,
   DiscountResponse,
 } from "@ps-design/schemas/discount";
-import type { Discount } from "@/modules/discount/discount.entity";
+import type { Discount, DiscountTargetType } from "@/modules/discount/discount.entity";
 
 function toDiscountResponse(discount: Discount): DiscountResponse {
   return {
@@ -28,8 +28,12 @@ function toDiscountResponse(discount: Discount): DiscountResponse {
 export async function getAllDiscounts(
   fastify: FastifyInstance,
   businessId: string,
+  targetTypes?: DiscountTargetType[],
 ): Promise<DiscountResponse[]> {
-  const discounts = await fastify.db.discount.findAllByBusinessId(businessId);
+  const discounts = await fastify.db.discount.findAllByBusinessId(
+    businessId,
+    targetTypes,
+  );
   return discounts.map(toDiscountResponse);
 }
 

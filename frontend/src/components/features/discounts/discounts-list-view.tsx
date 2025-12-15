@@ -8,19 +8,40 @@ import {
   type ViewFieldDefinition,
   ValidationRules,
 } from "@/components/elements/record-list-view";
-import {
-  useCreateDiscount,
-  useDeleteDiscount,
-  useDiscounts,
-  useUpdateDiscount,
-} from "@/hooks/discounts";
 import { useMenuItems } from "@/hooks/menu/menu-item-hooks";
 import { useServiceDefinitions } from "@/hooks/appointments/service-definition-hooks";
 import type { DiscountResponse } from "@ps-design/schemas/discount";
 import { formatPrice } from "@/utils/price";
 import dayjs from "dayjs";
+import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query";
 
-export const DiscountsListView = () => {
+interface DiscountsListViewProps {
+  useDiscounts: () => UseQueryResult<DiscountResponse[], Error>;
+  useCreateDiscount: () => UseMutationResult<
+    DiscountResponse,
+    Error,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any
+  >;
+  useUpdateDiscount: () => UseMutationResult<
+    DiscountResponse,
+    Error,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    { id: string; data: any }
+  >;
+  useDeleteDiscount: () => UseMutationResult<void, Error, string>;
+  allowedTargetTypes: ("SERVICE" | "MENU_ITEM" | "ORDER")[];
+  title: string;
+}
+
+export const DiscountsListView = ({
+  useDiscounts,
+  useCreateDiscount,
+  useUpdateDiscount,
+  useDeleteDiscount,
+  allowedTargetTypes,
+  title,
+}: DiscountsListViewProps) => {
   const { data: discounts = [], isLoading, error, refetch } = useDiscounts();
   const { data: menuItems = [] } = useMenuItems();
   const { data: serviceDefinitions = [] } = useServiceDefinitions();
@@ -55,7 +76,11 @@ export const DiscountsListView = () => {
     { value: "ORDER", label: "Entire Order" },
     { value: "MENU_ITEM", label: "Menu Item" },
     { value: "SERVICE", label: "Service" },
-  ];
+  ].filter((option) =>
+    allowedTargetTypes.includes(
+      option.value as "SERVICE" | "MENU_ITEM" | "ORDER",
+    ),
+  );
 
   const columns = useMemo<MRT_ColumnDef<DiscountResponse>[]>(
     () => [
@@ -173,20 +198,28 @@ export const DiscountsListView = () => {
       required: true,
       options: targetTypeOptions,
     },
-    {
-      name: "menuItemId",
-      label: "Menu Item (for Menu Item target)",
-      type: "select",
-      required: false,
-      options: menuItemOptions,
-    },
-    {
-      name: "serviceDefinitionId",
-      label: "Service (for Service target)",
-      type: "select",
-      required: false,
-      options: serviceDefinitionOptions,
-    },
+    ...(allowedTargetTypes.includes("MENU_ITEM")
+      ? ([
+        {
+          name: "menuItemId",
+          label: "Menu Item",
+          type: "select",
+          required: false,
+          options: menuItemOptions,
+        },
+      ] as FormFieldDefinition[])
+      : []),
+    ...(allowedTargetTypes.includes("SERVICE")
+      ? ([
+        {
+          name: "serviceDefinitionId",
+          label: "Service",
+          type: "select",
+          required: false,
+          options: serviceDefinitionOptions,
+        },
+      ] as FormFieldDefinition[])
+      : []),
     {
       name: "startsAt",
       label: "Start Date",
@@ -227,7 +260,7 @@ export const DiscountsListView = () => {
       transformForEdit:
         field.name === "startsAt" || field.name === "expiresAt"
           ? (value: unknown) =>
-              value ? dayjs(value as string).format("YYYY-MM-DD") : ""
+            value ? dayjs(value as string).format("YYYY-MM-DD") : ""
           : undefined,
     }),
   );
@@ -288,9 +321,9 @@ export const DiscountsListView = () => {
 
     await createMutation.mutateAsync({
       name: String(values.name),
-      type: values.type as "PERCENTAGE" | "FIXED_AMOUNT",
+      type: values.type,
       value,
-      targetType: values.targetType as "ORDER" | "MENU_ITEM" | "SERVICE",
+      targetType: values.targetType,
       menuItemId:
         values.targetType === "MENU_ITEM"
           ? (values.menuItemId as string)
@@ -310,19 +343,17 @@ export const DiscountsListView = () => {
   };
 
   const handleEdit = async (id: string, values: Partial<DiscountResponse>) => {
-    const data: Parameters<typeof updateMutation.mutateAsync>[0]["data"] = {};
+    const data: any = {}; // Use any to match generic mutation input
 
     if (values.name !== undefined) data.name = values.name;
-    if (values.type !== undefined)
-      data.type = values.type as "PERCENTAGE" | "FIXED_AMOUNT";
+    if (values.type !== undefined) data.type = values.type;
     if (values.value !== undefined) {
       data.value =
         values.type === "FIXED_AMOUNT"
           ? Math.round(Number(values.value) * 100)
           : Number(values.value);
     }
-    if (values.targetType !== undefined)
-      data.targetType = values.targetType as "ORDER" | "MENU_ITEM" | "SERVICE";
+    if (values.targetType !== undefined) data.targetType = values.targetType;
     if (values.menuItemId !== undefined) data.menuItemId = values.menuItemId;
     if (values.serviceDefinitionId !== undefined)
       data.serviceDefinitionId = values.serviceDefinitionId;
@@ -347,7 +378,7 @@ export const DiscountsListView = () => {
 
   return (
     <RecordListView<DiscountResponse>
-      title="Discounts"
+      title={title}
       columns={columns}
       data={discounts}
       isLoading={isLoading}
@@ -359,9 +390,9 @@ export const DiscountsListView = () => {
       onEdit={handleEdit}
       onDelete={handleDelete}
       onSuccess={() => refetch()}
-      createModalTitle="Create Discount"
-      editModalTitle="Edit Discount"
-      viewModalTitle="View Discount"
+      createModalTitle={`Create Discount`}
+      editModalTitle={`Edit Discount`}
+      viewModalTitle={`View Discount`}
     />
   );
 };
