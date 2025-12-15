@@ -21,10 +21,12 @@ export default fp(async (fastify: FastifyInstance) => {
       const userContext = request.user as {
         userId: string;
         businessId: string | undefined;
+        email: string;
       };
 
       const baseParams = {
         userId: userContext.userId,
+        userEmail: userContext.email,
         ip: request.ip,
         entityType: "Business" as EntityName,
       };
@@ -67,10 +69,10 @@ export default fp(async (fastify: FastifyInstance) => {
       request: FastifyRequest,
     ) => {
       let userId = request.user?.userId || null;
+      const body = request.body as { email?: string } | undefined;
+      const email = body?.email;
 
       if (!userId) {
-        const body = request.body as { email?: string } | undefined;
-        const email = body?.email;
         const user = email ? await fastify.db.user.findByEmail(email) : null;
         userId = user ? user.id : null;
       }
@@ -81,6 +83,7 @@ export default fp(async (fastify: FastifyInstance) => {
 
       return auditLogWrapper(fn, fastify.db.auditLogService, auditType, {
         userId,
+        userEmail: email || null,
         ip: request.ip,
       });
     },
@@ -98,10 +101,12 @@ export default fp(async (fastify: FastifyInstance) => {
 
       const baseParams: {
         userId: string;
+        userEmail: string | null;
         ip: string;
         entityType: EntityName;
       } = {
         userId: (request.user as { userId: string }).userId,
+        userEmail: 'email' in request.user ? (request.user as { email: string | null }).email : null,
         ip: request.ip,
         entityType: entityType as EntityName,
       };
