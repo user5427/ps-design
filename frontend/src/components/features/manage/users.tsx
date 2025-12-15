@@ -1,233 +1,258 @@
-import { useState } from "react";
+import type { MRT_ColumnDef } from "material-react-table";
+import { useMemo, useCallback } from "react";
 import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-  Chip,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  CircularProgress,
-  OutlinedInput,
-} from "@mui/material";
-import type { SelectChangeEvent } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient as api } from "@/api/client";
-import { useUsers } from "@/queries/users";
-import { useRoles } from "@/queries/roles";
-import type { UserResponse, AssignRolesBody } from "@ps-design/schemas/user";
+  RecordListView,
+  type FormFieldDefinition,
+  type ViewFieldDefinition,
+  ValidationRules,
+} from "@/components/elements/record-list-view";
+import { apiClient } from "@/api/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAuthUser } from "@/hooks/auth";
+import { TextField, Box } from "@mui/material";
+import { PasswordStrengthIndicator } from "@/components/elements/auth/password-strength-indicator";
+import { checkPasswordStrength } from "@/utils/auth";
 
-interface BusinessUsersManagementProps {
+type User = Record<string, unknown> & {
+  id: string;
+  email: string;
+  name: string;
   businessId: string;
-}
+  businessName: string;
+  roles: Array<{
+    id: string;
+    name: string;
+    description: string | null;
+  }>;
+  createdAt: string;
+  updatedAt: string;
+};
 
-export function BusinessUsersManagement({
-  businessId,
-}: BusinessUsersManagementProps) {
+export function UsersManagement() {
   const queryClient = useQueryClient();
-  const [openDialog, setOpenDialog] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserResponse | null>(null);
-  const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
+  const { data: currentUser } = useAuthUser();
 
-  // Fetch users for business
-  const { data: users = [], isLoading: usersLoading } = useUsers(businessId);
-
-  // Fetch roles for business (backend filters to only show assignable roles)
-  const { data: roles = [], isLoading: rolesLoading } = useRoles(businessId);
-
-  // Assign roles mutation
-  const assignRolesMutation = useMutation({
-    mutationFn: async ({
-      userId,
-      roleIds,
-    }: {
-      userId: string;
-      roleIds: string[];
-    }) => {
-      const assignData: AssignRolesBody = { roleIds };
-      const response = await api.post(`/users/${userId}/roles`, assignData);
+  // Fetch all users in the system
+  const {
+    data: users = [],
+    isLoading: usersLoading,
+    error,
+  } = useQuery<User[]>({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const response = await apiClient.get("/users");
       return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users", businessId] });
-      queryClient.invalidateQueries({ queryKey: ["scopes"] });
-      queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
-      handleCloseDialog();
     },
   });
 
-  const handleOpenDialog = (user: UserResponse) => {
-    setSelectedUser(user);
-    setSelectedRoleIds(user.roles.map((r) => r.id));
-    setOpenDialog(true);
-  };
+  const columns = useMemo<MRT_ColumnDef<User>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Name",
+        size: 200,
+      },
+      {
+        accessorKey: "email",
+        header: "Email",
+        size: 250,
+      },
+      {
+        accessorKey: "businessName",
+        header: "Business",
+        size: 200,
+        Cell: ({ cell }) => {
+          const value = cell.getValue();
+          return value ? String(value) : "No Business";
+        },
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Created At",
+        size: 150,
+        Cell: ({ cell }) =>
+          new Date(cell.getValue() as string).toLocaleDateString(),
+      },
+    ],
+    [],
+  );
 
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setSelectedUser(null);
-    setSelectedRoleIds([]);
-  };
-
-  const handleRoleChange = (event: SelectChangeEvent<string[]>) => {
-    const value = event.target.value;
-    setSelectedRoleIds(typeof value === "string" ? value.split(",") : value);
-  };
-
-  const handleSubmit = () => {
-    if (selectedUser) {
-      assignRolesMutation.mutate({
-        userId: selectedUser.id,
-        roleIds: selectedRoleIds,
+  // Fetch all businesses for the selector
+  const { data: businesses = [] } = useQuery({
+    queryKey: ["business"],
+    queryFn: async () => {
+      const response = await apiClient.get("/business", {
+        params: { page: 1, limit: 100 },
       });
+      return response.data.items;
+    },
+  });
+
+  const createFormFields: FormFieldDefinition[] = [
+    {
+      name: "name",
+      label: "Name",
+      type: "text",
+      required: true,
+      validationRules: [ValidationRules.minLength(1)],
+    },
+    {
+      name: "email",
+      label: "Email",
+      type: "email",
+      required: true,
+      validationRules: [ValidationRules.email()],
+    },
+    {
+      name: "password",
+      label: "Password",
+      type: "password",
+      required: true,
+      validationRules: [
+        ValidationRules.minLength(8),
+        {
+          test: (value) => {
+            const strength = checkPasswordStrength(String(value || ""));
+            return strength.isValid;
+          },
+          message: "Password does not meet requirements",
+        },
+      ],
+      renderCustomField: ({ value, onChange, error, disabled }) => {
+        const passwordValue = String(value || "");
+        const strength = checkPasswordStrength(passwordValue);
+
+        return (
+          <Box>
+            <TextField
+              fullWidth
+              type="password"
+              label="Password"
+              value={passwordValue}
+              onChange={(e) => onChange(e.target.value)}
+              error={!!error}
+              helperText={error}
+              disabled={disabled}
+              required
+            />
+            {passwordValue.length > 0 && (
+              <Box sx={{ mt: 1 }}>
+                <PasswordStrengthIndicator
+                  score={strength.score}
+                  feedback={strength.feedback}
+                />
+              </Box>
+            )}
+          </Box>
+        );
+      },
+    },
+    {
+      name: "businessId",
+      label: "Business",
+      type: "select",
+      required: true,
+      options: businesses.map((b: { id: string; name: string }) => ({
+        value: b.id,
+        label: b.name,
+      })),
+    },
+    {
+      name: "isOwner",
+      label: "Make user owner of business",
+      type: "checkbox",
+      required: false,
+    },
+  ];
+
+  const editFormFields: FormFieldDefinition[] = [
+    {
+      name: "name",
+      label: "Name",
+      type: "text",
+      required: true,
+      validationRules: [ValidationRules.minLength(1)],
+    },
+    {
+      name: "email",
+      label: "Email",
+      type: "email",
+      required: true,
+      validationRules: [ValidationRules.email()],
+    },
+  ];
+
+  const viewFields: ViewFieldDefinition[] = [
+    { name: "id", label: "ID" },
+    { name: "name", label: "Name" },
+    { name: "email", label: "Email" },
+    { name: "businessId", label: "Business ID" },
+    { name: "businessName", label: "Business Name" },
+    { name: "createdAt", label: "Created At" },
+    { name: "updatedAt", label: "Updated At" },
+  ];
+
+  const handleCreate = useCallback(
+    async (values: Partial<User>) => {
+      await apiClient.post("/users", {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        businessId: values.businessId,
+        isOwner: values.isOwner || false,
+      });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    [queryClient],
+  );
+
+  const handleEdit = useCallback(
+    async (id: string, values: Partial<User>) => {
+      await apiClient.put(`/users/${id}`, {
+        name: values.name,
+        email: values.email,
+      });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    [queryClient],
+  );
+
+  const handleDelete = async (ids: string[]) => {
+    // Prevent deleting yourself
+    const canDelete = ids.filter((id) => id !== currentUser?.id);
+
+    if (canDelete.length === 0) {
+      throw new Error("You cannot delete your own account");
     }
+
+    for (const id of canDelete) {
+      await apiClient.delete(`/users/${id}`);
+    }
+    queryClient.invalidateQueries({ queryKey: ["users"] });
   };
 
-  if (usersLoading || rolesLoading) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="400px"
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const refetch = () => {
+    queryClient.invalidateQueries({ queryKey: ["users"] });
+  };
 
   return (
-    <Box>
-      <Card>
-        <CardContent>
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            mb={2}
-          >
-            <Typography variant="h5">Users Management</Typography>
-          </Box>
-
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Business ID</TableCell>
-                  <TableCell>Roles</TableCell>
-                  <TableCell align="right">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Typography variant="body2" fontFamily="monospace">
-                        {user.businessId || "N/A"}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Box display="flex" gap={0.5} flexWrap="wrap">
-                        {user.roles.length > 0 ? (
-                          user.roles.map((role) => (
-                            <Chip
-                              key={role.id}
-                              label={role.name}
-                              size="small"
-                            />
-                          ))
-                        ) : (
-                          <Typography variant="caption" color="text.secondary">
-                            No roles assigned
-                          </Typography>
-                        )}
-                      </Box>
-                    </TableCell>
-                    <TableCell align="right">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleOpenDialog(user)}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
-
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Assign Roles to {selectedUser?.name}</DialogTitle>
-        <DialogContent>
-          <Box sx={{ pt: 2 }}>
-            <FormControl fullWidth>
-              <InputLabel>Roles</InputLabel>
-              <Select
-                multiple
-                value={selectedRoleIds}
-                onChange={handleRoleChange}
-                input={<OutlinedInput label="Roles" />}
-                renderValue={(selected) =>
-                  roles
-                    .filter((r) => selected.includes(r.id))
-                    .map((r) => r.name)
-                    .join(", ")
-                }
-              >
-                {roles.map((role) => (
-                  <MenuItem key={role.id} value={role.id}>
-                    <Box>
-                      <Typography variant="body1">{role.name}</Typography>
-                      {role.description && (
-                        <Typography variant="caption" color="text.secondary">
-                          {role.description}
-                        </Typography>
-                      )}
-                    </Box>
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button
-            onClick={handleSubmit}
-            variant="contained"
-            disabled={assignRolesMutation.isPending}
-          >
-            Update
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+    <RecordListView<User>
+      title="Users"
+      columns={columns}
+      data={users}
+      isLoading={usersLoading}
+      error={error}
+      createFormFields={createFormFields}
+      editFormFields={editFormFields}
+      viewFields={viewFields}
+      onCreate={handleCreate}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
+      onSuccess={refetch}
+      createModalTitle="Create User"
+      editModalTitle="Edit User"
+      viewModalTitle="View User"
+      enableRowDeletion={(row) => row.original.id !== currentUser?.id}
+    />
   );
 }
