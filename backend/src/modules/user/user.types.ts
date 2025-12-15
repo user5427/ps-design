@@ -3,7 +3,7 @@ export interface ICreateUser {
   passwordHash: string;
   name: string;
   isPasswordResetRequired?: boolean;
-  businessId?: string | null;
+  businessId: string;
 }
 
 export interface IUpdateUser {
@@ -17,7 +17,7 @@ export interface IUpdateUser {
 export interface IAuthUser {
   id: string;
   email: string;
-  businessId: string | null;
+  businessId: string;
   isPasswordResetRequired: boolean;
   roleIds: string[];
 }

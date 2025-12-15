@@ -12,6 +12,7 @@ export const UserResponseSchema = z.object({
   email: z.string().email(),
   name: z.string(),
   businessId: uuid().nullable(),
+  businessName: z.string().nullable(),
   roles: z.array(RoleInUserSchema),
   createdAt: z.string(),
   updatedAt: z.string(),

@@ -30,6 +30,7 @@ export async function getUsersByBusinessId(
           email: user.email,
           name: user.name,
           businessId: user.businessId,
+          businessName: user.business.name,
           roles: await Promise.all(
             userRoles.map(async (ur) => ({
               id: ur.role.id,
@@ -70,6 +71,7 @@ export async function getUsersByBusinessId(
         email: user.email,
         name: user.name,
         businessId: user.businessId,
+        businessName: user.business?.name ?? null,
         roles: await Promise.all(
           userRoles.map(async (ur) => ({
             id: ur.role.id,
@@ -114,6 +116,7 @@ export async function getUserById(
     email: user.email,
     name: user.name,
     businessId: user.businessId,
+    businessName: user.business?.name ?? null,
     roles: await Promise.all(
       userRoles.map(async (ur) => ({
         id: ur.role.id,
@@ -132,7 +135,7 @@ export async function createUser(
     email: string;
     name: string;
     password: string;
-    businessId?: string;
+    businessId: string;
     isOwner?: boolean;
   },
   _authUser: IAuthUser,
@@ -155,7 +158,7 @@ export async function createUser(
   });
 
   // If isOwner is true, assign owner role
-  if (data.isOwner && data.businessId) {
+  if (data.isOwner) {
     const ownerRole = await fastify.db.role.findByBusinessAndName(
       data.businessId,
       "OWNER",
@@ -172,6 +175,7 @@ export async function createUser(
     email: user.email,
     name: user.name,
     businessId: user.businessId,
+    businessName: user.business?.name ?? null,
     roles: await Promise.all(
       userRoles.map(async (ur) => ({
         id: ur.role.id,
@@ -248,6 +252,7 @@ export async function assignRolesToUser(
     email: user.email,
     name: user.name,
     businessId: user.businessId,
+    businessName: user.business?.name ?? null,
     roles: await Promise.all(
       userRoles.map(async (ur) => ({
         id: ur.role.id,
@@ -365,6 +370,7 @@ export async function updateUser(
     email: updatedUser.email,
     name: updatedUser.name,
     businessId: updatedUser.businessId,
+    businessName: updatedUser.business?.name ?? null,
     roles: await Promise.all(
       userRoles.map(async (ur) => ({
         id: ur.role.id,

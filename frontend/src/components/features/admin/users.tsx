@@ -17,7 +17,8 @@ type User = Record<string, unknown> & {
   id: string;
   email: string;
   name: string;
-  businessId: string | null;
+  businessId: string;
+  businessName: string;
   roles: Array<{
     id: string;
     name: string;
@@ -55,6 +56,15 @@ export function AdminUsersManagement() {
         accessorKey: "email",
         header: "Email",
         size: 250,
+      },
+      {
+        accessorKey: "businessName",
+        header: "Business",
+        size: 200,
+        Cell: ({ cell }) => {
+          const value = cell.getValue();
+          return value ? String(value) : "No Business";
+        },
       },
       {
         accessorKey: "createdAt",
@@ -177,6 +187,7 @@ export function AdminUsersManagement() {
     { name: "name", label: "Name" },
     { name: "email", label: "Email" },
     { name: "businessId", label: "Business ID" },
+    { name: "businessName", label: "Business Name" },
     { name: "createdAt", label: "Created At" },
     { name: "updatedAt", label: "Updated At" },
   ];
