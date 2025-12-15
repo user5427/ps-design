@@ -13,8 +13,6 @@ import {
 import { getBusinessId } from "@/shared/auth-utils";
 import { handleServiceError } from "@/shared/error-handler";
 import {
-  type CreateDiscountBody,
-  CreateDiscountSchema,
   CreateServiceDiscountSchema,
   CreateMenuDiscountSchema,
   type CreateServiceDiscountBody,
@@ -289,8 +287,50 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     },
   );
 
+  // Delete service discount
   server.delete<{ Params: DiscountIdParams }>(
-    "/:discountId",
+    "/services/:discountId",
+    {
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.DISCOUNTS_DELETE),
+      ],
+      schema: {
+        params: DiscountIdParam,
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Params: DiscountIdParams;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
+
+      const { discountId } = request.params;
+
+      try {
+        const deleteDiscountWrapped = await fastify.audit.generic(
+          deleteDiscount,
+          AuditActionType.DELETE,
+          request,
+          reply,
+          "Discount",
+          discountId,
+        );
+
+        await deleteDiscountWrapped(fastify, businessId, discountId);
+        return reply.code(httpStatus.NO_CONTENT).send();
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
+
+  // Delete menu discount
+  server.delete<{ Params: DiscountIdParams }>(
+    "/menu/:discountId",
     {
       onRequest: [
         fastify.authenticate,

@@ -30,3 +30,7 @@ export async function updateMenuDiscount(
     );
     return response.data;
 }
+
+export async function deleteMenuDiscount(id: string): Promise<void> {
+    await apiClient.delete(`/discounts/menu/${id}`);
+}

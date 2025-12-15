@@ -1,7 +1,7 @@
 import { DiscountsListView } from "@/components/features/discounts";
 import {
   useCreateMenuDiscount,
-  useDeleteDiscount,
+  useDeleteMenuDiscount,
   useMenuDiscounts,
   useUpdateMenuDiscount,
 } from "@/hooks/discounts/discount-hooks";
@@ -18,7 +18,7 @@ function MenuDiscountsRoute() {
       useDiscounts={useMenuDiscounts}
       useCreateDiscount={useCreateMenuDiscount}
       useUpdateDiscount={useUpdateMenuDiscount}
-      useDeleteDiscount={useDeleteDiscount}
+      useDeleteDiscount={useDeleteMenuDiscount}
       allowedTargetTypes={["MENU_ITEM", "ORDER"]}
     />
   );

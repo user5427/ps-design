@@ -30,3 +30,7 @@ export async function updateServiceDiscount(
     );
     return response.data;
 }
+
+export async function deleteServiceDiscount(id: string): Promise<void> {
+    await apiClient.delete(`/discounts/services/${id}`);
+}

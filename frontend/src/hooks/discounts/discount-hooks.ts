@@ -1,21 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  createDiscount,
-  deleteDiscount,
-  getDiscounts,
-  updateDiscount,
   getApplicableOrderDiscount,
   getApplicableServiceDiscount,
   getServiceDiscounts,
   createServiceDiscount,
   updateServiceDiscount,
+  deleteServiceDiscount,
   getMenuDiscounts,
   createMenuDiscount,
   updateMenuDiscount,
+  deleteMenuDiscount,
 } from "@/api/discounts";
 import type {
-  CreateDiscountBody,
-  UpdateDiscountBody,
   CreateServiceDiscountBody,
   UpdateServiceDiscountBody,
   CreateMenuDiscountBody,
@@ -45,44 +41,6 @@ export const discountKeys = {
   },
 };
 
-export function useDiscounts() {
-  return useQuery({
-    queryKey: discountKeys.list(),
-    queryFn: () => getDiscounts(),
-  });
-}
-
-export function useCreateDiscount() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (data: CreateDiscountBody) => createDiscount(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: discountKeys.all });
-    },
-  });
-}
-
-export function useUpdateDiscount() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateDiscountBody }) =>
-      updateDiscount(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: discountKeys.all });
-    },
-  });
-}
-
-export function useDeleteDiscount() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => deleteDiscount(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: discountKeys.all });
-    },
-  });
-}
-
 export function useApplicableOrderDiscount(
   menuItemIds: string[],
   orderTotal: number,
@@ -111,6 +69,8 @@ export function useApplicableServiceDiscount(
   });
 }
 
+// Service Discounts Hooks
+
 export function useServiceDiscounts() {
   return useQuery({
     queryKey: [...discountKeys.list(), "service"],
@@ -121,9 +81,8 @@ export function useServiceDiscounts() {
 export function useCreateServiceDiscount() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (
-      data: CreateServiceDiscountBody,
-    ) => createServiceDiscount(data),
+    mutationFn: (data: CreateServiceDiscountBody) =>
+      createServiceDiscount(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: discountKeys.all });
     },
@@ -146,6 +105,18 @@ export function useUpdateServiceDiscount() {
   });
 }
 
+export function useDeleteServiceDiscount() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteServiceDiscount(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: discountKeys.all });
+    },
+  });
+}
+
+// Menu Discounts Hooks
+
 export function useMenuDiscounts() {
   return useQuery({
     queryKey: [...discountKeys.list(), "menu"],
@@ -156,9 +127,7 @@ export function useMenuDiscounts() {
 export function useCreateMenuDiscount() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (
-      data: CreateMenuDiscountBody,
-    ) => createMenuDiscount(data),
+    mutationFn: (data: CreateMenuDiscountBody) => createMenuDiscount(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: discountKeys.all });
     },
@@ -168,13 +137,18 @@ export function useCreateMenuDiscount() {
 export function useUpdateMenuDiscount() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: UpdateMenuDiscountBody;
-    }) => updateMenuDiscount(id, data),
+    mutationFn: ({ id, data }: { id: string; data: UpdateMenuDiscountBody }) =>
+      updateMenuDiscount(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: discountKeys.all });
+    },
+  });
+}
+
+export function useDeleteMenuDiscount() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteMenuDiscount(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: discountKeys.all });
     },

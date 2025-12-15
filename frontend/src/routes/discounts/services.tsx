@@ -1,7 +1,7 @@
 import { DiscountsListView } from "@/components/features/discounts";
 import {
   useCreateServiceDiscount,
-  useDeleteDiscount, // Delete is generic
+  useDeleteServiceDiscount,
   useServiceDiscounts,
   useUpdateServiceDiscount,
 } from "@/hooks/discounts/discount-hooks";
@@ -18,7 +18,7 @@ function ServiceDiscountsRoute() {
       useDiscounts={useServiceDiscounts}
       useCreateDiscount={useCreateServiceDiscount}
       useUpdateDiscount={useUpdateServiceDiscount}
-      useDeleteDiscount={useDeleteDiscount}
+      useDeleteDiscount={useDeleteServiceDiscount}
       allowedTargetTypes={["SERVICE", "ORDER"]}
     />
   );
