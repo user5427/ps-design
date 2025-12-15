@@ -1,4 +1,5 @@
 import {
+  type FindOptionsWhere,
   In,
   IsNull,
   LessThanOrEqual,
@@ -18,9 +19,19 @@ import type {
 export class DiscountRepository {
   constructor(private repository: Repository<Discount>) {}
 
-  async findAllByBusinessId(businessId: string): Promise<Discount[]> {
+  async findAllByBusinessId(
+    businessId: string,
+    targetTypes?: DiscountTargetType[],
+  ): Promise<Discount[]> {
+    const where: FindOptionsWhere<Discount> = {
+      businessId,
+      deletedAt: IsNull(),
+    };
+    if (targetTypes && targetTypes.length > 0) {
+      where.targetType = In(targetTypes);
+    }
     return this.repository.find({
-      where: { businessId, deletedAt: IsNull() },
+      where,
       relations: ["menuItem", "serviceDefinition"],
       order: { createdAt: "DESC" },
     });

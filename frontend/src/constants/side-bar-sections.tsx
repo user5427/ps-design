@@ -151,8 +151,14 @@ export const sidebarSections: Section[] = [
   {
     label: "Discounts",
     icon: <LocalOfferIcon />,
-    path: URLS.DISCOUNTS,
-    scope: "DISCOUNTS",
+    path: URLS.DISCOUNTS_SERVICES,
+    scope: "SERVICE_DISCOUNTS",
+  },
+  {
+    label: "Discounts ",
+    icon: <LocalOfferIcon />,
+    path: URLS.DISCOUNTS_MENU,
+    scope: "MENU_DISCOUNTS",
   },
   {
     label: "Tax",
