@@ -41,7 +41,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.get<{ Querystring: BusinessQuery }>(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS)],
       schema: {
         querystring: BusinessQuerySchema,
         response: {
@@ -77,7 +77,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.BUSINESS_CREATE),
+        requireScope(ScopeNames.BUSINESS),
       ],
       schema: {
         body: CreateBusinessSchema,
@@ -114,7 +114,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.get<{ Params: BusinessIdParams }>(
     "/:businessId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS)],
       schema: {
         params: BusinessIdParam,
         response: {
@@ -144,7 +144,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.BUSINESS_WRITE),
+        requireScope(ScopeNames.BUSINESS),
       ],
       schema: {
         params: BusinessIdParam,
@@ -187,7 +187,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.BUSINESS_DELETE),
+        requireScope(ScopeNames.BUSINESS),
       ],
       schema: {
         params: BusinessIdParam,
@@ -223,7 +223,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.get<{ Params: BusinessIdParams }>(
     "/:businessId/users",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS_READ)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS)],
       schema: {
         params: BusinessIdParam,
         response: {

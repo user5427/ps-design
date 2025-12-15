@@ -367,12 +367,12 @@ export async function deleteRole(
     throw new NotFoundError("Role not found");
   }
 
-  // Check if user has ROLE_DELETE permission
+  // Check if user has ROLE permission
   const userScopes = await fastify.db.role.getUserScopesFromRoles(
     authUser.roleIds,
   );
 
-  if (!userScopes.includes(ScopeNames.ROLE_DELETE)) {
+  if (!userScopes.includes(ScopeNames.ROLE)) {
     throw new ForbiddenError("You don't have permission to delete roles");
   }
 

@@ -36,7 +36,7 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_READ),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -53,7 +53,7 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         body: CreateServiceSchema,
@@ -90,7 +90,7 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_READ),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         params: ServiceIdParam,
@@ -125,7 +125,7 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         params: ServiceIdParam,
@@ -172,7 +172,7 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_DELETE),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         body: BulkDeleteSchema,

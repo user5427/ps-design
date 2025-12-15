@@ -34,7 +34,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_READ),
+        requireScope(ScopeNames.INVENTORY),
       ],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -51,7 +51,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_WRITE),
+        requireScope(ScopeNames.INVENTORY),
       ],
       schema: {
         body: CreateProductUnitSchema,
@@ -88,7 +88,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_WRITE),
+        requireScope(ScopeNames.INVENTORY),
       ],
       schema: {
         params: UnitIdParam,
@@ -135,7 +135,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_DELETE),
+        requireScope(ScopeNames.INVENTORY),
       ],
       schema: {
         body: BulkDeleteSchema,

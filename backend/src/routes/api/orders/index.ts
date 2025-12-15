@@ -40,7 +40,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.MENU_ORDERS_WRITE),
+        requireScope(ScopeNames.MENU_ORDERS),
       ],
       schema: {
         body: CreateOrderSchema,
@@ -69,7 +69,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.MENU_ORDERS_READ),
+        requireScope(ScopeNames.MENU_ORDERS),
       ],
       schema: {
         params: OrderIdParam,
@@ -98,7 +98,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.MENU_ORDERS_WRITE),
+        requireScope(ScopeNames.MENU_ORDERS),
       ],
       schema: {
         params: OrderIdParam,
@@ -136,7 +136,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.MENU_ORDERS_WRITE),
+        requireScope(ScopeNames.MENU_ORDERS),
       ],
       schema: {
         params: OrderIdParam,
@@ -175,7 +175,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.MENU_ORDERS_WRITE),
+        requireScope(ScopeNames.MENU_ORDERS),
       ],
       schema: {
         params: OrderIdParam,
@@ -213,7 +213,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.MENU_ORDERS_WRITE),
+        requireScope(ScopeNames.MENU_ORDERS),
       ],
       schema: {
         params: OrderIdParam,
@@ -251,7 +251,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.MENU_ORDERS_WRITE),
+        requireScope(ScopeNames.MENU_ORDERS),
       ],
       schema: {
         params: OrderIdParam,
@@ -286,7 +286,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.MENU_ORDERS_WRITE),
+        requireScope(ScopeNames.MENU_ORDERS),
       ],
       schema: {
         params: OrderIdParam,
@@ -324,7 +324,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.MENU_ORDERS_WRITE),
+        requireScope(ScopeNames.MENU_ORDERS),
       ],
       schema: {
         params: OrderIdParam,

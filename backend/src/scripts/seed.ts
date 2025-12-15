@@ -133,7 +133,7 @@ async function main() {
       },
       {
         roleName: "USER",
-        scopes: [ScopeNames.INVENTORY_READ],
+        scopes: [ScopeNames.INVENTORY],
       },
     ];
 

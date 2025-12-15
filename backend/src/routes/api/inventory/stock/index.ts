@@ -30,7 +30,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_READ),
+        requireScope(ScopeNames.INVENTORY),
       ],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -47,7 +47,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_READ),
+        requireScope(ScopeNames.INVENTORY),
       ],
       schema: {
         params: ProductIdParam,
@@ -82,7 +82,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_WRITE),
+        requireScope(ScopeNames.INVENTORY),
       ],
       schema: {
         body: CreateStockChangeSchema,
@@ -126,7 +126,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_READ),
+        requireScope(ScopeNames.INVENTORY),
       ],
       schema: {
         querystring: StockQuerySchema,

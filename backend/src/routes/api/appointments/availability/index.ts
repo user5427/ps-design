@@ -95,7 +95,7 @@ export default async function availabilityRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_READ),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         querystring: GetAvailableTimeSlotsQuerySchema,
@@ -128,7 +128,7 @@ export default async function availabilityRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_READ),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         querystring: GetAvailabilityBlocksQuerySchema,

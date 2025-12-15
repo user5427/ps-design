@@ -34,7 +34,7 @@ export default async function giftCardsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.GIFT_CARDS_READ),
+        requireScope(ScopeNames.GIFT_CARDS),
       ],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -51,7 +51,7 @@ export default async function giftCardsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.GIFT_CARDS_WRITE),
+        requireScope(ScopeNames.GIFT_CARDS),
       ],
       schema: {
         body: CreateGiftCardSchema,
@@ -92,7 +92,7 @@ export default async function giftCardsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.GIFT_CARDS_READ),
+        requireScope(ScopeNames.GIFT_CARDS),
       ],
       schema: {
         params: GiftCardIdParam,
@@ -123,7 +123,7 @@ export default async function giftCardsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.GIFT_CARDS_WRITE),
+        requireScope(ScopeNames.GIFT_CARDS),
       ],
       schema: {
         params: GiftCardIdParam,
@@ -170,7 +170,7 @@ export default async function giftCardsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.GIFT_CARDS_DELETE),
+        requireScope(ScopeNames.GIFT_CARDS),
       ],
       schema: {
         params: GiftCardIdParam,
@@ -209,7 +209,7 @@ export default async function giftCardsRoutes(fastify: FastifyInstance) {
   server.post<{ Body: ValidateGiftCardBody }>(
     "/validate",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU)],
       schema: {
         body: ValidateGiftCardSchema,
       },

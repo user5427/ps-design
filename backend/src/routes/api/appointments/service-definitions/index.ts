@@ -46,7 +46,7 @@ export default async function serviceDefinitionsRoutes(
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_READ),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         querystring: ServiceDefinitionFilterSchema,
@@ -70,7 +70,7 @@ export default async function serviceDefinitionsRoutes(
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         body: CreateServiceDefinitionSchema,
@@ -107,7 +107,7 @@ export default async function serviceDefinitionsRoutes(
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_READ),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         params: ServiceDefinitionIdParam,
@@ -145,7 +145,7 @@ export default async function serviceDefinitionsRoutes(
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         params: ServiceDefinitionIdParam,
@@ -192,7 +192,7 @@ export default async function serviceDefinitionsRoutes(
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_DELETE),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         body: BulkDeleteSchema,

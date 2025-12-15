@@ -50,7 +50,7 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_READ),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {},
     },
@@ -68,7 +68,7 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         body: CreateAppointmentSchema,
@@ -113,7 +113,7 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_READ),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         params: AppointmentIdParam,
@@ -148,7 +148,7 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         params: AppointmentIdParam,
@@ -195,7 +195,7 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         params: AppointmentIdParam,
@@ -242,7 +242,7 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         params: AppointmentIdParam,
@@ -275,7 +275,7 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         params: AppointmentIdParam,
@@ -321,7 +321,7 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         params: AppointmentIdParam,

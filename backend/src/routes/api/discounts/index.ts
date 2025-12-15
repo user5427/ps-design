@@ -38,7 +38,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.DISCOUNTS_READ),
+        requireScope(ScopeNames.DISCOUNTS),
       ],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -56,7 +56,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.DISCOUNTS_WRITE),
+        requireScope(ScopeNames.DISCOUNTS),
       ],
       schema: {
         body: CreateDiscountSchema,
@@ -98,7 +98,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.DISCOUNTS_READ),
+        requireScope(ScopeNames.DISCOUNTS),
       ],
       schema: {
         params: DiscountIdParam,
@@ -130,7 +130,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.DISCOUNTS_WRITE),
+        requireScope(ScopeNames.DISCOUNTS),
       ],
       schema: {
         params: DiscountIdParam,
@@ -178,7 +178,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.DISCOUNTS_DELETE),
+        requireScope(ScopeNames.DISCOUNTS),
       ],
       schema: {
         params: DiscountIdParam,
@@ -217,7 +217,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
   server.get<{ Querystring: GetApplicableOrderDiscountQuery }>(
     "/applicable/order",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU)],
       schema: {
         querystring: GetApplicableOrderDiscountSchema,
       },
@@ -252,7 +252,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_READ),
+        requireScope(ScopeNames.APPOINTMENTS),
       ],
       schema: {
         querystring: GetApplicableServiceDiscountSchema,

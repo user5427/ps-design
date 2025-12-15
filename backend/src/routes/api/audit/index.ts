@@ -34,7 +34,7 @@ export default async function auditRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.AUDIT_BUSINESS_READ),
+        requireScope(ScopeNames.AUDIT_BUSINESS),
       ],
       schema: {
         querystring: AuditBusinessLogQuerySchema,
@@ -62,7 +62,7 @@ export default async function auditRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.AUDIT_BUSINESS_READ),
+        requireScope(ScopeNames.AUDIT_BUSINESS),
       ],
       schema: {
         params: AuditBusinessLogIdParam,
@@ -86,7 +86,7 @@ export default async function auditRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.AUDIT_SECURITY_READ),
+        requireScope(ScopeNames.AUDIT_SECURITY),
       ],
       schema: {
         querystring: AuditSecurityLogQuerySchema,
@@ -114,7 +114,7 @@ export default async function auditRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.AUDIT_SECURITY_READ),
+        requireScope(ScopeNames.AUDIT_SECURITY),
       ],
       schema: {
         params: AuditSecurityLogIdParam,
