@@ -63,9 +63,9 @@ async function applyGiftCard(
   const giftCard = shouldRedeem
     ? await fastify.db.giftCard.validateAndRedeem(giftCardCode, businessId)
     : await fastify.db.giftCard.findByCodeAndBusinessId(
-        giftCardCode,
-        businessId,
-      );
+      giftCardCode,
+      businessId,
+    );
 
   if (!giftCard) {
     throw new Error("Gift card not found");
@@ -137,10 +137,10 @@ async function calculatePaymentAmount(
   const finalAmount = Math.max(
     0,
     servicePrice +
-      adjustedTipAmount -
-      discountAmount -
-      giftCardDiscount +
-      taxAmount,
+    adjustedTipAmount -
+    discountAmount -
+    giftCardDiscount +
+    taxAmount,
   );
 
   return {
@@ -178,30 +178,40 @@ function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
         price: appointment.service.serviceDefinition.price,
         category: appointment.service.serviceDefinition.category
           ? {
-              id: appointment.service.serviceDefinition.category.id,
-              name: appointment.service.serviceDefinition.category.name,
-            }
+            id: appointment.service.serviceDefinition.category.id,
+            name: appointment.service.serviceDefinition.category.name,
+            tax: appointment.service.serviceDefinition.category.tax
+              ? {
+                id: appointment.service.serviceDefinition.category.tax.id,
+                name: appointment.service.serviceDefinition.category.tax
+                  .name,
+                rate: Number(
+                  appointment.service.serviceDefinition.category.tax.rate,
+                ),
+              }
+              : null,
+          }
           : null,
       },
     },
     payment: appointment.payment
       ? {
-          id: appointment.payment.id,
-          servicePrice: appointment.payment.servicePrice,
-          serviceDuration: appointment.payment.serviceDuration,
-          paymentMethod: appointment.payment.paymentMethod,
-          tipAmount: appointment.payment.tipAmount,
-          totalAmount: appointment.payment.totalAmount,
-          paidAt: appointment.payment.paidAt.toISOString(),
-          refundedAt: appointment.payment.refundedAt?.toISOString() || null,
-          refundReason: appointment.payment.refundReason,
-          lineItems: appointment.payment.lineItems.map((item) => ({
-            id: item.id,
-            type: item.type,
-            label: item.label,
-            amount: item.amount,
-          })),
-        }
+        id: appointment.payment.id,
+        servicePrice: appointment.payment.servicePrice,
+        serviceDuration: appointment.payment.serviceDuration,
+        paymentMethod: appointment.payment.paymentMethod,
+        tipAmount: appointment.payment.tipAmount,
+        totalAmount: appointment.payment.totalAmount,
+        paidAt: appointment.payment.paidAt.toISOString(),
+        refundedAt: appointment.payment.refundedAt?.toISOString() || null,
+        refundReason: appointment.payment.refundReason,
+        lineItems: appointment.payment.lineItems.map((item) => ({
+          id: item.id,
+          type: item.type,
+          label: item.label,
+          amount: item.amount,
+        })),
+      }
       : undefined,
     createdById: appointment.createdById,
     createdAt: appointment.createdAt.toISOString(),
