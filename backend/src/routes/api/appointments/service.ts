@@ -38,30 +38,30 @@ function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
         price: appointment.service.serviceDefinition.price,
         category: appointment.service.serviceDefinition.category
           ? {
-              id: appointment.service.serviceDefinition.category.id,
-              name: appointment.service.serviceDefinition.category.name,
-            }
+            id: appointment.service.serviceDefinition.category.id,
+            name: appointment.service.serviceDefinition.category.name,
+          }
           : null,
       },
     },
     payment: appointment.payment
       ? {
-          id: appointment.payment.id,
-          servicePrice: appointment.payment.servicePrice,
-          serviceDuration: appointment.payment.serviceDuration,
-          paymentMethod: appointment.payment.paymentMethod,
-          tipAmount: appointment.payment.tipAmount,
-          totalAmount: appointment.payment.totalAmount,
-          paidAt: appointment.payment.paidAt.toISOString(),
-          refundedAt: appointment.payment.refundedAt?.toISOString() || null,
-          refundReason: appointment.payment.refundReason,
-          lineItems: appointment.payment.lineItems.map((item) => ({
-            id: item.id,
-            type: item.type,
-            label: item.label,
-            amount: item.amount,
-          })),
-        }
+        id: appointment.payment.id,
+        servicePrice: appointment.payment.servicePrice,
+        serviceDuration: appointment.payment.serviceDuration,
+        paymentMethod: appointment.payment.paymentMethod,
+        tipAmount: appointment.payment.tipAmount,
+        totalAmount: appointment.payment.totalAmount,
+        paidAt: appointment.payment.paidAt.toISOString(),
+        refundedAt: appointment.payment.refundedAt?.toISOString() || null,
+        refundReason: appointment.payment.refundReason,
+        lineItems: appointment.payment.lineItems.map((item) => ({
+          id: item.id,
+          type: item.type,
+          label: item.label,
+          amount: item.amount,
+        })),
+      }
       : undefined,
     createdById: appointment.createdById,
     createdAt: appointment.createdAt.toISOString(),
@@ -158,6 +158,7 @@ export async function initiatePayment(
     tipAmount: number;
     giftCardDiscount: number;
     discountAmount: number;
+    taxAmount: number;
   };
 }> {
   if (!stripeService.isConfigured()) {
@@ -207,9 +208,18 @@ export async function initiatePayment(
     giftCardDiscount = Math.min(giftCard.value, priceAfterDiscount);
   }
 
+  let taxAmount = 0;
+  if (appointment.service.serviceDefinition.category?.tax) {
+    const taxRate = Number(
+      appointment.service.serviceDefinition.category.tax.rate,
+    );
+    const taxableAmount = Math.max(0, servicePrice - discountAmount);
+    taxAmount = Math.round(taxableAmount * (taxRate / 100));
+  }
+
   const finalAmount = Math.max(
     0,
-    servicePrice + tipAmount - discountAmount - giftCardDiscount,
+    servicePrice + tipAmount - discountAmount - giftCardDiscount + taxAmount,
   );
 
   if (finalAmount < MINIMUM_STRIPE_PAYMENT_AMOUNT) {
@@ -239,6 +249,7 @@ export async function initiatePayment(
       tipAmount,
       giftCardDiscount,
       discountAmount,
+      taxAmount: taxAmount,
     },
   };
 }
@@ -315,6 +326,18 @@ export async function payAppointment(
       type: "DISCOUNT",
       label: `Gift Card (${input.giftCardCode})`,
       amount: -giftCardDiscount,
+    });
+  }
+
+  if (serviceDefinition.category?.tax) {
+    const taxRate = Number(serviceDefinition.category.tax.rate);
+    const taxableAmount = Math.max(0, serviceDefinition.price - discountAmount);
+    const taxAmount = Math.round(taxableAmount * (taxRate / 100));
+
+    lineItems.push({
+      type: "TAX",
+      label: `Tax (${serviceDefinition.category.tax.name} ${taxRate}%)`,
+      amount: taxAmount,
     });
   }
 
