@@ -21,8 +21,8 @@ import {
   type DiscountIdParams,
   UpdateServiceDiscountSchema,
   UpdateMenuDiscountSchema,
-  UpdateServiceDiscountBody,
-  UpdateMenuDiscountBody,
+  type UpdateServiceDiscountBody,
+  type UpdateMenuDiscountBody,
   GetApplicableOrderDiscountSchema,
   type GetApplicableOrderDiscountQuery,
   GetApplicableServiceDiscountSchema,
@@ -212,7 +212,10 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
   server.put<{ Params: DiscountIdParams; Body: UpdateMenuDiscountBody }>(
     "/menu/:discountId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_DISCOUNTS)],
+      onRequest: [
+        fastify.authenticate,
+        requireScope(ScopeNames.MENU_DISCOUNTS),
+      ],
       schema: {
         params: DiscountIdParam,
         body: UpdateMenuDiscountSchema,
@@ -258,7 +261,10 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireAnyScope(ScopeNames.SERVICE_DISCOUNTS, ScopeNames.MENU_DISCOUNTS),
+        requireAnyScope(
+          ScopeNames.SERVICE_DISCOUNTS,
+          ScopeNames.MENU_DISCOUNTS,
+        ),
       ],
       schema: {
         params: DiscountIdParam,

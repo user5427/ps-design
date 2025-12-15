@@ -4,7 +4,10 @@ import type {
   UpdateDiscountBody,
   DiscountResponse,
 } from "@ps-design/schemas/discount";
-import type { Discount, DiscountTargetType } from "@/modules/discount/discount.entity";
+import type {
+  Discount,
+  DiscountTargetType,
+} from "@/modules/discount/discount.entity";
 
 function toDiscountResponse(discount: Discount): DiscountResponse {
   return {

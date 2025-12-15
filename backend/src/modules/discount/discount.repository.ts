@@ -16,7 +16,7 @@ import type {
 } from "./discount.types";
 
 export class DiscountRepository {
-  constructor(private repository: Repository<Discount>) { }
+  constructor(private repository: Repository<Discount>) {}
 
   async findAllByBusinessId(
     businessId: string,
@@ -238,9 +238,9 @@ export class DiscountRepository {
     data:
       | ICreateDiscount
       | (IUpdateDiscount & {
-        businessId: string;
-        targetType: DiscountTargetType;
-      }),
+          businessId: string;
+          targetType: DiscountTargetType;
+        }),
   ): void {
     if (data.type === "PERCENTAGE" && data.value !== undefined) {
       if (data.value < 0 || data.value > 100) {

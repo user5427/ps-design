@@ -43,12 +43,7 @@ export const DiscountsListView = <
   allowedTargetTypes,
   title,
 }: DiscountsListViewProps<TCreate, TUpdate>) => {
-  const {
-    data: discounts = [],
-    isLoading,
-    error,
-    refetch,
-  } = useDiscounts();
+  const { data: discounts = [], isLoading, error, refetch } = useDiscounts();
   const { data: menuItems = [] } = useMenuItems();
   const { data: serviceDefinitions = [] } = useServiceDefinitions();
   const createMutation = useCreateDiscount();
@@ -206,25 +201,25 @@ export const DiscountsListView = <
     },
     ...(allowedTargetTypes.includes("MENU_ITEM")
       ? ([
-        {
-          name: "menuItemId",
-          label: "Menu Item",
-          type: "select",
-          required: false,
-          options: menuItemOptions,
-        },
-      ] as FormFieldDefinition[])
+          {
+            name: "menuItemId",
+            label: "Menu Item",
+            type: "select",
+            required: false,
+            options: menuItemOptions,
+          },
+        ] as FormFieldDefinition[])
       : []),
     ...(allowedTargetTypes.includes("SERVICE")
       ? ([
-        {
-          name: "serviceDefinitionId",
-          label: "Service",
-          type: "select",
-          required: false,
-          options: serviceDefinitionOptions,
-        },
-      ] as FormFieldDefinition[])
+          {
+            name: "serviceDefinitionId",
+            label: "Service",
+            type: "select",
+            required: false,
+            options: serviceDefinitionOptions,
+          },
+        ] as FormFieldDefinition[])
       : []),
     {
       name: "startsAt",
@@ -266,7 +261,7 @@ export const DiscountsListView = <
       transformForEdit:
         field.name === "startsAt" || field.name === "expiresAt"
           ? (value: unknown) =>
-            value ? dayjs(value as string).format("YYYY-MM-DD") : ""
+              value ? dayjs(value as string).format("YYYY-MM-DD") : ""
           : undefined,
     }),
   );
