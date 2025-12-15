@@ -10,7 +10,7 @@ import {
   type Relation,
   UpdateDateColumn,
 } from "typeorm";
-import type { Business } from "@/modules/business/business.entity";
+import { Business } from "@/modules/business/business.entity";
 import type { StockChange } from "@/modules/inventory/stock-change/stock-change.entity";
 import type { RefreshToken } from "@/modules/refresh-token/refresh-token.entity";
 import type { UserRole } from "./user-role.entity";
@@ -32,13 +32,20 @@ export class User {
   @Column({ type: "boolean", default: true })
   isPasswordResetRequired: boolean;
 
-  @Column({ type: "uuid", nullable: true })
+  @Column({ type: "uuid" })
   @Index()
-  businessId: string | null;
+  businessId: string;
 
-  @ManyToOne("Business", "users", { nullable: true })
+  @ManyToOne(
+    () => Business,
+    (business) => business.users,
+    { nullable: false, onDelete: "CASCADE" },
+  )
   @JoinColumn({ name: "businessId" })
-  business: Relation<Business> | null;
+  business: Relation<Business>;
+
+  @OneToMany("UserRole", "user")
+  roles: Relation<UserRole[]>;
 
   @OneToMany("UserRole", "user")
   roles: Relation<UserRole[]>;

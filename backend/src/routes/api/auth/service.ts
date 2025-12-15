@@ -124,7 +124,7 @@ export async function refreshAccessToken(
     decoded = await fastify.jwt.verify(token, {
       key: fastify.config.REFRESH_TOKEN_SECRET,
     });
-  } catch (err) {
+  } catch (_err) {
     throw {
       code: httpStatus.UNAUTHORIZED,
       message: "Invalid or expired refresh token",

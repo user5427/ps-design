@@ -16,6 +16,7 @@ export const InitiatePaymentResponseSchema = z.object({
     servicePrice: z.number().int(),
     tipAmount: z.number().int(),
     giftCardDiscount: z.number().int(),
+    discountAmount: z.number().int(),
   }),
 });
 

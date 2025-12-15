@@ -16,7 +16,15 @@ export const CreateAppointmentSchema = z.object({
     .max(MAX_NAME_LENGTH, `Name must be at most ${MAX_NAME_LENGTH} characters`),
   customerPhone: z.string().nullable().optional(),
   customerEmail: z.email().nullable().optional(),
-  startTime: datetime(),
+  startTime: datetime().superRefine((date, ctx) => {
+    if (new Date(date) <= new Date()) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Cannot schedule appointments in the past",
+        path: ["startTime"],
+      });
+    }
+  }),
   notes: z
     .string()
     .max(

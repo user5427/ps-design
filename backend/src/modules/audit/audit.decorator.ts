@@ -54,25 +54,29 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
 
       result = ActionResult.SUCCESS;
     } finally {
-      await Promise.all(
-        finalIds.map(async (id) => {
-          const newValues = await auditLogService.getEntitySnapshot(
-            entityType,
-            id,
-          );
-          await auditLogService.logBusiness({
-            businessId,
-            userId,
-            ip,
-            entityType,
-            entityId: id,
-            action,
-            oldValues: oldValuesMap[id] ?? null,
-            newValues,
-            result,
-          });
-        }),
-      );
+      try {
+        await Promise.all(
+          finalIds.map(async (id) => {
+            const newValues = await auditLogService.getEntitySnapshot(
+              entityType,
+              id,
+            );
+            await auditLogService.logBusiness({
+              businessId,
+              userId,
+              ip,
+              entityType,
+              entityId: id,
+              action,
+              oldValues: oldValuesMap[id] ?? null,
+              newValues,
+              result,
+            });
+          }),
+        );
+      } catch {
+        // Handle logging error silently
+      }
     }
 
     return res;
@@ -95,12 +99,16 @@ export function auditSecurityWrapper<
       result = ActionResult.SUCCESS;
       return res;
     } finally {
-      await auditLogService.logSecurity({
-        userId,
-        ip,
-        action,
-        result,
-      });
+      try {
+        await auditLogService.logSecurity({
+          userId,
+          ip,
+          action,
+          result,
+        });
+      } catch {
+        // Handle logging error silently
+      }
     }
   };
 }

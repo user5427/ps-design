@@ -6,16 +6,21 @@ export class UserRepository {
   constructor(private repository: Repository<User>) {}
 
   async findAll(): Promise<User[]> {
-    return this.repository.find({
-      where: { deletedAt: IsNull() },
-      order: { name: "ASC" },
-    });
+    return this.repository
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.business", "business")
+      .where("user.deletedAt IS NULL")
+      .orderBy("user.name", "ASC")
+      .getMany();
   }
 
   async findById(id: string): Promise<User | null> {
-    return this.repository.findOne({
-      where: { id, deletedAt: IsNull() },
-    });
+    return this.repository
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.business", "business")
+      .where("user.id = :id", { id })
+      .andWhere("user.deletedAt IS NULL")
+      .getOne();
   }
 
   async findByIdForAuth(id: string): Promise<IAuthUser | null> {
@@ -43,10 +48,13 @@ export class UserRepository {
   }
 
   async findByBusinessId(businessId: string): Promise<User[]> {
-    return this.repository.find({
-      where: { businessId, deletedAt: IsNull() },
-      order: { name: "ASC" },
-    });
+    return this.repository
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.business", "business")
+      .where("user.businessId = :businessId", { businessId })
+      .andWhere("user.deletedAt IS NULL")
+      .orderBy("user.name", "ASC")
+      .getMany();
   }
 
   async create(data: ICreateUser): Promise<User> {

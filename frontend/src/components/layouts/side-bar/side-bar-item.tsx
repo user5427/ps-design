@@ -7,6 +7,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
+import { useRouterState } from "@tanstack/react-router";
 
 type ChildSection = {
   label: string;
@@ -33,11 +34,11 @@ interface SidebarItemProps {
 export const SidebarItem: React.FC<SidebarItemProps> = ({
   section,
   isSelected,
-  selected,
   onSelect,
   isOpen,
   onToggle,
 }) => {
+  const location = useRouterState().location.pathname;
   const hasChildren = !!section.children && section.children.length > 0;
 
   const handleParentClick = () => {
@@ -63,10 +64,10 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
           <List component="div" disablePadding>
             {section.children?.map((child) => (
               <ListItemButton
-                key={child.label}
+                key={child.path || child.label}
                 sx={{ pl: 4 }}
                 onClick={() => onSelect(child)}
-                selected={child.label === selected}
+                selected={child.path === location}
               >
                 <ListItemIcon>{child.icon}</ListItemIcon>
                 <ListItemText primary={child.label} />

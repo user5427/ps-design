@@ -63,6 +63,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
           page,
           limit,
           search,
+          request.authUser,
         );
         return reply.send(result);
       } catch (error) {

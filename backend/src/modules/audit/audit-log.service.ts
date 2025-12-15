@@ -18,6 +18,7 @@ import { Availability } from "@/modules/appointments/availability/availability.e
 import { Appointment } from "@/modules/appointments/appointment/appointment.entity";
 import { AppointmentPayment } from "@/modules/appointments/appointment-payment/appointment-payment.entity";
 import { GiftCard } from "@/modules/gift-card/gift-card.entity";
+import { Discount } from "@/modules/discount/discount.entity";
 import { Tax } from "@/modules/tax/tax.entity";
 import type {
   ICreateAuditBusinessLog,
@@ -43,6 +44,7 @@ const EntityMap = {
   Appointment,
   AppointmentPayment,
   GiftCard,
+  Discount,
   Tax,
   AuditBusinessLog,
   AuditSecurityLog,

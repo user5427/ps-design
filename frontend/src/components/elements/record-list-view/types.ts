@@ -38,6 +38,13 @@ export interface FormFieldDefinition {
   transformForEdit?: (value: unknown) => unknown;
   /** Transform value when submitting form (e.g., euros -> cents) */
   transformForSubmit?: (value: unknown) => unknown;
+  /** Custom render function for the field */
+  renderCustomField?: (props: {
+    value: unknown;
+    onChange: (value: unknown) => void;
+    error?: string;
+    disabled: boolean;
+  }) => React.ReactNode;
 }
 
 export interface ViewFieldDefinition {
@@ -139,4 +146,9 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
    * If returns false, the edit button will be hidden for that row.
    */
   canEditRow?: (row: T) => boolean;
+  /**
+   * Optional function to determine if a row can be deleted.
+   * If returns false, the delete checkbox and actions will be hidden for that row.
+   */
+  enableRowDeletion?: (row: { original: T }) => boolean;
 }
