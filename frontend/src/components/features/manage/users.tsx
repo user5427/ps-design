@@ -34,7 +34,11 @@ interface UsersManagementProps {
   disableCreate?: boolean;
 }
 
-export function UsersManagement({ businessId, disableDelete = false, disableCreate = false }: UsersManagementProps = {}) {
+export function UsersManagement({
+  businessId,
+  disableDelete = false,
+  disableCreate = false,
+}: UsersManagementProps = {}) {
   const queryClient = useQueryClient();
   const { data: currentUser } = useAuthUser();
 
@@ -208,7 +212,9 @@ export function UsersManagement({ businessId, disableDelete = false, disableCrea
         businessId: values.businessId,
         isOwner: values.isOwner || false,
       });
-      const queryKey = businessId ? ["users", "business", businessId] : ["users"];
+      const queryKey = businessId
+        ? ["users", "business", businessId]
+        : ["users"];
       queryClient.invalidateQueries({ queryKey });
     },
     [queryClient, businessId],
@@ -220,7 +226,9 @@ export function UsersManagement({ businessId, disableDelete = false, disableCrea
         name: values.name,
         email: values.email,
       });
-      const queryKey = businessId ? ["users", "business", businessId] : ["users"];
+      const queryKey = businessId
+        ? ["users", "business", businessId]
+        : ["users"];
       queryClient.invalidateQueries({ queryKey });
     },
     [queryClient, businessId],
@@ -263,7 +271,9 @@ export function UsersManagement({ businessId, disableDelete = false, disableCrea
       createModalTitle="Create User"
       editModalTitle="Edit User"
       viewModalTitle="View User"
-      enableRowDeletion={disableDelete ? undefined : (row) => row.original.id !== currentUser?.id}
+      enableRowDeletion={
+        disableDelete ? undefined : (row) => row.original.id !== currentUser?.id
+      }
     />
   );
 }

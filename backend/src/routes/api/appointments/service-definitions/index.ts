@@ -44,10 +44,7 @@ export default async function serviceDefinitionsRoutes(
   server.get(
     "/",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         querystring: ServiceDefinitionFilterSchema,
       },
@@ -68,10 +65,7 @@ export default async function serviceDefinitionsRoutes(
   server.post<{ Body: CreateServiceDefinitionBody }>(
     "/",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         body: CreateServiceDefinitionSchema,
       },
@@ -105,10 +99,7 @@ export default async function serviceDefinitionsRoutes(
   server.get<{ Params: ServiceDefinitionIdParams }>(
     "/:serviceDefinitionId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         params: ServiceDefinitionIdParam,
       },
@@ -143,10 +134,7 @@ export default async function serviceDefinitionsRoutes(
   }>(
     "/:serviceDefinitionId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         params: ServiceDefinitionIdParam,
         body: UpdateServiceDefinitionSchema,
@@ -190,10 +178,7 @@ export default async function serviceDefinitionsRoutes(
   server.post<{ Body: BulkDeleteBody }>(
     "/bulk-delete",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         body: BulkDeleteSchema,
       },

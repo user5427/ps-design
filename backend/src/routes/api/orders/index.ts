@@ -38,10 +38,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateOrderBody }>(
     "/",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.ORDERS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
       schema: {
         body: CreateOrderSchema,
       },
@@ -67,10 +64,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
   server.get<{ Params: OrderIdParams }>(
     "/:orderId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.ORDERS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
       schema: {
         params: OrderIdParam,
       },
@@ -96,10 +90,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
   server.put<{ Params: OrderIdParams; Body: UpdateOrderItemsBody }>(
     "/:orderId/items",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.ORDERS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
       schema: {
         params: OrderIdParam,
         body: UpdateOrderItemsSchema,
@@ -134,10 +125,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
   server.post<{ Params: OrderIdParams }>(
     "/:orderId/send",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.ORDERS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
       schema: {
         params: OrderIdParam,
       },
@@ -173,10 +161,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
   server.patch<{ Params: OrderIdParams; Body: UpdateOrderTotalsBody }>(
     "/:orderId/totals",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.ORDERS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
       schema: {
         params: OrderIdParam,
         body: UpdateOrderTotalsSchema,
@@ -211,10 +196,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
   server.post<{ Params: OrderIdParams; Body: PayOrderBody }>(
     "/:orderId/pay",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.ORDERS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
       schema: {
         params: OrderIdParam,
         body: PayOrderSchema,
@@ -249,10 +231,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
   server.post<{ Params: OrderIdParams }>(
     "/:orderId/pay/initiate",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.ORDERS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
       schema: {
         params: OrderIdParam,
       },
@@ -284,10 +263,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
   server.post<{ Params: OrderIdParams; Body: RefundOrderBody }>(
     "/:orderId/refund",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.ORDERS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
       schema: {
         params: OrderIdParam,
         body: RefundOrderSchema,
@@ -322,10 +298,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
   server.post<{ Params: OrderIdParams }>(
     "/:orderId/cancel",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.ORDERS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
       schema: {
         params: OrderIdParam,
       },

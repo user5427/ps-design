@@ -17,14 +17,14 @@ export const Route = createFileRoute("/my-business/users")({
 
 function MyBusinessUsersPage() {
   const { data: currentUser } = useAuthUser();
-  
+
   if (!currentUser?.businessId) {
     return <div>You must be associated with a business to view users.</div>;
   }
 
   return (
-    <UsersManagement 
-      businessId={currentUser.businessId} 
+    <UsersManagement
+      businessId={currentUser.businessId}
       disableDelete={true}
       disableCreate={true}
     />

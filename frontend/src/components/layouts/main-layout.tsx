@@ -16,10 +16,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const scopeNames = scopes?.map((scope) => scope.name) || [];
 
   // Filter sections based on user scopes
-  const filteredSections = filterSectionsByScopes(
-    sidebarSections,
-    scopeNames,
-  );
+  const filteredSections = filterSectionsByScopes(sidebarSections, scopeNames);
 
   if (isLoading) {
     return (

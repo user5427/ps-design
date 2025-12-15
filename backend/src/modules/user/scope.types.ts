@@ -32,39 +32,48 @@ export const SCOPE_CONFIG: Record<
   },
   [ScopeNames.INVENTORY]: {
     name: ScopeNames.INVENTORY,
-    description: "Full access to inventory management (read, create, update, delete)",
+    description:
+      "Full access to inventory management (read, create, update, delete)",
   },
   [ScopeNames.MENU]: {
     name: ScopeNames.MENU,
-    description: "Full access to menu management (read, create, update, delete)",
+    description:
+      "Full access to menu management (read, create, update, delete)",
   },
   [ScopeNames.CATEGORIES]: {
     name: ScopeNames.CATEGORIES,
-    description: "Full access to category management (read, create, update, delete)",
+    description:
+      "Full access to category management (read, create, update, delete)",
   },
   [ScopeNames.USER]: {
     name: ScopeNames.USER,
-    description: "Full access to user management (read, create, update, delete)",
+    description:
+      "Full access to user management (read, create, update, delete)",
   },
   [ScopeNames.ROLE]: {
     name: ScopeNames.ROLE,
-    description: "Full access to role management (read, create, update, delete)",
+    description:
+      "Full access to role management (read, create, update, delete)",
   },
   [ScopeNames.BUSINESS]: {
     name: ScopeNames.BUSINESS,
-    description: "Full access to business management (read, create, update, delete)",
+    description:
+      "Full access to business management (read, create, update, delete)",
   },
   [ScopeNames.APPOINTMENTS]: {
     name: ScopeNames.APPOINTMENTS,
-    description: "Full access to appointments management (read, create, update, delete)",
+    description:
+      "Full access to appointments management (read, create, update, delete)",
   },
   [ScopeNames.GIFT_CARDS]: {
     name: ScopeNames.GIFT_CARDS,
-    description: "Full access to gift cards management (read, create, update, delete)",
+    description:
+      "Full access to gift cards management (read, create, update, delete)",
   },
   [ScopeNames.DISCOUNTS]: {
     name: ScopeNames.DISCOUNTS,
-    description: "Full access to discounts management (read, create, update, delete)",
+    description:
+      "Full access to discounts management (read, create, update, delete)",
   },
   [ScopeNames.ORDERS]: {
     name: ScopeNames.ORDERS,

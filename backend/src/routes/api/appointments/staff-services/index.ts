@@ -34,10 +34,7 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
   server.get(
     "/",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);
@@ -51,10 +48,7 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateServiceBody }>(
     "/",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         body: CreateServiceSchema,
       },
@@ -88,10 +82,7 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
   server.get<{ Params: ServiceIdParams }>(
     "/:serviceId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         params: ServiceIdParam,
       },
@@ -123,10 +114,7 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
   server.put<{ Params: ServiceIdParams; Body: UpdateServiceBody }>(
     "/:serviceId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         params: ServiceIdParam,
         body: UpdateServiceSchema,
@@ -170,10 +158,7 @@ export default async function staffServicesRoutes(fastify: FastifyInstance) {
   server.post<{ Body: BulkDeleteBody }>(
     "/bulk-delete",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         body: BulkDeleteSchema,
       },
