@@ -41,7 +41,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.get<{ Querystring: BusinessQuery }>(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.SUPERADMIN)],
       schema: {
         querystring: BusinessQuerySchema,
         response: {
@@ -75,7 +75,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateBusinessBody }>(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.SUPERADMIN)],
       schema: {
         body: CreateBusinessSchema,
         response: {
@@ -179,7 +179,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
   server.delete<{ Params: BusinessIdParams }>(
     "/:businessId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.BUSINESS)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.SUPERADMIN)],
       schema: {
         params: BusinessIdParam,
         response: {
