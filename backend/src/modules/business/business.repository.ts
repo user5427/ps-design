@@ -1,9 +1,11 @@
-import { IsNull, type Repository } from "typeorm";
+import { IsNull, Not, type Repository } from "typeorm";
 import { ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
 import type { IPaginatedResult } from "@/shared/pagination";
 import type { Business } from "./business.entity";
 import type { ICreateBusiness, IUpdateBusiness } from "./business.types";
+import { UserRepository } from './../user/user.repository';
+import { RefreshTokenRepository } from '../refresh-token';
 
 export class BusinessRepository {
   constructor(private repository: Repository<Business>) {}
@@ -62,6 +64,13 @@ export class BusinessRepository {
     return business;
   }
 
+  async isDeleted(id: string): Promise<boolean> {
+    const business = await this.repository.findOne({
+      where: { id, deletedAt: Not(IsNull()) },
+    });
+    return business !== null;
+  }
+
   async findByName(name: string): Promise<Business | null> {
     return this.repository.findOne({
       where: { name, deletedAt: IsNull() },
@@ -101,7 +110,7 @@ export class BusinessRepository {
     }
   }
 
-  async softDelete(id: string): Promise<void> {
+  async softDelete(id: string, userRepository: UserRepository, refreshTokenRepository: RefreshTokenRepository): Promise<void> {
     const business = await this.findById(id);
     if (!business) {
       throw new NotFoundError("Business not found");
@@ -110,5 +119,10 @@ export class BusinessRepository {
       throw new ConflictError("Cannot delete the default business");
     }
     await this.repository.update(id, { deletedAt: new Date() });
+
+    const connectedUsers = await userRepository.findByBusinessId(id);
+    for (const user of connectedUsers) {
+      await refreshTokenRepository.revokeAllByUserId(user.id);
+    }
   }
 }
