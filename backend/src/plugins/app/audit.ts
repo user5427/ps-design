@@ -106,7 +106,10 @@ export default fp(async (fastify: FastifyInstance) => {
         entityType: EntityName;
       } = {
         userId: (request.user as { userId: string }).userId,
-        userEmail: 'email' in request.user ? (request.user as { email: string | null }).email : null,
+        userEmail:
+          "email" in request.user
+            ? (request.user as { email: string | null }).email
+            : null,
         ip: request.ip,
         entityType: entityType as EntityName,
       };
