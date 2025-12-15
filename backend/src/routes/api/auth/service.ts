@@ -28,8 +28,15 @@ export async function login(
   const { email, password } = input;
 
   const user = await fastify.db.user.findByEmail(email);
-
   if (!user) {
+    throw {
+      code: httpStatus.UNAUTHORIZED,
+      message: "Unauthorized",
+    };
+  }
+
+  const businessDeleted = await fastify.db.business.isDeleted(user?.businessId);
+  if (businessDeleted) {
     throw {
       code: httpStatus.UNAUTHORIZED,
       message: "Unauthorized",

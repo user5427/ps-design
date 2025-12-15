@@ -25,6 +25,9 @@ export class AuditSecurityLog {
   user: Relation<User> | null;
 
   @Column({ type: "varchar", nullable: true })
+  userEmail: string | null;
+
+  @Column({ type: "varchar", nullable: true })
   ip: string | null;
 
   @Column({

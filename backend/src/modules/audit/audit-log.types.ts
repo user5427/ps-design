@@ -22,6 +22,7 @@ export interface IAuditBusinessLog {
   id: string;
   businessId?: string | null;
   userId: string | null;
+  userEmail: string | null;
   ip: string | null;
   entityType: string;
   entityId: string;
@@ -35,7 +36,8 @@ export interface IAuditBusinessLog {
 export interface ICreateAuditBusinessLog {
   businessId?: string | null;
   userId?: string | null;
-  ip?: string | null;
+  userEmail: string | null;
+  ip: string | null;
   entityType: string;
   entityId: string;
   action: AuditActionType;
@@ -47,6 +49,7 @@ export interface ICreateAuditBusinessLog {
 export interface IAuditSecurityLog {
   id: string;
   userId: string | null;
+  userEmail: string | null;
   ip: string | null;
   action: AuditSecurityType;
   createdAt: Date;
@@ -55,7 +58,8 @@ export interface IAuditSecurityLog {
 
 export interface ICreateAuditSecurityLog {
   userId?: string | null;
-  ip?: string | null;
+  userEmail: string | null;
+  ip: string | null;
   action: AuditSecurityType;
   result?: ActionResult;
 }

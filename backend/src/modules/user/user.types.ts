@@ -11,7 +11,7 @@ export interface IUpdateUser {
   passwordHash?: string;
   name?: string;
   isPasswordResetRequired?: boolean;
-  businessId?: string | null;
+  businessId?: string;
 }
 
 export interface IAuthUser {
