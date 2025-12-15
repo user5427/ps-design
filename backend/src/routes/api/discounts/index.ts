@@ -27,8 +27,6 @@ import {
   type GetApplicableOrderDiscountQuery,
   GetApplicableServiceDiscountSchema,
   type GetApplicableServiceDiscountQuery,
-  GetApplicableOrderDiscountSchema as GetApplicableOrderDiscountS,
-  GetApplicableServiceDiscountSchema as GetApplicableServiceDiscountS,
 } from "@ps-design/schemas/discount";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
@@ -87,11 +85,10 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
           "Discount",
         );
 
-        // Cast to any because CreateServiceDiscountBody is a subset of CreateDiscountBody logic-wise
         const discount = await createDiscountWrapped(
           fastify,
           businessId,
-          request.body as any,
+          request.body,
         );
         return reply.code(httpStatus.CREATED).send(discount);
       } catch (error) {
@@ -152,7 +149,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
         const discount = await createDiscountWrapped(
           fastify,
           businessId,
-          request.body as any,
+          request.body,
         );
         return reply.code(httpStatus.CREATED).send(discount);
       } catch (error) {
@@ -161,7 +158,6 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  // Update service discount
   server.put<{ Params: DiscountIdParams; Body: UpdateServiceDiscountBody }>(
     "/services/:discountId",
     {
@@ -290,7 +286,6 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  // Delete service discount
   server.delete<{ Params: DiscountIdParams }>(
     "/services/:discountId",
     {
@@ -331,7 +326,6 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
     },
   );
 
-  // Delete menu discount
   server.delete<{ Params: DiscountIdParams }>(
     "/menu/:discountId",
     {

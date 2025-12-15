@@ -314,10 +314,10 @@ export const DiscountsListView = <
     { name: "updatedAt", label: "Updated At" },
   ];
 
-  const handleCreate = async (values: Partial<DiscountResponse>) => {
+  const handleCreate = async (values: Partial<BaseCreateDiscountBody>) => {
     const value =
       values.type === "FIXED_AMOUNT"
-        ? Math.round(Number(values.value) * 100) // Convert euros to cents
+        ? Math.round(Number(values.value) * 100)
         : Number(values.value);
 
     const payload = {
@@ -340,39 +340,45 @@ export const DiscountsListView = <
         ? dayjs(values.expiresAt).endOf("day").toISOString()
         : null,
       isDisabled: Boolean(values.isDisabled),
-    } as unknown as TCreate;
+    } as TCreate;
 
     await createMutation.mutateAsync(payload);
   };
 
-  const handleEdit = async (id: string, values: Partial<DiscountResponse>) => {
-    const data: any = {};
+  const handleEdit = async (
+    id: string,
+    values: Partial<BaseUpdateDiscountBody>,
+  ) => {
+    const updateData: BaseUpdateDiscountBody = {};
 
-    if (values.name !== undefined) data.name = values.name;
-    if (values.type !== undefined) data.type = values.type;
+    if (values.name !== undefined) updateData.name = values.name;
+    if (values.type !== undefined) updateData.type = values.type;
     if (values.value !== undefined) {
-      data.value =
+      updateData.value =
         values.type === "FIXED_AMOUNT"
           ? Math.round(Number(values.value) * 100)
           : Number(values.value);
     }
-    if (values.targetType !== undefined) data.targetType = values.targetType;
-    if (values.menuItemId !== undefined) data.menuItemId = values.menuItemId;
+    if (values.targetType !== undefined)
+      updateData.targetType = values.targetType;
+    if (values.menuItemId !== undefined)
+      updateData.menuItemId = values.menuItemId;
     if (values.serviceDefinitionId !== undefined)
-      data.serviceDefinitionId = values.serviceDefinitionId;
+      updateData.serviceDefinitionId = values.serviceDefinitionId;
     if (values.startsAt !== undefined) {
-      data.startsAt = values.startsAt
+      updateData.startsAt = values.startsAt
         ? dayjs(values.startsAt).startOf("day").toISOString()
         : null;
     }
     if (values.expiresAt !== undefined) {
-      data.expiresAt = values.expiresAt
+      updateData.expiresAt = values.expiresAt
         ? dayjs(values.expiresAt).endOf("day").toISOString()
         : null;
     }
-    if (values.isDisabled !== undefined) data.isDisabled = values.isDisabled;
+    if (values.isDisabled !== undefined)
+      updateData.isDisabled = values.isDisabled;
 
-    await updateMutation.mutateAsync({ id, data: data as TUpdate });
+    await updateMutation.mutateAsync({ id, data: updateData as TUpdate });
   };
 
   const handleDelete = async (ids: string[]) => {

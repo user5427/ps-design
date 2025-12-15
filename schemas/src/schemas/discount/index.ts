@@ -15,6 +15,8 @@ export {
   type GetApplicableServiceDiscountQuery,
   type BaseCreateDiscountBody,
   type BaseUpdateDiscountBody,
+  type CreateDiscountBody,
+  type UpdateDiscountBody,
 } from "./request-types";
 
 export {

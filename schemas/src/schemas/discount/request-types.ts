@@ -48,7 +48,7 @@ export const CreateServiceDiscountSchema = z
       return true;
     },
     {
-      message: "Service definition ID is required associated with a service",
+      message: "Service definition ID is required for SERVICE discounts",
       path: ["serviceDefinitionId"],
     },
   );
@@ -262,3 +262,6 @@ export interface BaseUpdateDiscountBody {
   expiresAt?: string | null;
   isDisabled?: boolean;
 }
+
+export type CreateDiscountBody = BaseCreateDiscountBody;
+export type UpdateDiscountBody = BaseUpdateDiscountBody;
