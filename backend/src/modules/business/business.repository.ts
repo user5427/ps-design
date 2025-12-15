@@ -110,7 +110,7 @@ export class BusinessRepository {
     }
   }
 
-  async softDelete(id: string, userRepository: UserRepository, refreshTokenRepository: RefreshTokenRepository): Promise<void> {
+  async softDelete(id: string): Promise<void> {
     const business = await this.findById(id);
     if (!business) {
       throw new NotFoundError("Business not found");
@@ -119,10 +119,5 @@ export class BusinessRepository {
       throw new ConflictError("Cannot delete the default business");
     }
     await this.repository.update(id, { deletedAt: new Date() });
-
-    const connectedUsers = await userRepository.findByBusinessId(id);
-    for (const user of connectedUsers) {
-      await refreshTokenRepository.revokeAllByUserId(user.id);
-    }
   }
 }

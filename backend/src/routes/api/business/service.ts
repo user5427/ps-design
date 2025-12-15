@@ -93,7 +93,12 @@ export async function deleteBusiness(
   fastify: FastifyInstance,
   businessId: string,
 ): Promise<void> {
-  await fastify.db.business.softDelete(businessId, fastify.db.user, fastify.db.refreshToken);
+  await fastify.db.business.softDelete(businessId);
+
+  const connectedUsers = await fastify.db.user.findByBusinessId(businessId);
+  for (const user of connectedUsers) {
+    await fastify.db.refreshToken.revokeAllByUserId(user.id);
+  }
 }
 
 export async function getBusinessUsers(
