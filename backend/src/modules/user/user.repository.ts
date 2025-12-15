@@ -58,6 +58,10 @@ export class UserRepository {
   }
 
   async create(data: ICreateUser): Promise<User> {
+    const userExists = await this.findByEmail(data.email);
+    if (userExists) {
+      throw new Error("User with this email already exists");
+    }
     const user = this.repository.create({
       ...data,
       isPasswordResetRequired: data.isPasswordResetRequired ?? true,
