@@ -127,7 +127,9 @@ async function main() {
       },
       {
         roleName: "OWNER",
-        scopes: Object.values(ScopeNames).filter((name) => name !== ScopeNames.SUPERADMIN),
+        scopes: Object.values(ScopeNames).filter(
+          (name) => name !== ScopeNames.SUPERADMIN,
+        ),
       },
       {
         roleName: "USER",
