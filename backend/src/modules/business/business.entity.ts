@@ -28,7 +28,10 @@ export class Business {
   @Column({ type: "boolean", default: false })
   isDefault: boolean;
 
-  @OneToMany(() => User, (user) => user.business)
+  @OneToMany(
+    () => User,
+    (user) => user.business,
+  )
   users: Relation<User[]>;
 
   @OneToMany("ProductUnit", "business")

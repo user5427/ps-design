@@ -36,7 +36,11 @@ export class User {
   @Index()
   businessId: string;
 
-  @ManyToOne(() => Business, (business) => business.users, { nullable: false, onDelete: "CASCADE" })
+  @ManyToOne(
+    () => Business,
+    (business) => business.users,
+    { nullable: false, onDelete: "CASCADE" },
+  )
   @JoinColumn({ name: "businessId" })
   business: Relation<Business>;
 
