@@ -9,9 +9,7 @@ import type {
 } from "@ps-design/schemas/appointments/appointment";
 
 export async function getAppointments(): Promise<AppointmentResponse[]> {
-  const response = await apiClient.get<AppointmentResponse[]>(
-    "/appointments/appointments/",
-  );
+  const response = await apiClient.get<AppointmentResponse[]>("/appointments/");
   return response.data;
 }
 
@@ -19,7 +17,7 @@ export async function getAppointmentById(
   id: string,
 ): Promise<AppointmentResponse> {
   const response = await apiClient.get<AppointmentResponse>(
-    `/appointments/appointments/${id}`,
+    `/appointments/${id}`,
   );
   return response.data;
 }
@@ -28,7 +26,7 @@ export async function createAppointment(
   data: CreateAppointmentBody,
 ): Promise<AppointmentResponse> {
   const response = await apiClient.post<AppointmentResponse>(
-    "/appointments/appointments/",
+    "/appointments/",
     data,
   );
   return response.data;
@@ -39,7 +37,7 @@ export async function updateAppointment(
   data: UpdateAppointmentBody,
 ): Promise<AppointmentResponse> {
   const response = await apiClient.put<AppointmentResponse>(
-    `/appointments/appointments/${id}`,
+    `/appointments/${id}`,
     data,
   );
   return response.data;
@@ -50,26 +48,22 @@ export async function updateAppointmentStatus(
   status: AppointmentStatus,
 ): Promise<AppointmentResponse> {
   const response = await apiClient.patch<AppointmentResponse>(
-    `/appointments/appointments/${id}/status`,
+    `/appointments/${id}/status`,
     { status },
   );
   return response.data;
-}
-
-export async function bulkDeleteAppointments(ids: string[]): Promise<void> {
-  await apiClient.post("/appointments/appointments/bulk-delete", { ids });
 }
 
 export async function payAppointment(
   id: string,
   data: PayAppointmentBody,
 ): Promise<void> {
-  await apiClient.post(`/appointments/appointments/${id}/pay`, data);
+  await apiClient.post(`/appointments/${id}/pay`, data);
 }
 
 export async function refundAppointment(
   id: string,
   data: RefundAppointmentBody,
 ): Promise<void> {
-  await apiClient.post(`/appointments/appointments/${id}/refund`, data);
+  await apiClient.post(`/appointments/${id}/refund`, data);
 }

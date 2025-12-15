@@ -303,7 +303,7 @@ export class AvailabilityRepository {
           },
           relations: ["employee"],
         });
-      staffServices.forEach((ss: any) => {
+      staffServices.forEach((ss) => {
         employeeStaffServiceMap.set(ss.employeeId, ss.id);
       });
     }
@@ -381,7 +381,7 @@ export class AvailabilityRepository {
           if (slotEnd > endTime) break;
 
           // Check if this slot overlaps with any appointment
-          const overlappingAppointment = appointments.find((appt: any) => {
+          const overlappingAppointment = appointments.find((appt) => {
             const apptStart = new Date(appt.startTime);
             const apptEnd = new Date(
               apptStart.getTime() +
@@ -473,7 +473,7 @@ export class AvailabilityRepository {
           },
           relations: ["employee"],
         });
-      staffServices.forEach((ss: any) => {
+      staffServices.forEach((ss) => {
         employeeStaffServiceMap.set(ss.employeeId, ss.id);
       });
     }
@@ -541,12 +541,12 @@ export class AvailabilityRepository {
 
         // Get appointments within this window, sorted by start time
         const windowAppointments = appointments
-          .filter((appt: any) => {
+          .filter((appt) => {
             const apptStart = new Date(appt.startTime);
             return apptStart >= windowStart && apptStart < windowEnd;
           })
           .sort(
-            (a: any, b: any) =>
+            (a, b) =>
               new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
           );
 

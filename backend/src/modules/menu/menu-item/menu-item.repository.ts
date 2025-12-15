@@ -104,13 +104,11 @@ export class MenuItemRepository {
         throw error;
       }
     });
-
-    const sth = await this.findByIdAndBusinessId(savedId, data.businessId);
-    if (!sth) {
+    const created = await this.findByIdAndBusinessId(savedId, data.businessId);
+    if (!created) {
       throw new NotFoundError("Menu item not found after creation");
     }
-
-    return sth;
+    return created;
   }
 
   async update(
@@ -156,9 +154,19 @@ export class MenuItemRepository {
 
         if (variations?.length) {
           for (const v of variations) {
-            v.id
-              ? await this.updateExistingVariation(manager, id, v as any)
-              : await this.createVariationWithAddons(manager, id, v as any);
+            if ("id" in v && v.id) {
+              await this.updateExistingVariation(
+                manager,
+                id,
+                v as IMenuItemVariationInput,
+              );
+            } else {
+              await this.createVariationWithAddons(
+                manager,
+                id,
+                v as ICreateMenuItemVariation,
+              );
+            }
           }
         }
       } catch (error) {
@@ -168,12 +176,11 @@ export class MenuItemRepository {
       }
     });
 
-    const sth = await this.findByIdAndBusinessId(id, businessId);
-    if (!sth) {
+    const updated = await this.findByIdAndBusinessId(id, businessId);
+    if (!updated) {
       throw new NotFoundError("Menu item not found after update");
     }
-
-    return sth;
+    return updated;
   }
 
   private async validateRelations(
@@ -244,7 +251,7 @@ export class MenuItemRepository {
     if (variation.addonProducts?.length) {
       await manager.insert(
         this.variationProductRepository.target,
-        variation.addonProducts.map((ap: any) => ({
+        variation.addonProducts.map((ap) => ({
           ...ap,
           variationId: saved.id,
         })),
@@ -276,7 +283,7 @@ export class MenuItemRepository {
       if (addonProducts.length > 0) {
         await manager.insert(
           this.variationProductRepository.target,
-          addonProducts.map((ap: any) => ({ ...ap, variationId: id })),
+          addonProducts.map((ap) => ({ ...ap, variationId: id })),
         );
       }
     }

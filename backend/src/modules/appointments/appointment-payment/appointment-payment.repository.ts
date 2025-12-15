@@ -25,6 +25,7 @@ export interface ICreatePayment {
   employeeId: string;
   tipAmount?: number;
   lineItems: ICreatePaymentLineItem[];
+  externalPaymentId?: string;
 }
 
 export interface IRefundPayment {
@@ -81,6 +82,7 @@ export class AppointmentPaymentRepository {
         tipAmount: data.tipAmount ?? 0,
         totalAmount,
         paidAt: new Date(),
+        externalPaymentId: data.externalPaymentId ?? null,
       });
 
       const savedPayment = await manager.save(payment);
@@ -104,9 +106,10 @@ export class AppointmentPaymentRepository {
         },
       );
 
-      return this.findByAppointmentId(
-        savedPayment.appointmentId,
-      ) as Promise<AppointmentPayment>;
+      return manager.findOne(AppointmentPayment, {
+        where: { id: savedPayment.id },
+        relations: ["lineItems", "paidBy", "refundedBy"],
+      }) as Promise<AppointmentPayment>;
     });
   }
 
@@ -139,9 +142,10 @@ export class AppointmentPaymentRepository {
         status: "REFUNDED",
       });
 
-      return this.findByAppointmentId(
-        appointmentId,
-      ) as Promise<AppointmentPayment>;
+      return manager.findOne(AppointmentPayment, {
+        where: { id: payment.id },
+        relations: ["lineItems", "paidBy", "refundedBy"],
+      }) as Promise<AppointmentPayment>;
     });
   }
 }

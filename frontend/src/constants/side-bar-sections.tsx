@@ -5,6 +5,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
+import RestaurantIcon from "@mui/icons-material/Restaurant";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ViewListIcon from "@mui/icons-material/ViewList";
@@ -12,6 +13,7 @@ import EventIcon from "@mui/icons-material/Event";
 import SecurityIcon from "@mui/icons-material/Security";
 import PersonIcon from "@mui/icons-material/Person";
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import type { Section } from "@/components/layouts/side-bar/side-bar-item";
 import { URLS } from "./urls";
 
@@ -20,6 +22,11 @@ export const sidebarSections: Section[] = [
     label: "Dashboard",
     icon: <DashboardIcon />,
     path: URLS.DASHBOARD,
+  },
+  {
+    label: "Orders",
+    icon: <RestaurantIcon />,
+    path: URLS.FLOOR_PLAN,
   },
   {
     label: "My Business",
@@ -120,6 +127,32 @@ export const sidebarSections: Section[] = [
     label: "Gift Cards",
     icon: <CardGiftcardIcon />,
     path: URLS.GIFT_CARDS,
+  },
+  {
+    label: "Discounts",
+    icon: <LocalOfferIcon />,
+    path: URLS.DISCOUNTS,
+  },
+  {
+    label: "Tax",
+    icon: <AssessmentIcon />,
+    path: URLS.TAX,
+  },
+  {
+    label: "Audit Logs",
+    icon: <AssessmentIcon />,
+    children: [
+      {
+        label: "Business Logs",
+        icon: <BusinessIcon />,
+        path: URLS.AUDIT_BUSINESS_LOGS,
+      },
+      {
+        label: "Security Logs",
+        icon: <AssessmentIcon />,
+        path: URLS.AUDIT_SECURITY_LOGS,
+      },
+    ],
   },
   {
     label: "Settings",

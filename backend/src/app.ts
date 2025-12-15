@@ -39,6 +39,7 @@ export default async function serviceApp(
     const publicPrefixes = [
       "/api/auth/login",
       "/api/auth/refresh",
+      "/api/payments/webhook",
       "/api-docs",
     ];
 

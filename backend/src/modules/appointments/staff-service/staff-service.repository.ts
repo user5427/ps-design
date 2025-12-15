@@ -75,7 +75,7 @@ export class StaffServiceRepository {
     });
   }
 
-  async create(data: ICreateStaffService): Promise<void> {
+  async create(data: ICreateStaffService): Promise<StaffService> {
     await this.validateRelations(
       data.businessId,
       data.employeeId,
@@ -90,6 +90,7 @@ export class StaffServiceRepository {
         serviceDefinitionId: data.serviceDefinitionId,
       });
       await this.repository.save(staffService);
+      return staffService;
     } catch (error) {
       if (isUniqueConstraintError(error)) {
         throw new ConflictError("This employee already offers this service");
@@ -102,7 +103,7 @@ export class StaffServiceRepository {
     id: string,
     businessId: string,
     data: IUpdateStaffService,
-  ): Promise<void> {
+  ): Promise<StaffService> {
     const staffService = await this.findByIdAndBusinessId(id, businessId);
     if (!staffService) {
       throw new NotFoundError("Staff service not found");
@@ -110,6 +111,7 @@ export class StaffServiceRepository {
 
     await this.repository.update(id, data);
     await this.findById(id);
+    return staffService;
   }
 
   async bulkDelete(ids: string[], businessId: string): Promise<void> {

@@ -6,6 +6,7 @@ import {
   getAvailabilityBlocks,
 } from "@/api/appointments";
 import type {
+  AvailabilityResponse,
   BulkSetAvailabilityBody,
   GetAvailableTimeSlotsQuery,
   GetAvailabilityBlocksQuery,
@@ -21,12 +22,9 @@ export const availabilityKeys = {
 };
 
 export function useUserAvailability(userId: string | undefined) {
-  return useQuery({
-    queryKey: availabilityKeys.user(userId || ""),
-    queryFn: () => {
-      if (!userId) throw new Error("userId is required");
-      return getAvailabilityByUserId(userId);
-    },
+  return useQuery<AvailabilityResponse[]>({
+    queryKey: availabilityKeys.user(userId ?? ""),
+    queryFn: () => getAvailabilityByUserId(userId as string),
     enabled: !!userId,
   });
 }

@@ -43,8 +43,11 @@ export function createScopeMiddleware(fastify: FastifyInstance) {
       try {
         const scopeChecker = new ScopeChecker(request, fastify);
         await scopeChecker.requireAllScopes(...scopes);
-      } catch (err: any) {
-        return reply.code(err.statusCode).send({ message: err.message });
+      } catch (err: unknown) {
+        const error = err as { statusCode?: number; message?: string };
+        const statusCode = error.statusCode ?? 500;
+        const message = error.message ?? "Internal Server Error";
+        return reply.code(statusCode).send({ message });
       }
     };
   };
@@ -60,8 +63,11 @@ export function createScopeMiddleware(fastify: FastifyInstance) {
       try {
         const scopeChecker = new ScopeChecker(request, fastify);
         await scopeChecker.requireAnyScope(...scopes);
-      } catch (err: any) {
-        return reply.code(err.statusCode).send({ message: err.message });
+      } catch (err: unknown) {
+        const error = err as { statusCode?: number; message?: string };
+        const statusCode = error.statusCode ?? 500;
+        const message = error.message ?? "Internal Server Error";
+        return reply.code(statusCode).send({ message });
       }
     };
   };

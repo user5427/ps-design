@@ -14,7 +14,10 @@ import {
   MenuItem,
   Select,
   TextField,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
+import ClearIcon from "@mui/icons-material/Clear";
 import { DateTimeField } from "@mui/x-date-pickers/DateTimeField";
 import type React from "react";
 import { useRef, useState } from "react";
@@ -286,7 +289,23 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
             helperText={error}
             disabled={isSubmitting}
             required={field.required}
-            slotProps={{ inputLabel: { shrink: true } }}
+            slotProps={{
+              inputLabel: { shrink: true },
+              input: {
+                endAdornment:
+                  !field.required && value ? (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => handleChange(field.name, "")}
+                        edge="end"
+                        size="small"
+                      >
+                        <ClearIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ) : null,
+              },
+            }}
           />
         );
 
@@ -306,6 +325,20 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
                 fullWidth: true,
                 error: !!error,
                 helperText: error,
+                InputProps: {
+                  endAdornment:
+                    !field.required && value ? (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => handleChange(field.name, "")}
+                          edge="end"
+                          size="small"
+                        >
+                          <ClearIcon />
+                        </IconButton>
+                      </InputAdornment>
+                    ) : null,
+                },
               },
             }}
             format="YYYY-MM-DD HH:mm"

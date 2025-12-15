@@ -29,6 +29,7 @@
     "http-status": "^2.1.0",
     "pg": "^8.13.1",
     "reflect-metadata": "^0.2.2",
+    "stripe": "^20.0.0",
     "typeorm": "^0.3.28",
     "zod": "^4.1.12"
   },

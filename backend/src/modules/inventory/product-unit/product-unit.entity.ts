@@ -8,14 +8,16 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   type Relation,
-  Unique,
   UpdateDateColumn,
 } from "typeorm";
 import type { Business } from "@/modules/business/business.entity";
 import type { Product } from "@/modules/inventory/product/product.entity";
 
 @Entity("ProductUnit")
-@Unique(["businessId", "name"])
+@Index("IDX_product_unit_business_name_unique_active", ["businessId", "name"], {
+  unique: true,
+  where: '"deletedAt" IS NULL',
+})
 export class ProductUnit {
   @PrimaryGeneratedColumn("uuid")
   id: string;

@@ -5,8 +5,14 @@ import type {
   AppointmentResponse,
   AppointmentStatus,
 } from "@ps-design/schemas/appointments/appointment";
+import type { InitiatePaymentBody } from "@ps-design/schemas/payments";
+import { MINIMUM_STRIPE_PAYMENT_AMOUNT } from "@ps-design/schemas/payments";
 import type { Appointment } from "@/modules/appointments/appointment/appointment.entity";
-import type { ICreatePaymentLineItem } from "@/modules/appointments/appointment-payment";
+import type {
+  AppointmentPayment,
+  ICreatePaymentLineItem,
+} from "@/modules/appointments/appointment-payment";
+import { stripeService } from "@/modules/payment/stripe-service";
 
 function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
   return {
@@ -77,17 +83,19 @@ export async function createAppointment(
   businessId: string,
   createdById: string,
   input: CreateAppointmentBody,
-): Promise<void> {
-  await fastify.db.appointment.create({
-    customerName: input.customerName,
-    customerPhone: input.customerPhone,
-    customerEmail: input.customerEmail,
-    startTime: new Date(input.startTime),
-    notes: input.notes,
-    serviceId: input.serviceId,
-    businessId,
-    createdById,
-  });
+): Promise<AppointmentResponse> {
+  return toAppointmentResponse(
+    await fastify.db.appointment.create({
+      customerName: input.customerName,
+      customerPhone: input.customerPhone,
+      customerEmail: input.customerEmail,
+      startTime: new Date(input.startTime),
+      notes: input.notes,
+      serviceId: input.serviceId,
+      businessId,
+      createdById,
+    }),
+  );
 }
 
 export async function getAppointmentById(
@@ -107,13 +115,15 @@ export async function updateAppointment(
   businessId: string,
   appointmentId: string,
   input: UpdateAppointmentBody,
-): Promise<void> {
-  await fastify.db.appointment.update(appointmentId, businessId, {
-    customerName: input.customerName,
-    customerPhone: input.customerPhone,
-    customerEmail: input.customerEmail,
-    notes: input.notes,
-  });
+): Promise<AppointmentResponse> {
+  return toAppointmentResponse(
+    await fastify.db.appointment.update(appointmentId, businessId, {
+      customerName: input.customerName,
+      customerPhone: input.customerPhone,
+      customerEmail: input.customerEmail,
+      notes: input.notes,
+    }),
+  );
 }
 
 export async function updateAppointmentStatus(
@@ -130,13 +140,121 @@ export async function updateAppointmentStatus(
   return toAppointmentResponse(updated);
 }
 
+/**
+ * Initiate a Stripe payment for an appointment.
+ * The server calculates the final amount and creates the PaymentIntent.
+ */
+export async function initiatePayment(
+  fastify: FastifyInstance,
+  businessId: string,
+  appointmentId: string,
+  input: Omit<InitiatePaymentBody, "appointmentId">,
+): Promise<{
+  clientSecret: string;
+  paymentIntentId: string;
+  finalAmount: number;
+  breakdown: {
+    servicePrice: number;
+    tipAmount: number;
+    giftCardDiscount: number;
+    discountAmount: number;
+  };
+}> {
+  if (!stripeService.isConfigured()) {
+    throw new Error("Stripe is not configured");
+  }
+
+  const appointment = await fastify.db.appointment.getById(
+    appointmentId,
+    businessId,
+  );
+
+  if (appointment.status !== "RESERVED") {
+    throw new Error("Only reserved appointments can be paid");
+  }
+
+  if (appointment.payment) {
+    throw new Error("This appointment has already been paid");
+  }
+
+  const servicePrice = appointment.service.serviceDefinition.price;
+  const tipAmount = input.tipAmount ?? 0;
+
+  const applicableDiscount = await fastify.db.discount.findApplicableForService(
+    businessId,
+    appointment.service.serviceDefinition.id,
+    servicePrice,
+  );
+  const discountAmount = applicableDiscount?.calculatedAmount ?? 0;
+
+  let giftCardDiscount = 0;
+  if (input.giftCardCode) {
+    const giftCard = await fastify.db.giftCard.findByCodeAndBusinessId(
+      input.giftCardCode,
+      businessId,
+    );
+    if (!giftCard) {
+      throw new Error("Gift card not found");
+    }
+    if (giftCard.redeemedAt) {
+      throw new Error("Gift card has already been redeemed");
+    }
+    if (giftCard.expiresAt && new Date(giftCard.expiresAt) < new Date()) {
+      throw new Error("Gift card has expired");
+    }
+    // Discount is applied first, then should we apply gift card  to remainder?
+    const priceAfterDiscount = Math.max(0, servicePrice - discountAmount);
+    giftCardDiscount = Math.min(giftCard.value, priceAfterDiscount);
+  }
+
+  const finalAmount = Math.max(
+    0,
+    servicePrice + tipAmount - discountAmount - giftCardDiscount,
+  );
+
+  if (finalAmount < MINIMUM_STRIPE_PAYMENT_AMOUNT) {
+    throw new Error(
+      "Amount too low for card payment (minimum €0.50). Use cash or gift card instead.",
+    );
+  }
+
+  const result = await stripeService.createPaymentIntent({
+    amount: finalAmount,
+    currency: "eur",
+    metadata: {
+      appointmentId,
+      businessId,
+      tipAmount: tipAmount.toString(),
+      giftCardCode: input.giftCardCode ?? "",
+      discountId: applicableDiscount?.discount.id ?? "",
+    },
+  });
+
+  return {
+    clientSecret: result.clientSecret,
+    paymentIntentId: result.paymentIntentId,
+    finalAmount,
+    breakdown: {
+      servicePrice,
+      tipAmount,
+      giftCardDiscount,
+      discountAmount,
+    },
+  };
+}
+
 export async function payAppointment(
   fastify: FastifyInstance,
   businessId: string,
   appointmentId: string,
   paidById: string,
-  input: { paymentMethod: string; tipAmount?: number; giftCardCode?: string },
-): Promise<void> {
+  input: {
+    paymentMethod: string;
+    tipAmount?: number;
+    giftCardCode?: string;
+    paymentIntentId?: string;
+  },
+): Promise<AppointmentPayment> {
   const appointment = await fastify.db.appointment.getById(
     appointmentId,
     businessId,
@@ -166,15 +284,33 @@ export async function payAppointment(
     });
   }
 
-  // Handle gift card if provided
+  const applicableDiscount = await fastify.db.discount.findApplicableForService(
+    businessId,
+    serviceDefinition.id,
+    serviceDefinition.price,
+  );
+  const discountAmount = applicableDiscount?.calculatedAmount ?? 0;
+
+  if (applicableDiscount) {
+    lineItems.push({
+      type: "DISCOUNT",
+      label: `Discount (${applicableDiscount.discount.name})`,
+      amount: -discountAmount,
+    });
+  }
+
   let giftCardDiscount = 0;
   if (input.giftCardCode) {
     const giftCard = await fastify.db.giftCard.validateAndRedeem(
       input.giftCardCode,
       businessId,
     );
-    // Discount is the minimum of card value and service price
-    giftCardDiscount = Math.min(giftCard.value, serviceDefinition.price);
+    const priceAfterDiscount = Math.max(
+      0,
+      serviceDefinition.price - discountAmount,
+    );
+    giftCardDiscount = Math.min(giftCard.value, priceAfterDiscount);
+
     lineItems.push({
       type: "DISCOUNT",
       label: `Gift Card (${input.giftCardCode})`,
@@ -182,7 +318,7 @@ export async function payAppointment(
     });
   }
 
-  await fastify.db.appointmentPayment.create({
+  return await fastify.db.appointmentPayment.create({
     appointmentId,
     businessId,
     paidById,
@@ -195,6 +331,7 @@ export async function payAppointment(
     employeeId: employee.id,
     tipAmount: input.tipAmount,
     lineItems,
+    externalPaymentId: input.paymentIntentId,
   });
 }
 
@@ -204,8 +341,28 @@ export async function refundAppointment(
   appointmentId: string,
   refundedById: string,
   input: { reason?: string },
-): Promise<void> {
-  await fastify.db.appointmentPayment.refund(appointmentId, businessId, {
+): Promise<AppointmentPayment> {
+  const payment =
+    await fastify.db.appointmentPayment.findByAppointmentIdAndBusinessId(
+      appointmentId,
+      businessId,
+    );
+
+  if (!payment) {
+    throw new Error("Payment not found for this appointment");
+  }
+
+  if (payment.paymentMethod === "STRIPE" && payment.externalPaymentId) {
+    if (!stripeService.isConfigured()) {
+      throw new Error("Stripe is not configured, cannot process refund");
+    }
+
+    await stripeService.refundPayment({
+      paymentIntentId: payment.externalPaymentId,
+    });
+  }
+
+  return await fastify.db.appointmentPayment.refund(appointmentId, businessId, {
     refundedById,
     reason: input.reason,
   });

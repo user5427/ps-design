@@ -6,6 +6,7 @@ export const PayAppointmentSchema = z.object({
   paymentMethod: PaymentMethodEnum,
   tipAmount: z.number().int().min(0).optional(), // cents
   giftCardCode: z.string().max(50).optional(),
+  paymentIntentId: z.string().optional(), // Stripe PaymentIntent ID for STRIPE payments
 });
 
 export const RefundAppointmentSchema = z.object({

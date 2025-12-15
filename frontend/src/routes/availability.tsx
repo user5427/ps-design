@@ -5,6 +5,7 @@ import { URLS } from "@/constants/urls";
 import { useAuthStore } from "@/store/auth";
 import { useAuthUser } from "@/hooks/auth/auth-hooks";
 import { AvailabilityForm } from "@/components/features/availability/availability-form";
+import type { BulkSetAvailabilityBody } from "@ps-design/schemas/appointments/availability";
 import {
   useUserAvailability,
   useUpdateAvailability,
@@ -41,14 +42,7 @@ function AvailabilityPage() {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
-  const handleSubmit = async (data: {
-    availabilities: Array<{
-      dayOfWeek: "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN";
-      startTime: string;
-      endTime: string;
-      isOvernight: boolean;
-    }>;
-  }) => {
+  const handleSubmit = async (data: BulkSetAvailabilityBody) => {
     if (!user?.id) return;
 
     try {

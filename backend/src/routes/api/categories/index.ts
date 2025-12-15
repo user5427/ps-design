@@ -7,6 +7,8 @@ import {
   getAllCategories,
   getCategoryById,
   updateCategory,
+  assignTaxToCategory,
+  removeTaxFromCategory,
 } from "./service";
 import { getBusinessId } from "@/shared/auth-utils";
 import { handleServiceError } from "@/shared/error-handler";
@@ -17,6 +19,8 @@ import {
   type CategoryIdParams,
   type UpdateCategoryBody,
   UpdateCategorySchema,
+  type AssignTaxToCategoryBody,
+  AssignTaxToCategorySchema,
 } from "@ps-design/schemas/category";
 import {
   BulkDeleteSchema,
@@ -24,6 +28,7 @@ import {
 } from "@ps-design/schemas/shared";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
 import { ScopeNames } from "@/modules/user";
+import { AuditActionType } from "@/modules/audit";
 
 export default async function categoriesRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
@@ -61,7 +66,15 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        const category = await createCategory(
+        const wrapCreateCategory = await fastify.audit.generic(
+          createCategory,
+          AuditActionType.CREATE,
+          request,
+          reply,
+          "Category",
+        );
+
+        const category = await wrapCreateCategory(
           fastify,
           businessId,
           request.body,
@@ -123,7 +136,16 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
       const { categoryId } = request.params;
 
       try {
-        const updated = await updateCategory(
+        const wrapUpdateCategory = await fastify.audit.generic(
+          updateCategory,
+          AuditActionType.UPDATE,
+          request,
+          reply,
+          "Category",
+          categoryId,
+        );
+
+        const updated = await wrapUpdateCategory(
           fastify,
           businessId,
           categoryId,
@@ -154,8 +176,107 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
       if (!businessId) return;
 
       try {
-        await bulkDeleteCategories(fastify, businessId, request.body.ids);
+        const wrapBulkDeleteCategories = await fastify.audit.generic(
+          bulkDeleteCategories,
+          AuditActionType.DELETE,
+          request,
+          reply,
+          "Category",
+          request.body.ids,
+        );
+        await wrapBulkDeleteCategories(fastify, businessId, request.body.ids);
         return reply.code(httpStatus.NO_CONTENT).send();
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
+
+  server.patch<{
+    Params: CategoryIdParams;
+    Body: AssignTaxToCategoryBody;
+  }>(
+    "/:categoryId/tax",
+    {
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_WRITE)],
+      schema: {
+        params: CategoryIdParam,
+        body: AssignTaxToCategorySchema,
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Params: CategoryIdParams;
+        Body: AssignTaxToCategoryBody;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
+
+      const { categoryId } = request.params;
+      const { taxId } = request.body as AssignTaxToCategoryBody;
+
+      try {
+        const wrapAssignTax = await fastify.audit.generic(
+          assignTaxToCategory,
+          AuditActionType.UPDATE,
+          request,
+          reply,
+          "Category",
+          categoryId,
+        );
+
+        const updatedCategory = await wrapAssignTax(
+          fastify,
+          businessId,
+          categoryId,
+          taxId,
+        );
+
+        return reply.send(updatedCategory);
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
+
+  server.delete<{ Params: CategoryIdParams }>(
+    "/:categoryId/tax",
+    {
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_WRITE)],
+      schema: {
+        params: CategoryIdParam,
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Params: CategoryIdParams;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
+
+      const { categoryId } = request.params;
+
+      try {
+        const wrapRemoveTax = await fastify.audit.generic(
+          removeTaxFromCategory,
+          AuditActionType.UPDATE,
+          request,
+          reply,
+          "Category",
+          categoryId,
+        );
+
+        const updatedCategory = await wrapRemoveTax(
+          fastify,
+          businessId,
+          categoryId,
+        );
+
+        return reply.send(updatedCategory);
       } catch (error) {
         return handleServiceError(error, reply);
       }

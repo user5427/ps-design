@@ -8,7 +8,6 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   type Relation,
-  Unique,
   UpdateDateColumn,
 } from "typeorm";
 import type { MenuItem } from "@/modules/menu/menu-item/menu-item.entity";
@@ -16,7 +15,14 @@ import type { MenuItemVariationProduct } from "@/modules/menu/menu-item-variatio
 import type { MenuItemVariationType } from "./menu-item-variation.types";
 
 @Entity("MenuItemVariation")
-@Unique(["menuItemId", "name"])
+@Index(
+  "IDX_menu_item_variation_menu_item_name_unique_active",
+  ["menuItemId", "name"],
+  {
+    unique: true,
+    where: '"deletedAt" IS NULL',
+  },
+)
 export class MenuItemVariation {
   @PrimaryGeneratedColumn("uuid")
   id: string;

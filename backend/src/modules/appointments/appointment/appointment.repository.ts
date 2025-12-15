@@ -2,7 +2,7 @@ import { IsNull, type Repository, type DataSource } from "typeorm";
 import { BadRequestError, ConflictError, NotFoundError } from "@/shared/errors";
 import type { StaffService } from "@/modules/appointments/staff-service/staff-service.entity";
 import type { AvailabilityRepository } from "@/modules/appointments/availability/availability.repository";
-import type { Appointment, AppointmentStatus } from "./appointment.entity";
+import { Appointment, type AppointmentStatus } from "./appointment.entity";
 import type {
   ICreateAppointment,
   IUpdateAppointment,
@@ -65,7 +65,7 @@ export class AppointmentRepository {
     return appointment;
   }
 
-  async create(data: ICreateAppointment): Promise<void> {
+  async create(data: ICreateAppointment): Promise<Appointment> {
     const staffService = await this.staffServiceRepository.findOne({
       where: {
         id: data.serviceId,
@@ -108,7 +108,11 @@ export class AppointmentRepository {
         createdById: data.createdById,
       });
 
-      await manager.save(appointment);
+      const savedAppointment = await manager.save(appointment);
+      return manager.findOne(Appointment, {
+        where: { id: savedAppointment.id },
+        relations: APPOINTMENT_RELATIONS,
+      }) as Promise<Appointment>;
     });
   }
 
@@ -116,7 +120,7 @@ export class AppointmentRepository {
     id: string,
     businessId: string,
     data: IUpdateAppointment,
-  ): Promise<void> {
+  ): Promise<Appointment> {
     const appointment = await this.findByIdAndBusinessId(id, businessId);
     if (!appointment) {
       throw new NotFoundError("Appointment not found");
@@ -126,7 +130,8 @@ export class AppointmentRepository {
       throw new BadRequestError("Cannot update closed appointment");
     }
 
-    this.repository.update(id, data);
+    await this.repository.update(id, data);
+    return this.getById(id, businessId);
   }
 
   async updateStatus(

@@ -30,9 +30,7 @@ export const RefundAppointmentDialog: React.FC<
   const handleConfirm = async () => {
     await refundMutation.mutateAsync({
       id: appointment.id,
-      data: {
-        reason: reason || undefined,
-      },
+      data: { reason: reason || undefined },
     });
     setReason("");
     onCancel();

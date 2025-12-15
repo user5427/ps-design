@@ -75,11 +75,11 @@ export class ProductRepository {
     try {
       const product = this.repository.create(data);
       const saved = await this.repository.save(product);
-      const found = await this.findById(saved.id);
-      if (!found) {
-        throw new NotFoundError("Saved product not found");
+      const created = await this.findById(saved.id);
+      if (!created) {
+        throw new NotFoundError("Product not found after creation");
       }
-      return found;
+      return created;
     } catch (error) {
       if (isUniqueConstraintError(error)) {
         throw new ConflictError("Product with this name already exists");

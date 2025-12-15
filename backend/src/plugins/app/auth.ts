@@ -12,6 +12,28 @@ declare module "fastify" {
       request: FastifyRequest,
       reply: FastifyReply,
     ) => Promise<void>;
+    audit: {
+      business: (
+        fn: (...args: any[]) => any,
+        auditType: any,
+        request:
+          | FastifyRequest
+          | FastifyRequest<{ Params: { businessId: string } }>,
+      ) => Promise<any>;
+      security: (
+        fn: (...args: any[]) => any,
+        auditType: any,
+        request: FastifyRequest,
+      ) => Promise<any>;
+      generic: (
+        fn: (...args: any[]) => any,
+        auditType: any,
+        request: FastifyRequest,
+        reply: FastifyReply,
+        entityType: string,
+        entityId?: string | string[] | null,
+      ) => Promise<any>;
+    };
   }
 }
 
