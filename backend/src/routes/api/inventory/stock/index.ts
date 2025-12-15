@@ -28,10 +28,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
   server.get(
     "/",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_READ),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY)],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);
@@ -45,10 +42,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
   server.get<{ Params: ProductIdParams }>(
     "/:productId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_READ),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY)],
       schema: {
         params: ProductIdParam,
       },
@@ -80,10 +74,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateStockChangeBody }>(
     "/changes",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_WRITE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY)],
       schema: {
         body: CreateStockChangeSchema,
       },
@@ -124,10 +115,7 @@ export default async function stockRoutes(fastify: FastifyInstance) {
   server.get<{ Querystring: StockQuery }>(
     "/changes",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_READ),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY)],
       schema: {
         querystring: StockQuerySchema,
       },

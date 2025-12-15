@@ -212,10 +212,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
   server.put<{ Params: DiscountIdParams; Body: UpdateMenuDiscountBody }>(
     "/menu/:discountId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.DISCOUNTS_WRITE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.DISCOUNTS)],
       schema: {
         params: DiscountIdParam,
         body: UpdateMenuDiscountSchema,
@@ -372,7 +369,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
   server.get<{ Querystring: GetApplicableOrderDiscountQuery }>(
     "/applicable/order",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU)],
       schema: {
         querystring: GetApplicableOrderDiscountSchema,
       },
@@ -404,10 +401,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
   server.get<{ Querystring: GetApplicableServiceDiscountQuery }>(
     "/applicable/service",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_READ),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         querystring: GetApplicableServiceDiscountSchema,
       },

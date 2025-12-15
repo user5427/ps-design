@@ -2,38 +2,19 @@
 export enum ScopeNames {
   SUPERADMIN = "SUPERADMIN",
   OWNER = "OWNER",
-  INVENTORY_READ = "INVENTORY_READ",
-  INVENTORY_WRITE = "INVENTORY_WRITE",
-  INVENTORY_DELETE = "INVENTORY_DELETE",
-  MENU_READ = "MENU_READ",
-  MENU_WRITE = "MENU_WRITE",
-  MENU_DELETE = "MENU_DELETE",
-  USER_READ = "USER_READ",
-  USER_WRITE = "USER_WRITE",
-  USER_DELETE = "USER_DELETE",
-  ROLE_READ = "ROLE_READ",
-  ROLE_WRITE = "ROLE_WRITE",
-  ROLE_DELETE = "ROLE_DELETE",
-  BUSINESS_READ = "BUSINESS_READ",
-  BUSINESS_WRITE = "BUSINESS_WRITE",
-  BUSINESS_DELETE = "BUSINESS_DELETE",
-  BUSINESS_CREATE = "BUSINESS_CREATE",
-  APPOINTMENTS_READ = "APPOINTMENTS_READ",
-  APPOINTMENTS_WRITE = "APPOINTMENTS_WRITE",
-  APPOINTMENTS_DELETE = "APPOINTMENTS_DELETE",
-  GIFT_CARDS_READ = "GIFT_CARDS_READ",
-  GIFT_CARDS_WRITE = "GIFT_CARDS_WRITE",
-  GIFT_CARDS_DELETE = "GIFT_CARDS_DELETE",
-  DISCOUNTS_READ = "DISCOUNTS_READ",
-  DISCOUNTS_WRITE = "DISCOUNTS_WRITE",
-  DISCOUNTS_DELETE = "DISCOUNTS_DELETE",
-  MENU_ORDERS_READ = "MENU_ORDERS_READ",
-  MENU_ORDERS_WRITE = "MENU_ORDERS_WRITE",
-  TAX_READ = "TAX_READ",
-  TAX_WRITE = "TAX_WRITE",
-  TAX_DELETE = "TAX_DELETE",
-  AUDIT_BUSINESS_READ = "AUDIT_BUSINESS_READ",
-  AUDIT_SECURITY_READ = "AUDIT_SECURITY_READ",
+  INVENTORY = "INVENTORY",
+  MENU = "MENU",
+  CATEGORIES = "CATEGORIES",
+  USER = "USER",
+  ROLE = "ROLE",
+  BUSINESS = "BUSINESS",
+  APPOINTMENTS = "APPOINTMENTS",
+  GIFT_CARDS = "GIFT_CARDS",
+  DISCOUNTS = "DISCOUNTS",
+  ORDERS = "ORDERS",
+  TAX = "TAX",
+  AUDIT_BUSINESS = "AUDIT_BUSINESS",
+  AUDIT_SECURITY = "AUDIT_SECURITY",
 }
 
 // Scope configuration with descriptions
@@ -49,133 +30,66 @@ export const SCOPE_CONFIG: Record<
     name: ScopeNames.OWNER,
     description: "Business owner with full business access",
   },
-  [ScopeNames.INVENTORY_READ]: {
-    name: ScopeNames.INVENTORY_READ,
-    description: "Read inventory data",
+  [ScopeNames.INVENTORY]: {
+    name: ScopeNames.INVENTORY,
+    description:
+      "Full access to inventory management (read, create, update, delete)",
   },
-  [ScopeNames.INVENTORY_WRITE]: {
-    name: ScopeNames.INVENTORY_WRITE,
-    description: "Create and update inventory data",
+  [ScopeNames.MENU]: {
+    name: ScopeNames.MENU,
+    description:
+      "Full access to menu management (read, create, update, delete)",
   },
-  [ScopeNames.INVENTORY_DELETE]: {
-    name: ScopeNames.INVENTORY_DELETE,
-    description: "Delete inventory data",
+  [ScopeNames.CATEGORIES]: {
+    name: ScopeNames.CATEGORIES,
+    description:
+      "Full access to category management (read, create, update, delete)",
   },
-  [ScopeNames.MENU_READ]: {
-    name: ScopeNames.MENU_READ,
-    description: "Read menu data",
+  [ScopeNames.USER]: {
+    name: ScopeNames.USER,
+    description:
+      "Full access to user management (read, create, update, delete)",
   },
-  [ScopeNames.MENU_WRITE]: {
-    name: ScopeNames.MENU_WRITE,
-    description: "Create and update menu data",
+  [ScopeNames.ROLE]: {
+    name: ScopeNames.ROLE,
+    description:
+      "Full access to role management (read, create, update, delete)",
   },
-  [ScopeNames.MENU_DELETE]: {
-    name: ScopeNames.MENU_DELETE,
-    description: "Delete menu data",
+  [ScopeNames.BUSINESS]: {
+    name: ScopeNames.BUSINESS,
+    description:
+      "Full access to business management (read, create, update, delete)",
   },
-  [ScopeNames.USER_READ]: {
-    name: ScopeNames.USER_READ,
-    description: "Read user data",
+  [ScopeNames.APPOINTMENTS]: {
+    name: ScopeNames.APPOINTMENTS,
+    description:
+      "Full access to appointments management (read, create, update, delete)",
   },
-  [ScopeNames.USER_WRITE]: {
-    name: ScopeNames.USER_WRITE,
-    description: "Create and update user data",
+  [ScopeNames.GIFT_CARDS]: {
+    name: ScopeNames.GIFT_CARDS,
+    description:
+      "Full access to gift cards management (read, create, update, delete)",
   },
-  [ScopeNames.USER_DELETE]: {
-    name: ScopeNames.USER_DELETE,
-    description: "Delete user data",
+  [ScopeNames.DISCOUNTS]: {
+    name: ScopeNames.DISCOUNTS,
+    description:
+      "Full access to discounts management (read, create, update, delete)",
   },
-  [ScopeNames.ROLE_READ]: {
-    name: ScopeNames.ROLE_READ,
-    description: "Read role data",
+  [ScopeNames.ORDERS]: {
+    name: ScopeNames.ORDERS,
+    description: "Full access to restaurant orders (read, create, update)",
   },
-  [ScopeNames.ROLE_WRITE]: {
-    name: ScopeNames.ROLE_WRITE,
-    description: "Create and update roles",
+  [ScopeNames.TAX]: {
+    name: ScopeNames.TAX,
+    description: "Full access to tax management (read, create, update, delete)",
   },
-  [ScopeNames.ROLE_DELETE]: {
-    name: ScopeNames.ROLE_DELETE,
-    description: "Delete roles",
+  [ScopeNames.AUDIT_BUSINESS]: {
+    name: ScopeNames.AUDIT_BUSINESS,
+    description: "Read access to business audit logs",
   },
-  [ScopeNames.BUSINESS_READ]: {
-    name: ScopeNames.BUSINESS_READ,
-    description: "Read business data",
-  },
-  [ScopeNames.BUSINESS_WRITE]: {
-    name: ScopeNames.BUSINESS_WRITE,
-    description: "Create and update business data",
-  },
-  [ScopeNames.BUSINESS_DELETE]: {
-    name: ScopeNames.BUSINESS_DELETE,
-    description: "Delete business data",
-  },
-  [ScopeNames.BUSINESS_CREATE]: {
-    name: ScopeNames.BUSINESS_CREATE,
-    description: "Create new businesses",
-  },
-  [ScopeNames.APPOINTMENTS_READ]: {
-    name: ScopeNames.APPOINTMENTS_READ,
-    description: "Read appointments data",
-  },
-  [ScopeNames.APPOINTMENTS_WRITE]: {
-    name: ScopeNames.APPOINTMENTS_WRITE,
-    description: "Create and update appointments data",
-  },
-  [ScopeNames.APPOINTMENTS_DELETE]: {
-    name: ScopeNames.APPOINTMENTS_DELETE,
-    description: "Delete appointments data",
-  },
-  [ScopeNames.GIFT_CARDS_READ]: {
-    name: ScopeNames.GIFT_CARDS_READ,
-    description: "Read gift cards data",
-  },
-  [ScopeNames.GIFT_CARDS_WRITE]: {
-    name: ScopeNames.GIFT_CARDS_WRITE,
-    description: "Create and update gift cards data",
-  },
-  [ScopeNames.GIFT_CARDS_DELETE]: {
-    name: ScopeNames.GIFT_CARDS_DELETE,
-    description: "Delete gift cards data",
-  },
-  [ScopeNames.DISCOUNTS_READ]: {
-    name: ScopeNames.DISCOUNTS_READ,
-    description: "Read discounts data",
-  },
-  [ScopeNames.DISCOUNTS_WRITE]: {
-    name: ScopeNames.DISCOUNTS_WRITE,
-    description: "Create and update discounts data",
-  },
-  [ScopeNames.DISCOUNTS_DELETE]: {
-    name: ScopeNames.DISCOUNTS_DELETE,
-    description: "Delete discounts data",
-  },
-  [ScopeNames.MENU_ORDERS_READ]: {
-    name: ScopeNames.MENU_ORDERS_READ,
-    description: "Read restaurant orders",
-  },
-  [ScopeNames.MENU_ORDERS_WRITE]: {
-    name: ScopeNames.MENU_ORDERS_WRITE,
-    description: "Create and update restaurant orders",
-  },
-  [ScopeNames.TAX_READ]: {
-    name: ScopeNames.TAX_READ,
-    description: "Read tax data",
-  },
-  [ScopeNames.TAX_WRITE]: {
-    name: ScopeNames.TAX_WRITE,
-    description: "Create and update tax data",
-  },
-  [ScopeNames.TAX_DELETE]: {
-    name: ScopeNames.TAX_DELETE,
-    description: "Delete tax data",
-  },
-  [ScopeNames.AUDIT_BUSINESS_READ]: {
-    name: ScopeNames.AUDIT_BUSINESS_READ,
-    description: "Read business audit logs",
-  },
-  [ScopeNames.AUDIT_SECURITY_READ]: {
-    name: ScopeNames.AUDIT_SECURITY_READ,
-    description: "Read security audit logs",
+  [ScopeNames.AUDIT_SECURITY]: {
+    name: ScopeNames.AUDIT_SECURITY,
+    description: "Read access to security audit logs",
   },
 };
 

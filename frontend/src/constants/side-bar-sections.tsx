@@ -6,7 +6,6 @@ import Inventory2Icon from "@mui/icons-material/Inventory2";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
-import SettingsIcon from "@mui/icons-material/Settings";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import EventIcon from "@mui/icons-material/Event";
@@ -27,15 +26,23 @@ export const sidebarSections: Section[] = [
     label: "Orders",
     icon: <RestaurantIcon />,
     path: URLS.FLOOR_PLAN,
+    scope: "ORDERS",
   },
   {
     label: "My Business",
     icon: <BusinessIcon />,
     children: [
       {
+        label: "Users",
+        icon: <PersonIcon />,
+        path: URLS.MY_BUSINESS_USERS,
+        scope: "USER",
+      },
+      {
         label: "Roles",
         icon: <SecurityIcon />,
-        path: "/my-business/roles",
+        path: URLS.MY_BUSINESS_ROLES,
+        scope: "ROLE",
       },
     ],
   },
@@ -47,16 +54,19 @@ export const sidebarSections: Section[] = [
         label: "Businesses",
         icon: <ViewListIcon />,
         path: URLS.MANAGE_BUSINESSES,
+        scope: "SUPERADMIN",
       },
       {
         label: "Users",
         icon: <PersonIcon />,
         path: URLS.MANAGE_USERS,
+        scope: "SUPERADMIN",
       },
       {
         label: "Roles",
         icon: <SecurityIcon />,
         path: URLS.MANAGE_ROLES,
+        scope: "SUPERADMIN",
       },
     ],
   },
@@ -68,21 +78,25 @@ export const sidebarSections: Section[] = [
         label: "Product Units",
         icon: <CategoryIcon />,
         path: URLS.INVENTORY_UNITS,
+        scope: "INVENTORY",
       },
       {
         label: "Products",
         icon: <ShoppingCartIcon />,
         path: URLS.INVENTORY_PRODUCTS,
+        scope: "INVENTORY",
       },
       {
         label: "Stock Changes",
         icon: <Inventory2Icon />,
         path: URLS.INVENTORY_STOCK,
+        scope: "INVENTORY",
       },
       {
         label: "Stock Levels",
         icon: <AssessmentIcon />,
         path: URLS.INVENTORY_STOCK_LEVELS,
+        scope: "INVENTORY",
       },
     ],
   },
@@ -90,6 +104,7 @@ export const sidebarSections: Section[] = [
     label: "Categories",
     icon: <CategoryIcon />,
     path: URLS.CATEGORIES,
+    scope: "CATEGORIES",
   },
   {
     label: "Menu",
@@ -99,6 +114,7 @@ export const sidebarSections: Section[] = [
         label: "Items",
         icon: <RestaurantMenuIcon />,
         path: URLS.MENU_ITEMS,
+        scope: "MENU",
       },
     ],
   },
@@ -110,16 +126,19 @@ export const sidebarSections: Section[] = [
         label: "Appointments",
         icon: <EventIcon />,
         path: URLS.APPOINTMENTS_LIST,
+        scope: "APPOINTMENTS",
       },
       {
         label: "Services",
         icon: <ShoppingCartIcon />,
         path: URLS.APPOINTMENTS_SERVICE_DEFINITIONS,
+        scope: "APPOINTMENTS",
       },
       {
         label: "Staff Services",
         icon: <PersonIcon />,
         path: URLS.APPOINTMENTS_STAFF_SERVICES,
+        scope: "APPOINTMENTS",
       },
     ],
   },
@@ -127,28 +146,25 @@ export const sidebarSections: Section[] = [
     label: "Gift Cards",
     icon: <CardGiftcardIcon />,
     path: URLS.GIFT_CARDS,
+    scope: "GIFT_CARDS",
   },
   {
     label: "Discounts",
     icon: <LocalOfferIcon />,
-    children: [
-      {
-        label: "Service Discounts",
-        icon: <LocalOfferIcon />,
-        path: URLS.DISCOUNTS_SERVICES,
-      },
-      {
-        label: "Menu Discounts",
-        icon: <LocalOfferIcon />,
-        path: URLS.DISCOUNTS_MENU,
-      },
-    ],
+    path: URLS.DISCOUNTS_SERVICES,
+    scope: "SERVICE_DISCOUNTS",
   },
-
+  {
+    label: "Discounts",
+    icon: <LocalOfferIcon />,
+    path: URLS.DISCOUNTS_MENU,
+    scope: "MENU_DISCOUNTS",
+  },
   {
     label: "Tax",
     icon: <AssessmentIcon />,
     path: URLS.TAX,
+    scope: "TAX",
   },
   {
     label: "Audit Logs",
@@ -158,17 +174,14 @@ export const sidebarSections: Section[] = [
         label: "Business Logs",
         icon: <BusinessIcon />,
         path: URLS.AUDIT_BUSINESS_LOGS,
+        scope: "AUDIT_BUSINESS",
       },
       {
         label: "Security Logs",
         icon: <AssessmentIcon />,
         path: URLS.AUDIT_SECURITY_LOGS,
+        scope: "AUDIT_SECURITY",
       },
     ],
-  },
-  {
-    label: "Settings",
-    icon: <SettingsIcon />,
-    path: "/settings",
   },
 ];

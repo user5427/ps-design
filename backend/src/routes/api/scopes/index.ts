@@ -18,7 +18,7 @@ export default async function scopesRoutes(fastify: FastifyInstance) {
   server.get<{ Querystring: { businessId?: string } }>(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE_READ)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE)],
       schema: {
         response: {
           200: ScopesResponseSchema,

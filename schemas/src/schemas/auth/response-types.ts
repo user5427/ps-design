@@ -3,7 +3,7 @@ import { z } from "zod";
 export const UserResponseSchema = z.object({
   id: z.uuid(),
   email: z.email(),
-  businessId: z.uuid().nullable(),
+  businessId: z.uuid(),
   isPasswordResetRequired: z.boolean(),
 });
 

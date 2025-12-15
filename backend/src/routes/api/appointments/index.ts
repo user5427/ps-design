@@ -48,10 +48,7 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
   server.get(
     "/",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_READ),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {},
     },
     async (request, reply: FastifyReply) => {
@@ -66,10 +63,7 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateAppointmentBody }>(
     "/",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         body: CreateAppointmentSchema,
       },
@@ -111,10 +105,7 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
   server.get<{ Params: AppointmentIdParams }>(
     "/:appointmentId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_READ),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         params: AppointmentIdParam,
       },
@@ -146,10 +137,7 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
   server.put<{ Params: AppointmentIdParams; Body: UpdateAppointmentBody }>(
     "/:appointmentId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         params: AppointmentIdParam,
         body: UpdateAppointmentSchema,
@@ -193,10 +181,7 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
   server.patch<{ Params: AppointmentIdParams; Body: StatusUpdateBody }>(
     "/:appointmentId/status",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         params: AppointmentIdParam,
         body: StatusUpdateSchema,
@@ -240,10 +225,7 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
   server.post<{ Params: AppointmentIdParams; Body: InitiatePaymentBodyType }>(
     "/:appointmentId/pay/initiate",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         params: AppointmentIdParam,
         body: InitiatePaymentBodySchema,
@@ -273,10 +255,7 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
   server.post<{ Params: AppointmentIdParams; Body: PayAppointmentBody }>(
     "/:appointmentId/pay",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         params: AppointmentIdParam,
         body: PayAppointmentSchema,
@@ -319,10 +298,7 @@ export default async function appointmentsRoutes(fastify: FastifyInstance) {
   server.post<{ Params: AppointmentIdParams; Body: RefundAppointmentBody }>(
     "/:appointmentId/refund",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_WRITE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         params: AppointmentIdParam,
         body: RefundAppointmentSchema,

@@ -43,7 +43,7 @@ export default async function roleRoutes(fastify: FastifyInstance) {
   server.get<{ Querystring: RoleQuery }>(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE_READ)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE)],
       schema: {
         querystring: RoleQuerySchema,
         response: {
@@ -85,7 +85,7 @@ export default async function roleRoutes(fastify: FastifyInstance) {
   server.get<{ Params: RoleIdParams }>(
     "/:roleId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE_READ)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE)],
       schema: {
         params: RoleIdParam,
         response: {
@@ -122,7 +122,7 @@ export default async function roleRoutes(fastify: FastifyInstance) {
   }>(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE_WRITE)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE)],
       schema: {
         body: CreateRoleSchema,
         response: {
@@ -156,7 +156,7 @@ export default async function roleRoutes(fastify: FastifyInstance) {
   }>(
     "/:roleId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE_WRITE)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE)],
       schema: {
         params: RoleIdParam,
         body: UpdateRoleSchema,
@@ -197,7 +197,7 @@ export default async function roleRoutes(fastify: FastifyInstance) {
   }>(
     "/:roleId/scopes",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE_WRITE)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE)],
       schema: {
         params: RoleIdParam,
         body: AssignScopesSchema,
@@ -235,7 +235,7 @@ export default async function roleRoutes(fastify: FastifyInstance) {
   server.delete<{ Params: RoleIdParams }>(
     "/:roleId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE_DELETE)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE)],
       schema: {
         params: RoleIdParam,
         response: {
