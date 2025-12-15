@@ -13,6 +13,7 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
   entityType: EntityName,
   businessId: string | null,
   userId: string,
+  userEmail: string | null,
   entityIds: string | string[] | null,
   ip: string | null,
 ): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
@@ -64,6 +65,7 @@ export function auditActionWrapper<T extends (...args: any[]) => Promise<any>>(
             await auditLogService.logBusiness({
               businessId,
               userId,
+              userEmail,
               ip,
               entityType,
               entityId: id,
@@ -90,6 +92,7 @@ export function auditSecurityWrapper<
   auditLogService: AuditLogService,
   action: AuditSecurityType,
   userId: string,
+  userEmail: string | null,
   ip: string | null,
 ): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
   return async (...args: Parameters<T>): Promise<Awaited<ReturnType<T>>> => {
@@ -102,6 +105,7 @@ export function auditSecurityWrapper<
       try {
         await auditLogService.logSecurity({
           userId,
+          userEmail,
           ip,
           action,
           result,
@@ -122,6 +126,7 @@ export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
     businessId?: string | null;
     entityId?: string | string[] | null;
     userId: string;
+    userEmail: string | null;
     ip: string | null;
   },
 ): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
@@ -144,6 +149,7 @@ export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
         params.entityType,
         params.businessId ?? null,
         params.userId,
+        params.userEmail,
         params.entityId ?? null,
         params.ip,
       );
@@ -162,6 +168,7 @@ export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
       params.entityType,
       params.businessId,
       params.userId,
+      params.userEmail,
       params.entityId,
       params.ip,
     );
@@ -172,6 +179,7 @@ export function auditLogWrapper<T extends (...args: any[]) => Promise<any>>(
     auditLogService,
     auditType as AuditSecurityType,
     params.userId,
+    params.userEmail,
     params.ip,
   );
 }

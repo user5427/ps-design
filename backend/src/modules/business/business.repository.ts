@@ -1,9 +1,11 @@
-import { IsNull, type Repository } from "typeorm";
+import { IsNull, Not, type Repository } from "typeorm";
 import { ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
 import type { IPaginatedResult } from "@/shared/pagination";
 import type { Business } from "./business.entity";
 import type { ICreateBusiness, IUpdateBusiness } from "./business.types";
+import type { UserRepository } from "./../user/user.repository";
+import type { RefreshTokenRepository } from "../refresh-token";
 
 export class BusinessRepository {
   constructor(private repository: Repository<Business>) {}
@@ -60,6 +62,13 @@ export class BusinessRepository {
       throw new NotFoundError("Business not found");
     }
     return business;
+  }
+
+  async isDeleted(id: string): Promise<boolean> {
+    const business = await this.repository.findOne({
+      where: { id, deletedAt: Not(IsNull()) },
+    });
+    return business !== null;
   }
 
   async findByName(name: string): Promise<Business | null> {

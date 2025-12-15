@@ -415,4 +415,7 @@ export async function deleteUser(
 
   // Delete user
   await fastify.db.user.softDelete(userId);
+
+  // Revoke all refresh tokens
+  await fastify.db.refreshToken.revokeAllByUserId(userId);
 }
