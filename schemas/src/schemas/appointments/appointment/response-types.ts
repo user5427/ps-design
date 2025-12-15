@@ -2,9 +2,16 @@ import { z } from "zod";
 import { datetime, uuid } from "../../shared/zod-utils";
 import { AppointmentStatusEnum } from "./shared";
 
+const TaxSchema = z.object({
+  id: uuid(),
+  name: z.string(),
+  rate: z.number(),
+});
+
 const CategorySchema = z.object({
   id: uuid(),
   name: z.string(),
+  tax: TaxSchema.nullable().optional(),
 });
 
 const ServiceDefinitionSchema = z.object({
