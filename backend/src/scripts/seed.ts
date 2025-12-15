@@ -122,7 +122,7 @@ async function main() {
       scopes: string[];
     }> = [
       {
-        roleName: "SUPER_ADMIN",
+        roleName: "SUPERADMIN",
         scopes: Object.values(ScopeNames), // All scopes
       },
       {
