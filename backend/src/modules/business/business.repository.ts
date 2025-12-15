@@ -4,8 +4,8 @@ import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
 import type { IPaginatedResult } from "@/shared/pagination";
 import type { Business } from "./business.entity";
 import type { ICreateBusiness, IUpdateBusiness } from "./business.types";
-import { UserRepository } from './../user/user.repository';
-import { RefreshTokenRepository } from '../refresh-token';
+import type { UserRepository } from "./../user/user.repository";
+import type { RefreshTokenRepository } from "../refresh-token";
 
 export class BusinessRepository {
   constructor(private repository: Repository<Business>) {}
@@ -110,7 +110,11 @@ export class BusinessRepository {
     }
   }
 
-  async softDelete(id: string, userRepository: UserRepository, refreshTokenRepository: RefreshTokenRepository): Promise<void> {
+  async softDelete(
+    id: string,
+    userRepository: UserRepository,
+    refreshTokenRepository: RefreshTokenRepository,
+  ): Promise<void> {
     const business = await this.findById(id);
     if (!business) {
       throw new NotFoundError("Business not found");
