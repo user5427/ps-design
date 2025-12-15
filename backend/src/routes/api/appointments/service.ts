@@ -12,7 +12,147 @@ import type {
   AppointmentPayment,
   ICreatePaymentLineItem,
 } from "@/modules/appointments/appointment-payment";
+import type { Tax } from "@/modules/tax/tax.entity";
+import type { ApplicableDiscountResult } from "@/modules/discount/discount.types";
 import { stripeService } from "@/modules/payment/stripe-service";
+
+interface PaymentCalculationResult {
+  servicePrice: number;
+  tipAmount: number;
+  discountAmount: number;
+  giftCardDiscount: number;
+  taxAmount: number;
+  finalAmount: number;
+  applicableDiscount: ApplicableDiscountResult | null;
+}
+
+/**
+ * Calculate discount amount for a service based on applicable discounts.
+ */
+async function calculateDiscount(
+  fastify: FastifyInstance,
+  businessId: string,
+  serviceDefinitionId: string,
+  servicePrice: number,
+) {
+  const applicableDiscount = await fastify.db.discount.findApplicableForService(
+    businessId,
+    serviceDefinitionId,
+    servicePrice,
+  );
+  return {
+    amount: applicableDiscount?.calculatedAmount ?? 0,
+    discount: applicableDiscount,
+  };
+}
+
+/**
+ * Validate and apply gift card discount to a payment.
+ */
+async function applyGiftCard(
+  fastify: FastifyInstance,
+  businessId: string,
+  giftCardCode: string | undefined,
+  priceAfterDiscount: number,
+  shouldRedeem: boolean = false,
+) {
+  if (!giftCardCode) {
+    return 0;
+  }
+
+  const giftCard = shouldRedeem
+    ? await fastify.db.giftCard.validateAndRedeem(giftCardCode, businessId)
+    : await fastify.db.giftCard.findByCodeAndBusinessId(
+        giftCardCode,
+        businessId,
+      );
+
+  if (!giftCard) {
+    throw new Error("Gift card not found");
+  }
+
+  if (!shouldRedeem) {
+    if (giftCard.redeemedAt) {
+      throw new Error("Gift card has already been redeemed");
+    }
+    if (giftCard.expiresAt && new Date(giftCard.expiresAt) < new Date()) {
+      throw new Error("Gift card has expired");
+    }
+  }
+
+  return Math.min(giftCard.value, priceAfterDiscount);
+}
+
+/**
+ * Calculate tax amount based on service category tax rate.
+ */
+function calculateTax(
+  servicePrice: number,
+  discountAmount: number,
+  categoryTax: Tax | null | undefined,
+): number {
+  if (!categoryTax) {
+    return 0;
+  }
+
+  const taxRate = Number(categoryTax.rate);
+  const taxableAmount = Math.max(0, servicePrice - discountAmount);
+  return Math.round(taxableAmount * (taxRate / 100));
+}
+
+/**
+ * Calculate the final payment amount including all adjustments.
+ */
+async function calculatePaymentAmount(
+  fastify: FastifyInstance,
+  businessId: string,
+  servicePrice: number,
+  serviceDefinitionId: string,
+  tipAmount: number | undefined,
+  giftCardCode: string | undefined,
+  categoryTax: Tax | null | undefined,
+  shouldRedeemGiftCard: boolean = false,
+): Promise<PaymentCalculationResult> {
+  const adjustedTipAmount = tipAmount ?? 0;
+
+  const { amount: discountAmount, discount: applicableDiscount } =
+    await calculateDiscount(
+      fastify,
+      businessId,
+      serviceDefinitionId,
+      servicePrice,
+    );
+
+  const priceAfterDiscount = Math.max(0, servicePrice - discountAmount);
+  const giftCardDiscount = await applyGiftCard(
+    fastify,
+    businessId,
+    giftCardCode,
+    priceAfterDiscount,
+    shouldRedeemGiftCard,
+  );
+
+  const taxAmount = calculateTax(servicePrice, discountAmount, categoryTax);
+
+  const finalAmount = Math.max(
+    0,
+    servicePrice +
+      adjustedTipAmount -
+      discountAmount -
+      giftCardDiscount +
+      taxAmount,
+  );
+
+  return {
+    servicePrice,
+    tipAmount: adjustedTipAmount,
+    discountAmount,
+    giftCardDiscount,
+    taxAmount,
+    finalAmount,
+    applicableDiscount,
+  };
+}
 
 function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
   return {
@@ -38,30 +178,30 @@ function toAppointmentResponse(appointment: Appointment): AppointmentResponse {
         price: appointment.service.serviceDefinition.price,
         category: appointment.service.serviceDefinition.category
           ? {
-            id: appointment.service.serviceDefinition.category.id,
-            name: appointment.service.serviceDefinition.category.name,
-          }
+              id: appointment.service.serviceDefinition.category.id,
+              name: appointment.service.serviceDefinition.category.name,
+            }
           : null,
       },
     },
     payment: appointment.payment
       ? {
-        id: appointment.payment.id,
-        servicePrice: appointment.payment.servicePrice,
-        serviceDuration: appointment.payment.serviceDuration,
-        paymentMethod: appointment.payment.paymentMethod,
-        tipAmount: appointment.payment.tipAmount,
-        totalAmount: appointment.payment.totalAmount,
-        paidAt: appointment.payment.paidAt.toISOString(),
-        refundedAt: appointment.payment.refundedAt?.toISOString() || null,
-        refundReason: appointment.payment.refundReason,
-        lineItems: appointment.payment.lineItems.map((item) => ({
-          id: item.id,
-          type: item.type,
-          label: item.label,
-          amount: item.amount,
-        })),
-      }
+          id: appointment.payment.id,
+          servicePrice: appointment.payment.servicePrice,
+          serviceDuration: appointment.payment.serviceDuration,
+          paymentMethod: appointment.payment.paymentMethod,
+          tipAmount: appointment.payment.tipAmount,
+          totalAmount: appointment.payment.totalAmount,
+          paidAt: appointment.payment.paidAt.toISOString(),
+          refundedAt: appointment.payment.refundedAt?.toISOString() || null,
+          refundReason: appointment.payment.refundReason,
+          lineItems: appointment.payment.lineItems.map((item) => ({
+            id: item.id,
+            type: item.type,
+            label: item.label,
+            amount: item.amount,
+          })),
+        }
       : undefined,
     createdById: appointment.createdById,
     createdAt: appointment.createdAt.toISOString(),
@@ -178,78 +318,45 @@ export async function initiatePayment(
     throw new Error("This appointment has already been paid");
   }
 
-  const servicePrice = appointment.service.serviceDefinition.price;
-  const tipAmount = input.tipAmount ?? 0;
-
-  const applicableDiscount = await fastify.db.discount.findApplicableForService(
+  const calculation = await calculatePaymentAmount(
+    fastify,
     businessId,
+    appointment.service.serviceDefinition.price,
     appointment.service.serviceDefinition.id,
-    servicePrice,
-  );
-  const discountAmount = applicableDiscount?.calculatedAmount ?? 0;
-
-  let giftCardDiscount = 0;
-  if (input.giftCardCode) {
-    const giftCard = await fastify.db.giftCard.findByCodeAndBusinessId(
-      input.giftCardCode,
-      businessId,
-    );
-    if (!giftCard) {
-      throw new Error("Gift card not found");
-    }
-    if (giftCard.redeemedAt) {
-      throw new Error("Gift card has already been redeemed");
-    }
-    if (giftCard.expiresAt && new Date(giftCard.expiresAt) < new Date()) {
-      throw new Error("Gift card has expired");
-    }
-    // Discount is applied first, then should we apply gift card  to remainder?
-    const priceAfterDiscount = Math.max(0, servicePrice - discountAmount);
-    giftCardDiscount = Math.min(giftCard.value, priceAfterDiscount);
-  }
-
-  let taxAmount = 0;
-  if (appointment.service.serviceDefinition.category?.tax) {
-    const taxRate = Number(
-      appointment.service.serviceDefinition.category.tax.rate,
-    );
-    const taxableAmount = Math.max(0, servicePrice - discountAmount);
-    taxAmount = Math.round(taxableAmount * (taxRate / 100));
-  }
-
-  const finalAmount = Math.max(
-    0,
-    servicePrice + tipAmount - discountAmount - giftCardDiscount + taxAmount,
+    input.tipAmount,
+    input.giftCardCode,
+    appointment.service.serviceDefinition.category?.tax,
+    false, // Don't redeem gift card during initiation
   );
 
-  if (finalAmount < MINIMUM_STRIPE_PAYMENT_AMOUNT) {
+  if (calculation.finalAmount < MINIMUM_STRIPE_PAYMENT_AMOUNT) {
     throw new Error(
       "Amount too low for card payment (minimum €0.50). Use cash or gift card instead.",
     );
   }
 
   const result = await stripeService.createPaymentIntent({
-    amount: finalAmount,
+    amount: calculation.finalAmount,
     currency: "eur",
     metadata: {
       appointmentId,
       businessId,
-      tipAmount: tipAmount.toString(),
+      tipAmount: calculation.tipAmount.toString(),
       giftCardCode: input.giftCardCode ?? "",
-      discountId: applicableDiscount?.discount.id ?? "",
+      discountId: calculation.applicableDiscount?.discount.id ?? "",
     },
   });
 
   return {
     clientSecret: result.clientSecret,
     paymentIntentId: result.paymentIntentId,
-    finalAmount,
+    finalAmount: calculation.finalAmount,
     breakdown: {
-      servicePrice,
-      tipAmount,
-      giftCardDiscount,
-      discountAmount,
-      taxAmount: taxAmount,
+      servicePrice: calculation.servicePrice,
+      tipAmount: calculation.tipAmount,
+      giftCardDiscount: calculation.giftCardDiscount,
+      discountAmount: calculation.discountAmount,
+      taxAmount: calculation.taxAmount,
     },
   };
 }
@@ -279,6 +386,17 @@ export async function payAppointment(
   const serviceDefinition = service.serviceDefinition;
   const employee = service.employee;
 
+  const calculation = await calculatePaymentAmount(
+    fastify,
+    businessId,
+    serviceDefinition.price,
+    serviceDefinition.id,
+    input.tipAmount,
+    input.giftCardCode,
+    serviceDefinition.category?.tax,
+    true, // Redeem gift card during payment
+  );
+
   const lineItems: ICreatePaymentLineItem[] = [
     {
       type: "SERVICE",
@@ -287,57 +405,35 @@ export async function payAppointment(
     },
   ];
 
-  if (input.tipAmount && input.tipAmount > 0) {
+  if (calculation.tipAmount > 0) {
     lineItems.push({
       type: "TIP",
       label: "Tip",
-      amount: input.tipAmount,
+      amount: calculation.tipAmount,
     });
   }
 
-  const applicableDiscount = await fastify.db.discount.findApplicableForService(
-    businessId,
-    serviceDefinition.id,
-    serviceDefinition.price,
-  );
-  const discountAmount = applicableDiscount?.calculatedAmount ?? 0;
-
-  if (applicableDiscount) {
+  if (calculation.discountAmount > 0) {
     lineItems.push({
       type: "DISCOUNT",
-      label: `Discount (${applicableDiscount.discount.name})`,
-      amount: -discountAmount,
+      label: `Discount (${calculation.applicableDiscount?.discount.name})`,
+      amount: -calculation.discountAmount,
     });
   }
 
-  let giftCardDiscount = 0;
-  if (input.giftCardCode) {
-    const giftCard = await fastify.db.giftCard.validateAndRedeem(
-      input.giftCardCode,
-      businessId,
-    );
-    const priceAfterDiscount = Math.max(
-      0,
-      serviceDefinition.price - discountAmount,
-    );
-    giftCardDiscount = Math.min(giftCard.value, priceAfterDiscount);
-
+  if (calculation.giftCardDiscount > 0) {
     lineItems.push({
       type: "DISCOUNT",
       label: `Gift Card (${input.giftCardCode})`,
-      amount: -giftCardDiscount,
+      amount: -calculation.giftCardDiscount,
     });
   }
 
-  if (serviceDefinition.category?.tax) {
-    const taxRate = Number(serviceDefinition.category.tax.rate);
-    const taxableAmount = Math.max(0, serviceDefinition.price - discountAmount);
-    const taxAmount = Math.round(taxableAmount * (taxRate / 100));
-
+  if (calculation.taxAmount > 0) {
     lineItems.push({
       type: "TAX",
-      label: `Tax (${serviceDefinition.category.tax.name} ${taxRate}%)`,
-      amount: taxAmount,
+      label: `Tax (${serviceDefinition.category?.tax?.name} ${Number(serviceDefinition.category?.tax?.rate)}%)`,
+      amount: calculation.taxAmount,
     });
   }
 
@@ -352,7 +448,7 @@ export async function payAppointment(
     serviceDuration: serviceDefinition.baseDuration,
     employeeName: employee.name,
     employeeId: employee.id,
-    tipAmount: input.tipAmount,
+    tipAmount: calculation.tipAmount,
     lineItems,
     externalPaymentId: input.paymentIntentId,
   });
