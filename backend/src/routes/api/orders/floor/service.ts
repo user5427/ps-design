@@ -9,6 +9,8 @@ import {
   DiningTable,
   DiningTableStatus,
   Order,
+  OrderItem,
+  OrderItemStatus,
   OrderStatus,
 } from "@/modules/order";
 import { ConflictError, NotFoundError } from "@/shared/errors";
@@ -47,19 +49,42 @@ export async function getFloorPlan(
     }
   }
 
+  // Determine which open orders actually have items that were sent
+  // to the kitchen. Only those tables should be highlighted as ACTIVE.
+  const ordersWithSentItems = new Set<string>();
+  const openOrderIds = openOrders.map((o) => o.id);
+
+  if (openOrderIds.length > 0) {
+    const orderItemRepo = fastify.db.dataSource.getRepository(OrderItem);
+    const sentItems = await orderItemRepo.find({
+      where: {
+        orderId: In(openOrderIds),
+        status: OrderItemStatus.SENT,
+        deletedAt: IsNull(),
+      },
+    });
+
+    for (const item of sentItems) {
+      ordersWithSentItems.add(item.orderId);
+    }
+  }
+
   return {
     tables: tables.map((table) => {
-      const hasOpenOrder = orderByTableId.has(table.id);
+      const orderId = orderByTableId.get(table.id) ?? null;
+      const hasSentItems = orderId
+        ? ordersWithSentItems.has(orderId)
+        : false;
 
       // Visual status rules for the floor plan:
-      // - AVAILABLE (white/gray): no open order on this table.
-      // - ACTIVE (green): there is an OPEN order linked to the table.
+      // - AVAILABLE (white/gray): no open order OR only unsent items.
+      // - ACTIVE (green): there is an OPEN order with items sent to kitchen.
       // - ATTENTION (orange): manual override to highlight a table
       //   that needs service; this always wins over other states.
       let status: DiningTableStatus;
       if (table.status === DiningTableStatus.ATTENTION) {
         status = DiningTableStatus.ATTENTION;
-      } else if (hasOpenOrder) {
+      } else if (orderId && hasSentItems) {
         status = DiningTableStatus.ACTIVE;
       } else {
         status = DiningTableStatus.AVAILABLE;
@@ -71,7 +96,7 @@ export async function getFloorPlan(
         capacity: table.capacity,
         status,
         reserved: table.reserved ?? false,
-        orderId: orderByTableId.get(table.id) ?? null,
+        orderId,
       };
     }),
   };
@@ -85,6 +110,7 @@ export async function updateFloorTable(
 ): Promise<FloorTable> {
   const tableRepo = fastify.db.dataSource.getRepository(DiningTable);
   const orderRepo = fastify.db.dataSource.getRepository(Order);
+  const orderItemRepo = fastify.db.dataSource.getRepository(OrderItem);
 
   const table = await tableRepo.findOne({
     where: { id: tableId, businessId, deletedAt: IsNull() },
@@ -112,16 +138,28 @@ export async function updateFloorTable(
     },
   });
 
+  let hasSentItems = false;
+  if (openOrder) {
+    const sentCount = await orderItemRepo.count({
+      where: {
+        orderId: openOrder.id,
+        status: OrderItemStatus.SENT,
+        deletedAt: IsNull(),
+      },
+    });
+    hasSentItems = sentCount > 0;
+  }
+
   // Keep the same visual rules as getFloorPlan so the
   // immediate response from this mutation matches what
   // the floor-plan query will later return:
   // - ATTENTION: preserved as an explicit highlight.
-  // - ACTIVE: there is an OPEN order on this table.
-  // - AVAILABLE: no open order.
+  // - ACTIVE: there is an OPEN order on this table with items sent.
+  // - AVAILABLE: no open order or only unsent items.
   let status: DiningTableStatus;
   if (saved.status === DiningTableStatus.ATTENTION) {
     status = DiningTableStatus.ATTENTION;
-  } else if (openOrder) {
+  } else if (openOrder && hasSentItems) {
     status = DiningTableStatus.ACTIVE;
   } else {
     status = DiningTableStatus.AVAILABLE;

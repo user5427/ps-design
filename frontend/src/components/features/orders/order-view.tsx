@@ -130,15 +130,44 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
 
   const menuEntries: MenuItemEntry[] = useMemo(() => {
     if (!menuItems) return [];
+    const entries: MenuItemEntry[] = [];
 
-    return menuItems.map((item) => ({
-      id: item.id,
-      name: item.baseName,
-      price: item.basePrice / 100,
-      category: item.category?.name ?? "Other",
-      stock: item.isAvailable ? 999 : 0,
-      quantity: 0,
-    }));
+    for (const item of menuItems) {
+      const categoryName = item.category?.name ?? "Other";
+
+      // Base item entry (no variation selected)
+      entries.push({
+        id: item.id,
+        name: item.baseName,
+        price: item.basePrice / 100,
+        category: categoryName,
+        stock: item.isAvailable ? 999 : 0,
+        quantity: 0,
+        variationId: null,
+        variationLabel: null,
+      });
+
+      // One entry per available variation so the user can
+      // directly choose between different options (e.g. sizes).
+      for (const variation of item.variations ?? []) {
+        if (variation.isDisabled || !variation.isAvailable) continue;
+
+        const combinedPrice = (item.basePrice + variation.priceAdjustment) / 100;
+
+        entries.push({
+          id: `${item.id}:${variation.id}`,
+          name: item.baseName,
+          price: combinedPrice,
+          category: categoryName,
+          stock: variation.isAvailable ? 999 : 0,
+          quantity: 0,
+          variationId: variation.id,
+          variationLabel: variation.name,
+        });
+      }
+    }
+
+    return entries;
   }, [menuItems]);
 
   const menuCategories: MenuCategory[] = useMemo(() => {
