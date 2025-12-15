@@ -28,19 +28,26 @@ type User = Record<string, unknown> & {
   updatedAt: string;
 };
 
-export function UsersManagement() {
+interface UsersManagementProps {
+  businessId?: string;
+  disableDelete?: boolean;
+  disableCreate?: boolean;
+}
+
+export function UsersManagement({ businessId, disableDelete = false, disableCreate = false }: UsersManagementProps = {}) {
   const queryClient = useQueryClient();
   const { data: currentUser } = useAuthUser();
 
-  // Fetch all users in the system
+  // Fetch all users in the system or users for a specific business
   const {
     data: users = [],
     isLoading: usersLoading,
     error,
   } = useQuery<User[]>({
-    queryKey: ["users"],
+    queryKey: businessId ? ["users", "business", businessId] : ["users"],
     queryFn: async () => {
-      const response = await apiClient.get("/users");
+      const params = businessId ? { businessId } : {};
+      const response = await apiClient.get("/users", { params });
       return response.data;
     },
   });
@@ -201,9 +208,10 @@ export function UsersManagement() {
         businessId: values.businessId,
         isOwner: values.isOwner || false,
       });
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      const queryKey = businessId ? ["users", "business", businessId] : ["users"];
+      queryClient.invalidateQueries({ queryKey });
     },
-    [queryClient],
+    [queryClient, businessId],
   );
 
   const handleEdit = useCallback(
@@ -212,9 +220,10 @@ export function UsersManagement() {
         name: values.name,
         email: values.email,
       });
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      const queryKey = businessId ? ["users", "business", businessId] : ["users"];
+      queryClient.invalidateQueries({ queryKey });
     },
-    [queryClient],
+    [queryClient, businessId],
   );
 
   const handleDelete = async (ids: string[]) => {
@@ -228,11 +237,13 @@ export function UsersManagement() {
     for (const id of canDelete) {
       await apiClient.delete(`/users/${id}`);
     }
-    queryClient.invalidateQueries({ queryKey: ["users"] });
+    const queryKey = businessId ? ["users", "business", businessId] : ["users"];
+    queryClient.invalidateQueries({ queryKey });
   };
 
   const refetch = () => {
-    queryClient.invalidateQueries({ queryKey: ["users"] });
+    const queryKey = businessId ? ["users", "business", businessId] : ["users"];
+    queryClient.invalidateQueries({ queryKey });
   };
 
   return (
@@ -245,14 +256,14 @@ export function UsersManagement() {
       createFormFields={createFormFields}
       editFormFields={editFormFields}
       viewFields={viewFields}
-      onCreate={handleCreate}
+      onCreate={disableCreate ? undefined : handleCreate}
       onEdit={handleEdit}
-      onDelete={handleDelete}
+      onDelete={disableDelete ? undefined : handleDelete}
       onSuccess={refetch}
       createModalTitle="Create User"
       editModalTitle="Edit User"
       viewModalTitle="View User"
-      enableRowDeletion={(row) => row.original.id !== currentUser?.id}
+      enableRowDeletion={disableDelete ? undefined : (row) => row.original.id !== currentUser?.id}
     />
   );
 }

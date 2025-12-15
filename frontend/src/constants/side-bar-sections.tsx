@@ -33,9 +33,15 @@ export const sidebarSections: Section[] = [
     icon: <BusinessIcon />,
     children: [
       {
+        label: "Users",
+        icon: <PersonIcon />,
+        path: URLS.MY_BUSINESS_USERS,
+        scope: "USER",
+      },
+      {
         label: "Roles",
         icon: <SecurityIcon />,
-        path: "/my-business/roles",
+        path: URLS.MY_BUSINESS_ROLES,
         scope: "ROLE",
       },
     ],
