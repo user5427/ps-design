@@ -61,26 +61,9 @@ export async function createBusiness(
   });
 
   // Assign owner scopes to the role
-  const ownerScopes = [
-    "OWNER",
-    "USER_READ",
-    "USER_WRITE",
-    "USER_DELETE",
-    "ROLE_READ",
-    "ROLE_WRITE",
-    "ROLE_DELETE",
-    "INVENTORY_READ",
-    "INVENTORY_WRITE",
-    "INVENTORY_DELETE",
-    "MENU_READ",
-    "MENU_WRITE",
-    "MENU_DELETE",
-    "BUSINESS_READ",
-    "BUSINESS_WRITE",
-    "APPOINTMENTS_READ",
-    "APPOINTMENTS_WRITE",
-    "APPOINTMENTS_DELETE",
-  ];
+  const ownerScopes = Object.values(ScopeNames).filter(
+    (scope) => scope !== ScopeNames.SUPERADMIN,
+  );
 
   for (const scopeName of ownerScopes) {
     await fastify.db.roleScope.assignScope(ownerRole.id, scopeName as any);

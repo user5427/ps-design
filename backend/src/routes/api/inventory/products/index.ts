@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
 import {
+  bulkDeleteProducts,
   createProduct,
   getAllProducts,
   getProductById,
