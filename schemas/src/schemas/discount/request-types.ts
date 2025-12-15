@@ -238,3 +238,27 @@ export type GetApplicableOrderDiscountQuery = z.infer<
 export type GetApplicableServiceDiscountQuery = z.infer<
   typeof GetApplicableServiceDiscountSchema
 >;
+
+export interface BaseCreateDiscountBody {
+  name: string;
+  type: "PERCENTAGE" | "FIXED_AMOUNT";
+  value: number;
+  targetType: "SERVICE" | "MENU_ITEM" | "ORDER";
+  menuItemId?: string | null;
+  serviceDefinitionId?: string | null;
+  startsAt?: string | null;
+  expiresAt?: string | null;
+  isDisabled?: boolean;
+}
+
+export interface BaseUpdateDiscountBody {
+  name?: string;
+  type?: "PERCENTAGE" | "FIXED_AMOUNT";
+  value?: number;
+  targetType?: "SERVICE" | "MENU_ITEM" | "ORDER";
+  menuItemId?: string | null;
+  serviceDefinitionId?: string | null;
+  startsAt?: string | null;
+  expiresAt?: string | null;
+  isDisabled?: boolean;
+}

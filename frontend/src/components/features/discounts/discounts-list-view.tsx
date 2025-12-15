@@ -12,8 +12,8 @@ import { useMenuItems } from "@/hooks/menu/menu-item-hooks";
 import { useServiceDefinitions } from "@/hooks/appointments/service-definition-hooks";
 import type {
   DiscountResponse,
-  CreateDiscountBody,
-  UpdateDiscountBody,
+  BaseCreateDiscountBody,
+  BaseUpdateDiscountBody,
 } from "@ps-design/schemas/discount";
 import { formatPrice } from "@/utils/price";
 import dayjs from "dayjs";
@@ -33,8 +33,8 @@ interface DiscountsListViewProps<TCreate, TUpdate> {
 }
 
 export const DiscountsListView = <
-  TCreate extends CreateDiscountBody,
-  TUpdate extends UpdateDiscountBody,
+  TCreate extends BaseCreateDiscountBody,
+  TUpdate extends BaseUpdateDiscountBody,
 >({
   useDiscounts,
   useCreateDiscount,

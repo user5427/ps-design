@@ -13,6 +13,8 @@ export {
   type UpdateMenuDiscountBody,
   type GetApplicableOrderDiscountQuery,
   type GetApplicableServiceDiscountQuery,
+  type BaseCreateDiscountBody,
+  type BaseUpdateDiscountBody,
 } from "./request-types";
 
 export {
