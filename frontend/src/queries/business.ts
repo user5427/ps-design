@@ -26,6 +26,8 @@ export function useBusinessesPaginated(
       );
       return response.data;
     },
+    staleTime: 0,
+    gcTime: 0,
   });
 }
 
@@ -38,6 +40,8 @@ export function useBusinessById(businessId: string) {
       );
       return response.data;
     },
+    staleTime: 0,
+    gcTime: 0,
   });
 }
 

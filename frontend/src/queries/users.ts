@@ -21,6 +21,8 @@ export function useUsers(businessId?: string) {
       });
       return response.data;
     },
+    staleTime: 0,
+    gcTime: 0,
   });
 }
 
@@ -32,6 +34,8 @@ export function useUserById(userId: string) {
       return response.data;
     },
     enabled: !!userId,
+    staleTime: 0,
+    gcTime: 0,
   });
 }
 
