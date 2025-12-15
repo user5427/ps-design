@@ -22,13 +22,13 @@ export enum ScopeNames {
   DISCOUNTS_READ = "DISCOUNTS_READ",
   DISCOUNTS_WRITE = "DISCOUNTS_WRITE",
   DISCOUNTS_DELETE = "DISCOUNTS_DELETE",
-  MENU_ORDERS_READ = "MENU_ORDERS_READ",
-  MENU_ORDERS_WRITE = "MENU_ORDERS_WRITE",
   TAX_READ = "TAX_READ",
   TAX_WRITE = "TAX_WRITE",
   TAX_DELETE = "TAX_DELETE",
   AUDIT_BUSINESS_READ = "AUDIT_BUSINESS_READ",
   AUDIT_SECURITY_READ = "AUDIT_SECURITY_READ",
+  MENU_ORDERS_READ = "MENU_ORDERS_READ",
+  MENU_ORDERS_WRITE = "MENU_ORDERS_WRITE",
 }
 
 // Scope configuration with descriptions
@@ -124,14 +124,6 @@ export const SCOPE_CONFIG: Record<
     name: ScopeNames.DISCOUNTS_DELETE,
     description: "Delete discounts data",
   },
-  [ScopeNames.MENU_ORDERS_READ]: {
-    name: ScopeNames.MENU_ORDERS_READ,
-    description: "Read restaurant orders",
-  },
-  [ScopeNames.MENU_ORDERS_WRITE]: {
-    name: ScopeNames.MENU_ORDERS_WRITE,
-    description: "Create and update restaurant orders",
-  },
   [ScopeNames.TAX_READ]: {
     name: ScopeNames.TAX_READ,
     description: "Read tax data",
@@ -151,6 +143,14 @@ export const SCOPE_CONFIG: Record<
   [ScopeNames.AUDIT_SECURITY_READ]: {
     name: ScopeNames.AUDIT_SECURITY_READ,
     description: "Read security audit logs",
+  },
+  [ScopeNames.MENU_ORDERS_READ]: {
+    name: ScopeNames.MENU_ORDERS_READ,
+    description: "Read restaurant orders",
+  },
+  [ScopeNames.MENU_ORDERS_WRITE]: {
+    name: ScopeNames.MENU_ORDERS_WRITE,
+    description: "Create and update restaurant orders",
   },
 };
 
