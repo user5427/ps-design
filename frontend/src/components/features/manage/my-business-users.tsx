@@ -43,12 +43,12 @@ export function MyBusinessUsers() {
 
   // Get current user info to determine their business
   const { data: currentUser } = useAuthUser();
-  const businessId = currentUser?.businessId as string;
+  const businessId = currentUser?.businessId;
 
-  // Fetch users for business
+  // Fetch users for business (only if businessId exists)
   const { data: users = [], isLoading: usersLoading } = useUsers(businessId);
 
-  // Fetch roles for business
+  // Fetch roles for business (only if businessId exists)
   const { data: roles = [], isLoading: rolesLoading } = useRoles(businessId);
 
   // Assign roles mutation
@@ -90,7 +90,7 @@ export function MyBusinessUsers() {
   };
 
   const handleSubmit = () => {
-    if (selectedUser) {
+    if (selectedUser && businessId) {
       assignRolesMutation.mutate({
         userId: selectedUser.id,
         roleIds: selectedRoleIds,
@@ -98,6 +98,7 @@ export function MyBusinessUsers() {
     }
   };
 
+  // Early return if no business ID
   if (!businessId) {
     return (
       <Box sx={{ p: 3 }}>
