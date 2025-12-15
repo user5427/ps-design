@@ -10,7 +10,6 @@ import { ScopesResponseSchema } from "@ps-design/schemas/scope";
 
 export default async function scopesRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
-  const { requireScope } = createScopeMiddleware(fastify);
 
   // Get current user's available scopes
   // If user is superadmin, return all scopes
@@ -18,7 +17,6 @@ export default async function scopesRoutes(fastify: FastifyInstance) {
   server.get<{ Querystring: { businessId?: string } }>(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE_READ)],
       schema: {
         response: {
           200: ScopesResponseSchema,

@@ -44,7 +44,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
   server.get<{ Querystring: UserQuery }>(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.USER_READ)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.USER)],
       schema: {
         querystring: UserQuerySchema,
         response: {
@@ -78,7 +78,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
   server.get<{ Params: UserIdParams }>(
     "/:userId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.USER_READ)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.USER)],
       schema: {
         params: UserIdParam,
         response: {
@@ -149,7 +149,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
   }>(
     "/:userId/roles",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.USER_WRITE)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE)],
       schema: {
         params: UserIdParam,
         body: AssignRolesSchema,
@@ -189,7 +189,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
   }>(
     "/:userId/roles/:roleId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.USER_WRITE)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ROLE)],
       schema: {
         params: RemoveRoleParam,
         response: {
@@ -228,7 +228,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
   }>(
     "/:userId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.SUPERADMIN)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.USER)],
       schema: {
         params: UserIdParam,
         body: UpdateUserSchema,

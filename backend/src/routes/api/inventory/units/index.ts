@@ -32,10 +32,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
   server.get(
     "/",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_READ),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY)],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);
@@ -49,10 +46,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateProductUnitBody }>(
     "/",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_WRITE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY)],
       schema: {
         body: CreateProductUnitSchema,
       },
@@ -86,10 +80,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
   server.put<{ Params: UnitIdParams; Body: UpdateProductUnitBody }>(
     "/:unitId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_WRITE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY)],
       schema: {
         params: UnitIdParam,
         body: UpdateProductUnitSchema,
@@ -133,10 +124,7 @@ export default async function unitsRoutes(fastify: FastifyInstance) {
   server.post<{ Body: BulkDeleteBody }>(
     "/bulk-delete",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.INVENTORY_DELETE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY)],
       schema: {
         body: BulkDeleteSchema,
       },

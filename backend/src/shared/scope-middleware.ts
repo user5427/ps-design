@@ -13,7 +13,7 @@ import { ScopeChecker } from "./scope-checker";
  * const { requireScope } = createScopeMiddleware(fastify);
  *
  * server.get("/items", {
- *   onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY_READ)]
+ *   onRequest: [fastify.authenticate, requireScope(ScopeNames.INVENTORY)]
  * }, handler)
  */
 export function createScopeMiddleware(fastify: FastifyInstance) {
@@ -36,7 +36,7 @@ export function createScopeMiddleware(fastify: FastifyInstance) {
    * Require all provided scopes
    * Returns 403 if user is missing any scope
    *
-   * @example requireAllScopes(ScopeNames.INVENTORY_READ, ScopeNames.INVENTORY_WRITE)
+   * @example requireAllScopes(ScopeNames.INVENTORY, ScopeNames.MENU)
    */
   const requireAllScopes = (...scopes: ScopeNames[]) => {
     return async (request: FastifyRequest, reply: FastifyReply) => {
@@ -56,7 +56,7 @@ export function createScopeMiddleware(fastify: FastifyInstance) {
    * Require at least one of the provided scopes
    * Returns 403 if user has none of the scopes
    *
-   * @example requireAnyScope(ScopeNames.INVENTORY_DELETE, ScopeNames.INVENTORY_WRITE)
+   * @example requireAnyScope(ScopeNames.INVENTORY, ScopeNames.MENU)
    */
   const requireAnyScope = (...scopes: ScopeNames[]) => {
     return async (request: FastifyRequest, reply: FastifyReply) => {

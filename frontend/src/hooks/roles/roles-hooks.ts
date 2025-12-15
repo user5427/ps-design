@@ -71,6 +71,8 @@ export function useAvailableScopes() {
   return useQuery({
     queryKey: rolesKeys.scopes(),
     queryFn: getAvailableScopes,
+    staleTime: 0,
+    gcTime: 0,
   });
 }
 
@@ -78,5 +80,7 @@ export function useUserScopes() {
   return useQuery({
     queryKey: rolesKeys.userScopes(),
     queryFn: getUserScopes,
+    staleTime: 0,
+    gcTime: 0,
   });
 }

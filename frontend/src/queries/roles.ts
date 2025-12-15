@@ -22,6 +22,8 @@ export function useRoles(businessId?: string) {
       return response.data;
     },
     enabled: !!businessId,
+    staleTime: 0,
+    gcTime: 0,
   });
 }
 
@@ -33,6 +35,8 @@ export function useRoleById(roleId: string) {
       return response.data;
     },
     enabled: !!roleId,
+    staleTime: 0,
+    gcTime: 0,
   });
 }
 

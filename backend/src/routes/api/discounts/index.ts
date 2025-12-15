@@ -36,10 +36,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
   server.get(
     "/",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.DISCOUNTS_READ),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.DISCOUNTS)],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);
@@ -54,10 +51,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateDiscountBody }>(
     "/",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.DISCOUNTS_WRITE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.DISCOUNTS)],
       schema: {
         body: CreateDiscountSchema,
       },
@@ -96,10 +90,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
   server.get<{ Params: DiscountIdParams }>(
     "/:discountId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.DISCOUNTS_READ),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.DISCOUNTS)],
       schema: {
         params: DiscountIdParam,
       },
@@ -128,10 +119,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
   server.put<{ Params: DiscountIdParams; Body: UpdateDiscountBody }>(
     "/:discountId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.DISCOUNTS_WRITE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.DISCOUNTS)],
       schema: {
         params: DiscountIdParam,
         body: UpdateDiscountSchema,
@@ -176,10 +164,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
   server.delete<{ Params: DiscountIdParams }>(
     "/:discountId",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.DISCOUNTS_DELETE),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.DISCOUNTS)],
       schema: {
         params: DiscountIdParam,
       },
@@ -217,7 +202,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
   server.get<{ Querystring: GetApplicableOrderDiscountQuery }>(
     "/applicable/order",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU_READ)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU)],
       schema: {
         querystring: GetApplicableOrderDiscountSchema,
       },
@@ -250,10 +235,7 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
   server.get<{ Querystring: GetApplicableServiceDiscountQuery }>(
     "/applicable/service",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.APPOINTMENTS_READ),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.APPOINTMENTS)],
       schema: {
         querystring: GetApplicableServiceDiscountSchema,
       },

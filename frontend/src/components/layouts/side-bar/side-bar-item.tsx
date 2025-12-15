@@ -13,12 +13,14 @@ type ChildSection = {
   label: string;
   icon: React.ReactNode;
   path?: string;
+  scope?: string;
 };
 
 export type Section = {
   label: string;
   icon: React.ReactNode;
   path?: string;
+  scope?: string;
   children?: ChildSection[];
 };
 
