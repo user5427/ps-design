@@ -4,6 +4,7 @@ export enum ScopeNames {
   OWNER = "OWNER",
   INVENTORY = "INVENTORY",
   MENU = "MENU",
+  CATEGORIES = "CATEGORIES",
   USER = "USER",
   ROLE = "ROLE",
   BUSINESS = "BUSINESS",
@@ -36,6 +37,10 @@ export const SCOPE_CONFIG: Record<
   [ScopeNames.MENU]: {
     name: ScopeNames.MENU,
     description: "Full access to menu management (read, create, update, delete)",
+  },
+  [ScopeNames.CATEGORIES]: {
+    name: ScopeNames.CATEGORIES,
+    description: "Full access to category management (read, create, update, delete)",
   },
   [ScopeNames.USER]: {
     name: ScopeNames.USER,

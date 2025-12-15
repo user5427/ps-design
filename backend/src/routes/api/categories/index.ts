@@ -37,7 +37,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   server.get(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.CATEGORIES)],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const businessId = getBusinessId(request, reply);
@@ -51,7 +51,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateCategoryBody }>(
     "/",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.CATEGORIES)],
       schema: {
         body: CreateCategorySchema,
       },
@@ -89,7 +89,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   server.get<{ Params: CategoryIdParams }>(
     "/:categoryId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.CATEGORIES)],
       schema: {
         params: CategoryIdParam,
       },
@@ -117,7 +117,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   server.put<{ Params: CategoryIdParams; Body: UpdateCategoryBody }>(
     "/:categoryId",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.CATEGORIES)],
       schema: {
         params: CategoryIdParam,
         body: UpdateCategorySchema,
@@ -161,7 +161,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   server.post<{ Body: BulkDeleteBody }>(
     "/bulk-delete",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.CATEGORIES)],
       schema: {
         body: BulkDeleteSchema,
       },
@@ -198,7 +198,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   }>(
     "/:categoryId/tax",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.CATEGORIES)],
       schema: {
         params: CategoryIdParam,
         body: AssignTaxToCategorySchema,
@@ -244,7 +244,7 @@ export default async function categoriesRoutes(fastify: FastifyInstance) {
   server.delete<{ Params: CategoryIdParams }>(
     "/:categoryId/tax",
     {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU)],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.CATEGORIES)],
       schema: {
         params: CategoryIdParam,
       },

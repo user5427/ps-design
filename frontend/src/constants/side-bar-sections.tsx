@@ -6,7 +6,6 @@ import Inventory2Icon from "@mui/icons-material/Inventory2";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
-import SettingsIcon from "@mui/icons-material/Settings";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import EventIcon from "@mui/icons-material/Event";
@@ -23,11 +22,13 @@ export const sidebarSections: Section[] = [
     icon: <DashboardIcon />,
     path: URLS.DASHBOARD,
   },
+  // ORDERS
   {
     label: "Orders",
     icon: <RestaurantIcon />,
     path: URLS.FLOOR_PLAN,
   },
+  // ROLES AND USERS
   {
     label: "My Business",
     icon: <BusinessIcon />,
@@ -39,6 +40,7 @@ export const sidebarSections: Section[] = [
       },
     ],
   },
+  // SUPERADMIN ONLY
   {
     label: "Manage",
     icon: <BusinessIcon />,
@@ -60,6 +62,7 @@ export const sidebarSections: Section[] = [
       },
     ],
   },
+  // INVENTORY
   {
     label: "Inventory",
     icon: <Inventory2Icon />,
@@ -86,11 +89,13 @@ export const sidebarSections: Section[] = [
       },
     ],
   },
+  // CATEGORIES
   {
     label: "Categories",
     icon: <CategoryIcon />,
     path: URLS.CATEGORIES,
   },
+  // MENU
   {
     label: "Menu",
     icon: <MenuBookIcon />,
@@ -102,6 +107,7 @@ export const sidebarSections: Section[] = [
       },
     ],
   },
+  // APPOINTMENTS
   {
     label: "Appointments",
     icon: <EventIcon />,
@@ -123,16 +129,19 @@ export const sidebarSections: Section[] = [
       },
     ],
   },
+  // GIFT CARDS
   {
     label: "Gift Cards",
     icon: <CardGiftcardIcon />,
     path: URLS.GIFT_CARDS,
   },
+  // DISCOUNTS
   {
     label: "Discounts",
     icon: <LocalOfferIcon />,
     path: URLS.DISCOUNTS,
   },
+  // TAX
   {
     label: "Tax",
     icon: <AssessmentIcon />,
@@ -142,21 +151,18 @@ export const sidebarSections: Section[] = [
     label: "Audit Logs",
     icon: <AssessmentIcon />,
     children: [
+      // AUDIT BUSINESS
       {
         label: "Business Logs",
         icon: <BusinessIcon />,
         path: URLS.AUDIT_BUSINESS_LOGS,
       },
+      // AUDIT SECURITY
       {
         label: "Security Logs",
         icon: <AssessmentIcon />,
         path: URLS.AUDIT_SECURITY_LOGS,
       },
     ],
-  },
-  {
-    label: "Settings",
-    icon: <SettingsIcon />,
-    path: "/settings",
   },
 ];
