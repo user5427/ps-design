@@ -155,13 +155,15 @@ export function MyBusinessUsers() {
                       <TableCell>
                         <Box display="flex" gap={0.5} flexWrap="wrap">
                           {user.roles.length > 0 ? (
-                            user.roles.map((role: { id: string; name: string }) => (
-                              <Chip
-                                key={role.id}
-                                label={role.name}
-                                size="small"
-                              />
-                            ))
+                            user.roles.map(
+                              (role: { id: string; name: string }) => (
+                                <Chip
+                                  key={role.id}
+                                  label={role.name}
+                                  size="small"
+                                />
+                              ),
+                            )
                           ) : (
                             <Typography
                               variant="caption"
@@ -210,23 +212,31 @@ export function MyBusinessUsers() {
                 input={<OutlinedInput label="Roles" />}
                 renderValue={(selected: string[]) =>
                   roles
-                    .filter((r: { id: string; name: string }) => selected.includes(r.id))
+                    .filter((r: { id: string; name: string }) =>
+                      selected.includes(r.id),
+                    )
                     .map((r: { id: string; name: string }) => r.name)
                     .join(", ")
                 }
               >
-                {roles.map((role: { id: string; name: string; description?: string | null }) => (
-                  <MenuItem key={role.id} value={role.id}>
-                    <Box>
-                      <Typography variant="body1">{role.name}</Typography>
-                      {role.description && (
-                        <Typography variant="caption" color="text.secondary">
-                          {role.description}
-                        </Typography>
-                      )}
-                    </Box>
-                  </MenuItem>
-                ))}
+                {roles.map(
+                  (role: {
+                    id: string;
+                    name: string;
+                    description?: string | null;
+                  }) => (
+                    <MenuItem key={role.id} value={role.id}>
+                      <Box>
+                        <Typography variant="body1">{role.name}</Typography>
+                        {role.description && (
+                          <Typography variant="caption" color="text.secondary">
+                            {role.description}
+                          </Typography>
+                        )}
+                      </Box>
+                    </MenuItem>
+                  ),
+                )}
               </Select>
             </FormControl>
           </Box>
