@@ -155,7 +155,7 @@ export const sidebarSections: Section[] = [
     scope: "SERVICE_DISCOUNTS",
   },
   {
-    label: "Discounts",
+    label: "Discounts ",
     icon: <LocalOfferIcon />,
     path: URLS.DISCOUNTS_MENU,
     scope: "MENU_DISCOUNTS",
