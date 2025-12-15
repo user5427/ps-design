@@ -81,7 +81,23 @@ export async function getRolesByBusinessId(
     }),
   );
 
-  return rolesWithScopes;
+  // Filter roles to only return those the user can assign
+  // User can assign a role if they have all the scopes that role requires
+  const isSuperadmin = userScopes.includes(ScopeNames.SUPERADMIN);
+  const assignableRoles = rolesWithScopes.filter((role) => {
+    // Superadmin can assign any role
+    if (isSuperadmin) {
+      return true;
+    }
+    // If role has no scopes, user can assign it
+    if (!role.scopes || role.scopes.length === 0) {
+      return true;
+    }
+    // Check if user has all required scopes for this role
+    return role.scopes.every((scopeName) => userScopes.includes(scopeName));
+  });
+
+  return assignableRoles;
 }
 
 export async function getRoleById(

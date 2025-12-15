@@ -48,7 +48,7 @@ export function BusinessUsersManagement({
   // Fetch users for business
   const { data: users = [], isLoading: usersLoading } = useUsers(businessId);
 
-  // Fetch roles for business
+  // Fetch roles for business (backend filters to only show assignable roles)
   const { data: roles = [], isLoading: rolesLoading } = useRoles(businessId);
 
   // Assign roles mutation
