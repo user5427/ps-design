@@ -12,7 +12,13 @@ import {
   CircularProgress,
   TextField,
 } from "@mui/material";
-import { useEffect, useMemo, useState, type MouseEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type DragEvent,
+  type MouseEvent,
+} from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { TableCard, type FloorPlanTable } from "./table-card";
 import {
@@ -41,6 +47,7 @@ export function FloorPlanDashboard() {
     anchorEl: null,
     tableId: null,
   });
+  const [draggedTableId, setDraggedTableId] = useState<string | null>(null);
   const [moveDialogOpen, setMoveDialogOpen] = useState(false);
   const [sourceTableId, setSourceTableId] = useState<string | null>(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -184,6 +191,45 @@ export function FloorPlanDashboard() {
     ? "Unmark as reserved"
     : "Mark as reserved";
 
+  const handleDragStart = (
+    _event: DragEvent<HTMLDivElement>,
+    tableId: string,
+  ) => {
+    setDraggedTableId(tableId);
+  };
+
+  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+    // Allow dropping by preventing the default browser behavior
+    event.preventDefault();
+  };
+
+  const handleDrop = (
+    event: DragEvent<HTMLDivElement>,
+    targetTableId: string,
+  ) => {
+    event.preventDefault();
+
+    if (!draggedTableId || draggedTableId === targetTableId) {
+      return;
+    }
+
+    setTables((prev) => {
+      const sourceIndex = prev.findIndex((t) => t.id === draggedTableId);
+      const targetIndex = prev.findIndex((t) => t.id === targetTableId);
+
+      if (sourceIndex === -1 || targetIndex === -1) {
+        return prev;
+      }
+
+      const updated = [...prev];
+      const [moved] = updated.splice(sourceIndex, 1);
+      updated.splice(targetIndex, 0, moved);
+      return updated;
+    });
+
+    setDraggedTableId(null);
+  };
+
   // Sync local editable state from server data when it loads or changes
   useEffect(() => {
     if (data?.tables) {
@@ -280,6 +326,9 @@ export function FloorPlanDashboard() {
               table={table}
               onClick={() => handleTableClick(table)}
               onContextMenu={(event) => handleTableContextMenu(event, table)}
+              onDragStart={(event) => handleDragStart(event, table.id)}
+              onDragOver={handleDragOver}
+              onDrop={(event) => handleDrop(event, table.id)}
             />
           ))}
         </Box>
