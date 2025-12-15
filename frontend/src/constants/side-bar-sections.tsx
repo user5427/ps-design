@@ -37,6 +37,11 @@ export const sidebarSections: Section[] = [
         icon: <SecurityIcon />,
         path: "/my-business/roles",
       },
+      {
+        label: "Users",
+        icon: <PersonIcon />,
+        path: "/my-business/users",
+      },
     ],
   },
   {
