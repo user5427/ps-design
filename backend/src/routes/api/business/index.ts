@@ -128,7 +128,11 @@ export default async function businessRoutes(fastify: FastifyInstance) {
     ) => {
       try {
         const { businessId } = request.params;
-        const business = await getBusinessById(fastify, businessId);
+        const business = await getBusinessById(
+          fastify,
+          businessId,
+          request.authUser,
+        );
         return reply.send(business);
       } catch (error) {
         return handleServiceError(error, reply);
@@ -168,6 +172,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
           fastify,
           businessId,
           request.body,
+          request.authUser,
         );
         return reply.send(updated);
       } catch (error) {
