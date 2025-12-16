@@ -18,7 +18,10 @@ export const CreateBusinessSchema = z.object({
   email: z.string().email("Invalid email address").optional(),
   phone: z
     .string()
-    .regex(/^[\d\s()+-]+$/, "Phone number can only contain digits, spaces, and +()-")
+    .regex(
+      /^[\d\s()+-]+$/,
+      "Phone number can only contain digits, spaces, and +()-",
+    )
     .optional()
     .or(z.literal("")),
   address: z.string().optional(),
@@ -33,7 +36,10 @@ export const UpdateBusinessSchema = z.object({
   email: z.string().email("Invalid email address").optional(),
   phone: z
     .string()
-    .regex(/^[\d\s()+-]+$/, "Phone number can only contain digits, spaces, and +()-")
+    .regex(
+      /^[\d\s()+-]+$/,
+      "Phone number can only contain digits, spaces, and +()-",
+    )
     .optional()
     .or(z.literal("")),
   address: z.string().optional(),

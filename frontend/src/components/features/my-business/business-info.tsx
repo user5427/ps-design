@@ -18,7 +18,11 @@ export function BusinessInfoManagement() {
   const { data: currentUser } = useAuthUser();
   const businessId = currentUser?.businessId;
 
-  const { data: business, isLoading, error } = useBusinessById(businessId || "");
+  const {
+    data: business,
+    isLoading,
+    error,
+  } = useBusinessById(businessId || "");
   const updateMutation = useUpdateBusiness(businessId || "");
 
   const [isEditing, setIsEditing] = useState(false);
@@ -184,7 +188,9 @@ export function BusinessInfoManagement() {
               disabled={!isEditing}
               fullWidth
               error={!!formErrors.phone}
-              helperText={formErrors.phone || "Use format: +1234567890 or (123) 456-7890"}
+              helperText={
+                formErrors.phone || "Use format: +1234567890 or (123) 456-7890"
+              }
             />
 
             <TextField
