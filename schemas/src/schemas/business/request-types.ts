@@ -15,6 +15,16 @@ export const CreateBusinessSchema = z.object({
     .string()
     .min(MIN_NAME_LENGTH, MIN_NAME_MESSAGE)
     .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE),
+  email: z.string().email("Invalid email address").optional(),
+  phone: z
+    .string()
+    .regex(
+      /^[\d\s()+-]+$/,
+      "Phone number can only contain digits, spaces, and +()-",
+    )
+    .optional()
+    .or(z.literal("")),
+  address: z.string().optional(),
 });
 
 export const UpdateBusinessSchema = z.object({
@@ -23,6 +33,16 @@ export const UpdateBusinessSchema = z.object({
     .min(MIN_NAME_LENGTH, MIN_NAME_MESSAGE)
     .max(MAX_NAME_LENGTH, MAX_NAME_MESSAGE)
     .optional(),
+  email: z.string().email("Invalid email address").optional(),
+  phone: z
+    .string()
+    .regex(
+      /^[\d\s()+-]+$/,
+      "Phone number can only contain digits, spaces, and +()-",
+    )
+    .optional()
+    .or(z.literal("")),
+  address: z.string().optional(),
 });
 
 export const BusinessQuerySchema = PaginationSchema.extend({

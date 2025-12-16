@@ -11,6 +11,7 @@ export const URLS = {
   MANAGE_USERS: "/manage/users",
   MANAGE_ROLES: "/manage/roles",
   // My Business
+  MY_BUSINESS_INFO: "/my-business/info",
   MY_BUSINESS_USERS: "/my-business/users",
   MY_BUSINESS_ROLES: "/my-business/roles",
   // Inventory

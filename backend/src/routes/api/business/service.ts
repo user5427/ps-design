@@ -8,6 +8,7 @@ import type {
 } from "@ps-design/schemas/business";
 import { BusinessResponseSchema } from "@ps-design/schemas/business";
 import { ScopeNames } from "@/modules/user";
+import { BadRequestError } from "@/shared/errors";
 
 export async function getBusinessesPaginated(
   fastify: FastifyInstance,
@@ -48,8 +49,13 @@ export async function createBusiness(
   fastify: FastifyInstance,
   input: CreateBusinessBody,
 ): Promise<BusinessResponse> {
-  const { name } = input;
-  const business = await fastify.db.business.create({ name });
+  const { name, email, phone, address } = input;
+  const business = await fastify.db.business.create({
+    name,
+    email,
+    phone,
+    address,
+  });
 
   // Create default OWNER role for the new business
   const ownerRole = await fastify.db.role.create({
@@ -75,7 +81,24 @@ export async function createBusiness(
 export async function getBusinessById(
   fastify: FastifyInstance,
   businessId: string,
+  authUser?: any,
 ): Promise<BusinessResponse> {
+  // Check if user has access to this business
+  if (authUser) {
+    const userScopes = await fastify.db.role.getUserScopesFromRoles(
+      authUser.roleIds,
+    );
+
+    // If user is not superadmin, verify they belong to this business
+    if (!userScopes.includes(ScopeNames.SUPERADMIN)) {
+      if (authUser.businessId !== businessId) {
+        throw new BadRequestError(
+          "You do not have permission to access this business",
+        );
+      }
+    }
+  }
+
   const business = await fastify.db.business.getById(businessId);
   return BusinessResponseSchema.parse(business);
 }
@@ -84,7 +107,24 @@ export async function updateBusiness(
   fastify: FastifyInstance,
   businessId: string,
   input: UpdateBusinessBody,
+  authUser?: any,
 ): Promise<BusinessResponse> {
+  // Check if user has access to this business
+  if (authUser) {
+    const userScopes = await fastify.db.role.getUserScopesFromRoles(
+      authUser.roleIds,
+    );
+
+    // If user is not superadmin, verify they belong to this business
+    if (!userScopes.includes(ScopeNames.SUPERADMIN)) {
+      if (authUser.businessId !== businessId) {
+        throw new BadRequestError(
+          "You do not have permission to update this business",
+        );
+      }
+    }
+  }
+
   const updated = await fastify.db.business.update(businessId, input);
   return BusinessResponseSchema.parse(updated);
 }

@@ -5,7 +5,12 @@ import { PaginationMetaSchema } from "../shared/response-types";
 export const BusinessResponseSchema = z.object({
   id: uuid(),
   name: z.string(),
+  email: z.string().nullable(),
+  phone: z.string().nullable(),
+  address: z.string().nullable(),
   isDefault: z.boolean(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
 export const PaginatedBusinessResponseSchema = z.object({
