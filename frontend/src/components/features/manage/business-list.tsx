@@ -61,6 +61,24 @@ export const BusinessList: React.FC = () => {
         ValidationRules.maxLength(100),
       ],
     },
+    {
+      name: "email",
+      label: "Email",
+      type: "email",
+      required: false,
+    },
+    {
+      name: "phone",
+      label: "Phone",
+      type: "text",
+      required: false,
+    },
+    {
+      name: "address",
+      label: "Address",
+      type: "textarea",
+      required: false,
+    },
   ];
 
   const editFormFields: FormFieldDefinition[] = [
@@ -74,11 +92,32 @@ export const BusinessList: React.FC = () => {
         ValidationRules.maxLength(100),
       ],
     },
+    {
+      name: "email",
+      label: "Email",
+      type: "email",
+      required: false,
+    },
+    {
+      name: "phone",
+      label: "Phone",
+      type: "text",
+      required: false,
+    },
+    {
+      name: "address",
+      label: "Address",
+      type: "textarea",
+      required: false,
+    },
   ];
 
   const viewFields: ViewFieldDefinition[] = [
     { name: "id", label: "ID" },
     { name: "name", label: "Name" },
+    { name: "email", label: "Email" },
+    { name: "phone", label: "Phone" },
+    { name: "address", label: "Address" },
     { name: "createdAt", label: "Created At" },
     { name: "updatedAt", label: "Updated At" },
   ];
@@ -86,6 +125,9 @@ export const BusinessList: React.FC = () => {
   const handleCreate = async (values: Partial<BusinessResponse>) => {
     await createMutation.mutateAsync({
       name: String(values.name),
+      email: values.email ? String(values.email) : undefined,
+      phone: values.phone ? String(values.phone) : undefined,
+      address: values.address ? String(values.address) : undefined,
     });
   };
 
@@ -93,6 +135,9 @@ export const BusinessList: React.FC = () => {
     async (id: string, values: Partial<BusinessResponse>) => {
       const updateData: UpdateBusinessBody = {
         name: values.name ? String(values.name) : undefined,
+        email: values.email ? String(values.email) : undefined,
+        phone: values.phone ? String(values.phone) : undefined,
+        address: values.address ? String(values.address) : undefined,
       };
       await apiClient.put(`/business/${id}`, updateData);
       queryClient.invalidateQueries({ queryKey: ["business"] });

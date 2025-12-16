@@ -49,8 +49,13 @@ export async function createBusiness(
   fastify: FastifyInstance,
   input: CreateBusinessBody,
 ): Promise<BusinessResponse> {
-  const { name } = input;
-  const business = await fastify.db.business.create({ name });
+  const { name, email, phone, address } = input;
+  const business = await fastify.db.business.create({ 
+    name, 
+    email, 
+    phone, 
+    address 
+  });
 
   // Create default OWNER role for the new business
   const ownerRole = await fastify.db.role.create({

@@ -1,6 +1,7 @@
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import CategoryIcon from "@mui/icons-material/Category";
 import BusinessIcon from "@mui/icons-material/Business";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
@@ -13,6 +14,7 @@ import SecurityIcon from "@mui/icons-material/Security";
 import PersonIcon from "@mui/icons-material/Person";
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import type { Section } from "@/components/layouts/side-bar/side-bar-item";
 import { URLS } from "./urls";
 
@@ -33,6 +35,12 @@ export const sidebarSections: Section[] = [
     icon: <BusinessIcon />,
     children: [
       {
+        label: "Info",
+        icon: <InfoOutlinedIcon />,
+        path: URLS.MY_BUSINESS_INFO,
+        scope: "BUSINESS",
+      },
+      {
         label: "Users",
         icon: <PersonIcon />,
         path: URLS.MY_BUSINESS_USERS,
@@ -48,7 +56,7 @@ export const sidebarSections: Section[] = [
   },
   {
     label: "Manage",
-    icon: <BusinessIcon />,
+    icon: <ManageAccountsIcon />,
     children: [
       {
         label: "Businesses",
@@ -149,13 +157,13 @@ export const sidebarSections: Section[] = [
     scope: "GIFT_CARDS",
   },
   {
-    label: "Discounts",
+    label: "Service Discounts",
     icon: <LocalOfferIcon />,
     path: URLS.DISCOUNTS_SERVICES,
     scope: "SERVICE_DISCOUNTS",
   },
   {
-    label: "Discounts ",
+    label: "Menu Discounts ",
     icon: <LocalOfferIcon />,
     path: URLS.DISCOUNTS_MENU,
     scope: "MENU_DISCOUNTS",
