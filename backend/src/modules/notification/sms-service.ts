@@ -62,19 +62,26 @@ export class SMSService {
         console.error(
           `📱 SMS Error: Invalid 'To' phone number: ${data.phoneNumber}`,
         );
-        console.error(`   Make sure the number is in E.164 format with country code`);
+        console.error(
+          `   Make sure the number is in E.164 format with country code`,
+        );
       } else if (error.code === 21608) {
         console.error(
           `📱 SMS Error: The number ${data.phoneNumber} is not verified for trial accounts`,
         );
-        console.error(`   Visit: https://console.twilio.com/us1/develop/phone-numbers/manage/verified`);
+        console.error(
+          `   Visit: https://console.twilio.com/us1/develop/phone-numbers/manage/verified`,
+        );
       } else if (error.code === 21614) {
         console.error(
           `📱 SMS Error: Invalid 'From' number: ${this.fromNumber}`,
         );
         console.error(`   Check your Twilio phone number configuration`);
       } else {
-        console.error(`📱 Failed to send SMS to ${data.phoneNumber}:`, error.message || error);
+        console.error(
+          `📱 Failed to send SMS to ${data.phoneNumber}:`,
+          error.message || error,
+        );
       }
       // Don't throw - we don't want SMS failures to break the appointment creation
     }
