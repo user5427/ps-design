@@ -1,7 +1,6 @@
 // Scope definitions - defined in application code, stored in database as ScopeEntity
 export enum ScopeNames {
   SUPERADMIN = "SUPERADMIN",
-  OWNER = "OWNER",
   INVENTORY = "INVENTORY",
   MENU = "MENU",
   CATEGORIES = "CATEGORIES",
@@ -30,10 +29,6 @@ export const SCOPE_CONFIG: Record<
   [ScopeNames.SUPERADMIN]: {
     name: ScopeNames.SUPERADMIN,
     description: "Super administrator with full system access",
-  },
-  [ScopeNames.OWNER]: {
-    name: ScopeNames.OWNER,
-    description: "Business owner with full business access",
   },
   [ScopeNames.INVENTORY]: {
     name: ScopeNames.INVENTORY,

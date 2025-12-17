@@ -18,7 +18,6 @@ import type {
   UpdateBusinessBody,
 } from "@ps-design/schemas/business";
 import { useQueryClient } from "@tanstack/react-query";
-import { useUserScopes } from "@/hooks/roles/roles-hooks";
 
 export const BusinessList: React.FC = () => {
   const { data, isLoading, error, refetch } = useBusinessesPaginated(
@@ -30,8 +29,6 @@ export const BusinessList: React.FC = () => {
   const createMutation = useCreateBusiness();
   const deleteMutation = useDeleteBusiness();
   const updateBusinessTypesMutation = useUpdateBusinessTypes();
-  const { data: userScopes } = useUserScopes();
-  const isSuperAdmin = userScopes?.includes("SUPERADMIN");
 
   const columns = useMemo<MRT_ColumnDef<BusinessResponse>[]>(
     () => [
