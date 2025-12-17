@@ -37,6 +37,12 @@ export class Business {
   @Column({ type: "boolean", default: false })
   isDefault: boolean;
 
+  @Column({ type: "boolean", default: true })
+  isOrderBased: boolean;
+
+  @Column({ type: "boolean", default: true })
+  isAppointmentBased: boolean;
+
   @OneToMany(
     () => User,
     (user) => user.business,

@@ -25,6 +25,8 @@ export const CreateBusinessSchema = z.object({
     .optional()
     .or(z.literal("")),
   address: z.string().optional(),
+  isOrderBased: z.boolean().optional().default(true),
+  isAppointmentBased: z.boolean().optional().default(true),
 });
 
 export const UpdateBusinessSchema = z.object({
@@ -45,11 +47,17 @@ export const UpdateBusinessSchema = z.object({
   address: z.string().optional(),
 });
 
+export const UpdateBusinessTypesSchema = z.object({
+  isOrderBased: z.boolean().optional(),
+  isAppointmentBased: z.boolean().optional(),
+});
+
 export const BusinessQuerySchema = PaginationSchema.extend({
   search: z.string().optional(),
 });
 
 export type CreateBusinessBody = z.infer<typeof CreateBusinessSchema>;
 export type UpdateBusinessBody = z.infer<typeof UpdateBusinessSchema>;
+export type UpdateBusinessTypesBody = z.infer<typeof UpdateBusinessTypesSchema>;
 export type BusinessIdParams = z.infer<typeof BusinessIdParam>;
 export type BusinessQuery = z.infer<typeof BusinessQuerySchema>;

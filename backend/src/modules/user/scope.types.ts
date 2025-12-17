@@ -21,7 +21,7 @@ export enum ScopeNames {
 // Scope configuration with descriptions
 export const SCOPE_CONFIG: Record<
   ScopeNames,
-  { name: ScopeNames; description: string }
+  { name: ScopeNames; description: string, businessType?: 'order' | 'appointment' }
 > = {
   [ScopeNames.SUPERADMIN]: {
     name: ScopeNames.SUPERADMIN,
@@ -35,16 +35,19 @@ export const SCOPE_CONFIG: Record<
     name: ScopeNames.INVENTORY,
     description:
       "Full access to inventory management (read, create, update, delete)",
+    businessType: 'order',
   },
   [ScopeNames.MENU]: {
     name: ScopeNames.MENU,
     description:
       "Full access to menu management (read, create, update, delete)",
+    businessType: 'order',
   },
   [ScopeNames.CATEGORIES]: {
     name: ScopeNames.CATEGORIES,
     description:
       "Full access to category management (read, create, update, delete)",
+    businessType: 'order',
   },
   [ScopeNames.USER]: {
     name: ScopeNames.USER,
@@ -65,6 +68,7 @@ export const SCOPE_CONFIG: Record<
     name: ScopeNames.APPOINTMENTS,
     description:
       "Full access to appointments management (read, create, update, delete)",
+    businessType: 'appointment',
   },
   [ScopeNames.GIFT_CARDS]: {
     name: ScopeNames.GIFT_CARDS,
@@ -75,15 +79,18 @@ export const SCOPE_CONFIG: Record<
     name: ScopeNames.SERVICE_DISCOUNTS,
     description:
       "Full access to service discounts management (read, create, update, delete)",
+    businessType: 'appointment',
   },
   [ScopeNames.MENU_DISCOUNTS]: {
     name: ScopeNames.MENU_DISCOUNTS,
     description:
       "Full access to menu discounts management (read, create, update, delete)",
+    businessType: 'order',
   },
   [ScopeNames.ORDERS]: {
     name: ScopeNames.ORDERS,
     description: "Full access to restaurant orders (read, create, update)",
+    businessType: 'order',
   },
   [ScopeNames.TAX]: {
     name: ScopeNames.TAX,
