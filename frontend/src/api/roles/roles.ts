@@ -60,6 +60,6 @@ export async function getAvailableScopes() {
 }
 
 export async function getUserScopes() {
-  const response = await apiClient.get<string[]>("/users/me/scopes");
+  const response = await apiClient.get<string[]>("/scopes");
   return response.data;
 }

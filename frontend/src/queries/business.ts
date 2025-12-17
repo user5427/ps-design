@@ -5,6 +5,7 @@ import type {
   CreateBusinessBody,
   PaginatedBusinessResponse,
   UpdateBusinessBody,
+  UpdateBusinessTypesBody,
 } from "@ps-design/schemas/business";
 import type { SuccessResponse } from "@ps-design/schemas/shared";
 
@@ -89,6 +90,28 @@ export function useDeleteBusiness() {
   return useMutation({
     mutationFn: async (businessId: string) => {
       await apiClient.delete<SuccessResponse>(`/business/${businessId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: BUSINESSES_QUERY_KEY,
+      });
+    },
+  });
+}
+
+export function useUpdateBusinessTypes() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      businessId,
+      ...data
+    }: UpdateBusinessTypesBody & { businessId: string }) => {
+      const response = await apiClient.patch<BusinessResponse>(
+        `/business/${businessId}/types`,
+        data,
+      );
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

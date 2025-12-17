@@ -9,6 +9,7 @@ import {
   CircularProgress,
   Alert,
   Stack,
+  Chip,
 } from "@mui/material";
 import { useAuthUser } from "@/hooks/auth";
 import { useBusinessById, useUpdateBusiness } from "@/queries/business";
@@ -159,6 +160,32 @@ export function BusinessInfoManagement() {
       <Card>
         <CardContent>
           <Stack spacing={3}>
+            <Box>
+              <Typography
+                variant="subtitle2"
+                gutterBottom
+                color="text.secondary"
+              >
+                Business Type
+              </Typography>
+              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                {business.isOrderBased && (
+                  <Chip label="Order Based" color="primary" size="small" />
+                )}
+                {business.isAppointmentBased && (
+                  <Chip
+                    label="Appointment Based"
+                    color="secondary"
+                    size="small"
+                  />
+                )}
+                {!business.isOrderBased && !business.isAppointmentBased && (
+                  <Typography variant="body2" color="text.secondary">
+                    No business type assigned
+                  </Typography>
+                )}
+              </Box>
+            </Box>
             <TextField
               label="Business Name"
               value={isEditing ? formData.name : business.name}

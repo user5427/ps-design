@@ -9,6 +9,7 @@ import {
   getBusinessesPaginated,
   updateBusiness,
   getBusinessUsers,
+  updateBusinessTypes,
 } from "./service";
 import { handleServiceError } from "@/shared/error-handler";
 import { createScopeMiddleware } from "@/shared/scope-middleware";
@@ -20,6 +21,8 @@ import {
   CreateBusinessSchema,
   type UpdateBusinessBody,
   UpdateBusinessSchema,
+  type UpdateBusinessTypesBody,
+  UpdateBusinessTypesSchema,
   type BusinessQuery,
   BusinessQuerySchema,
   BusinessUsersResponseSchema,
@@ -238,6 +241,47 @@ export default async function businessRoutes(fastify: FastifyInstance) {
         const { businessId } = request.params;
         const users = await getBusinessUsers(fastify, businessId);
         return reply.send(users);
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
+
+  // Update business types (superadmin only)
+  server.patch<{ Params: BusinessIdParams; Body: UpdateBusinessTypesBody }>(
+    "/:businessId/types",
+    {
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.SUPERADMIN)],
+      schema: {
+        params: BusinessIdParam,
+        body: UpdateBusinessTypesSchema,
+        response: {
+          200: BusinessResponseSchema,
+          401: ErrorResponseSchema,
+        },
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Params: BusinessIdParams;
+        Body: UpdateBusinessTypesBody;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      try {
+        const { businessId } = request.params;
+        const updateBusinessTypesWrapped = await fastify.audit.business(
+          updateBusinessTypes,
+          AuditActionType.UPDATE,
+          request,
+        );
+
+        const updated = await updateBusinessTypesWrapped(
+          fastify,
+          businessId,
+          request.body,
+        );
+        return reply.send(updated);
       } catch (error) {
         return handleServiceError(error, reply);
       }

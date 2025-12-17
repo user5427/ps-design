@@ -3,11 +3,12 @@ import type {
   BusinessResponse,
   CreateBusinessBody,
   UpdateBusinessBody,
+  UpdateBusinessTypesBody,
   PaginatedBusinessResponse,
   BusinessUserResponse,
 } from "@ps-design/schemas/business";
 import { BusinessResponseSchema } from "@ps-design/schemas/business";
-import { ScopeNames } from "@/modules/user";
+import { ScopeNames, SCOPE_CONFIG } from "@/modules/user";
 import { BadRequestError } from "@/shared/errors";
 
 export async function getBusinessesPaginated(
@@ -49,12 +50,21 @@ export async function createBusiness(
   fastify: FastifyInstance,
   input: CreateBusinessBody,
 ): Promise<BusinessResponse> {
-  const { name, email, phone, address } = input;
+  const {
+    name,
+    email,
+    phone,
+    address,
+    isOrderBased = true,
+    isAppointmentBased = true,
+  } = input;
   const business = await fastify.db.business.create({
     name,
     email,
     phone,
     address,
+    isOrderBased,
+    isAppointmentBased,
   });
 
   // Create default OWNER role for the new business
@@ -66,10 +76,31 @@ export async function createBusiness(
     isDeletable: false,
   });
 
-  // Assign owner scopes to the role
-  const ownerScopes = Object.values(ScopeNames).filter(
-    (scope) => scope !== ScopeNames.SUPERADMIN,
-  );
+  // Filter scopes based on business types
+  const ownerScopes = Object.values(ScopeNames).filter((scope) => {
+    // Always exclude SUPERADMIN
+    if (scope === ScopeNames.SUPERADMIN) {
+      return false;
+    }
+
+    const scopeConfig = SCOPE_CONFIG[scope];
+
+    // If scope has no business type restriction, include it
+    if (!scopeConfig.businessType) {
+      return true;
+    }
+
+    // Include scope if business type matches
+    if (scopeConfig.businessType === "order" && isOrderBased) {
+      return true;
+    }
+
+    if (scopeConfig.businessType === "appointment" && isAppointmentBased) {
+      return true;
+    }
+
+    return false;
+  });
 
   for (const scopeName of ownerScopes) {
     await fastify.db.roleScope.assignScope(ownerRole.id, scopeName as any);
@@ -151,4 +182,105 @@ export async function getBusinessUsers(
     name: user.name,
     email: user.email,
   }));
+}
+
+export async function updateBusinessTypes(
+  fastify: FastifyInstance,
+  businessId: string,
+  input: UpdateBusinessTypesBody,
+): Promise<BusinessResponse> {
+  const updated = await fastify.db.business.updateBusinessTypes(
+    businessId,
+    input,
+  );
+
+  // Get all roles for this business
+  const allRoles = await fastify.db.role.findByBusinessId(businessId);
+
+  // Determine which scopes should be removed from ALL roles
+  const scopesToRemoveFromAll: string[] = [];
+
+  // If order-based is disabled, remove all order scopes
+  if (!updated.isOrderBased) {
+    Object.values(ScopeNames).forEach((scope) => {
+      const scopeConfig = SCOPE_CONFIG[scope];
+      if (scopeConfig.businessType === "order") {
+        scopesToRemoveFromAll.push(scope);
+      }
+    });
+  }
+
+  // If appointment-based is disabled, remove all appointment scopes
+  if (!updated.isAppointmentBased) {
+    Object.values(ScopeNames).forEach((scope) => {
+      const scopeConfig = SCOPE_CONFIG[scope];
+      if (scopeConfig.businessType === "appointment") {
+        scopesToRemoveFromAll.push(scope);
+      }
+    });
+  }
+
+  // Remove scopes from ALL roles in the business
+  for (const role of allRoles) {
+    const currentScopes = await fastify.db.roleScope.getScopeNamesForRole(
+      role.id,
+    );
+
+    for (const scopeName of scopesToRemoveFromAll) {
+      if (currentScopes.includes(scopeName)) {
+        await fastify.db.roleScope.removeScope(role.id, scopeName);
+      }
+    }
+  }
+
+  // Now handle OWNER role - add back scopes for enabled business types
+  const ownerRole = await fastify.db.role.findByBusinessAndName(
+    businessId,
+    "OWNER",
+  );
+
+  if (ownerRole) {
+    // Get current scopes for owner role
+    const currentOwnerScopes = await fastify.db.roleScope.getScopeNamesForRole(
+      ownerRole.id,
+    );
+
+    // Calculate what scopes OWNER should have based on business types
+    const targetOwnerScopes = Object.values(ScopeNames).filter((scope) => {
+      // Always exclude SUPERADMIN
+      if (scope === ScopeNames.SUPERADMIN) {
+        return false;
+      }
+
+      const scopeConfig = SCOPE_CONFIG[scope];
+
+      // If scope has no business type restriction, include it
+      if (!scopeConfig.businessType) {
+        return true;
+      }
+
+      // Include scope if business type matches
+      if (scopeConfig.businessType === "order" && updated.isOrderBased) {
+        return true;
+      }
+
+      if (
+        scopeConfig.businessType === "appointment" &&
+        updated.isAppointmentBased
+      ) {
+        return true;
+      }
+
+      return false;
+    });
+
+    // Add missing scopes to OWNER role only
+    for (const scopeName of targetOwnerScopes) {
+      if (!currentOwnerScopes.includes(scopeName)) {
+        await fastify.db.roleScope.assignScope(ownerRole.id, scopeName);
+      }
+    }
+  }
+
+  return BusinessResponseSchema.parse(updated);
 }

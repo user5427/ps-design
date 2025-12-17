@@ -34,7 +34,12 @@ async function main() {
       where: { name: businessName },
     });
     if (!business) {
-      business = businessRepo.create({ name: businessName, isDefault: true });
+      business = businessRepo.create({
+        name: businessName,
+        isDefault: true,
+        isOrderBased: true,
+        isAppointmentBased: true,
+      });
       business = await businessRepo.save(business);
       console.log(`Created business: ${business.name}`);
     } else {
