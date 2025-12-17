@@ -187,16 +187,19 @@ export const BusinessList: React.FC = () => {
         address: values.address ? String(values.address) : undefined,
       };
       await apiClient.put(`/business/${id}`, updateData);
-      
+
       // Update business types if values are provided (backend enforces SUPERADMIN check)
-      if (values.isOrderBased !== undefined || values.isAppointmentBased !== undefined) {
+      if (
+        values.isOrderBased !== undefined ||
+        values.isAppointmentBased !== undefined
+      ) {
         await updateBusinessTypesMutation.mutateAsync({
           businessId: id,
           isOrderBased: Boolean(values.isOrderBased),
           isAppointmentBased: Boolean(values.isAppointmentBased),
         });
       }
-      
+
       queryClient.invalidateQueries({ queryKey: ["business"] });
     },
     [queryClient, updateBusinessTypesMutation],

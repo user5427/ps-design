@@ -3,7 +3,11 @@ import { ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
 import type { IPaginatedResult } from "@/shared/pagination";
 import type { Business } from "./business.entity";
-import type { ICreateBusiness, IUpdateBusiness, IUpdateBusinessTypes } from "./business.types";
+import type {
+  ICreateBusiness,
+  IUpdateBusiness,
+  IUpdateBusinessTypes,
+} from "./business.types";
 import type { UserRepository } from "./../user/user.repository";
 import type { RefreshTokenRepository } from "../refresh-token";
 
@@ -121,7 +125,10 @@ export class BusinessRepository {
     await this.repository.update(id, { deletedAt: new Date() });
   }
 
-  async updateBusinessTypes(id: string, data: IUpdateBusinessTypes): Promise<Business> {
+  async updateBusinessTypes(
+    id: string,
+    data: IUpdateBusinessTypes,
+  ): Promise<Business> {
     const business = await this.findById(id);
     if (!business) {
       throw new NotFoundError("Business not found");

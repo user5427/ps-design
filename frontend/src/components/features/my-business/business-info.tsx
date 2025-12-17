@@ -19,7 +19,11 @@ export function BusinessInfoManagement() {
   const { data: currentUser } = useAuthUser();
   const businessId = currentUser?.businessId;
 
-  const { data: business, isLoading, error } = useBusinessById(businessId || "");
+  const {
+    data: business,
+    isLoading,
+    error,
+  } = useBusinessById(businessId || "");
   const updateMutation = useUpdateBusiness(businessId || "");
 
   const [isEditing, setIsEditing] = useState(false);
@@ -157,7 +161,11 @@ export function BusinessInfoManagement() {
         <CardContent>
           <Stack spacing={3}>
             <Box>
-              <Typography variant="subtitle2" gutterBottom color="text.secondary">
+              <Typography
+                variant="subtitle2"
+                gutterBottom
+                color="text.secondary"
+              >
                 Business Type
               </Typography>
               <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
@@ -165,7 +173,11 @@ export function BusinessInfoManagement() {
                   <Chip label="Order Based" color="primary" size="small" />
                 )}
                 {business.isAppointmentBased && (
-                  <Chip label="Appointment Based" color="secondary" size="small" />
+                  <Chip
+                    label="Appointment Based"
+                    color="secondary"
+                    size="small"
+                  />
                 )}
                 {!business.isOrderBased && !business.isAppointmentBased && (
                   <Typography variant="body2" color="text.secondary">
@@ -203,7 +215,9 @@ export function BusinessInfoManagement() {
               disabled={!isEditing}
               fullWidth
               error={!!formErrors.phone}
-              helperText={formErrors.phone || "Use format: +1234567890 or (123) 456-7890"}
+              helperText={
+                formErrors.phone || "Use format: +1234567890 or (123) 456-7890"
+              }
             />
 
             <TextField
