@@ -19,14 +19,17 @@ import {
   type CreateFloorTableBody,
 } from "@ps-design/schemas/order/floor";
 import { SuccessResponseSchema } from "@ps-design/schemas/shared/response-types";
+import { createScopeMiddleware } from "@/shared/scope-middleware";
+import { ScopeNames } from "@/modules/user";
 
 export default async function floorRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
+  const { requireScope } = createScopeMiddleware(fastify);
 
   server.get(
     "/",
     {
-      onRequest: [fastify.authenticate],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
       schema: {
         response: {
           200: FloorPlanResponseSchema,
@@ -49,7 +52,7 @@ export default async function floorRoutes(fastify: FastifyInstance) {
   server.post<{ Body: CreateFloorTableBody }>(
     "/",
     {
-      onRequest: [fastify.authenticate],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
       schema: {
         body: CreateFloorTableSchema,
         response: {
@@ -82,7 +85,7 @@ export default async function floorRoutes(fastify: FastifyInstance) {
   server.patch<{ Params: TableIdParams; Body: UpdateFloorTableBody }>(
     "/:tableId",
     {
-      onRequest: [fastify.authenticate],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
       schema: {
         params: TableIdParam,
         body: UpdateFloorTableSchema,
@@ -118,7 +121,7 @@ export default async function floorRoutes(fastify: FastifyInstance) {
   server.delete<{ Params: TableIdParams }>(
     "/:tableId",
     {
-      onRequest: [fastify.authenticate],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
       schema: {
         params: TableIdParam,
         response: {

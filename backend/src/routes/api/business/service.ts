@@ -226,6 +226,11 @@ export async function updateBusinessTypes(
       role.id,
     );
 
+    // Do not modify roles that have SUPERADMIN scope
+    if (currentScopes.includes(ScopeNames.SUPERADMIN)) {
+      continue;
+    }
+
     for (const scopeName of scopesToRemoveFromAll) {
       if (currentScopes.includes(scopeName)) {
         await fastify.db.roleScope.removeScope(role.id, scopeName);

@@ -15,6 +15,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import SettingsIcon from "@mui/icons-material/Settings";
 import type { Section } from "@/components/layouts/side-bar/side-bar-item";
 import { URLS } from "./urls";
 
@@ -191,5 +192,10 @@ export const sidebarSections: Section[] = [
         scope: "AUDIT_SECURITY",
       },
     ],
+  },
+  {
+    label: "Settings",
+    icon: <SettingsIcon />,
+    path: URLS.SETTINGS,
   },
 ];
