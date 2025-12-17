@@ -10,7 +10,8 @@ export enum ScopeNames {
   BUSINESS = "BUSINESS",
   APPOINTMENTS = "APPOINTMENTS",
   GIFT_CARDS = "GIFT_CARDS",
-  DISCOUNTS = "DISCOUNTS",
+  SERVICE_DISCOUNTS = "SERVICE_DISCOUNTS",
+  MENU_DISCOUNTS = "MENU_DISCOUNTS",
   ORDERS = "ORDERS",
   TAX = "TAX",
   AUDIT_BUSINESS = "AUDIT_BUSINESS",
@@ -70,10 +71,15 @@ export const SCOPE_CONFIG: Record<
     description:
       "Full access to gift cards management (read, create, update, delete)",
   },
-  [ScopeNames.DISCOUNTS]: {
-    name: ScopeNames.DISCOUNTS,
+  [ScopeNames.SERVICE_DISCOUNTS]: {
+    name: ScopeNames.SERVICE_DISCOUNTS,
     description:
-      "Full access to discounts management (read, create, update, delete)",
+      "Full access to service discounts management (read, create, update, delete)",
+  },
+  [ScopeNames.MENU_DISCOUNTS]: {
+    name: ScopeNames.MENU_DISCOUNTS,
+    description:
+      "Full access to menu discounts management (read, create, update, delete)",
   },
   [ScopeNames.ORDERS]: {
     name: ScopeNames.ORDERS,

@@ -11,6 +11,7 @@ export const URLS = {
   MANAGE_USERS: "/manage/users",
   MANAGE_ROLES: "/manage/roles",
   // My Business
+  MY_BUSINESS_INFO: "/my-business/info",
   MY_BUSINESS_USERS: "/my-business/users",
   MY_BUSINESS_ROLES: "/my-business/roles",
   // Inventory
@@ -30,6 +31,8 @@ export const URLS = {
   APPOINTMENTS_LIST: "/appointments/appointments",
   GIFT_CARDS: "/gift-cards",
   DISCOUNTS: "/discounts",
+  DISCOUNTS_SERVICES: "/discounts/services",
+  DISCOUNTS_MENU: "/discounts/menu",
   // Audit Logs
   AUDIT_BUSINESS_LOGS: "/audit/business-logs",
   AUDIT_SECURITY_LOGS: "/audit/security-logs",

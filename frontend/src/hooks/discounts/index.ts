@@ -1,9 +1,13 @@
 export {
   discountKeys,
-  useDiscounts,
-  useCreateDiscount,
-  useUpdateDiscount,
-  useDeleteDiscount,
   useApplicableOrderDiscount,
   useApplicableServiceDiscount,
+  useServiceDiscounts,
+  useCreateServiceDiscount,
+  useUpdateServiceDiscount,
+  useDeleteServiceDiscount,
+  useMenuDiscounts,
+  useCreateMenuDiscount,
+  useUpdateMenuDiscount,
+  useDeleteMenuDiscount,
 } from "./discount-hooks";

@@ -8,8 +8,14 @@ export interface IBusiness {
 
 export interface ICreateBusiness {
   name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
 }
 
 export interface IUpdateBusiness {
   name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
 }
