@@ -13,10 +13,15 @@ import { useSettingsStore } from "@/store/settings";
 import { sidebarSections } from "@/constants";
 
 export function SettingsPage() {
-  const { showBackground, visibleSections, setShowBackground, setSectionVisibility } = useSettingsStore();
+  const {
+    showBackground,
+    visibleSections,
+    setShowBackground,
+    setSectionVisibility,
+  } = useSettingsStore();
 
   // Get all top-level sections for visibility toggles
-  const sections = sidebarSections.map(section => section.label);
+  const sections = sidebarSections.map((section) => section.label);
 
   // Sections that cannot be disabled
   const mandatorySections = ["Dashboard", "Settings"];
@@ -35,7 +40,7 @@ export function SettingsPage() {
               Appearance
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <FormControlLabel
               control={
                 <Switch
@@ -55,9 +60,10 @@ export function SettingsPage() {
               Sidebar Sections
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <Alert severity="info" sx={{ mb: 2 }}>
-              Control which sections appear in the sidebar. Dashboard and Settings cannot be hidden.
+              Control which sections appear in the sidebar. Dashboard and
+              Settings cannot be hidden.
             </Alert>
 
             <Stack spacing={1}>
@@ -71,7 +77,9 @@ export function SettingsPage() {
                     control={
                       <Switch
                         checked={isVisible}
-                        onChange={(e) => setSectionVisibility(sectionLabel, e.target.checked)}
+                        onChange={(e) =>
+                          setSectionVisibility(sectionLabel, e.target.checked)
+                        }
                         disabled={isMandatory}
                       />
                     }

@@ -44,11 +44,13 @@ function RootComponent() {
   const Layout = isPublicRoute ? PublicLayout : MainLayout;
 
   return (
-    <Box sx={{ 
-        display: "flex", 
-        flexDirection: "column", 
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
         minHeight: "100vh",
-        }}>
+      }}
+    >
       <AppBar {...AppBarData} />
       <Toolbar />
       {/* background layer - fixed and non-interfering with layout */}

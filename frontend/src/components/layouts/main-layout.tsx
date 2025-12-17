@@ -19,17 +19,20 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const scopeNames = scopes?.map((scope) => scope.name) || [];
 
   // Filter sections based on user scopes
-  const scopeFilteredSections = filterSectionsByScopes(sidebarSections, scopeNames);
-  
+  const scopeFilteredSections = filterSectionsByScopes(
+    sidebarSections,
+    scopeNames,
+  );
+
   // Initialize visibility settings for all sections
   useEffect(() => {
-    const sectionLabels = sidebarSections.map(s => s.label);
+    const sectionLabels = sidebarSections.map((s) => s.label);
     initializeSections(sectionLabels);
   }, [initializeSections]);
 
   // Further filter by user visibility preferences
   const filteredSections = scopeFilteredSections.filter(
-    (section) => visibleSections[section.label] !== false
+    (section) => visibleSections[section.label] !== false,
   );
 
   if (isLoading) {
