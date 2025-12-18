@@ -32,6 +32,9 @@ export class User {
   @Column({ type: "boolean", default: true })
   isPasswordResetRequired: boolean;
 
+  @Column({ type: "boolean", default: false })
+  isTempUser: boolean;
+
   @Column({ type: "uuid" })
   @Index()
   businessId: string;

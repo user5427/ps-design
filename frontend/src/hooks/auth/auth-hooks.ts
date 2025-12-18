@@ -1,5 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { changePassword, getCurrentUser, login, logout } from "@/api/auth";
+import {
+  changePassword,
+  getCurrentUser,
+  login,
+  logout,
+  impersonateBusiness,
+  endImpersonation,
+} from "@/api/auth";
 import { useAuthStore } from "@/store/auth";
 
 export const authKeys = {
@@ -31,6 +38,7 @@ export function useLogin() {
       password: string;
     }) => login({ email, password }),
     onSuccess: (data) => {
+      store.endImpersonation();
       store.setAccessToken(data.accessToken);
       queryClient.invalidateQueries({ queryKey: authKeys.me() });
     },
@@ -66,6 +74,32 @@ export function useChangePassword() {
       newPassword: string;
     }) => changePassword({ currentPassword, newPassword }),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: authKeys.me() });
+    },
+  });
+}
+
+export function useImpersonateBusiness() {
+  const queryClient = useQueryClient();
+  const store = useAuthStore();
+
+  return useMutation({
+    mutationFn: async (businessId: string) => impersonateBusiness(businessId),
+    onSuccess: (data) => {
+      store.startImpersonation(data.accessToken);
+      queryClient.invalidateQueries({ queryKey: authKeys.me() });
+    },
+  });
+}
+
+export function useEndImpersonation() {
+  const queryClient = useQueryClient();
+  const store = useAuthStore();
+
+  return useMutation({
+    mutationFn: () => endImpersonation(),
+    onSuccess: () => {
+      store.endImpersonation();
       queryClient.invalidateQueries({ queryKey: authKeys.me() });
     },
   });

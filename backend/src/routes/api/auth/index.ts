@@ -1,13 +1,15 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
-import { changePassword, login, logout, refreshAccessToken } from "./service";
-import { setRefreshCookie } from "@/shared/auth-utils";
+import { changePassword, login, logout, refreshAccessToken, impersonateBusiness, endImpersonation } from "./service";
+import { setRefreshCookie, requireAuthUser } from "@/shared/auth-utils";
 import {
   type ChangePasswordBody,
   ChangePasswordSchema,
   type LoginBody,
   LoginSchema,
+  type ImpersonateBusinessBody,
+  ImpersonateBusinessSchema,
   AuthResponseSchema,
   UserResponseSchema,
   RefreshResponseSchema,
@@ -17,9 +19,12 @@ import {
   SuccessResponseSchema,
 } from "@ps-design/schemas/shared/response-types";
 import { AuditSecurityType } from "@/modules/audit";
+import { createScopeMiddleware } from "@/shared/scope-middleware";
+import { ScopeNames } from "@/modules/user";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
+  const { requireScope } = createScopeMiddleware(fastify);
 
   server.post(
     "/login",
@@ -88,6 +93,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
   server.get(
     "/me",
     {
+      onRequest: [fastify.authenticate],
       schema: {
         response: {
           200: UserResponseSchema,
@@ -163,6 +169,76 @@ export default async function authRoutes(fastify: FastifyInstance) {
         const statusCode = err?.code || httpStatus.INTERNAL_SERVER_ERROR;
         const message = err?.message || "Internal Server Error";
         request.log.error({ err }, "Refresh handler failed");
+        return reply.code(statusCode).send({ message });
+      }
+    },
+  );
+
+  server.post<{ Body: ImpersonateBusinessBody }>(
+    "/impersonate",
+    {
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.SUPERADMIN)],
+      schema: {
+        body: ImpersonateBusinessSchema,
+        response: {
+          200: AuthResponseSchema,
+          401: ErrorResponseSchema,
+          404: ErrorResponseSchema,
+        },
+      },
+    },
+    async (
+      request: FastifyRequest<{ Body: ImpersonateBusinessBody }>,
+      reply: FastifyReply,
+    ) => {
+      try {
+        const authUser = requireAuthUser(request, reply);
+        if (!authUser) return;
+
+        const result = await impersonateBusiness(
+          fastify,
+          request,
+          request.body.businessId,
+          authUser.id,
+        );
+
+        setRefreshCookie(fastify, reply, result.refreshToken);
+
+        return reply.send(result);
+      } catch (err: any) {
+        const statusCode = err?.code || httpStatus.INTERNAL_SERVER_ERROR;
+        const message = err?.message || "Internal Server Error";
+        request.log.error({ err }, "Impersonate handler failed");
+        return reply.code(statusCode).send({ message });
+      }
+    },
+  );
+
+  server.post(
+    "/end-impersonation",
+    {
+      onRequest: [fastify.authenticate],
+      schema: {
+        response: {
+          200: SuccessResponseSchema,
+          400: ErrorResponseSchema,
+          401: ErrorResponseSchema,
+        },
+      },
+    },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const authUser = requireAuthUser(request, reply);
+        if (!authUser) return;
+
+        await endImpersonation(fastify, authUser.id);
+
+        reply.clearCookie("refresh_token", { path: "/api/auth" });
+        return reply.send({ success: true });
+      } catch (err: any) {
+        const statusCode = err?.code || httpStatus.INTERNAL_SERVER_ERROR;
+        const message = err?.message || "Internal Server Error";
+        request.log.error({ err }, "End impersonation handler failed");
         return reply.code(statusCode).send({ message });
       }
     },

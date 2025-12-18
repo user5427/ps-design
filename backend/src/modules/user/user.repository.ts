@@ -53,6 +53,7 @@ export class UserRepository {
       .leftJoinAndSelect("user.business", "business")
       .where("user.businessId = :businessId", { businessId })
       .andWhere("user.deletedAt IS NULL")
+      .andWhere("user.isTempUser = false")
       .orderBy("user.name", "ASC")
       .getMany();
   }
@@ -84,5 +85,9 @@ export class UserRepository {
 
   async softDelete(id: string): Promise<void> {
     await this.repository.update(id, { deletedAt: new Date() });
+  }
+
+  async hardDelete(id: string): Promise<void> {
+    await this.repository.delete(id);
   }
 }

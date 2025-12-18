@@ -29,6 +29,8 @@ import {
   UserRoleRepository,
   RoleScope,
   RoleScopeRepository,
+  UserTempSession,
+  UserTempSessionRepository,
 } from "@/modules/user";
 import { MenuItem, MenuItemRepository } from "@/modules/menu/menu-item";
 import { MenuItemVariation } from "@/modules/menu/menu-item-variation";
@@ -75,6 +77,7 @@ export interface Services {
   scope: ScopeRepository;
   userRole: UserRoleRepository;
   roleScope: RoleScopeRepository;
+  userTempSession: UserTempSessionRepository;
   refreshToken: RefreshTokenRepository;
   productUnit: ProductUnitRepository;
   product: ProductRepository;
@@ -133,6 +136,9 @@ export default fp(async function typeormPlugin(fastify: FastifyInstance) {
     scope: new ScopeRepository(dataSource.getRepository(ScopeEntity)),
     userRole: new UserRoleRepository(dataSource.getRepository(UserRole)),
     roleScope: new RoleScopeRepository(dataSource.getRepository(RoleScope)),
+    userTempSession: new UserTempSessionRepository(
+      dataSource.getRepository(UserTempSession),
+    ),
     refreshToken: new RefreshTokenRepository(
       dataSource.getRepository(RefreshToken),
     ),
