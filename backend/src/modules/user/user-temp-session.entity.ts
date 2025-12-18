@@ -11,7 +11,6 @@ import {
 import type { User } from "./user.entity";
 
 @Entity("UserTempSession")
-@Index(["originalUserId"], { unique: true, name: "IDX_user_temp_session_original_unique" })
 export class UserTempSession {
   @PrimaryGeneratedColumn("uuid")
   id: string;
