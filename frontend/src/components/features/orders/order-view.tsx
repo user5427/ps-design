@@ -96,13 +96,15 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
 
   const [ticketItems, setTicketItems] = useState<MenuItemEntry[]>([]);
 
-   // Dialog state for selecting variations when a menu item
-   // offers multiple options (e.g. sizes).
+  // Dialog state for selecting variations when a menu item
+  // offers multiple options (e.g. sizes).
   const [isVariationDialogOpen, setIsVariationDialogOpen] = useState(false);
-  const [activeMenuItem, setActiveMenuItem] =
-    useState<MenuItemResponse | null>(null);
-  const [selectedVariationId, setSelectedVariationId] =
-    useState<string | "base">("base");
+  const [activeMenuItem, setActiveMenuItem] = useState<MenuItemResponse | null>(
+    null,
+  );
+  const [selectedVariationId, setSelectedVariationId] = useState<
+    string | "base"
+  >("base");
 
   const [tipInput, setTipInput] = useState<string>("");
   const [discountInput, setDiscountInput] = useState<string>("");
@@ -583,8 +585,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                   <Typography variant="body2" fontWeight="bold">
                     {item.price.toFixed(2)}€
                   </Typography>
-                  {menuItems?.find((mi) => mi.id === item.menuItemId)?.variations
-                    ?.some((v) => !v.isDisabled && v.isAvailable) && (
+                  {menuItems
+                    ?.find((mi) => mi.id === item.menuItemId)
+                    ?.variations?.some(
+                      (v) => !v.isDisabled && v.isAvailable,
+                    ) && (
                     <Typography
                       variant="caption"
                       color="text.secondary"
@@ -979,7 +984,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                       control={<Radio />}
                       label={`${(
                         (activeMenuItem.basePrice + variation.priceAdjustment) /
-                        100
+                          100
                       ).toFixed(2)}€ — ${variation.name}`}
                     />
                   ))}

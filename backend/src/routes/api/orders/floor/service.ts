@@ -72,9 +72,7 @@ export async function getFloorPlan(
   return {
     tables: tables.map((table) => {
       const orderId = orderByTableId.get(table.id) ?? null;
-      const hasSentItems = orderId
-        ? ordersWithSentItems.has(orderId)
-        : false;
+      const hasSentItems = orderId ? ordersWithSentItems.has(orderId) : false;
 
       // Visual status rules for the floor plan:
       // - AVAILABLE (white/gray): no open order OR only unsent items.
