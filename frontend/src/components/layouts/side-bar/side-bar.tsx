@@ -7,28 +7,24 @@ const DRAWER_WIDTH = 240;
 interface SidebarProps {
   sidebarSections: Section[];
   open: boolean;
-  variant: "permanent" | "temporary";
   onClose: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   sidebarSections,
   open,
-  variant,
   onClose,
 }) => {
   const theme = useTheme();
   const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const appBarHeight = (theme.mixins.toolbar.minHeight as number) + 10;
 
-  const isTemporary = variant === "temporary";
-
   return (
     <Drawer
       aria-label="Navigation sidebar"
-      variant={isTemporary ? "temporary" : "permanent"}
-      open={isTemporary ? open : true}
-      onClose={isTemporary ? onClose : undefined}
+      variant="permanent"
+      open
+      onClose={onClose}
       transitionDuration={reduceMotion ? 0 : undefined}
       sx={{
         width: DRAWER_WIDTH,
@@ -36,8 +32,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         "& .MuiDrawer-paper": {
           width: DRAWER_WIDTH,
           boxSizing: "border-box",
-          marginTop: isTemporary ? 0 : `${appBarHeight}px`,
-          transform: !isTemporary && !open ? "translateX(-100%)" : "none",
+          marginTop: `${appBarHeight}px`,
+          transform: !open ? "translateX(-100%)" : "none",
           transition: reduceMotion
             ? undefined
             : theme.transitions.create("transform", {
