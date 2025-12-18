@@ -3,6 +3,7 @@ export interface ICreateUser {
   passwordHash: string;
   name: string;
   isPasswordResetRequired?: boolean;
+  isTempUser?: boolean;
   businessId: string;
 }
 
@@ -11,6 +12,7 @@ export interface IUpdateUser {
   passwordHash?: string;
   name?: string;
   isPasswordResetRequired?: boolean;
+  isTempUser?: boolean;
   businessId?: string;
 }
 

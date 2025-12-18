@@ -46,3 +46,19 @@ export async function changePassword(
   );
   return SuccessResponseSchema.parse(response.data);
 }
+
+export async function impersonateBusiness(
+  businessId: string,
+): Promise<AuthResponse> {
+  const response = await apiClient.post<AuthResponse>("/auth/impersonate", {
+    businessId,
+  });
+  return AuthResponseSchema.parse(response.data);
+}
+
+export async function endImpersonation(): Promise<SuccessResponse> {
+  const response = await apiClient.post<SuccessResponse>(
+    "/auth/end-impersonation",
+  );
+  return SuccessResponseSchema.parse(response.data);
+}

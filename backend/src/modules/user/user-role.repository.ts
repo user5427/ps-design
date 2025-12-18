@@ -74,4 +74,10 @@ export class UserRoleRepository {
       relations: ["user"],
     });
   }
+
+  async findByUserId(userId: string): Promise<UserRole[]> {
+    return this.repository.find({
+      where: { userId },
+    });
+  }
 }

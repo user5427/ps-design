@@ -13,5 +13,10 @@ export const ChangePasswordSchema = z.object({
   newPassword: z.string().min(MIN_PASSWORD_LENGTH, MIN_PASSWORD_MESSAGE),
 });
 
+export const ImpersonateBusinessSchema = z.object({
+  businessId: z.uuid("Invalid business ID format"),
+});
+
 export type LoginBody = z.infer<typeof LoginSchema>;
 export type ChangePasswordBody = z.infer<typeof ChangePasswordSchema>;
+export type ImpersonateBusinessBody = z.infer<typeof ImpersonateBusinessSchema>;
