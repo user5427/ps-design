@@ -17,8 +17,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const { data: scopes, isLoading } = useScopes();
   const openButtonRef = useRef<HTMLButtonElement | null>(null);
 
-  const { visibleSections, initializeSections, sidebarPreference, setSidebarPreference } =
-    useSettingsStore();
+  const {
+    visibleSections,
+    initializeSections,
+    sidebarPreference,
+    setSidebarPreference,
+  } = useSettingsStore();
 
   // Extract scope names from the scopes response
   const scopeNames = scopes?.map((scope) => scope.name) || [];
