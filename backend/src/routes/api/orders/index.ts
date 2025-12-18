@@ -199,10 +199,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
   server.patch<{ Params: OrderIdParams; Body: UpdateOrderWaiterBody }>(
     "/:orderId/waiter",
     {
-      onRequest: [
-        fastify.authenticate,
-        requireScope(ScopeNames.ORDERS),
-      ],
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
       schema: {
         params: OrderIdParam,
         body: UpdateOrderWaiterSchema,
