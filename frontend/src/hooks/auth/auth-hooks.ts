@@ -38,6 +38,7 @@ export function useLogin() {
       password: string;
     }) => login({ email, password }),
     onSuccess: (data) => {
+      store.endImpersonation();
       store.setAccessToken(data.accessToken);
       queryClient.invalidateQueries({ queryKey: authKeys.me() });
     },
