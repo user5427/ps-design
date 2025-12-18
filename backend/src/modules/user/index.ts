@@ -9,4 +9,6 @@ export { UserRole } from "./user-role.entity";
 export { UserRoleRepository } from "./user-role.repository";
 export { RoleScope } from "./role-scope.entity";
 export { RoleScopeRepository } from "./role-scope.repository";
+export { UserTempSession } from "./user-temp-session.entity";
+export { UserTempSessionRepository } from "./user-temp-session.repository";
 export * from "./scope.types";

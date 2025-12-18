@@ -196,6 +196,15 @@ export async function impersonateBusiness(
     };
   }
 
+  // Check if user already has an active temp session and clean it up
+  const existingSession =
+    await fastify.db.userTempSession.findByOriginalUserId(superadminId);
+  if (existingSession) {
+    // Clean up the old temp user
+    await cleanupTempUser(fastify, existingSession.tempUserId);
+    await fastify.db.userTempSession.deleteByOriginalUserId(superadminId);
+  }
+
   // Generate random password for temp user
   const tempPassword = crypto.randomBytes(32).toString("hex");
   const passwordHash = await bcrypt.hash(tempPassword, SALT_LENGTH);
@@ -239,6 +248,12 @@ export async function impersonateBusiness(
   // Assign role to temp user
   await fastify.db.userRole.assignRole(tempUser.id, tempRole.id);
 
+  // Create temp session tracking
+  await fastify.db.userTempSession.create({
+    originalUserId: superadminId,
+    tempUserId: tempUser.id,
+  });
+
   // Generate tokens
   const accessToken = signAccessToken(fastify, tempUser);
   const jti = createJti();
@@ -261,6 +276,26 @@ export async function impersonateBusiness(
   });
 }
 
+async function cleanupTempUser(
+  fastify: FastifyInstance,
+  tempUserId: string,
+): Promise<void> {
+  // Delete all refresh tokens for temp user
+  await fastify.db.refreshToken.revokeAllByUserId(tempUserId);
+
+  // Find and delete temp role
+  const userRoles = await fastify.db.userRole.findByUserId(tempUserId);
+  for (const userRole of userRoles) {
+    const role = await fastify.db.role.findById(userRole.roleId);
+    if (role && role.name.startsWith("TEMP_ADMIN_")) {
+      await fastify.db.role.delete(role.id);
+    }
+  }
+
+  // Delete temp user
+  await fastify.db.user.hardDelete(tempUserId);
+}
+
 export async function endImpersonation(
   fastify: FastifyInstance,
   userId: string,
@@ -274,18 +309,9 @@ export async function endImpersonation(
     };
   }
 
-  // Delete all refresh tokens for temp user
-  await fastify.db.refreshToken.revokeAllByUserId(userId);
+  // Clean up temp user
+  await cleanupTempUser(fastify, userId);
 
-  // Find and delete temp role
-  const userRoles = await fastify.db.userRole.findByUserId(userId);
-  for (const userRole of userRoles) {
-    const role = await fastify.db.role.findById(userRole.roleId);
-    if (role && role.name.startsWith("TEMP_ADMIN_")) {
-      await fastify.db.role.delete(role.id);
-    }
-  }
-
-  // Delete temp user
-  await fastify.db.user.hardDelete(userId);
+  // Delete temp session tracking
+  await fastify.db.userTempSession.deleteByTempUserId(userId);
 }
