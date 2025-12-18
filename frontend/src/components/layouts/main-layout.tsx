@@ -1,15 +1,8 @@
-import {
-  Box,
-  CircularProgress,
-  IconButton,
-  Tooltip,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, CircularProgress, IconButton, Tooltip } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Sidebar } from "@/components/layouts/side-bar";
 import { sidebarSections } from "@/constants";
 import { useScopes } from "@/queries/scopes";
@@ -22,9 +15,6 @@ export interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const { data: scopes, isLoading } = useScopes();
-  const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const openButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const { visibleSections, initializeSections, sidebarPreference, setSidebarPreference } =
@@ -50,30 +40,18 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     (section) => visibleSections[section.label] !== false,
   );
 
-  const isSidebarOpen = isDesktop
-    ? sidebarPreference === "open"
-    : isMobileSidebarOpen;
+  const isSidebarOpen = sidebarPreference === "open";
 
   const handleToggleSidebar = () => {
-    if (isDesktop) {
-      const next = isSidebarOpen ? "closed" : "open";
-      setSidebarPreference(next);
-    } else {
-      setIsMobileSidebarOpen((prev) => !prev);
-    }
+    const next = isSidebarOpen ? "closed" : "open";
+    setSidebarPreference(next);
   };
 
   const handleCloseSidebar = () => {
-    if (isDesktop) {
-      if (sidebarPreference !== "closed") {
-        setSidebarPreference("closed");
-      }
-    } else {
-      setIsMobileSidebarOpen(false);
+    if (sidebarPreference !== "closed") {
+      setSidebarPreference("closed");
     }
 
-    // Optionally restore focus to the toggle button for accessibility
-    // but do not leave it visually highlighted as "active".
     if (openButtonRef.current) {
       openButtonRef.current.blur();
     }
@@ -99,7 +77,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <Sidebar
         sidebarSections={filteredSections}
         open={isSidebarOpen}
-        variant={isDesktop ? "permanent" : "temporary"}
         onClose={handleCloseSidebar}
       />
       <Box sx={{ flexGrow: 1, minWidth: 0 }}>
