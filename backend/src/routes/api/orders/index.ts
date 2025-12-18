@@ -201,7 +201,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
     {
       onRequest: [
         fastify.authenticate,
-        requireScope(ScopeNames.MENU_ORDERS_WRITE),
+        requireScope(ScopeNames.ORDERS),
       ],
       schema: {
         params: OrderIdParam,

@@ -133,20 +133,48 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     setSelectedWaiterId(newWaiterId);
 
     // Persist to backend; allow unassigned by sending null
-    updateWaiterMutation.mutate({
-      servedByUserId: newWaiterId || null,
-    });
+    updateWaiterMutation.mutate(
+      {
+        servedByUserId: newWaiterId || null,
+      },
+      {
+        onError: () => {
+          window.alert("Could not update waiter for this order.");
+          // Revert to the last known value from the order
+          if (order?.servedByUserId) {
+            setSelectedWaiterId(order.servedByUserId);
+          } else {
+            setSelectedWaiterId("");
+          }
+        },
+      },
+    );
   };
 
-  // Derive table label from floor plan data when available
+  // Derive table label from floor plan data when available, and
+  // fall back to order.tableId lookup so the header always shows
+  // a table name once the floor plan data is loaded.
   const matchingTable = useMemo(() => {
     if (!floorData?.tables?.length) return null;
-    return floorData.tables.find((t) => t.orderId === orderId) ?? null;
-  }, [floorData, orderId]);
 
-  if (!tableLabel && matchingTable) {
-    setTableLabel(matchingTable.label);
-  }
+    // Prefer matching by orderId so that if the table was moved
+    // or relabelled, we still pick the correct entry.
+    const byOrder = floorData.tables.find((t) => t.orderId === orderId);
+    if (byOrder) return byOrder;
+
+    if (order?.tableId) {
+      const byId = floorData.tables.find((t) => t.id === order.tableId);
+      if (byId) return byId;
+    }
+
+    return null;
+  }, [floorData, orderId, order?.tableId]);
+
+  useEffect(() => {
+    if (!tableLabel && matchingTable) {
+      setTableLabel(matchingTable.label);
+    }
+  }, [matchingTable, tableLabel]);
 
   const menuEntries: MenuItemEntry[] = useMemo(() => {
     if (!menuItems) return [];
