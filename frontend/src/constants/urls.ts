@@ -38,4 +38,6 @@ export const URLS = {
   AUDIT_SECURITY_LOGS: "/audit/security-logs",
   // Tax
   TAX: "/tax",
+  // Settings
+  SETTINGS: "/settings",
 };

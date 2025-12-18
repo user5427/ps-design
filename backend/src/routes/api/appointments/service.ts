@@ -234,18 +234,39 @@ export async function createAppointment(
   createdById: string,
   input: CreateAppointmentBody,
 ): Promise<AppointmentResponse> {
-  return toAppointmentResponse(
-    await fastify.db.appointment.create({
-      customerName: input.customerName,
-      customerPhone: input.customerPhone,
-      customerEmail: input.customerEmail,
-      startTime: new Date(input.startTime),
-      notes: input.notes,
-      serviceId: input.serviceId,
-      businessId,
-      createdById,
-    }),
-  );
+  const appointment = await fastify.db.appointment.create({
+    customerName: input.customerName,
+    customerPhone: input.customerPhone,
+    customerEmail: input.customerEmail,
+    startTime: new Date(input.startTime),
+    notes: input.notes,
+    serviceId: input.serviceId,
+    businessId,
+    createdById,
+  });
+
+  // Send SMS notification after successful appointment creation
+  if (appointment.customerPhone) {
+    try {
+      const business = await fastify.db.business.findById(businessId);
+      await fastify.smsService.sendAppointmentConfirmation(
+        appointment.customerName,
+        appointment.customerPhone,
+        appointment.service.serviceDefinition.name,
+        appointment.service.employee.name,
+        appointment.startTime,
+        business?.name || "Our Business",
+      );
+    } catch (error) {
+      // Log the error but don't fail the appointment creation
+      fastify.log.error(
+        { error, appointmentId: appointment.id },
+        "Failed to send SMS notification",
+      );
+    }
+  }
+
+  return toAppointmentResponse(appointment);
 }
 
 export async function getAppointmentById(

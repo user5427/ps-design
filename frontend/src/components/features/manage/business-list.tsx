@@ -10,6 +10,7 @@ import {
   useBusinessesPaginated,
   useDeleteBusiness,
   useCreateBusiness,
+  useUpdateBusinessTypes,
 } from "@/queries/business";
 import { apiClient } from "@/api/client";
 import type {
@@ -27,6 +28,7 @@ export const BusinessList: React.FC = () => {
   const queryClient = useQueryClient();
   const createMutation = useCreateBusiness();
   const deleteMutation = useDeleteBusiness();
+  const updateBusinessTypesMutation = useUpdateBusinessTypes();
 
   const columns = useMemo<MRT_ColumnDef<BusinessResponse>[]>(
     () => [
@@ -34,6 +36,18 @@ export const BusinessList: React.FC = () => {
         accessorKey: "name",
         header: "Name",
         size: 200,
+      },
+      {
+        accessorKey: "isOrderBased",
+        header: "Order Based",
+        size: 150,
+        Cell: ({ cell }) => (cell.getValue() ? "Yes" : "No"),
+      },
+      {
+        accessorKey: "isAppointmentBased",
+        header: "Appointment Based",
+        size: 150,
+        Cell: ({ cell }) => (cell.getValue() ? "Yes" : "No"),
       },
       {
         accessorKey: "id",
@@ -79,6 +93,20 @@ export const BusinessList: React.FC = () => {
       type: "textarea",
       required: false,
     },
+    {
+      name: "isOrderBased",
+      label: "Order Based Business",
+      type: "checkbox",
+      required: false,
+      defaultValue: true,
+    },
+    {
+      name: "isAppointmentBased",
+      label: "Appointment Based Business",
+      type: "checkbox",
+      required: false,
+      defaultValue: true,
+    },
   ];
 
   const editFormFields: FormFieldDefinition[] = [
@@ -110,6 +138,18 @@ export const BusinessList: React.FC = () => {
       type: "textarea",
       required: false,
     },
+    {
+      name: "isOrderBased",
+      label: "Order Based Business",
+      type: "checkbox",
+      required: false,
+    },
+    {
+      name: "isAppointmentBased",
+      label: "Appointment Based Business",
+      type: "checkbox",
+      required: false,
+    },
   ];
 
   const viewFields: ViewFieldDefinition[] = [
@@ -118,6 +158,8 @@ export const BusinessList: React.FC = () => {
     { name: "email", label: "Email" },
     { name: "phone", label: "Phone" },
     { name: "address", label: "Address" },
+    { name: "isOrderBased", label: "Order Based" },
+    { name: "isAppointmentBased", label: "Appointment Based" },
     { name: "createdAt", label: "Created At" },
     { name: "updatedAt", label: "Updated At" },
   ];
@@ -128,6 +170,8 @@ export const BusinessList: React.FC = () => {
       email: values.email ? String(values.email) : undefined,
       phone: values.phone ? String(values.phone) : undefined,
       address: values.address ? String(values.address) : undefined,
+      isOrderBased: Boolean(values.isOrderBased ?? true),
+      isAppointmentBased: Boolean(values.isAppointmentBased ?? true),
     });
   };
 
@@ -140,9 +184,22 @@ export const BusinessList: React.FC = () => {
         address: values.address ? String(values.address) : undefined,
       };
       await apiClient.put(`/business/${id}`, updateData);
+
+      // Update business types if values are provided (backend enforces SUPERADMIN check)
+      if (
+        values.isOrderBased !== undefined ||
+        values.isAppointmentBased !== undefined
+      ) {
+        await updateBusinessTypesMutation.mutateAsync({
+          businessId: id,
+          isOrderBased: Boolean(values.isOrderBased),
+          isAppointmentBased: Boolean(values.isAppointmentBased),
+        });
+      }
+
       queryClient.invalidateQueries({ queryKey: ["business"] });
     },
-    [queryClient],
+    [queryClient, updateBusinessTypesMutation],
   );
 
   const handleDelete = async (ids: string[]) => {

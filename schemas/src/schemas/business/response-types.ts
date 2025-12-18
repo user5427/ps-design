@@ -9,6 +9,8 @@ export const BusinessResponseSchema = z.object({
   phone: z.string().nullable(),
   address: z.string().nullable(),
   isDefault: z.boolean(),
+  isOrderBased: z.boolean(),
+  isAppointmentBased: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

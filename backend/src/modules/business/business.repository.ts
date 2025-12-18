@@ -3,7 +3,11 @@ import { ConflictError, NotFoundError } from "@/shared/errors";
 import { isUniqueConstraintError } from "@/shared/typeorm-error-utils";
 import type { IPaginatedResult } from "@/shared/pagination";
 import type { Business } from "./business.entity";
-import type { ICreateBusiness, IUpdateBusiness } from "./business.types";
+import type {
+  ICreateBusiness,
+  IUpdateBusiness,
+  IUpdateBusinessTypes,
+} from "./business.types";
 import type { UserRepository } from "./../user/user.repository";
 import type { RefreshTokenRepository } from "../refresh-token";
 
@@ -119,5 +123,22 @@ export class BusinessRepository {
       throw new ConflictError("Cannot delete the default business");
     }
     await this.repository.update(id, { deletedAt: new Date() });
+  }
+
+  async updateBusinessTypes(
+    id: string,
+    data: IUpdateBusinessTypes,
+  ): Promise<Business> {
+    const business = await this.findById(id);
+    if (!business) {
+      throw new NotFoundError("Business not found");
+    }
+
+    await this.repository.update(id, data);
+    const updated = await this.findById(id);
+    if (!updated) {
+      throw new NotFoundError("Business not found after update");
+    }
+    return updated;
   }
 }
