@@ -138,8 +138,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
         servedByUserId: newWaiterId || null,
       },
       {
-        onError: () => {
-          window.alert("Could not update waiter for this order.");
+        onError: (error) => {
+          console.error("Could not update waiter for this order.", error);
           // Revert to the last known value from the order
           if (order?.servedByUserId) {
             setSelectedWaiterId(order.servedByUserId);
