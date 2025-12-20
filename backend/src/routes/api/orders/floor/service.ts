@@ -56,13 +56,13 @@ export async function getFloorPlan(
 
   if (openOrderIds.length > 0) {
     const orderItemRepo = fastify.db.dataSource.getRepository(OrderItem);
-    const sentItems = await orderItemRepo.find({
-      where: {
-        orderId: In(openOrderIds),
-        status: OrderItemStatus.SENT,
-        deletedAt: IsNull(),
-      },
-    });
+    const sentItems = await orderItemRepo
+      .createQueryBuilder("orderItem")
+      .select(["orderItem.orderId"])
+      .where("orderItem.orderId IN (:...orderIds)", { orderIds: openOrderIds })
+      .andWhere("orderItem.status = :status", { status: OrderItemStatus.SENT })
+      .andWhere("orderItem.deletedAt IS NULL")
+      .getMany();
 
     for (const item of sentItems) {
       ordersWithSentItems.add(item.orderId);
