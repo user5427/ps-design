@@ -10,6 +10,8 @@ import {
   PayOrderSchema,
   type RefundOrderBody,
   RefundOrderSchema,
+  type UpdateOrderWaiterBody,
+  UpdateOrderWaiterSchema,
   type UpdateOrderItemsBody,
   UpdateOrderItemsSchema,
   type UpdateOrderTotalsBody,
@@ -25,6 +27,7 @@ import {
   payOrder,
   refundOrder,
   sendOrderItems,
+  updateOrderWaiter,
   updateOrderItems,
   updateOrderTotals,
 } from "./service";
@@ -181,6 +184,41 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
 
       try {
         const order = await updateOrderTotals(
+          fastify,
+          businessId,
+          orderId,
+          request.body,
+        );
+        return reply.send(order);
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
+
+  server.patch<{ Params: OrderIdParams; Body: UpdateOrderWaiterBody }>(
+    "/:orderId/waiter",
+    {
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
+      schema: {
+        params: OrderIdParam,
+        body: UpdateOrderWaiterSchema,
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Params: OrderIdParams;
+        Body: UpdateOrderWaiterBody;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
+
+      const { orderId } = request.params;
+
+      try {
+        const order = await updateOrderWaiter(
           fastify,
           businessId,
           orderId,

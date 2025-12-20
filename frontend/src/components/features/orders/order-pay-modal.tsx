@@ -161,6 +161,8 @@ export const OrderPayModal: React.FC<OrderPayModalProps> = ({
             paymentMethod={state.paymentMethod}
             onPaymentMethodChange={actions.setPaymentMethod}
             stripeError={state.stripeError}
+            partialAmountCents={calculations.amountToPayCents}
+            onPartialAmountChange={actions.setAmountToPayCents}
           />
         </Stack>
       </DialogContent>

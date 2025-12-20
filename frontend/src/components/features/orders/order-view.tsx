@@ -3,16 +3,27 @@ import {
   Box,
   Button,
   Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
+  FormControl,
+  FormControlLabel,
   IconButton,
+  InputLabel,
+  MenuItem as MuiMenuItem,
+  Paper,
+  Radio,
+  RadioGroup,
+  Select,
   Stack,
   Tab,
   Tabs,
   TextField,
   Toolbar,
   Typography,
-  Paper,
-  CircularProgress,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -29,20 +40,30 @@ import {
   useRefundOrder,
   useSendOrderItems,
   useUpdateOrderItems,
+  useUpdateOrderWaiter,
   useUpdateOrderTotals,
 } from "@/hooks/orders/order-hooks";
 import { useMenuItems } from "@/hooks/menu";
+import { useAuthUser } from "@/hooks/auth";
+import { useBusinessUsers } from "@/hooks/business";
 import type { OrderItemInput } from "@ps-design/schemas/order/order";
+import type { BusinessUserResponse } from "@ps-design/schemas/business";
+import type { MenuItemResponse } from "@ps-design/schemas/menu/items";
 import { OrderPayModal } from "./order-pay-modal";
 
 interface MenuItemEntry {
   id: string;
+  // Underlying menu item identifier from the backend
+  menuItemId: string;
   name: string;
   price: number;
   category: string;
   stock: number;
   quantity: number;
   status?: "UNSENT" | "SENT";
+  // Optional selected variation for this line
+  variationId?: string | null;
+  variationLabel?: string | null;
 }
 type MenuCategory = string;
 
@@ -61,41 +82,121 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   const updateTotalsMutation = useUpdateOrderTotals(orderId);
   const refundOrderMutation = useRefundOrder(orderId);
   const cancelOrderMutation = useCancelOrder(orderId);
+  const updateWaiterMutation = useUpdateOrderWaiter(orderId);
+  const { data: authUser } = useAuthUser();
+  const { data: businessUsers = [] } = useBusinessUsers(
+    authUser?.businessId ?? undefined,
+  );
 
   const [tableLabel, setTableLabel] = useState<string | null>(null);
-  const [servedBy] = useState<string>("Demo Waiter");
+  const [selectedWaiterId, setSelectedWaiterId] = useState<string | "">("");
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<MenuCategory>("All");
 
   const [ticketItems, setTicketItems] = useState<MenuItemEntry[]>([]);
 
+  // Dialog state for selecting variations when a menu item
+  // offers multiple options (e.g. sizes).
+  const [isVariationDialogOpen, setIsVariationDialogOpen] = useState(false);
+  const [activeMenuItem, setActiveMenuItem] = useState<MenuItemResponse | null>(
+    null,
+  );
+  const [selectedVariationId, setSelectedVariationId] = useState<
+    string | "base"
+  >("base");
+
   const [tipInput, setTipInput] = useState<string>("");
   const [discountInput, setDiscountInput] = useState<string>("");
   const [refundAmountInput, setRefundAmountInput] = useState<string>("");
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
 
-  // Derive table label from floor plan data when available
+  const waiterOptions = useMemo(
+    () =>
+      (businessUsers as BusinessUserResponse[]).map((u) => ({
+        id: u.id,
+        name: u.name,
+      })),
+    [businessUsers],
+  );
+
+  useEffect(() => {
+    if (order?.servedByUserId) {
+      setSelectedWaiterId(order.servedByUserId);
+    } else {
+      // Default to unassigned when no waiter is set on the order
+      setSelectedWaiterId("");
+    }
+  }, [order?.servedByUserId]);
+
+  const handleChangeWaiter = (newWaiterId: string | "") => {
+    setSelectedWaiterId(newWaiterId);
+
+    // Persist to backend; allow unassigned by sending null
+    updateWaiterMutation.mutate(
+      {
+        servedByUserId: newWaiterId || null,
+      },
+      {
+        onError: (error) => {
+          console.error("Could not update waiter for this order.", error);
+          // Revert to the last known value from the order
+          if (order?.servedByUserId) {
+            setSelectedWaiterId(order.servedByUserId);
+          } else {
+            setSelectedWaiterId("");
+          }
+        },
+      },
+    );
+  };
+
+  // Derive table label from floor plan data when available, and
+  // fall back to order.tableId lookup so the header always shows
+  // a table name once the floor plan data is loaded.
   const matchingTable = useMemo(() => {
     if (!floorData?.tables?.length) return null;
-    return floorData.tables.find((t) => t.orderId === orderId) ?? null;
-  }, [floorData, orderId]);
 
-  if (!tableLabel && matchingTable) {
-    setTableLabel(matchingTable.label);
-  }
+    // Prefer matching by orderId so that if the table was moved
+    // or relabelled, we still pick the correct entry.
+    const byOrder = floorData.tables.find((t) => t.orderId === orderId);
+    if (byOrder) return byOrder;
+
+    if (order?.tableId) {
+      const byId = floorData.tables.find((t) => t.id === order.tableId);
+      if (byId) return byId;
+    }
+
+    return null;
+  }, [floorData, orderId, order?.tableId]);
+
+  useEffect(() => {
+    if (!tableLabel && matchingTable) {
+      setTableLabel(matchingTable.label);
+    }
+  }, [matchingTable, tableLabel]);
 
   const menuEntries: MenuItemEntry[] = useMemo(() => {
     if (!menuItems) return [];
+    const entries: MenuItemEntry[] = [];
 
-    return menuItems.map((item) => ({
-      id: item.id,
-      name: item.baseName,
-      price: item.basePrice / 100,
-      category: item.category?.name ?? "Other",
-      stock: item.isAvailable ? 999 : 0,
-      quantity: 0,
-    }));
+    for (const item of menuItems) {
+      const categoryName = item.category?.name ?? "Other";
+
+      entries.push({
+        id: item.id,
+        menuItemId: item.id,
+        name: item.baseName,
+        price: item.basePrice / 100,
+        category: categoryName,
+        stock: item.isAvailable ? 999 : 0,
+        quantity: 0,
+        variationId: null,
+        variationLabel: null,
+      });
+    }
+
+    return entries;
   }, [menuItems]);
 
   const menuCategories: MenuCategory[] = useMemo(() => {
@@ -151,17 +252,63 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     navigate({ to: URLS.FLOOR_PLAN });
   };
 
+  const handleMenuItemClick = (menuItem: MenuItemEntry) => {
+    if (!isOpen) return;
+    if (menuItem.stock === 0) return;
+
+    if (!menuItems) {
+      handleAddMenuItem(menuItem);
+      return;
+    }
+
+    const fullItem = menuItems.find((mi) => mi.id === menuItem.menuItemId);
+    if (!fullItem) {
+      handleAddMenuItem(menuItem);
+      return;
+    }
+
+    const availableVariations = (fullItem.variations ?? []).filter(
+      (v) => !v.isDisabled && v.isAvailable,
+    );
+
+    // If there are no variations, add the base item directly.
+    if (availableVariations.length === 0) {
+      handleAddMenuItem(menuItem);
+      return;
+    }
+
+    setActiveMenuItem(fullItem);
+    setSelectedVariationId("base");
+    setIsVariationDialogOpen(true);
+  };
+
   const handleAddMenuItem = (menuItem: MenuItemEntry) => {
     if (!isOpen) return;
     if (menuItem.stock === 0) return;
     setTicketItems((prev) => {
-      const existing = prev.find((item) => item.id === menuItem.id);
+      const existing = prev.find(
+        (item) =>
+          item.menuItemId === menuItem.menuItemId &&
+          (item.variationId ?? null) === (menuItem.variationId ?? null),
+      );
       if (existing) {
         return prev.map((item) =>
           item === existing ? { ...item, quantity: item.quantity + 1 } : item,
         );
       }
-      return [...prev, { ...menuItem, quantity: 1 }];
+      return [
+        ...prev,
+        {
+          ...menuItem,
+          id:
+            menuItem.variationId && !menuItem.id.includes(":")
+              ? `${menuItem.menuItemId}:${menuItem.variationId}`
+              : menuItem.id,
+          quantity: 1,
+          variationId: menuItem.variationId ?? null,
+          variationLabel: menuItem.variationLabel ?? null,
+        },
+      ];
     });
   };
 
@@ -190,9 +337,9 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     if (ticketItems.length === 0) return;
 
     const itemsInput: OrderItemInput[] = ticketItems.map((item) => ({
-      menuItemId: item.id,
+      menuItemId: item.menuItemId,
       quantity: item.quantity,
-      variationIds: [],
+      variationIds: item.variationId ? [item.variationId] : [],
     }));
 
     updateItemsMutation.mutate(
@@ -365,9 +512,27 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
               }
               variant={order.status === "OPEN" ? "outlined" : "filled"}
             />
-            <Typography variant="body2" color="text.secondary">
-              Served by {servedBy}
-            </Typography>
+            <FormControl size="small" sx={{ minWidth: 160 }}>
+              <InputLabel id="order-waiter-label" shrink>
+                Served by
+              </InputLabel>
+              <Select
+                labelId="order-waiter-label"
+                label="Served by"
+                value={selectedWaiterId}
+                onChange={(e) => handleChangeWaiter(e.target.value)}
+                displayEmpty
+              >
+                <MuiMenuItem value="">
+                  <em>Unassigned</em>
+                </MuiMenuItem>
+                {waiterOptions.map((w) => (
+                  <MuiMenuItem key={w.id} value={w.id}>
+                    {w.name}
+                  </MuiMenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Stack>
         </Toolbar>
       </AppBar>
@@ -429,7 +594,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                 <Paper
                   key={item.id}
                   elevation={2}
-                  onClick={() => !isSoldOut && handleAddMenuItem(item)}
+                  onClick={() => !isSoldOut && handleMenuItemClick(item)}
                   sx={{
                     p: 1.5,
                     borderRadius: 2,
@@ -448,6 +613,19 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                   <Typography variant="body2" fontWeight="bold">
                     {item.price.toFixed(2)}€
                   </Typography>
+                  {menuItems
+                    ?.find((mi) => mi.id === item.menuItemId)
+                    ?.variations?.some(
+                      (v) => !v.isDisabled && v.isAvailable,
+                    ) && (
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ mt: 0.5 }}
+                    >
+                      Has variations
+                    </Typography>
+                  )}
                   {isSoldOut && (
                     <Box
                       sx={{
@@ -535,6 +713,15 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
 
                     <Box>
                       <Typography variant="body2">{item.name}</Typography>
+                      {item.variationLabel && (
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ display: "block" }}
+                        >
+                          {item.variationLabel}
+                        </Typography>
+                      )}
                       <Typography variant="caption" color="text.secondary">
                         {lineTotal.toFixed(2)}€
                       </Typography>
@@ -787,6 +974,112 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
           queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
         }}
       />
+
+      {/* Dialog: choose a variation for a menu item */}
+      <Dialog
+        open={isVariationDialogOpen && !!activeMenuItem}
+        onClose={() => setIsVariationDialogOpen(false)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle>
+          {activeMenuItem ? activeMenuItem.baseName : "Select option"}
+        </DialogTitle>
+        <DialogContent dividers>
+          {activeMenuItem && (
+            <>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Choose a variation to add to the ticket.
+              </Typography>
+              <RadioGroup
+                value={selectedVariationId}
+                onChange={(e) =>
+                  setSelectedVariationId(e.target.value as string | "base")
+                }
+              >
+                <FormControlLabel
+                  value="base"
+                  control={<Radio />}
+                  label={`${(activeMenuItem.basePrice / 100).toFixed(2)}€ — Standard`}
+                  disabled={!activeMenuItem.isAvailable}
+                />
+                {(activeMenuItem.variations ?? [])
+                  .filter((v) => !v.isDisabled && v.isAvailable)
+                  .map((variation) => (
+                    <FormControlLabel
+                      key={variation.id}
+                      value={variation.id}
+                      control={<Radio />}
+                      label={`${(
+                        (activeMenuItem.basePrice + variation.priceAdjustment) /
+                          100
+                      ).toFixed(2)}€ — ${variation.name}`}
+                    />
+                  ))}
+              </RadioGroup>
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setIsVariationDialogOpen(false);
+              setActiveMenuItem(null);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              if (!activeMenuItem) return;
+
+              const categoryName = activeMenuItem.category?.name ?? "Other";
+
+              if (selectedVariationId === "base") {
+                const entry: MenuItemEntry = {
+                  id: `${activeMenuItem.id}:base`,
+                  menuItemId: activeMenuItem.id,
+                  name: activeMenuItem.baseName,
+                  price: activeMenuItem.basePrice / 100,
+                  category: categoryName,
+                  stock: activeMenuItem.isAvailable ? 999 : 0,
+                  quantity: 0,
+                  variationId: null,
+                  variationLabel: null,
+                };
+                handleAddMenuItem(entry);
+              } else {
+                const variation = (activeMenuItem.variations ?? []).find(
+                  (v) => v.id === selectedVariationId,
+                );
+                if (!variation) return;
+
+                const entry: MenuItemEntry = {
+                  id: `${activeMenuItem.id}:${variation.id}`,
+                  menuItemId: activeMenuItem.id,
+                  name: activeMenuItem.baseName,
+                  price:
+                    (activeMenuItem.basePrice + variation.priceAdjustment) /
+                    100,
+                  category: categoryName,
+                  stock: variation.isAvailable ? 999 : 0,
+                  quantity: 0,
+                  variationId: variation.id,
+                  variationLabel: variation.name,
+                };
+                handleAddMenuItem(entry);
+              }
+
+              setIsVariationDialogOpen(false);
+              setActiveMenuItem(null);
+            }}
+            disabled={!activeMenuItem}
+          >
+            Add to ticket
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

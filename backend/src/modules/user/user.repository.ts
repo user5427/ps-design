@@ -71,7 +71,7 @@ export class UserRepository {
   }
 
   async update(id: string, data: IUpdateUser): Promise<User | null> {
-    await this.repository.update(id, data);
+    await this.repository.update(id, data as Partial<User>);
     return this.findById(id);
   }
 

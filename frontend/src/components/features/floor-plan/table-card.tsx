@@ -1,5 +1,5 @@
 import { Box, Paper, Typography, Chip } from "@mui/material";
-import type { MouseEvent } from "react";
+import type { DragEvent, MouseEvent } from "react";
 
 export type TableStatus = "AVAILABLE" | "ACTIVE" | "ATTENTION";
 
@@ -16,6 +16,9 @@ interface TableCardProps {
   table: FloorPlanTable;
   onClick: () => void;
   onContextMenu: (event: MouseEvent<HTMLDivElement>) => void;
+  onDragStart: (event: DragEvent<HTMLDivElement>) => void;
+  onDragOver: (event: DragEvent<HTMLDivElement>) => void;
+  onDrop: (event: DragEvent<HTMLDivElement>) => void;
 }
 
 function getBackgroundColor(status: TableStatus, reserved?: boolean): string {
@@ -49,12 +52,23 @@ function getTextColor(status: TableStatus, reserved?: boolean): string {
   }
 }
 
-export function TableCard({ table, onClick, onContextMenu }: TableCardProps) {
+export function TableCard({
+  table,
+  onClick,
+  onContextMenu,
+  onDragStart,
+  onDragOver,
+  onDrop,
+}: TableCardProps) {
   const backgroundColor = getBackgroundColor(table.status, table.reserved);
   const textColor = getTextColor(table.status, table.reserved);
 
   return (
     <Paper
+      draggable
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
       onClick={onClick}
       onContextMenu={onContextMenu}
       elevation={2}

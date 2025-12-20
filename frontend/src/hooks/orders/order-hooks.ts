@@ -8,12 +8,14 @@ import {
   refundOrderApi,
   sendOrderItems,
   updateOrderItems,
+  updateOrderWaiter,
   updateOrderTotals,
 } from "@/api/orders";
 import { floorKeys } from "@/hooks/orders/floor-hooks";
 import type {
   OrderResponse,
   UpdateOrderItemsBody,
+  UpdateOrderWaiterBody,
 } from "@ps-design/schemas/order/order";
 
 export const orderKeys = {
@@ -74,6 +76,21 @@ export function useUpdateOrderTotals(orderId: string) {
   return useMutation({
     mutationFn: (body: { tipAmount: number; discountAmount: number }) =>
       updateOrderTotals(orderId, body),
+    onSuccess: (order: OrderResponse) => {
+      queryClient.setQueryData<OrderResponse | undefined>(
+        orderKeys.order(orderId),
+        order,
+      );
+    },
+  });
+}
+
+export function useUpdateOrderWaiter(orderId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: UpdateOrderWaiterBody) =>
+      updateOrderWaiter(orderId, body),
     onSuccess: (order: OrderResponse) => {
       queryClient.setQueryData<OrderResponse | undefined>(
         orderKeys.order(orderId),

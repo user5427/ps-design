@@ -33,11 +33,13 @@ export interface OrderPaymentModalCalculations {
   price: number;
   giftCardDiscount: number;
   estimatedTotal: number;
+  amountToPayCents: number;
 }
 
 export interface OrderPaymentModalActions {
   setPaymentMethod: (method: PaymentMethod) => void;
   setGiftCardCode: (code: string) => void;
+  setAmountToPayCents: (amountCents: number) => void;
   handleValidateGiftCard: () => Promise<void>;
   handleClearGiftCard: () => void;
   handleInitiateStripePayment: () => Promise<void>;
@@ -74,6 +76,9 @@ export function useOrderPaymentModal({
   const [stripeError, setStripeError] = useState<string>("");
   const [isInitiatingPayment, setIsInitiatingPayment] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [customAmountCents, setCustomAmountCents] = useState<number | null>(
+    null,
+  );
 
   const orderId = order?.id ?? "";
   const payMutation = usePayOrder(orderId);
@@ -86,6 +91,7 @@ export function useOrderPaymentModal({
         price: 0,
         giftCardDiscount: 0,
         estimatedTotal: 0,
+        amountToPayCents: 0,
       };
     }
 
@@ -107,12 +113,19 @@ export function useOrderPaymentModal({
 
     const estimatedTotal = Math.max(0, price - giftCardDiscount);
 
+    const maxPayable = estimatedTotal;
+    const amountToPayCents =
+      customAmountCents == null
+        ? maxPayable
+        : Math.min(customAmountCents, maxPayable);
+
     return {
       price,
       giftCardDiscount,
       estimatedTotal,
+      amountToPayCents,
     };
-  }, [order, validatedGiftCard]);
+  }, [order, validatedGiftCard, customAmountCents]);
 
   const resetForm = useCallback(() => {
     setStep("details");
@@ -123,6 +136,7 @@ export function useOrderPaymentModal({
     setPaymentIntent(null);
     setStripeError("");
     setIsVerifying(false);
+    setCustomAmountCents(null);
   }, []);
 
   const handleClose = useCallback(() => {
@@ -133,6 +147,10 @@ export function useOrderPaymentModal({
   const handlePaymentMethodChange = useCallback((method: PaymentMethod) => {
     setPaymentMethod(method);
     setStripeError("");
+  }, []);
+
+  const handleAmountToPayChange = useCallback((amountCents: number) => {
+    setCustomAmountCents(amountCents);
   }, []);
 
   const handleValidateGiftCard = useCallback(async () => {
@@ -192,6 +210,8 @@ export function useOrderPaymentModal({
           servicePrice: Math.round(result.finalAmount * 100),
           tipAmount: 0,
           giftCardDiscount: 0,
+          discountAmount: 0,
+          taxAmount: 0,
         },
       });
       setStep("stripe-checkout");
@@ -268,8 +288,8 @@ export function useOrderPaymentModal({
       // First apply any gift card, which will reduce the remaining amount
       await applyGiftCardIfNeeded();
 
-      // Then pay the remaining amount in cash
-      const finalAmountMajor = calculations.estimatedTotal / 100;
+      // Then pay the selected amount in cash (supports split payments)
+      const finalAmountMajor = calculations.amountToPayCents / 100;
 
       if (finalAmountMajor > 0) {
         await payMutation.mutateAsync({
@@ -290,7 +310,7 @@ export function useOrderPaymentModal({
   }, [
     order,
     applyGiftCardIfNeeded,
-    calculations.estimatedTotal,
+    calculations.amountToPayCents,
     payMutation,
     queryClient,
     resetForm,
@@ -320,6 +340,7 @@ export function useOrderPaymentModal({
     actions: {
       setPaymentMethod: handlePaymentMethodChange,
       setGiftCardCode,
+      setAmountToPayCents: handleAmountToPayChange,
       handleValidateGiftCard,
       handleClearGiftCard,
       handleInitiateStripePayment,

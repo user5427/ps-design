@@ -4,9 +4,11 @@ import { persist } from "zustand/middleware";
 interface SettingsState {
   showBackground: boolean;
   visibleSections: Record<string, boolean>;
+  sidebarPreference: "open" | "closed";
   setShowBackground: (show: boolean) => void;
   setSectionVisibility: (sectionLabel: string, visible: boolean) => void;
   initializeSections: (sections: string[]) => void;
+  setSidebarPreference: (preference: "open" | "closed") => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -14,6 +16,7 @@ export const useSettingsStore = create<SettingsState>()(
     (set, get) => ({
       showBackground: true,
       visibleSections: {},
+      sidebarPreference: "open",
 
       setShowBackground: (show: boolean) => set({ showBackground: show }),
 
@@ -39,6 +42,9 @@ export const useSettingsStore = create<SettingsState>()(
 
         set({ visibleSections: newVisible });
       },
+
+      setSidebarPreference: (preference: "open" | "closed") =>
+        set({ sidebarPreference: preference }),
     }),
     {
       name: "ps-design-settings",

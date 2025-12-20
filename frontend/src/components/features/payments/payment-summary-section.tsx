@@ -5,6 +5,7 @@ import {
   Divider,
   ToggleButtonGroup,
   Alert,
+  TextField,
 } from "@mui/material";
 import MoneyIcon from "@mui/icons-material/Money";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
@@ -24,6 +25,8 @@ interface PaymentSummarySectionProps {
   paymentMethod: PaymentMethod;
   onPaymentMethodChange: (method: PaymentMethod) => void;
   stripeError: string;
+  partialAmountCents?: number;
+  onPartialAmountChange?: (amountCents: number) => void;
 }
 
 export const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
@@ -37,7 +40,10 @@ export const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
   paymentMethod,
   onPaymentMethodChange,
   stripeError,
+  partialAmountCents,
+  onPartialAmountChange,
 }) => {
+  const maxPayableMajor = estimatedTotal / 100;
   const handlePaymentMethodChange = (
     _: React.MouseEvent<HTMLElement>,
     newMethod: PaymentMethod | null,
@@ -82,6 +88,41 @@ export const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
           </Box>
         </Stack>
       </Box>
+
+      {onPartialAmountChange && estimatedTotal > 0 && (
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+            Amount to Pay Now
+          </Typography>
+          <TextField
+            type="number"
+            size="small"
+            inputProps={{ min: 0, max: maxPayableMajor, step: 0.01 }}
+            value={
+              (partialAmountCents ?? estimatedTotal) > 0
+                ? (partialAmountCents ?? estimatedTotal) / 100
+                : ""
+            }
+            onChange={(event) => {
+              const rawValue = event.target.value;
+              const numeric = parseFloat(rawValue.replace(",", "."));
+
+              if (Number.isNaN(numeric)) {
+                onPartialAmountChange(0);
+                return;
+              }
+
+              const clamped = Math.min(Math.max(numeric, 0), maxPayableMajor);
+              const cents = Math.round(clamped * 100);
+              onPartialAmountChange(cents);
+            }}
+            fullWidth
+          />
+          <Typography variant="caption" color="text.secondary">
+            Max: {formatPrice(estimatedTotal)}
+          </Typography>
+        </Box>
+      )}
 
       <Divider />
 

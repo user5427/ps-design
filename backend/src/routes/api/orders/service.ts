@@ -5,6 +5,7 @@ import type {
   OrderResponse,
   PayOrderBody,
   RefundOrderBody,
+  UpdateOrderWaiterBody,
   UpdateOrderItemsBody,
   UpdateOrderTotalsBody,
 } from "@ps-design/schemas/order/order";
@@ -19,6 +20,8 @@ function toOrderResponse(
     id: order.id,
     businessId: order.businessId,
     tableId: order.tableId,
+    servedByUserId: order.servedByUserId,
+    servedByUserName: order.servedByUser?.name ?? null,
     status: order.status,
     itemsTotal: order.itemsTotal,
     totalTax: order.totalTax,
@@ -354,5 +357,19 @@ export async function cancelOrder(
   orderId: string,
 ): Promise<OrderResponse> {
   const order = await fastify.db.order.cancel(orderId, businessId);
+  return toOrderResponse(order);
+}
+
+export async function updateOrderWaiter(
+  fastify: FastifyInstance,
+  businessId: string,
+  orderId: string,
+  body: UpdateOrderWaiterBody,
+): Promise<OrderResponse> {
+  const order = await fastify.db.order.updateWaiter(
+    orderId,
+    businessId,
+    body.servedByUserId ?? null,
+  );
   return toOrderResponse(order);
 }

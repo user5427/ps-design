@@ -6,6 +6,7 @@ import type {
   PayOrderBody,
   RefundOrderBody,
   UpdateOrderItemsBody,
+  UpdateOrderWaiterBody,
   UpdateOrderTotalsBody,
 } from "@ps-design/schemas/order/order";
 
@@ -48,6 +49,17 @@ export async function updateOrderTotals(
 ): Promise<OrderResponse> {
   const response = await apiClient.patch<OrderResponse>(
     `/orders/${orderId}/totals`,
+    body,
+  );
+  return response.data;
+}
+
+export async function updateOrderWaiter(
+  orderId: string,
+  body: UpdateOrderWaiterBody,
+): Promise<OrderResponse> {
+  const response = await apiClient.patch<OrderResponse>(
+    `/orders/${orderId}/waiter`,
     body,
   );
   return response.data;
