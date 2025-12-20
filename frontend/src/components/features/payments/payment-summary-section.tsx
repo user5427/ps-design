@@ -112,10 +112,7 @@ export const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                 return;
               }
 
-              const clamped = Math.min(
-                Math.max(numeric, 0),
-                maxPayableMajor,
-              );
+              const clamped = Math.min(Math.max(numeric, 0), maxPayableMajor);
               const cents = Math.round(clamped * 100);
               onPartialAmountChange(cents);
             }}
