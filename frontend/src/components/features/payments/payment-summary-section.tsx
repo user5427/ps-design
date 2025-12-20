@@ -43,6 +43,7 @@ export const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
   partialAmountCents,
   onPartialAmountChange,
 }) => {
+  const maxPayableMajor = estimatedTotal / 100;
   const handlePaymentMethodChange = (
     _: React.MouseEvent<HTMLElement>,
     newMethod: PaymentMethod | null,
@@ -96,7 +97,7 @@ export const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
           <TextField
             type="number"
             size="small"
-            inputProps={{ min: 0, step: 0.01 }}
+            inputProps={{ min: 0, max: maxPayableMajor, step: 0.01 }}
             value={
               (partialAmountCents ?? estimatedTotal) > 0
                 ? (partialAmountCents ?? estimatedTotal) / 100
@@ -105,9 +106,17 @@ export const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
             onChange={(event) => {
               const rawValue = event.target.value;
               const numeric = parseFloat(rawValue.replace(",", "."));
-              const cents = Number.isNaN(numeric)
-                ? 0
-                : Math.round(numeric * 100);
+
+              if (Number.isNaN(numeric)) {
+                onPartialAmountChange(0);
+                return;
+              }
+
+              const clamped = Math.min(
+                Math.max(numeric, 0),
+                maxPayableMajor,
+              );
+              const cents = Math.round(clamped * 100);
               onPartialAmountChange(cents);
             }}
             fullWidth

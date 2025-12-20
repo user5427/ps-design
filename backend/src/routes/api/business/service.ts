@@ -198,7 +198,7 @@ export async function updateBusinessTypes(
   const allRoles = await fastify.db.role.findByBusinessId(businessId);
 
   // Determine which scopes should be removed from ALL roles
-  const scopesToRemoveFromAll: string[] = [];
+  const scopesToRemoveFromAll: ScopeNames[] = [];
 
   // If order-based is disabled, remove all order scopes
   if (!updated.isOrderBased) {
