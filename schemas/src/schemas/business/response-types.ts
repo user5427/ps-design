@@ -21,7 +21,6 @@ export const AdvancedPaginatedBusinessResponseSchema = createPaginatedSchema(
   "PaginatedBusinessResponse",
 );
 
-
 export const PaginatedBusinessResponseSchema = z.object({
   items: z.array(BusinessResponseSchema),
   ...PaginationMetaSchema.shape,

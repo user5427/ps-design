@@ -34,10 +34,7 @@ export const PaginationFieldModal: React.FC<PaginationFieldModalProps> = ({
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent sx={{ pt: 2 }}>
-        <SmartPaginationList
-          mapping={mapping}
-          onSelect={handleSelect}
-        />
+        <SmartPaginationList mapping={mapping} onSelect={handleSelect} />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Close</Button>

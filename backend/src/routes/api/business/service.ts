@@ -11,16 +11,15 @@ import type {
 import { BusinessResponseSchema } from "@ps-design/schemas/business";
 import { ScopeNames, SCOPE_CONFIG } from "@/modules/user";
 import { BadRequestError } from "@/shared/errors";
-import { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
+import type { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 
 export async function getBusinessesPaginatedAdvanced(
   fastify: FastifyInstance,
   query: UniversalPaginationQuery,
 ): Promise<AdvancedPaginatedBusinessResponse> {
   const result = await fastify.db.business.findAllPaginatedAdvanced(query);
-  return result
+  return result;
 }
-
 
 export async function getBusinessesPaginated(
   fastify: FastifyInstance,

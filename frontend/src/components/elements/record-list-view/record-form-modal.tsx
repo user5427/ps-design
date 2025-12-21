@@ -51,7 +51,9 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [paginationModalOpen, setPaginationModalOpen] = useState(false);
-  const [paginationModalFieldName, setPaginationModalFieldName] = useState<string | null>(null);
+  const [paginationModalFieldName, setPaginationModalFieldName] = useState<
+    string | null
+  >(null);
 
   const prevOpenRef = useRef(false);
 
@@ -152,7 +154,9 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
         if (field.type === "pagination" && field.paginationConfig) {
           const value = submittedValues[field.name];
           if (value && typeof value === "object") {
-            submittedValues[field.name] = (value as Record<string, unknown>)[field.paginationConfig.returnColumn];
+            submittedValues[field.name] = (value as Record<string, unknown>)[
+              field.paginationConfig.returnColumn
+            ];
           }
         }
       }
@@ -358,7 +362,7 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
           />
         );
 
-      case "pagination":
+      case "pagination": {
         if (!field.paginationConfig) {
           return (
             <Box key={field.name} sx={{ color: "error.main", fontSize: 14 }}>
@@ -367,11 +371,19 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
           );
         }
         // Determine what to display in the text field
-        const selectedValueDisplay = field.paginationConfig && value && typeof value === "object"
-          ? String((value as Record<string, unknown>)[field.paginationConfig.displayColumn] ?? "")
-          : String(value ?? "");
+        const selectedValueDisplay =
+          field.paginationConfig && value && typeof value === "object"
+            ? String(
+                (value as Record<string, unknown>)[
+                  field.paginationConfig.displayColumn
+                ] ?? "",
+              )
+            : String(value ?? "");
         return (
-          <Box key={field.name} sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}>
+          <Box
+            key={field.name}
+            sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}
+          >
             <TextField
               key={field.name}
               fullWidth
@@ -396,6 +408,7 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
             </Button>
           </Box>
         );
+      }
 
       default:
         return (
@@ -451,18 +464,16 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
             setPaginationModalOpen(false);
             setPaginationModalFieldName(null);
           }}
-          mapping={
-            (() => {
-              const f = fields.find((f) => f.name === paginationModalFieldName);
-              if (!f || !f.paginationConfig || !f.paginationConfig.mapping) {
-                throw new Error("Missing pagination mapping");
-              }
-              return f.paginationConfig.mapping;
-            })()
-          }
+          mapping={(() => {
+            const f = fields.find((f) => f.name === paginationModalFieldName);
+            if (!f || !f.paginationConfig || !f.paginationConfig.mapping) {
+              throw new Error("Missing pagination mapping");
+            }
+            return f.paginationConfig.mapping;
+          })()}
           onSelect={(rowData) => {
             const field = fields.find(
-              (f) => f.name === paginationModalFieldName
+              (f) => f.name === paginationModalFieldName,
             );
             if (field) {
               handleChange(paginationModalFieldName, rowData);

@@ -10,12 +10,15 @@ import type {
 } from "./business.types";
 import type { UserRepository } from "./../user/user.repository";
 import type { RefreshTokenRepository } from "../refresh-token";
-import { PaginatedResult, UniversalPaginationQuery } from "@ps-design/schemas/pagination";
+import type {
+  PaginatedResult,
+  UniversalPaginationQuery,
+} from "@ps-design/schemas/pagination";
 import { executePaginatedQuery } from "@/shared/pagination-utils";
 import { BUSINESS_MAPPING } from "@ps-design/constants/business";
 
 export class BusinessRepository {
-  constructor(private repository: Repository<Business>) { }
+  constructor(private repository: Repository<Business>) {}
 
   async findAllPaginatedAdvanced(
     query: UniversalPaginationQuery,

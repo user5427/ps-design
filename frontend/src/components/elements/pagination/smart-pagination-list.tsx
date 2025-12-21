@@ -221,9 +221,7 @@ export const SmartPaginationList = forwardRef<
   // Handle pagination change from table
   const handlePaginationChange = (
     updaterOrValue:
-      | ((
-          prev: typeof pagination,
-        ) => typeof pagination)
+      | ((prev: typeof pagination) => typeof pagination)
       | typeof pagination,
   ) => {
     const newPagination =

@@ -39,12 +39,14 @@ import {
   SuccessResponseSchema,
 } from "@ps-design/schemas/shared/response-types";
 import { AuditActionType } from "@/modules/audit";
-import { UniversalPaginationQuery, UniversalPaginationQuerySchema } from "@ps-design/schemas/pagination";
+import {
+  type UniversalPaginationQuery,
+  UniversalPaginationQuerySchema,
+} from "@ps-design/schemas/pagination";
 
 export default async function businessRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope } = createScopeMiddleware(fastify);
-
 
   server.get<{ Querystring: UniversalPaginationQuery }>(
     "/pagination",
@@ -65,14 +67,16 @@ export default async function businessRoutes(fastify: FastifyInstance) {
       reply: FastifyReply,
     ) => {
       try {
-        const result = await getBusinessesPaginatedAdvanced(fastify, request.query);
+        const result = await getBusinessesPaginatedAdvanced(
+          fastify,
+          request.query,
+        );
         return reply.send(result);
       } catch (error) {
         return handleServiceError(error, reply);
       }
     },
   );
-
 
   server.get<{ Querystring: BusinessQuery }>(
     "/",
