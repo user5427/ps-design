@@ -12,6 +12,7 @@ import { useAuthUser } from "@/hooks/auth";
 import { TextField, Box } from "@mui/material";
 import { PasswordStrengthIndicator } from "@/components/elements/auth/password-strength-indicator";
 import { checkPasswordStrength } from "@/utils/auth";
+import { BUSINESS_MAPPING } from "@ps-design/constants/business";
 
 type User = Record<string, unknown> & {
   id: string;
@@ -89,15 +90,7 @@ export function UsersManagement({
   );
 
   // Fetch all businesses for the selector
-  const { data: businesses = [] } = useQuery({
-    queryKey: ["business"],
-    queryFn: async () => {
-      const response = await apiClient.get("/business", {
-        params: { page: 1, limit: 100 },
-      });
-      return response.data.items;
-    },
-  });
+  // No longer needed - using BUSINESS_MAPPING pagination instead
 
   const createFormFields: FormFieldDefinition[] = [
     {
@@ -161,12 +154,13 @@ export function UsersManagement({
     {
       name: "businessId",
       label: "Business",
-      type: "select",
+      type: "pagination",
       required: true,
-      options: businesses.map((b: { id: string; name: string }) => ({
-        value: b.id,
-        label: b.name,
-      })),
+      paginationConfig: {
+        mapping: BUSINESS_MAPPING,
+        returnColumn: "id",
+        displayColumn: "name",
+      },
     },
     {
       name: "isOwner",

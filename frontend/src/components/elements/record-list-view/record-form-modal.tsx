@@ -24,7 +24,7 @@ import { useRef, useState } from "react";
 import dayjs from "dayjs";
 import { FormAlert } from "@/components/elements/form";
 import type { FormFieldDefinition } from "./types";
-import { SmartPaginationList } from "@/components/elements/pagination/smart-pagination-list";
+import { PaginationFieldModal } from "./pagination-field-modal";
 import { getReadableError } from "@/utils/get-readable-error";
 
 interface RecordFormModalProps {
@@ -50,6 +50,8 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [paginationModalOpen, setPaginationModalOpen] = useState(false);
+  const [paginationModalFieldName, setPaginationModalFieldName] = useState<string | null>(null);
 
   const prevOpenRef = useRef(false);
 
@@ -144,7 +146,17 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
     setSubmitError(null);
 
     try {
-      await onSubmit(values);
+      // Transform values: extract return column for pagination fields
+      const submittedValues = { ...values };
+      for (const field of fields) {
+        if (field.type === "pagination" && field.paginationConfig) {
+          const value = submittedValues[field.name];
+          if (value && typeof value === "object") {
+            submittedValues[field.name] = (value as Record<string, unknown>)[field.paginationConfig.returnColumn];
+          }
+        }
+      }
+      await onSubmit(submittedValues);
       onClose();
     } catch (err) {
       setSubmitError(getReadableError(err));
@@ -347,33 +359,41 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
         );
 
       case "pagination":
-        if (!field.paginationMapping) {
+        if (!field.paginationConfig) {
           return (
             <Box key={field.name} sx={{ color: "error.main", fontSize: 14 }}>
-              Pagination field "{field.name}" missing paginationMapping
+              Pagination field "{field.name}" missing paginationConfig
             </Box>
           );
         }
+        // Determine what to display in the text field
+        const selectedValueDisplay = field.paginationConfig && value && typeof value === "object"
+          ? String((value as Record<string, unknown>)[field.paginationConfig.displayColumn] ?? "")
+          : String(value ?? "");
         return (
-          <Box key={field.name}>
-            <Box sx={{ mb: 1, fontSize: 14, fontWeight: 500 }}>
-              {field.label}
-              {field.required && <span style={{ color: "red" }}> *</span>}
-            </Box>
-            <SmartPaginationList
-              mapping={field.paginationMapping}
-              onSelect={(rowData) => {
-                const selectedValue = field.paginationReturnColumn
-                  ? rowData[field.paginationReturnColumn]
-                  : rowData;
-                handleChange(field.name, selectedValue);
-              }}
+          <Box key={field.name} sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}>
+            <TextField
+              key={field.name}
+              fullWidth
+              label={field.label}
+              value={selectedValueDisplay}
+              disabled={true}
+              placeholder="Click 'Select' to choose..."
+              required={field.required}
+              error={!!error}
+              helperText={error}
             />
-            {error && (
-              <Box sx={{ color: "error.main", fontSize: 12, mt: 0.5 }}>
-                {error}
-              </Box>
-            )}
+            <Button
+              variant="outlined"
+              onClick={() => {
+                setPaginationModalFieldName(field.name);
+                setPaginationModalOpen(true);
+              }}
+              disabled={isSubmitting}
+              sx={{ mt: 1 }}
+            >
+              Select
+            </Button>
           </Box>
         );
 
@@ -422,6 +442,37 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
           </Button>
         </DialogActions>
       </form>
+
+      {/* Pagination field modal */}
+      {paginationModalFieldName && (
+        <PaginationFieldModal
+          open={paginationModalOpen}
+          onClose={() => {
+            setPaginationModalOpen(false);
+            setPaginationModalFieldName(null);
+          }}
+          mapping={
+            (() => {
+              const f = fields.find((f) => f.name === paginationModalFieldName);
+              if (!f || !f.paginationConfig || !f.paginationConfig.mapping) {
+                throw new Error("Missing pagination mapping");
+              }
+              return f.paginationConfig.mapping;
+            })()
+          }
+          onSelect={(rowData) => {
+            const field = fields.find(
+              (f) => f.name === paginationModalFieldName
+            );
+            if (field) {
+              handleChange(paginationModalFieldName, rowData);
+            }
+            setPaginationModalOpen(false);
+            setPaginationModalFieldName(null);
+          }}
+          title={`Select ${fields.find((f) => f.name === paginationModalFieldName)?.label || ""}`}
+        />
+      )}
     </Dialog>
   );
 };

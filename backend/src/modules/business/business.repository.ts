@@ -10,9 +10,33 @@ import type {
 } from "./business.types";
 import type { UserRepository } from "./../user/user.repository";
 import type { RefreshTokenRepository } from "../refresh-token";
+import { PaginatedResult, UniversalPaginationQuery } from "@ps-design/schemas/pagination";
+import { executePaginatedQuery } from "@/shared/pagination-utils";
+import { BUSINESS_MAPPING } from "@ps-design/constants/business";
 
 export class BusinessRepository {
-  constructor(private repository: Repository<Business>) {}
+  constructor(private repository: Repository<Business>) { }
+
+  async findAllPaginatedAdvanced(
+    query: UniversalPaginationQuery,
+  ): Promise<PaginatedResult<Business>> {
+    const qb = this.repository.createQueryBuilder("business");
+    qb.where("business.deletedAt IS NULL");
+
+    // Handle simple search if provided (searches all text fields)
+    if (query.search) {
+      qb.andWhere("business.name ILIKE :search", {
+        search: `%${query.search}%`,
+      });
+    }
+
+    return executePaginatedQuery(
+      qb,
+      query,
+      BUSINESS_MAPPING.fields,
+      "business",
+    );
+  }
 
   async findAll(): Promise<Business[]> {
     return this.repository.find({

@@ -11,6 +11,6 @@ export const BUSINESS_MAPPING: EntityMapping = {
       displayName: "Business Name",
     },
   },
-  endpoint: "/business",
+  endpoint: "/business/pagination",
   displayName: "Business",
 };

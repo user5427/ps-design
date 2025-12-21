@@ -10,6 +10,19 @@ import type {
 import { BusinessResponseSchema } from "@ps-design/schemas/business";
 import { ScopeNames, SCOPE_CONFIG } from "@/modules/user";
 import { BadRequestError } from "@/shared/errors";
+import { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
+
+export async function getBusinessesPaginatedAdvanced(
+  fastify: FastifyInstance,
+  query: UniversalPaginationQuery,
+): Promise<PaginatedBusinessResponse> {
+  const result = await fastify.db.business.findAllPaginatedAdvanced(query);
+  return {
+    items: result.items.map((item) => BusinessResponseSchema.parse(item)),
+    ...result.metadata,
+  };
+}
+
 
 export async function getBusinessesPaginated(
   fastify: FastifyInstance,

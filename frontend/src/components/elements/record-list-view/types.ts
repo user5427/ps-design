@@ -25,6 +25,12 @@ export interface ValidationRule {
   message: string;
 }
 
+export interface PaginationFieldConfig {
+  mapping: EntityMapping;
+  returnColumn: string;
+  displayColumn: string;
+}
+
 export interface FormFieldDefinition {
   name: string;
   label: string;
@@ -47,10 +53,8 @@ export interface FormFieldDefinition {
     error?: string;
     disabled: boolean;
   }) => React.ReactNode;
-  /** For pagination fields: entity mapping for the pagination source */
-  paginationMapping?: EntityMapping;
-  /** For pagination fields: which column to return when selecting a row (defaults to entire row) */
-  paginationReturnColumn?: string;
+  /** For pagination fields: bundled configuration with mapping, return and display columns (required for pagination type) */
+  paginationConfig?: PaginationFieldConfig;
 }
 
 export interface ViewFieldDefinition {
