@@ -13,6 +13,12 @@ import type { GiftCard } from "@/modules/gift-card/gift-card.entity";
 import { stripeService } from "@/modules/payment/stripe-service";
 import { MINIMUM_STRIPE_PAYMENT_AMOUNT } from "@ps-design/schemas/payments";
 
+export interface OrderItemForDiscount {
+  menuItemId: string;
+  unitPrice: number; // base + variations included
+  quantity: number;
+}
+
 function toOrderResponse(
   order: import("@/modules/order").Order,
 ): OrderResponse {
@@ -57,6 +63,50 @@ function toOrderResponse(
   };
 }
 
+export async function getOrderItemsForDiscount(
+  fastify: FastifyInstance,
+  orderId: string,
+  businessId: string
+): Promise<OrderItemForDiscount[]> {
+  // Fetch the order including items and variations
+  const order = await fastify.db.order.getByIdAndBusinessId(orderId, businessId);
+
+  // Map order items to OrderItemForDiscount
+  const items: OrderItemForDiscount[] = order.orderItems.map((item) => {
+    const variationTotal = item.variations?.reduce(
+      (sum, v) => sum + v.snapPriceAdjustment,
+      0
+    ) ?? 0;
+
+    const unitPrice = item.snapBasePrice + variationTotal;
+
+    return {
+      menuItemId: item.menuItemId,
+      unitPrice, // base + variations
+      quantity: item.quantity,
+    };
+  });
+
+  return items;
+}
+
+export async function getBestDiscountForOrder(
+  fastify: FastifyInstance,
+  businessId: string,
+  orderId: string,
+): Promise<number> {
+  const items = await getOrderItemsForDiscount(
+    fastify,
+    orderId,
+    businessId,
+  );
+  const discountAmount = await fastify.db.discount.findApplicableForOrder(
+    businessId,
+    items,
+  );
+  return discountAmount;
+}
+
 export async function createOrder(
   fastify: FastifyInstance,
   businessId: string,
@@ -82,6 +132,7 @@ export async function getOrder(
     params.orderId,
     businessId,
   );
+
   return toOrderResponse(order);
 }
 
@@ -96,7 +147,20 @@ export async function updateOrderItems(
     businessId,
     body.items,
   );
-  return toOrderResponse(order);
+
+  const discountAmount = await getBestDiscountForOrder(
+    fastify,
+    businessId,
+    orderId,
+  );
+
+  const updatedOrder = await fastify.db.order.updateTotals(
+    orderId,
+    businessId,
+    0,
+    discountAmount,
+  );
+  return toOrderResponse(updatedOrder);
 }
 
 export async function sendOrderItems(
@@ -123,8 +187,13 @@ export async function updateOrderTotals(
     orderId,
     businessId,
     body.tipAmount,
-    body.discountAmount,
+    body.discountAmount + await getBestDiscountForOrder(
+      fastify,
+      businessId,
+      orderId,
+    ),
   );
+
   return toOrderResponse(order);
 }
 

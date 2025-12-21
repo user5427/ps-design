@@ -1,6 +1,5 @@
 export {
   discountKeys,
-  useApplicableOrderDiscount,
   useApplicableServiceDiscount,
   useServiceDiscounts,
   useCreateServiceDiscount,

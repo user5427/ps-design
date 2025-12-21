@@ -822,7 +822,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                 </Box>
 
                 <Box>
-                  <Typography variant="subtitle2">Tip & discount</Typography>
+                  <Typography variant="subtitle2">Tip</Typography>
                   <Stack
                     direction={{ xs: "column", sm: "row" }}
                     spacing={1}
@@ -835,14 +835,6 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                       onChange={(e) => setTipInput(e.target.value)}
                       disabled={!isOpen || updateTotalsMutation.isPending}
                       sx={{ minWidth: 100 }}
-                    />
-                    <TextField
-                      label="Discount (€)"
-                      size="small"
-                      value={discountInput}
-                      onChange={(e) => setDiscountInput(e.target.value)}
-                      disabled={!isOpen || updateTotalsMutation.isPending}
-                      sx={{ minWidth: 120 }}
                     />
                     <Button
                       variant="outlined"

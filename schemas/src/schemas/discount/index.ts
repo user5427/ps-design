@@ -1,6 +1,5 @@
 export {
   DiscountIdParam,
-  GetApplicableOrderDiscountSchema,
   GetApplicableServiceDiscountSchema,
   CreateServiceDiscountSchema,
   CreateMenuDiscountSchema,
@@ -11,7 +10,6 @@ export {
   type CreateMenuDiscountBody,
   type UpdateServiceDiscountBody,
   type UpdateMenuDiscountBody,
-  type GetApplicableOrderDiscountQuery,
   type GetApplicableServiceDiscountQuery,
   type BaseCreateDiscountBody,
   type BaseUpdateDiscountBody,

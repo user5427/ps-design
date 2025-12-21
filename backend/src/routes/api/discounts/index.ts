@@ -7,7 +7,6 @@ import {
   getAllDiscounts,
   getDiscountById,
   updateDiscount,
-  getApplicableDiscountForOrder,
   getApplicableDiscountForService,
 } from "./service";
 import { getBusinessId } from "@/shared/auth-utils";
@@ -23,8 +22,6 @@ import {
   UpdateMenuDiscountSchema,
   type UpdateServiceDiscountBody,
   type UpdateMenuDiscountBody,
-  GetApplicableOrderDiscountSchema,
-  type GetApplicableOrderDiscountQuery,
   GetApplicableServiceDiscountSchema,
   type GetApplicableServiceDiscountQuery,
 } from "@ps-design/schemas/discount";
@@ -360,38 +357,6 @@ export default async function discountsRoutes(fastify: FastifyInstance) {
 
         await deleteDiscountWrapped(fastify, businessId, discountId);
         return reply.code(httpStatus.NO_CONTENT).send();
-      } catch (error) {
-        return handleServiceError(error, reply);
-      }
-    },
-  );
-
-  server.get<{ Querystring: GetApplicableOrderDiscountQuery }>(
-    "/applicable/order",
-    {
-      onRequest: [fastify.authenticate, requireScope(ScopeNames.MENU)],
-      schema: {
-        querystring: GetApplicableOrderDiscountSchema,
-      },
-    },
-    async (
-      request: FastifyRequest<{
-        Querystring: GetApplicableOrderDiscountQuery;
-      }>,
-      reply: FastifyReply,
-    ) => {
-      const businessId = getBusinessId(request, reply);
-      if (!businessId) return;
-
-      try {
-        const { menuItemIds, orderTotal } = request.query;
-        const discount = await getApplicableDiscountForOrder(
-          fastify,
-          businessId,
-          menuItemIds,
-          orderTotal,
-        );
-        return reply.send(discount);
       } catch (error) {
         return handleServiceError(error, reply);
       }

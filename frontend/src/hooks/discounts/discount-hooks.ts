@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  getApplicableOrderDiscount,
   getApplicableServiceDiscount,
   getServiceDiscounts,
   createServiceDiscount,
@@ -40,18 +39,6 @@ export const discountKeys = {
       ] as const,
   },
 };
-
-export function useApplicableOrderDiscount(
-  menuItemIds: string[],
-  orderTotal: number,
-  enabled = true,
-) {
-  return useQuery({
-    queryKey: discountKeys.applicable.order(menuItemIds, orderTotal),
-    queryFn: () => getApplicableOrderDiscount(menuItemIds, orderTotal),
-    enabled: enabled && menuItemIds.length > 0 && orderTotal > 0,
-  });
-}
 
 export function useApplicableServiceDiscount(
   serviceDefinitionId: string,
