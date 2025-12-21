@@ -16,10 +16,12 @@ import {
   useMaterialReactTable,
   type MRT_RowSelectionState,
 } from "material-react-table";
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useRef } from "react";
 import { DeleteConfirmDialog } from "./delete-confirm-dialog";
 import { RecordFormModal } from "./record-form-modal";
 import { ViewRecordModal } from "./view-record-modal";
+import { SmartPaginationList } from "@/components/elements/pagination/smart-pagination-list";
+import type { SmartPaginationListRef } from "@/components/elements/pagination/smart-pagination-list";
 import type { RecordListViewProps, ViewFieldDefinition } from "./types";
 
 export function RecordListView<T extends Record<string, unknown>>({
@@ -49,6 +51,7 @@ export function RecordListView<T extends Record<string, unknown>>({
   enableMultiRowSelection,
   canEditRow,
   enableRowDeletion,
+  paginationMapping,
 }: RecordListViewProps<T>) {
   // Compute whether to show actions - defaults to true when handler is provided
   const showEditAction = hasEditAction ?? !!onEdit;
@@ -62,6 +65,8 @@ export function RecordListView<T extends Record<string, unknown>>({
   const [deletingIds, setDeletingIds] = useState<string[]>([]);
 
   const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
+
+  const smartPaginationRef = useRef<SmartPaginationListRef>(null);
 
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -97,6 +102,10 @@ export function RecordListView<T extends Record<string, unknown>>({
       message: "Record created successfully",
       severity: "success",
     });
+    // Refetch smart pagination if used
+    if (paginationMapping && smartPaginationRef.current) {
+      await smartPaginationRef.current.refetch();
+    }
     onSuccess?.();
   };
 
@@ -126,6 +135,10 @@ export function RecordListView<T extends Record<string, unknown>>({
       severity: "success",
     });
     setEditingRecord(null);
+    // Refetch smart pagination if used
+    if (paginationMapping && smartPaginationRef.current) {
+      await smartPaginationRef.current.refetch();
+    }
     onSuccess?.();
   };
 
@@ -139,6 +152,10 @@ export function RecordListView<T extends Record<string, unknown>>({
     });
     setRowSelection({});
     setDeletingIds([]);
+    // Refetch smart pagination if used
+    if (paginationMapping && smartPaginationRef.current) {
+      await smartPaginationRef.current.refetch();
+    }
     onSuccess?.();
   };
 
@@ -322,7 +339,32 @@ export function RecordListView<T extends Record<string, unknown>>({
         </Alert>
       )}
 
-      <MaterialReactTable table={table} />
+      {paginationMapping ? (
+        <SmartPaginationList
+          ref={smartPaginationRef}
+          mapping={paginationMapping}
+          onEdit={
+            showEditAction
+              ? (rowData) => openEditModal(rowData as T)
+              : undefined
+          }
+          onDelete={
+            showDeleteAction
+              ? (rowData) => {
+                  const idValue =
+                    rowData[idKey as string] ||
+                    (rowData as Record<string, unknown>).id;
+                  openDeleteDialog([String(idValue)]);
+                }
+              : undefined
+          }
+          onView={
+            hasViewAction ? (rowData) => openViewModal(rowData as T) : undefined
+          }
+        />
+      ) : (
+        <MaterialReactTable table={table} />
+      )}
 
       {renderCustomCreateModal ? (
         renderCustomCreateModal({

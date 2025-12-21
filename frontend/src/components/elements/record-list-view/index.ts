@@ -2,6 +2,7 @@ export { RecordListView } from "./record-list-view";
 export { RecordFormModal } from "./record-form-modal";
 export { ViewRecordModal } from "./view-record-modal";
 export { DeleteConfirmDialog } from "./delete-confirm-dialog";
+export { PaginationFieldModal } from "./pagination-field-modal";
 export type {
   RecordListViewProps,
   FormFieldDefinition,
