@@ -24,6 +24,7 @@ import { useRef, useState } from "react";
 import dayjs from "dayjs";
 import { FormAlert } from "@/components/elements/form";
 import type { FormFieldDefinition } from "./types";
+import { SmartPaginationList } from "@/components/elements/pagination/smart-pagination-list";
 import { getReadableError } from "@/utils/get-readable-error";
 
 interface RecordFormModalProps {
@@ -343,6 +344,37 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
             }}
             format="YYYY-MM-DD HH:mm"
           />
+        );
+
+      case "pagination":
+        if (!field.paginationMapping) {
+          return (
+            <Box key={field.name} sx={{ color: "error.main", fontSize: 14 }}>
+              Pagination field "{field.name}" missing paginationMapping
+            </Box>
+          );
+        }
+        return (
+          <Box key={field.name}>
+            <Box sx={{ mb: 1, fontSize: 14, fontWeight: 500 }}>
+              {field.label}
+              {field.required && <span style={{ color: "red" }}> *</span>}
+            </Box>
+            <SmartPaginationList
+              mapping={field.paginationMapping}
+              onSelect={(rowData) => {
+                const selectedValue = field.paginationReturnColumn
+                  ? rowData[field.paginationReturnColumn]
+                  : rowData;
+                handleChange(field.name, selectedValue);
+              }}
+            />
+            {error && (
+              <Box sx={{ color: "error.main", fontSize: 12, mt: 0.5 }}>
+                {error}
+              </Box>
+            )}
+          </Box>
         );
 
       default:

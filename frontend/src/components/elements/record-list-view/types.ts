@@ -1,5 +1,6 @@
 import type { MRT_ColumnDef } from "material-react-table";
 import type React from "react";
+import type { EntityMapping } from "@ps-design/utils";
 
 export type FieldType =
   | "text"
@@ -11,7 +12,8 @@ export type FieldType =
   | "date"
   | "datetime"
   | "textarea"
-  | "checkbox";
+  | "checkbox"
+  | "pagination";
 
 export interface SelectOption {
   value: string;
@@ -45,6 +47,10 @@ export interface FormFieldDefinition {
     error?: string;
     disabled: boolean;
   }) => React.ReactNode;
+  /** For pagination fields: entity mapping for the pagination source */
+  paginationMapping?: EntityMapping;
+  /** For pagination fields: which column to return when selecting a row (defaults to entire row) */
+  paginationReturnColumn?: string;
 }
 
 export interface ViewFieldDefinition {
@@ -151,4 +157,9 @@ export interface RecordListViewProps<T extends Record<string, unknown>> {
    * If returns false, the delete checkbox and actions will be hidden for that row.
    */
   enableRowDeletion?: (row: { original: T }) => boolean;
+  /**
+   * Optional pagination mapping to use SmartPaginationList instead of MaterialReactTable
+   * When provided, the component will render paginated data from the API endpoint
+   */
+  paginationMapping?: EntityMapping;
 }
