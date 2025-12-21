@@ -66,17 +66,18 @@ function toOrderResponse(
 export async function getOrderItemsForDiscount(
   fastify: FastifyInstance,
   orderId: string,
-  businessId: string
+  businessId: string,
 ): Promise<OrderItemForDiscount[]> {
   // Fetch the order including items and variations
-  const order = await fastify.db.order.getByIdAndBusinessId(orderId, businessId);
+  const order = await fastify.db.order.getByIdAndBusinessId(
+    orderId,
+    businessId,
+  );
 
   // Map order items to OrderItemForDiscount
   const items: OrderItemForDiscount[] = order.orderItems.map((item) => {
-    const variationTotal = item.variations?.reduce(
-      (sum, v) => sum + v.snapPriceAdjustment,
-      0
-    ) ?? 0;
+    const variationTotal =
+      item.variations?.reduce((sum, v) => sum + v.snapPriceAdjustment, 0) ?? 0;
 
     const unitPrice = item.snapBasePrice + variationTotal;
 
@@ -95,11 +96,7 @@ export async function getBestDiscountForOrder(
   businessId: string,
   orderId: string,
 ): Promise<number> {
-  const items = await getOrderItemsForDiscount(
-    fastify,
-    orderId,
-    businessId,
-  );
+  const items = await getOrderItemsForDiscount(fastify, orderId, businessId);
   const discountAmount = await fastify.db.discount.findApplicableForOrder(
     businessId,
     items,
@@ -187,11 +184,8 @@ export async function updateOrderTotals(
     orderId,
     businessId,
     body.tipAmount,
-    body.discountAmount + await getBestDiscountForOrder(
-      fastify,
-      businessId,
-      orderId,
-    ),
+    body.discountAmount +
+      (await getBestDiscountForOrder(fastify, businessId, orderId)),
   );
 
   return toOrderResponse(order);
