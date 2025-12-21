@@ -176,7 +176,12 @@ export function usePaginatedQuery<
   return {
     // Data and state
     items: (data?.items ?? []) as T[],
-    metadata: data?.metadata,
+    metadata: data?.metadata ?? {
+      total: 0,
+      page: 1,
+      limit: 20,
+      pages: 0,
+    },
     isLoading,
     error: error as Error | null,
     data, // Raw data for advanced usage

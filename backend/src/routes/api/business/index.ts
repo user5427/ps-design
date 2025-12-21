@@ -27,6 +27,8 @@ import {
   type BusinessQuery,
   BusinessQuerySchema,
   BusinessUsersResponseSchema,
+  BusinessResponse,
+  AdvancedPaginatedBusinessResponseSchema,
 } from "@ps-design/schemas/business";
 import {
   BusinessResponseSchema,
@@ -51,7 +53,7 @@ export default async function businessRoutes(fastify: FastifyInstance) {
       schema: {
         querystring: UniversalPaginationQuerySchema,
         response: {
-          200: PaginatedBusinessResponseSchema,
+          200: AdvancedPaginatedBusinessResponseSchema,
           401: ErrorResponseSchema,
         },
       },

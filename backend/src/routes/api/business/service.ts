@@ -6,6 +6,7 @@ import type {
   UpdateBusinessTypesBody,
   PaginatedBusinessResponse,
   BusinessUserResponse,
+  AdvancedPaginatedBusinessResponse,
 } from "@ps-design/schemas/business";
 import { BusinessResponseSchema } from "@ps-design/schemas/business";
 import { ScopeNames, SCOPE_CONFIG } from "@/modules/user";
@@ -15,12 +16,9 @@ import { UniversalPaginationQuery } from "@ps-design/schemas/pagination";
 export async function getBusinessesPaginatedAdvanced(
   fastify: FastifyInstance,
   query: UniversalPaginationQuery,
-): Promise<PaginatedBusinessResponse> {
+): Promise<AdvancedPaginatedBusinessResponse> {
   const result = await fastify.db.business.findAllPaginatedAdvanced(query);
-  return {
-    items: result.items.map((item) => BusinessResponseSchema.parse(item)),
-    ...result.metadata,
-  };
+  return result
 }
 
 

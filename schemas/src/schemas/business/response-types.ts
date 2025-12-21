@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { uuid } from "../shared/zod-utils";
 import { PaginationMetaSchema } from "../shared/response-types";
+import { createPaginatedSchema } from "../pagination";
 
 export const BusinessResponseSchema = z.object({
   id: uuid(),
@@ -15,6 +16,12 @@ export const BusinessResponseSchema = z.object({
   updatedAt: z.date(),
 });
 
+export const AdvancedPaginatedBusinessResponseSchema = createPaginatedSchema(
+  BusinessResponseSchema,
+  "PaginatedBusinessResponse",
+);
+
+
 export const PaginatedBusinessResponseSchema = z.object({
   items: z.array(BusinessResponseSchema),
   ...PaginationMetaSchema.shape,
@@ -23,4 +30,7 @@ export const PaginatedBusinessResponseSchema = z.object({
 export type BusinessResponse = z.infer<typeof BusinessResponseSchema>;
 export type PaginatedBusinessResponse = z.infer<
   typeof PaginatedBusinessResponseSchema
+>;
+export type AdvancedPaginatedBusinessResponse = z.infer<
+  typeof AdvancedPaginatedBusinessResponseSchema
 >;

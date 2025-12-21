@@ -106,6 +106,10 @@ export const SmartPaginationList = forwardRef<
   const [columnFilters, setColumnFilters] = useState<
     Array<{ id: string; value: unknown }>
   >([]);
+  const [pagination, setPagination] = useState({
+    pageIndex: (query.page ?? 1) - 1,
+    pageSize: query.limit ?? 20,
+  });
 
   // Build table columns from mapping
   const columns = useMemo(() => {
@@ -214,6 +218,28 @@ export const SmartPaginationList = forwardRef<
     onQueryChange?.(newQuery);
   };
 
+  // Handle pagination change from table
+  const handlePaginationChange = (
+    updaterOrValue:
+      | ((
+          prev: typeof pagination,
+        ) => typeof pagination)
+      | typeof pagination,
+  ) => {
+    const newPagination =
+      typeof updaterOrValue === "function"
+        ? updaterOrValue(pagination)
+        : updaterOrValue;
+    setPagination(newPagination);
+    const newQuery: UniversalPaginationQuery = {
+      ...query,
+      page: newPagination.pageIndex + 1,
+      limit: newPagination.pageSize,
+    };
+    setQuery(newQuery);
+    onQueryChange?.(newQuery);
+  };
+
   // Handle column visibility
   const handleColumnVisibilityChange = (
     columnName: string,
@@ -236,13 +262,18 @@ export const SmartPaginationList = forwardRef<
     layoutMode: "grid",
     enableSorting: true,
     enableColumnFilters: true,
+    enablePagination: true,
+    manualPagination: true,
     state: {
       isLoading,
       sorting,
       columnFilters,
+      pagination,
     },
     onSortingChange: handleSortingChange,
     onColumnFiltersChange: handleColumnFiltersChange,
+    onPaginationChange: handlePaginationChange,
+    rowCount: metadata?.total || 0,
     muiTableContainerProps: {
       sx: { maxHeight: "calc(100vh - 300px)" },
     },
