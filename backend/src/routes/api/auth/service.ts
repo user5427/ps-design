@@ -221,9 +221,9 @@ export async function impersonateBusiness(
 
   // Get all scopes from the superadmin user
   const superadminScopes = await fastify.db.role.getUserScopesFromRoles(
-    (await fastify.db.userRole.getRoleIdsForUser(superadminId)),
+    await fastify.db.userRole.getRoleIdsForUser(superadminId),
   );
-  
+
   if (!superadminScopes.length) {
     throw {
       code: httpStatus.UNAUTHORIZED,
@@ -301,7 +301,7 @@ export async function endImpersonation(
   userId: string,
 ): Promise<void> {
   const user = await fastify.db.user.findById(userId);
-  
+
   if (!user || !user.isTempUser) {
     throw {
       code: httpStatus.BAD_REQUEST,
