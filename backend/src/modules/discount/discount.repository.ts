@@ -15,6 +15,7 @@ import type {
   IUpdateDiscount,
   ApplicableDiscountResult,
 } from "./discount.types";
+import { OrderItemForDiscount } from "@/routes/api/orders/service";
 
 export class DiscountRepository {
   constructor(private repository: Repository<Discount>) {}
@@ -128,7 +129,7 @@ export class DiscountRepository {
    */
   async findApplicableForOrder(
     businessId: string,
-    items: { menuItemId: string; unitPrice: number; quantity: number }[],
+    items: OrderItemForDiscount[],
   ): Promise<number> {
     const now = new Date();
 
