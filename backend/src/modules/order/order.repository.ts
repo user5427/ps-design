@@ -432,6 +432,11 @@ export class OrderRepository {
 
     const items = await orderItemRepo.find({
       where: { orderId, deletedAt: IsNull() },
+      relations: [
+        "menuItem",
+        "menuItem.category",
+        "menuItem.category.tax",
+      ],
     });
 
     const itemsTotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
@@ -441,11 +446,44 @@ export class OrderRepository {
     });
     if (!order) return;
 
-    const totalAmount =
-      itemsTotal + order.totalTax + order.totalTip - order.totalDiscount;
+    // Calculate total tax based on menu item category tax rates.
+    // Mirrors appointment tax behavior by applying discounts before tax.
+    let totalTax = 0;
+
+    if (itemsTotal > 0) {
+      const effectiveDiscount = Math.max(
+        0,
+        Math.min(order.totalDiscount, itemsTotal),
+      );
+
+      for (const item of items) {
+        const taxRate = item.menuItem?.category?.tax
+          ? Number(item.menuItem.category.tax.rate)
+          : 0;
+
+        if (!taxRate) {
+          continue;
+        }
+
+        const share = item.lineTotal / itemsTotal;
+        const itemDiscount = effectiveDiscount * share;
+        const taxableAmount = Math.max(0, item.lineTotal - itemDiscount);
+
+        const lineTax = Number(
+          ((taxableAmount * taxRate) / 100).toFixed(2),
+        );
+
+        totalTax += lineTax;
+      }
+    }
+
+    const rawTotalAmount =
+      itemsTotal + totalTax + order.totalTip - order.totalDiscount;
+    const totalAmount = Math.max(0, Number(rawTotalAmount.toFixed(2)));
 
     await orderRepo.update(orderId, {
       itemsTotal,
+      totalTax,
       totalAmount,
     });
   }
