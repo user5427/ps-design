@@ -60,6 +60,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
   const [customerEmail, setCustomerEmail] = useState("");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const selectedService = staffServiceOptions.find(
     (s) => s.value === (selection?.staffServiceId || ""),
@@ -74,11 +75,11 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
   };
 
   const handleSubmit = async () => {
-    if (!selection || !customerName) {
-      return;
-    }
+    if (!selection || !customerName) return;
 
     setIsSubmitting(true);
+    setError(null);
+
     try {
       await onCreate({
         serviceId: selection.staffServiceId,
@@ -89,6 +90,13 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
         notes: notes || undefined,
       });
       handleClose();
+      setError(null);
+    } catch (err: any) {
+      const raw =
+        err?.response?.data?.message || err?.message || "Unexpected error";
+
+      const friendly = raw.replace(/^.*?\s+(?=[A-Z])/, "");
+      setError(friendly);
     } finally {
       setIsSubmitting(false);
     }
@@ -101,6 +109,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     setCustomerPhone("");
     setCustomerEmail("");
     setNotes("");
+    setError(null);
     onClose();
   };
 
@@ -129,6 +138,11 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     <Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth>
       <DialogTitle>Create Appointment</DialogTitle>
       <DialogContent>
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
         <Stack
           direction={{ xs: "column", md: "row" }}
           spacing={3}
