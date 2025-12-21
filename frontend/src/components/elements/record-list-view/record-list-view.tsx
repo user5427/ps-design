@@ -351,7 +351,9 @@ export function RecordListView<T extends Record<string, unknown>>({
           onDelete={
             showDeleteAction
               ? (rowData) => {
-                  const idValue = rowData[idKey as string] || (rowData as Record<string, unknown>).id;
+                  const idValue =
+                    rowData[idKey as string] ||
+                    (rowData as Record<string, unknown>).id;
                   openDeleteDialog([String(idValue)]);
                 }
               : undefined
