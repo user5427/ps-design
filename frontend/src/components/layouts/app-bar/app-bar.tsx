@@ -10,7 +10,11 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import type React from "react";
-import { useAuthUser, useImpersonateBusiness, useEndImpersonation } from "@/hooks/auth";
+import {
+  useAuthUser,
+  useImpersonateBusiness,
+  useEndImpersonation,
+} from "@/hooks/auth";
 import { useBusinessesPaginated } from "@/queries/business";
 import { useScopes } from "@/queries/scopes";
 import { useAuthStore } from "@/store/auth";
@@ -138,7 +142,8 @@ export const AppBar: React.FC<AppBarProps> = ({ logo }) => {
   const { data: scopes } = useScopes();
 
   // Check if user is superadmin (has SUPERADMIN scope)
-  const isSuperAdmin = scopes?.some((scope) => scope.name === "SUPERADMIN") ?? false;
+  const isSuperAdmin =
+    scopes?.some((scope) => scope.name === "SUPERADMIN") ?? false;
 
   return (
     <MUIAppBar

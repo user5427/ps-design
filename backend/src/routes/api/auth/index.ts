@@ -1,7 +1,14 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import httpStatus from "http-status";
-import { changePassword, login, logout, refreshAccessToken, impersonateBusiness, endImpersonation } from "./service";
+import {
+  changePassword,
+  login,
+  logout,
+  refreshAccessToken,
+  impersonateBusiness,
+  endImpersonation,
+} from "./service";
 import { setRefreshCookie, requireAuthUser } from "@/shared/auth-utils";
 import {
   type ChangePasswordBody,

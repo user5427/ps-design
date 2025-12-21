@@ -432,11 +432,7 @@ export class OrderRepository {
 
     const items = await orderItemRepo.find({
       where: { orderId, deletedAt: IsNull() },
-      relations: [
-        "menuItem",
-        "menuItem.category",
-        "menuItem.category.tax",
-      ],
+      relations: ["menuItem", "menuItem.category", "menuItem.category.tax"],
     });
 
     const itemsTotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
@@ -469,9 +465,7 @@ export class OrderRepository {
         const itemDiscount = effectiveDiscount * share;
         const taxableAmount = Math.max(0, item.lineTotal - itemDiscount);
 
-        const lineTax = Number(
-          ((taxableAmount * taxRate) / 100).toFixed(2),
-        );
+        const lineTax = Number(((taxableAmount * taxRate) / 100).toFixed(2));
 
         totalTax += lineTax;
       }
