@@ -15,7 +15,7 @@ import type {
   IUpdateDiscount,
   ApplicableDiscountResult,
 } from "./discount.types";
-import { OrderItemForDiscount } from "@/routes/api/orders/service";
+import type { OrderItemForDiscount } from "@/routes/api/orders/service";
 
 export class DiscountRepository {
   constructor(private repository: Repository<Discount>) {}
