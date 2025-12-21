@@ -15,6 +15,7 @@ import type {
   IUpdateDiscount,
   ApplicableDiscountResult,
 } from "./discount.types";
+import type { OrderItemForDiscount } from "@/routes/api/orders/service";
 
 export class DiscountRepository {
   constructor(private repository: Repository<Discount>) {}
@@ -123,21 +124,63 @@ export class DiscountRepository {
   }
 
   /**
-   * Find the best applicable discount for an order.
-   * Priority: ORDER > MENU_ITEM
-   * Only one discount is applied.
+   * Returns the total discount amount for an order.
+   * ORDER discount wins — if no ORDER discount, sum MENU_ITEM discounts.
    */
-
-  // TODO: implement this properly
-
   async findApplicableForOrder(
     businessId: string,
-    menuItemIds: string[],
-    orderTotal: number,
-  ): Promise<ApplicableDiscountResult | null> {
+    items: OrderItemForDiscount[],
+  ): Promise<number> {
     const now = new Date();
 
-    return null;
+    const orderTotal = items.reduce(
+      (sum, item) => sum + item.unitPrice * item.quantity,
+      0,
+    );
+
+    /**
+     * 1. ORDER DISCOUNT TAKES PRIORITY
+     */
+    const orderDiscount = await this.findActiveDiscount(
+      businessId,
+      "ORDER",
+      now,
+    );
+
+    if (orderDiscount) {
+      return this.calculateDiscountAmount(orderDiscount, orderTotal);
+    }
+
+    /**
+     * 2. OTHERWISE SUM ALL MENU_ITEM DISCOUNTS
+     */
+    let totalAmount = 0;
+
+    for (const item of items) {
+      const d = await this.repository.findOne({
+        where: {
+          businessId,
+          deletedAt: IsNull(),
+          isDisabled: false,
+          targetType: "MENU_ITEM",
+          menuItemId: item.menuItemId,
+          startsAt: Or(IsNull(), LessThanOrEqual(now)),
+          expiresAt: Or(IsNull(), MoreThanOrEqual(now)),
+        },
+      });
+
+      if (d && this.isDiscountActive(d, now)) {
+        const amount = this.calculateDiscountAmount(
+          d,
+          item.unitPrice * item.quantity,
+        );
+        if (amount > 0) {
+          totalAmount += amount;
+        }
+      }
+    }
+
+    return totalAmount;
   }
 
   /**

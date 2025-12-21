@@ -110,29 +110,6 @@ export interface ApplicableDiscountResponse {
   calculatedAmount: number;
 }
 
-export async function getApplicableDiscountForOrder(
-  fastify: FastifyInstance,
-  businessId: string,
-  menuItemIds: string[],
-  orderTotal: number,
-): Promise<ApplicableDiscountResponse | null> {
-  const result = await fastify.db.discount.findApplicableForOrder(
-    businessId,
-    menuItemIds,
-    orderTotal,
-  );
-
-  if (!result) return null;
-
-  return {
-    id: result.discount.id,
-    name: result.discount.name,
-    type: result.discount.type,
-    value: result.discount.value,
-    calculatedAmount: result.calculatedAmount,
-  };
-}
-
 export async function getApplicableDiscountForService(
   fastify: FastifyInstance,
   businessId: string,

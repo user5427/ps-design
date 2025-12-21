@@ -213,11 +213,6 @@ export const UpdateMenuDiscountSchema = z
     },
   );
 
-export const GetApplicableOrderDiscountSchema = z.object({
-  menuItemIds: z.array(uuid()),
-  orderTotal: z.coerce.number().int().min(0),
-});
-
 export const GetApplicableServiceDiscountSchema = z.object({
   serviceDefinitionId: uuid(),
   servicePrice: z.coerce.number().int().min(0),
@@ -232,9 +227,6 @@ export type UpdateServiceDiscountBody = z.infer<
 >;
 export type CreateMenuDiscountBody = z.infer<typeof CreateMenuDiscountSchema>;
 export type UpdateMenuDiscountBody = z.infer<typeof UpdateMenuDiscountSchema>;
-export type GetApplicableOrderDiscountQuery = z.infer<
-  typeof GetApplicableOrderDiscountSchema
->;
 export type GetApplicableServiceDiscountQuery = z.infer<
   typeof GetApplicableServiceDiscountSchema
 >;

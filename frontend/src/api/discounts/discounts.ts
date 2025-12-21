@@ -9,19 +9,6 @@ export async function getDiscountById(id: string): Promise<DiscountResponse> {
   return response.data;
 }
 
-export async function getApplicableOrderDiscount(
-  menuItemIds: string[],
-  orderTotal: number,
-): Promise<ApplicableDiscountResponse | null> {
-  const response = await apiClient.get<ApplicableDiscountResponse | null>(
-    "/discounts/applicable/order",
-    {
-      params: { menuItemIds, orderTotal },
-    },
-  );
-  return response.data;
-}
-
 export async function getApplicableServiceDiscount(
   serviceDefinitionId: string,
   servicePrice: number,

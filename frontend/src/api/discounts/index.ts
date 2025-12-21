@@ -1,6 +1,5 @@
 export {
   getDiscountById,
-  getApplicableOrderDiscount,
   getApplicableServiceDiscount,
 } from "./discounts";
 
