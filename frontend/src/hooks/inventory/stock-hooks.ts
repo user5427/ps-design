@@ -6,6 +6,7 @@ import {
   type GetStockChangesParams,
 } from "@/api/inventory";
 import type { CreateStockChange } from "@/schemas/inventory";
+import { menuItemKeys } from "../menu";
 
 export const stockKeys = {
   all: ["inventory"] as const,
@@ -35,6 +36,8 @@ export function useCreateStockChange() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: stockKeys.stockChanges() });
       queryClient.invalidateQueries({ queryKey: stockKeys.stockLevels() });
+
+      queryClient.invalidateQueries({ queryKey: menuItemKeys.all });
     },
   });
 }
