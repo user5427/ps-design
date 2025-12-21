@@ -33,15 +33,24 @@ export const useAuthStore = create<AuthState>()(
         return token ? { Authorization: `Bearer ${token}` } : {};
       },
 
-      setInitialized: (initialized: boolean) => set({ isInitialized: initialized }),
+      setInitialized: (initialized: boolean) =>
+        set({ isInitialized: initialized }),
 
       isAuthInitialized: () => get().isInitialized,
 
       startImpersonation: (newToken: string) =>
-        set({ originalAccessToken: get().accessToken, accessToken: newToken, isImpersonating: true }),
+        set({
+          originalAccessToken: get().accessToken,
+          accessToken: newToken,
+          isImpersonating: true,
+        }),
 
       endImpersonation: () =>
-        set({ accessToken: get().originalAccessToken, originalAccessToken: null, isImpersonating: false }),
+        set({
+          accessToken: get().originalAccessToken,
+          originalAccessToken: null,
+          isImpersonating: false,
+        }),
 
       getIsImpersonating: () => get().isImpersonating,
     }),
