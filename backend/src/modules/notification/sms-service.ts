@@ -112,6 +112,12 @@ export class SMSService {
 
     const message = `Hi ${customerName}, your appointment for ${serviceName} with ${employeeName} at ${businessName} is confirmed for ${formattedDate} at ${formattedTime}. See you soon!`;
 
+    // check if customerPhone containts the '+' sign, if not, add it to the beginning
+    if (!customerPhone.startsWith("+")) {
+      customerPhone = `+${customerPhone}`;
+    }
+
+
     await this.sendSMS({
       phoneNumber: customerPhone,
       message,
