@@ -87,7 +87,10 @@ export async function refundOrderApi(
   return response.data;
 }
 
-export async function initiateOrderStripePayment(orderId: string): Promise<{
+export async function initiateOrderStripePayment(
+  orderId: string,
+  amount?: number, // major units
+): Promise<{
   clientSecret: string;
   paymentIntentId: string;
   finalAmount: number;
@@ -96,7 +99,7 @@ export async function initiateOrderStripePayment(orderId: string): Promise<{
     clientSecret: string;
     paymentIntentId: string;
     finalAmount: number;
-  }>(`/orders/${orderId}/pay/initiate`);
+  }>(`/orders/${orderId}/pay/initiate`, { amount });
   return response.data;
 }
 

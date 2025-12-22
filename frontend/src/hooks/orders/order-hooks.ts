@@ -149,7 +149,8 @@ export function useRefundOrder(orderId: string) {
 
 export function useInitiateOrderStripePayment(orderId: string) {
   return useMutation({
-    mutationFn: () => initiateOrderStripePayment(orderId),
+    mutationFn: (params?: { amount?: number }) =>
+      initiateOrderStripePayment(orderId, params?.amount),
   });
 }
 

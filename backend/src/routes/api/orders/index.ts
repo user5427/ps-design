@@ -16,6 +16,8 @@ import {
   UpdateOrderItemsSchema,
   type UpdateOrderTotalsBody,
   UpdateOrderTotalsSchema,
+  InitiateOrderPaymentSchema,
+  type InitiateOrderPaymentBody,
 } from "@ps-design/schemas/order/order";
 import { getBusinessId, getUserId } from "@/shared/auth-utils";
 import { handleServiceError } from "@/shared/error-handler";
@@ -266,17 +268,19 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
     },
   );
 
-  server.post<{ Params: OrderIdParams }>(
+  server.post<{ Params: OrderIdParams; Body: InitiateOrderPaymentBody }>(
     "/:orderId/pay/initiate",
     {
       onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
       schema: {
         params: OrderIdParam,
+        body: InitiateOrderPaymentSchema,
       },
     },
     async (
       request: FastifyRequest<{
         Params: OrderIdParams;
+        Body: InitiateOrderPaymentBody;
       }>,
       reply: FastifyReply,
     ) => {
@@ -290,6 +294,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
           fastify,
           businessId,
           orderId,
+          request.body?.amount,
         );
         return reply.send(result);
       } catch (error) {

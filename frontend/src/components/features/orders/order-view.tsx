@@ -110,6 +110,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   const [tipInput, setTipInput] = useState<string>("");
   const [refundAmountInput, setRefundAmountInput] = useState<string>("");
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
+  const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
 
   const waiterOptions = useMemo(
     () =>
@@ -236,6 +237,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     .reduce((sum, p) => sum + p.amount, 0);
   const netPaid = totalPaid - totalRefunded;
   const remaining = Math.max(0, total - netPaid);
+
+  // Check if order has any non-refunded payments
+  const hasPayments = payments.filter((p) => !p.isRefund).length > 0;
+  const refundableAmount = netPaid; // Amount that can be refunded
 
   const isOpen = order?.status === "OPEN";
 
@@ -379,6 +384,23 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
         );
       },
     });
+  };
+
+  const handleRefundAllPayments = () => {
+    if (!order) return;
+
+    refundOrderMutation.mutate(
+      { amount: refundableAmount },
+      {
+        onSuccess: () => {
+          setIsRefundModalOpen(false);
+          queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
+        },
+        onError: () => {
+          window.alert("Could not refund this order. Please try again.");
+        },
+      },
+    );
   };
 
   const handlePrintBill = () => {
@@ -615,14 +637,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                     ?.variations?.some(
                       (v) => !v.isDisabled && v.isAvailable,
                     ) && (
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ mt: 0.5 }}
-                    >
-                      Has variations
-                    </Typography>
-                  )}
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                      >
+                        Has variations
+                      </Typography>
+                    )}
                   {isSoldOut && (
                     <Box
                       sx={{
@@ -941,10 +963,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                 <Button
                   variant="outlined"
                   color="error"
-                  onClick={handleCancelOrder}
-                  disabled={!isOpen || cancelOrderMutation.isPending}
+                  onClick={hasPayments ? () => setIsRefundModalOpen(true) : handleCancelOrder}
+                  disabled={!isOpen || cancelOrderMutation.isPending || refundOrderMutation.isPending}
                 >
-                  Cancel Order
+                  {hasPayments ? "Refund Payments" : "Cancel Order"}
                 </Button>
                 <Button variant="outlined" onClick={handlePrintBill}>
                   Print Bill
@@ -963,6 +985,68 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
           queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
         }}
       />
+
+      {/* Refund Confirmation Modal */}
+      <Dialog
+        open={isRefundModalOpen}
+        onClose={() => setIsRefundModalOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Refund Payments</DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            Are you sure you want to refund all payments for Order{" "}
+            <strong>{order.id.slice(0, 8)}...</strong>?
+          </Typography>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+            Payments to be refunded:
+          </Typography>
+          <Box sx={{ mb: 2 }}>
+            {payments
+              .filter((p) => !p.isRefund)
+              .map((p) => (
+                <Box
+                  key={p.id}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    py: 0.5,
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                  }}
+                >
+                  <Typography variant="body2">
+                    {p.method}
+                    {p.method === "CARD" && " (Stripe)"}
+                  </Typography>
+                  <Typography variant="body2" fontWeight="medium">
+                    {p.amount.toFixed(2)}€
+                  </Typography>
+                </Box>
+              ))}
+          </Box>
+          <Typography variant="h6">
+            Total Refund: {refundableAmount.toFixed(2)}€
+          </Typography>
+          {payments.some((p) => !p.isRefund && p.method === "CARD") && (
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+              Card payments will be refunded via Stripe.
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsRefundModalOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleRefundAllPayments}
+            disabled={refundOrderMutation.isPending}
+          >
+            {refundOrderMutation.isPending ? "Processing..." : "Confirm Refund"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Dialog: choose a variation for a menu item */}
       <Dialog
@@ -1001,7 +1085,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                       control={<Radio />}
                       label={`${(
                         (activeMenuItem.basePrice + variation.priceAdjustment) /
-                          100
+                        100
                       ).toFixed(2)}€ — ${variation.name}`}
                     />
                   ))}

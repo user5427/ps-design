@@ -51,3 +51,11 @@ export type UpdateOrderTotalsBody = z.infer<typeof UpdateOrderTotalsSchema>;
 export type PayOrderBody = z.infer<typeof PayOrderSchema>;
 export type RefundOrderBody = z.infer<typeof RefundOrderSchema>;
 export type UpdateOrderWaiterBody = z.infer<typeof UpdateOrderWaiterSchema>;
+
+export const InitiateOrderPaymentSchema = z.object({
+  amount: z.number().min(0).optional(), // major units
+});
+
+export type InitiateOrderPaymentBody = z.infer<
+  typeof InitiateOrderPaymentSchema
+>;
