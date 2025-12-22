@@ -180,12 +180,16 @@ export async function updateOrderTotals(
   orderId: string,
   body: UpdateOrderTotalsBody,
 ): Promise<OrderResponse> {
+  // body.discountAmount = MANUAL discount only
+  // Auto-discount is calculated fresh to avoid double-application
+  const autoDiscount = await getBestDiscountForOrder(fastify, businessId, orderId);
+  const totalDiscount = body.discountAmount + autoDiscount;
+
   const order = await fastify.db.order.updateTotals(
     orderId,
     businessId,
     body.tipAmount,
-    body.discountAmount +
-      (await getBestDiscountForOrder(fastify, businessId, orderId)),
+    totalDiscount,
   );
 
   return toOrderResponse(order);

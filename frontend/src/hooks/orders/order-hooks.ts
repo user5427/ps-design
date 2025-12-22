@@ -81,6 +81,7 @@ export function useUpdateOrderTotals(orderId: string) {
         orderKeys.order(orderId),
         order,
       );
+      queryClient.invalidateQueries({ queryKey: orderKeys.order(orderId) });
     },
   });
 }

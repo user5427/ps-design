@@ -108,7 +108,6 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   >("base");
 
   const [tipInput, setTipInput] = useState<string>("");
-  const [discountInput, setDiscountInput] = useState<string>("");
   const [refundAmountInput, setRefundAmountInput] = useState<string>("");
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
 
@@ -222,11 +221,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     [ticketItems],
   );
 
-  const committedBaseTotal = order
-    ? order.itemsTotal + order.totalTax + order.totalTip - order.totalDiscount
-    : 0;
+  // Use the backend's canonical totalAmount for committed items
+  const committedTotal = order?.totalAmount ?? 0;
 
-  const total = committedBaseTotal + pendingItemsTotal;
+  // Pending items total is just an estimate (not yet subject to tax/discount)
+  const total = committedTotal + pendingItemsTotal;
 
   const payments = order?.payments ?? [];
   const totalPaid = payments
@@ -240,14 +239,16 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
 
   const isOpen = order?.status === "OPEN";
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (!order) return;
 
     setTipInput(order.totalTip.toFixed(2));
-    setDiscountInput(order.totalDiscount.toFixed(2));
+    // discountInput is for MANUAL discount only - auto-discount is calculated by backend
+    // Don't initialize from order.totalDiscount as it includes auto-discount
     const suggestedRefund = remaining > 0 ? 0 : order.totalAmount;
     setRefundAmountInput(suggestedRefund.toFixed(2));
-  }, [order, remaining]);
+  }, [order?.id, remaining]);
 
   const handleBack = () => {
     navigate({ to: URLS.FLOOR_PLAN });
@@ -399,10 +400,9 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     }
 
     const tipAmount = Math.max(0, parseMoneyInput(tipInput));
-    const discountAmount = Math.max(0, parseMoneyInput(discountInput));
 
     updateTotalsMutation.mutate(
-      { tipAmount, discountAmount },
+      { tipAmount, discountAmount: 0 },
       {
         onError: () => {
           window.alert("Could not update totals. Please try again.");
@@ -615,14 +615,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                     ?.variations?.some(
                       (v) => !v.isDisabled && v.isAvailable,
                     ) && (
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{ mt: 0.5 }}
-                      >
-                        Has variations
-                      </Typography>
-                    )}
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ mt: 0.5 }}
+                    >
+                      Has variations
+                    </Typography>
+                  )}
                   {isSoldOut && (
                     <Box
                       sx={{
@@ -1001,7 +1001,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                       control={<Radio />}
                       label={`${(
                         (activeMenuItem.basePrice + variation.priceAdjustment) /
-                        100
+                          100
                       ).toFixed(2)}€ — ${variation.name}`}
                     />
                   ))}
