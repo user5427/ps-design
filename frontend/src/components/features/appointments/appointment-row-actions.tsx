@@ -44,7 +44,7 @@ export const AppointmentRowActions: React.FC<AppointmentRowActionsProps> = ({
     );
   }
 
-  if (appointment.status === "PAID") {
+  if (appointment.status === "PAID" || appointment.status === "REFUNDED") {
     const handlePrintReceipt = () => {
       generateAppointmentReceiptPdf(appointment);
     };
@@ -56,11 +56,13 @@ export const AppointmentRowActions: React.FC<AppointmentRowActionsProps> = ({
             <ReceiptIcon fontSize="small" />
           </IconButton>
         </Tooltip>
-        <Tooltip title="Refund">
-          <IconButton size="small" color="warning" onClick={onRefund}>
-            <RefundIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
+        {appointment.status === "PAID" && (
+          <Tooltip title="Refund">
+            <IconButton size="small" color="warning" onClick={onRefund}>
+              <RefundIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
       </>
     );
   }

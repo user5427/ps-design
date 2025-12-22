@@ -274,9 +274,5 @@ export function generateAppointmentReceiptPdf(appointment: Appointment): void {
     doc.text("No payment recorded.", PDF_CONFIG.marginLeft, y);
   }
 
-  y += 3;
-  doc.setFontSize(8);
-  doc.text("Thank you!", PDF_CONFIG.pageWidth / 2, y, { align: "center" });
-
   openPdfInTab(doc);
 }
