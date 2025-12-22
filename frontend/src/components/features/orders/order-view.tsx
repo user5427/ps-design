@@ -42,6 +42,7 @@ import {
   useUpdateOrderItems,
   useUpdateOrderWaiter,
   useUpdateOrderTotals,
+  orderKeys,
 } from "@/hooks/orders/order-hooks";
 import { useMenuItems } from "@/hooks/menu";
 import { useAuthUser } from "@/hooks/auth";
@@ -50,6 +51,7 @@ import type { OrderItemInput } from "@ps-design/schemas/order/order";
 import type { BusinessUserResponse } from "@ps-design/schemas/business";
 import type { MenuItemResponse } from "@ps-design/schemas/menu/items";
 import { OrderPayModal } from "./order-pay-modal";
+import { generateOrderReceiptPdf } from "@/utils/generate-receipt-pdf";
 
 interface MenuItemEntry {
   id: string;
@@ -107,9 +109,9 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   >("base");
 
   const [tipInput, setTipInput] = useState<string>("");
-  const [discountInput, setDiscountInput] = useState<string>("");
-  const [refundAmountInput, setRefundAmountInput] = useState<string>("");
+
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
+  const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
 
   const waiterOptions = useMemo(
     () =>
@@ -221,11 +223,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     [ticketItems],
   );
 
-  const committedBaseTotal = order
-    ? order.itemsTotal + order.totalTax + order.totalTip - order.totalDiscount
-    : 0;
+  // Use the backend's canonical totalAmount for committed items
+  const committedTotal = order?.totalAmount ?? 0;
 
-  const total = committedBaseTotal + pendingItemsTotal;
+  // Pending items total is just an estimate (not yet subject to tax/discount)
+  const total = committedTotal + pendingItemsTotal;
 
   const payments = order?.payments ?? [];
   const totalPaid = payments
@@ -237,16 +239,20 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   const netPaid = totalPaid - totalRefunded;
   const remaining = Math.max(0, total - netPaid);
 
+  // Check if order has any non-refunded payments
+  const hasPayments = payments.filter((p) => !p.isRefund).length > 0;
+  const refundableAmount = netPaid; // Amount that can be refunded
+
   const isOpen = order?.status === "OPEN";
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (!order) return;
 
     setTipInput(order.totalTip.toFixed(2));
-    setDiscountInput(order.totalDiscount.toFixed(2));
-    const suggestedRefund = remaining > 0 ? 0 : order.totalAmount;
-    setRefundAmountInput(suggestedRefund.toFixed(2));
-  }, [order, remaining]);
+    // discountInput is for MANUAL discount only - auto-discount is calculated by backend
+    // Don't initialize from order.totalDiscount as it includes auto-discount
+  }, [order?.id, remaining]);
 
   const handleBack = () => {
     navigate({ to: URLS.FLOOR_PLAN });
@@ -379,13 +385,27 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     });
   };
 
-  const handlePrintBill = () => {
+  const handleRefundAllPayments = () => {
     if (!order) return;
 
-    // For now, trigger the browser print dialog so the
-    // current order view (items, totals, payments) can
-    // be printed as a receipt.
-    window.print();
+    refundOrderMutation.mutate(
+      { amount: refundableAmount },
+      {
+        onSuccess: () => {
+          setIsRefundModalOpen(false);
+          queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
+          queryClient.invalidateQueries({ queryKey: orderKeys.history() });
+        },
+        onError: () => {
+          window.alert("Could not refund this order. Please try again.");
+        },
+      },
+    );
+  };
+
+  const handlePrintBill = () => {
+    if (!order) return;
+    generateOrderReceiptPdf(order);
   };
 
   const parseMoneyInput = (value: string): number => {
@@ -402,32 +422,12 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     }
 
     const tipAmount = Math.max(0, parseMoneyInput(tipInput));
-    const discountAmount = Math.max(0, parseMoneyInput(discountInput));
 
     updateTotalsMutation.mutate(
-      { tipAmount, discountAmount },
+      { tipAmount, discountAmount: 0 },
       {
         onError: () => {
           window.alert("Could not update totals. Please try again.");
-        },
-      },
-    );
-  };
-
-  const handleRefund = () => {
-    if (!order) return;
-
-    const amount = parseMoneyInput(refundAmountInput);
-    if (amount <= 0) {
-      window.alert("Enter a valid refund amount.");
-      return;
-    }
-
-    refundOrderMutation.mutate(
-      { amount },
-      {
-        onError: () => {
-          window.alert("Could not refund this order.");
         },
       },
     );
@@ -878,31 +878,6 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                       Take Payment
                     </Button>
                   )}
-
-                  {(order.status === "PAID" || order.status === "REFUNDED") && (
-                    <Stack
-                      direction={{ xs: "column", sm: "row" }}
-                      spacing={1}
-                      alignItems={{ xs: "flex-start", sm: "center" }}
-                    >
-                      <TextField
-                        label="Refund amount (€)"
-                        size="small"
-                        value={refundAmountInput}
-                        onChange={(e) => setRefundAmountInput(e.target.value)}
-                        sx={{ minWidth: 160 }}
-                      />
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        color="warning"
-                        onClick={handleRefund}
-                        disabled={refundOrderMutation.isPending}
-                      >
-                        Refund
-                      </Button>
-                    </Stack>
-                  )}
                 </Stack>
               </Box>
             </Stack>
@@ -944,10 +919,19 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                 <Button
                   variant="outlined"
                   color="error"
-                  onClick={handleCancelOrder}
-                  disabled={!isOpen || cancelOrderMutation.isPending}
+                  onClick={
+                    hasPayments
+                      ? () => setIsRefundModalOpen(true)
+                      : handleCancelOrder
+                  }
+                  disabled={
+                    order.status === "CANCELLED" ||
+                    order.status === "REFUNDED" ||
+                    cancelOrderMutation.isPending ||
+                    refundOrderMutation.isPending
+                  }
                 >
-                  Cancel Order
+                  {hasPayments ? "Refund Payments" : "Cancel Order"}
                 </Button>
                 <Button variant="outlined" onClick={handlePrintBill}>
                   Print Bill
@@ -964,8 +948,75 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
         order={order}
         onSuccess={() => {
           queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
+          queryClient.invalidateQueries({ queryKey: orderKeys.history() });
         }}
       />
+
+      {/* Refund Confirmation Modal */}
+      <Dialog
+        open={isRefundModalOpen}
+        onClose={() => setIsRefundModalOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Refund Payments</DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            Are you sure you want to refund all payments for Order{" "}
+            <strong>{order.id.slice(0, 8)}...</strong>?
+          </Typography>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+            Payments to be refunded:
+          </Typography>
+          <Box sx={{ mb: 2 }}>
+            {payments
+              .filter((p) => !p.isRefund)
+              .map((p) => (
+                <Box
+                  key={p.id}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    py: 0.5,
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                  }}
+                >
+                  <Typography variant="body2">
+                    {p.method}
+                    {p.method === "CARD" && " (Stripe)"}
+                  </Typography>
+                  <Typography variant="body2" fontWeight="medium">
+                    {p.amount.toFixed(2)}€
+                  </Typography>
+                </Box>
+              ))}
+          </Box>
+          <Typography variant="h6">
+            Total Refund: {refundableAmount.toFixed(2)}€
+          </Typography>
+          {payments.some((p) => !p.isRefund && p.method === "CARD") && (
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mt: 1, display: "block" }}
+            >
+              Card payments will be refunded via Stripe.
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsRefundModalOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleRefundAllPayments}
+            disabled={refundOrderMutation.isPending}
+          >
+            {refundOrderMutation.isPending ? "Processing..." : "Confirm Refund"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Dialog: choose a variation for a menu item */}
       <Dialog

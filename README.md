@@ -54,8 +54,6 @@ Once this is set up, Stripe events will be forwarded to your local backend.
 Use Stripe’s official test cards to simulate payments:
 [https://docs.stripe.com/testing](https://docs.stripe.com/testing)
 
-These cards allow you to test successful payments, failures, and authentication flows (e.g. 3D Secure).
-
 ---
 
 ---

@@ -16,6 +16,10 @@ import {
   UpdateOrderItemsSchema,
   type UpdateOrderTotalsBody,
   UpdateOrderTotalsSchema,
+  InitiateOrderPaymentSchema,
+  type InitiateOrderPaymentBody,
+  type ListOrdersQuery,
+  ListOrdersQuerySchema,
 } from "@ps-design/schemas/order/order";
 import { getBusinessId, getUserId } from "@/shared/auth-utils";
 import { handleServiceError } from "@/shared/error-handler";
@@ -24,6 +28,7 @@ import {
   createOrder,
   getOrder,
   initiateOrderStripePayment,
+  listOrders,
   payOrder,
   refundOrder,
   sendOrderItems,
@@ -37,6 +42,32 @@ import { ScopeNames } from "@/modules/user";
 export default async function ordersRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   const { requireScope } = createScopeMiddleware(fastify);
+
+  server.get<{ Querystring: ListOrdersQuery }>(
+    "/",
+    {
+      onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
+      schema: {
+        querystring: ListOrdersQuerySchema,
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Querystring: ListOrdersQuery;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      const businessId = getBusinessId(request, reply);
+      if (!businessId) return;
+
+      try {
+        const result = await listOrders(fastify, businessId, request.query);
+        return reply.send(result);
+      } catch (error) {
+        return handleServiceError(error, reply);
+      }
+    },
+  );
 
   server.post<{ Body: CreateOrderBody }>(
     "/",
@@ -266,17 +297,19 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
     },
   );
 
-  server.post<{ Params: OrderIdParams }>(
+  server.post<{ Params: OrderIdParams; Body: InitiateOrderPaymentBody }>(
     "/:orderId/pay/initiate",
     {
       onRequest: [fastify.authenticate, requireScope(ScopeNames.ORDERS)],
       schema: {
         params: OrderIdParam,
+        body: InitiateOrderPaymentSchema,
       },
     },
     async (
       request: FastifyRequest<{
         Params: OrderIdParams;
+        Body: InitiateOrderPaymentBody;
       }>,
       reply: FastifyReply,
     ) => {
@@ -290,6 +323,7 @@ export default async function ordersRoutes(fastify: FastifyInstance) {
           fastify,
           businessId,
           orderId,
+          request.body?.amount,
         );
         return reply.send(result);
       } catch (error) {
