@@ -12,6 +12,7 @@ Template.run.xml
 Template.toc
 *.synctex.gz
 *.pdf
+!ps_design_choices.pdf
 build
 *.md5
 .env
