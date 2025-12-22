@@ -376,7 +376,17 @@ export class OrderRepository {
 
       await manager.getRepository(this.paymentRepo.target).save(payment);
 
-      const refreshed = await this.getByIdAndBusinessId(orderId, businessId);
+      // Query within the transaction to see the just-saved payment
+      const refreshed = await manager
+        .getRepository(this.orderRepo.target)
+        .findOne({
+          where: { id: orderId, businessId },
+          relations: ["payments"],
+        });
+
+      if (!refreshed) {
+        throw new NotFoundError("Order not found");
+      }
 
       const totalPaid = refreshed.payments
         .filter((p) => !p.isRefund)
@@ -442,8 +452,6 @@ export class OrderRepository {
     });
     if (!order) return;
 
-    // Calculate total tax based on menu item category tax rates.
-    // Mirrors appointment tax behavior by applying discounts before tax.
     let totalTax = 0;
 
     if (itemsTotal > 0) {

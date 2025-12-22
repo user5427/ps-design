@@ -51,3 +51,27 @@ export const OrderResponseSchema = z.object({
 export type OrderResponse = z.infer<typeof OrderResponseSchema>;
 export type OrderItem = z.infer<typeof OrderItemSchema>;
 export type OrderPayment = z.infer<typeof OrderPaymentSchema>;
+
+// Lighter response for list views
+export const OrderSummarySchema = z.object({
+  id: uuid(),
+  tableId: uuid().nullable(),
+  servedByUserName: z.string().nullable(),
+  status: OrderStatusEnum,
+  totalAmount: z.number(),
+  itemCount: z.number().int(),
+  createdAt: datetime(),
+});
+
+export const OrderListResponseSchema = z.object({
+  data: z.array(OrderSummarySchema),
+  pagination: z.object({
+    page: z.number().int(),
+    limit: z.number().int(),
+    total: z.number().int(),
+    totalPages: z.number().int(),
+  }),
+});
+
+export type OrderSummary = z.infer<typeof OrderSummarySchema>;
+export type OrderListResponse = z.infer<typeof OrderListResponseSchema>;

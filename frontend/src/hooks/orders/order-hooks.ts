@@ -3,6 +3,7 @@ import {
   createOrder,
   getOrder,
   initiateOrderStripePayment,
+  listOrders,
   payOrderApi,
   cancelOrderApi,
   refundOrderApi,
@@ -21,6 +22,14 @@ import type {
 export const orderKeys = {
   all: ["orders"] as const,
   order: (orderId: string) => [...orderKeys.all, orderId] as const,
+  history: (status?: string, page?: number, limit?: number) =>
+    [
+      ...orderKeys.all,
+      "history",
+      status ?? "all",
+      page ?? 1,
+      limit ?? 20,
+    ] as const,
 };
 
 export function useOrder(orderId: string) {
@@ -81,6 +90,7 @@ export function useUpdateOrderTotals(orderId: string) {
         orderKeys.order(orderId),
         order,
       );
+      queryClient.invalidateQueries({ queryKey: orderKeys.order(orderId) });
     },
   });
 }
@@ -148,7 +158,8 @@ export function useRefundOrder(orderId: string) {
 
 export function useInitiateOrderStripePayment(orderId: string) {
   return useMutation({
-    mutationFn: () => initiateOrderStripePayment(orderId),
+    mutationFn: (params?: { amount?: number }) =>
+      initiateOrderStripePayment(orderId, params?.amount),
   });
 }
 
@@ -163,5 +174,16 @@ export function useCancelOrder(orderId: string) {
         order,
       );
     },
+  });
+}
+
+export function useOrderHistory(
+  status?: "PAID" | "CANCELLED" | "REFUNDED",
+  page = 1,
+  limit = 20,
+) {
+  return useQuery({
+    queryKey: orderKeys.history(status, page, limit),
+    queryFn: () => listOrders({ status, excludeOpen: true, page, limit }),
   });
 }

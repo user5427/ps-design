@@ -200,7 +200,8 @@ export function useOrderPaymentModal({
       // PaymentIntent is created for the remaining amount only.
       await applyGiftCardIfNeeded();
 
-      const result = await initiateOrderStripePayment(order.id);
+      const amountMajor = calculations.amountToPayCents / 100;
+      const result = await initiateOrderStripePayment(order.id, amountMajor);
 
       setPaymentIntent({
         clientSecret: result.clientSecret,
@@ -224,7 +225,7 @@ export function useOrderPaymentModal({
     } finally {
       setIsInitiatingPayment(false);
     }
-  }, [order, applyGiftCardIfNeeded]);
+  }, [order, applyGiftCardIfNeeded, calculations]);
 
   const handleStripeSuccess = useCallback(
     async (_paymentIntentId: string) => {
@@ -233,6 +234,14 @@ export function useOrderPaymentModal({
       setIsVerifying(true);
 
       try {
+        // Helper to calculate total paid amount
+        const getPaidAmount = (o: OrderResponse) =>
+          (o.payments ?? [])
+            .filter((p) => !p.isRefund)
+            .reduce((sum, p) => sum + p.amount, 0);
+
+        const initialPaidAmount = getPaidAmount(order);
+
         // Poll for status update (via webhook handler updating the order)
         let attempts = 0;
         const maxAttempts = 10;
@@ -246,8 +255,17 @@ export function useOrderPaymentModal({
             queryClient.invalidateQueries({
               queryKey: floorKeys.floorPlan(),
             });
+            queryClient.invalidateQueries({
+              queryKey: orderKeys.history(),
+            });
 
-            if (updatedOrder.status === "PAID") {
+            const currentPaidAmount = getPaidAmount(updatedOrder);
+
+            // Close if fully paid OR if we detect a new payment (amount increased)
+            if (
+              updatedOrder.status === "PAID" ||
+              currentPaidAmount > initialPaidAmount
+            ) {
               resetForm();
               onClose();
               onSuccess?.();
@@ -299,6 +317,7 @@ export function useOrderPaymentModal({
       }
 
       queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
+      queryClient.invalidateQueries({ queryKey: orderKeys.history() });
 
       resetForm();
       onClose();

@@ -13,6 +13,58 @@ import type { GiftCard } from "@/modules/gift-card/gift-card.entity";
 import { stripeService } from "@/modules/payment/stripe-service";
 import { MINIMUM_STRIPE_PAYMENT_AMOUNT } from "@ps-design/schemas/payments";
 
+import type {
+  ListOrdersQuery,
+  OrderListResponse,
+} from "@ps-design/schemas/order/order";
+import { Order } from "@/modules/order";
+
+export async function listOrders(
+  fastify: FastifyInstance,
+  businessId: string,
+  query: ListOrdersQuery,
+): Promise<OrderListResponse> {
+  const orderRepo = fastify.db.dataSource.getRepository(Order);
+  const { status, excludeOpen, page, limit } = query;
+  const skip = (page - 1) * limit;
+
+  const qb = orderRepo
+    .createQueryBuilder("order")
+    .leftJoinAndSelect("order.servedByUser", "user")
+    .where("order.businessId = :businessId", { businessId })
+    .orderBy("order.createdAt", "DESC")
+    .skip(skip)
+    .take(limit);
+
+  if (status) {
+    qb.andWhere("order.status = :status", { status });
+  } else if (excludeOpen) {
+    qb.andWhere("order.status != :openStatus", { openStatus: "OPEN" });
+  }
+
+  const [orders, total] = await qb.getManyAndCount();
+
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    data: orders.map((o) => ({
+      id: o.id,
+      tableId: o.tableId,
+      servedByUserName: o.servedByUser?.name ?? null,
+      status: o.status,
+      totalAmount: o.totalAmount,
+      itemCount: o.itemsTotal,
+      createdAt: o.createdAt.toISOString(),
+    })),
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+    },
+  };
+}
+
 export interface OrderItemForDiscount {
   menuItemId: string;
   unitPrice: number; // base + variations included
@@ -180,12 +232,20 @@ export async function updateOrderTotals(
   orderId: string,
   body: UpdateOrderTotalsBody,
 ): Promise<OrderResponse> {
+  // body.discountAmount = MANUAL discount only
+  // Auto-discount is calculated fresh to avoid double-application
+  const autoDiscount = await getBestDiscountForOrder(
+    fastify,
+    businessId,
+    orderId,
+  );
+  const totalDiscount = body.discountAmount + autoDiscount;
+
   const order = await fastify.db.order.updateTotals(
     orderId,
     businessId,
     body.tipAmount,
-    body.discountAmount +
-      (await getBestDiscountForOrder(fastify, businessId, orderId)),
+    totalDiscount,
   );
 
   return toOrderResponse(order);
@@ -320,7 +380,9 @@ export async function refundOrder(
     throw new Error("Invalid refund amount");
   }
 
-  // If there were card payments processed via Stripe, attempt to refund them
+  // Determine how much can/should be refunded via Stripe
+  let refundedViaStripe = 0;
+
   const cardPayments = (existing.payments ?? []).filter(
     (p) => !p.isRefund && p.method === "CARD" && p.externalReferenceId,
   );
@@ -332,15 +394,16 @@ export async function refundOrder(
     cardPayments.length > 0 &&
     totalCardPaid > 0
   ) {
-    // Only refund up to the total amount that was actually paid by card
-    const stripeRefundAmount = Math.min(amount, totalCardPaid);
+    // Only refund up to the total amount that was actually paid by card,
+    // and up to the requested refund amount
+    refundedViaStripe = Math.min(amount, totalCardPaid);
 
-    if (stripeRefundAmount > 0) {
-      let remainingRefund = stripeRefundAmount;
+    if (refundedViaStripe > 0) {
+      let remainingRefund = refundedViaStripe;
       for (const cardPayment of cardPayments) {
         if (remainingRefund <= 0) break;
         const paymentIntentId = cardPayment.externalReferenceId as string;
-        // Calculate the max refundable for this payment (in case of partial refunds in the future)
+        // Calculate the max refundable for this payment
         const maxRefundable = Math.min(cardPayment.amount, remainingRefund);
         if (maxRefundable > 0) {
           await stripeService.refundPayment({
@@ -353,22 +416,41 @@ export async function refundOrder(
     }
   }
 
-  const order = await fastify.db.order.addPayment(
-    orderId,
-    businessId,
-    amount,
-    "CASH" as import("@/modules/order").PaymentMethod,
-    null,
-    true,
-  );
+  let updatedOrder = existing;
 
-  return toOrderResponse(order);
+  // 1. Record Stripe (CARD) refund if applicable
+  if (refundedViaStripe > 0) {
+    updatedOrder = await fastify.db.order.addPayment(
+      orderId,
+      businessId,
+      refundedViaStripe,
+      "CARD" as import("@/modules/order").PaymentMethod,
+      null, // We don't track the *refund* ID from Stripe here, but could if schema supported it
+      true,
+    );
+  }
+
+  // 2. Record remaining amount as CASH refund
+  const remainingCashRefund = amount - refundedViaStripe;
+  if (remainingCashRefund > 0) {
+    updatedOrder = await fastify.db.order.addPayment(
+      orderId,
+      businessId,
+      remainingCashRefund,
+      "CASH" as import("@/modules/order").PaymentMethod,
+      null,
+      true,
+    );
+  }
+
+  return toOrderResponse(updatedOrder);
 }
 
 export async function initiateOrderStripePayment(
   fastify: FastifyInstance,
   businessId: string,
   orderId: string,
+  amount?: number,
 ): Promise<{
   clientSecret: string;
   paymentIntentId: string;
@@ -389,16 +471,31 @@ export async function initiateOrderStripePayment(
 
   const remaining = Math.max(0, order.totalAmount - totalPaid);
 
-  const remainingCents = Math.round(remaining * 100);
+  let amountToPay = remaining;
 
-  if (remainingCents < MINIMUM_STRIPE_PAYMENT_AMOUNT) {
+  if (amount !== undefined) {
+    if (amount <= 0) {
+      throw new Error("Payment amount must be greater than 0");
+    }
+    if (amount > remaining + 0.01) {
+      // allow small epsilon
+      throw new Error(
+        `Payment amount cannot exceed remaining balance of ${remaining.toFixed(2)}€`,
+      );
+    }
+    amountToPay = amount;
+  }
+
+  const amountToPayCents = Math.round(amountToPay * 100);
+
+  if (amountToPayCents < MINIMUM_STRIPE_PAYMENT_AMOUNT) {
     throw new Error(
       "Amount too low for card payment (minimum €0.50). Use cash or gift card instead.",
     );
   }
 
   const result = await stripeService.createPaymentIntent({
-    amount: remainingCents,
+    amount: amountToPayCents,
     currency: "eur",
     metadata: {
       paymentType: "menu",
@@ -410,7 +507,7 @@ export async function initiateOrderStripePayment(
   return {
     clientSecret: result.clientSecret,
     paymentIntentId: result.paymentIntentId,
-    finalAmount: remaining,
+    finalAmount: amountToPay,
   };
 }
 

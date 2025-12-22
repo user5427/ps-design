@@ -51,3 +51,20 @@ export type UpdateOrderTotalsBody = z.infer<typeof UpdateOrderTotalsSchema>;
 export type PayOrderBody = z.infer<typeof PayOrderSchema>;
 export type RefundOrderBody = z.infer<typeof RefundOrderSchema>;
 export type UpdateOrderWaiterBody = z.infer<typeof UpdateOrderWaiterSchema>;
+
+export const InitiateOrderPaymentSchema = z.object({
+  amount: z.number().min(0).optional(), // major units
+});
+
+export type InitiateOrderPaymentBody = z.infer<
+  typeof InitiateOrderPaymentSchema
+>;
+
+export const ListOrdersQuerySchema = z.object({
+  status: z.enum(["OPEN", "PAID", "CANCELLED", "REFUNDED"]).optional(),
+  excludeOpen: z.coerce.boolean().optional().default(false),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+
+export type ListOrdersQuery = z.infer<typeof ListOrdersQuerySchema>;

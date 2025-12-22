@@ -16,6 +16,8 @@ export function useFloorPlan() {
   return useQuery({
     queryKey: floorKeys.floorPlan(),
     queryFn: getFloorPlan,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 }
 

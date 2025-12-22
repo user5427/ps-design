@@ -11,6 +11,8 @@ import {
   Stack,
   CircularProgress,
   TextField,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import {
   useEffect,
@@ -29,6 +31,7 @@ import {
 } from "@/hooks/orders/floor-hooks";
 import { useCreateOrder } from "@/hooks/orders/order-hooks";
 import { URLS } from "@/constants/urls";
+import { OrderHistoryList } from "./order-history-list";
 
 interface ContextMenuState {
   anchorEl: HTMLElement | null;
@@ -55,6 +58,7 @@ export function FloorPlanDashboard() {
   const [newTableCapacity, setNewTableCapacity] = useState<number>(2);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [tableToDeleteId, setTableToDeleteId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState(0);
 
   const handleTableClick = (table: FloorPlanTable) => {
     if (table.status === "AVAILABLE") {
@@ -282,57 +286,74 @@ export function FloorPlanDashboard() {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Box>
-          <Typography variant="h4" gutterBottom>
-            Floor Plan
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
+      >
+        <Typography variant="h4">Orders</Typography>
+        {activeTab === 0 && (
+          <Button variant="contained" onClick={() => setAddDialogOpen(true)}>
+            Add Table
+          </Button>
+        )}
+      </Stack>
+
+      <Tabs
+        value={activeTab}
+        onChange={(_e, newValue) => setActiveTab(newValue)}
+        sx={{ mb: 2 }}
+      >
+        <Tab label="Floor Plan" />
+        <Tab label="Order History" />
+      </Tabs>
+
+      {activeTab === 0 && (
+        <>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             Tap a table to open or create an order. Right-click (or long press)
             for more options.
           </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          onClick={() => setAddDialogOpen(true)}
-          sx={{ alignSelf: "center" }}
-        >
-          Add Table
-        </Button>
-      </Stack>
 
-      {isLoading ? (
-        <Box
-          sx={{
-            mt: 3,
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      ) : (
-        <Box
-          sx={{
-            mt: 3,
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
-            gap: 2,
-          }}
-        >
-          {tables.map((table) => (
-            <TableCard
-              key={table.id}
-              table={table}
-              onClick={() => handleTableClick(table)}
-              onContextMenu={(event) => handleTableContextMenu(event, table)}
-              onDragStart={(event) => handleDragStart(event, table.id)}
-              onDragOver={handleDragOver}
-              onDrop={(event) => handleDrop(event, table.id)}
-            />
-          ))}
-        </Box>
+          {isLoading ? (
+            <Box
+              sx={{
+                mt: 3,
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                mt: 3,
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+                gap: 2,
+              }}
+            >
+              {tables.map((table) => (
+                <TableCard
+                  key={table.id}
+                  table={table}
+                  onClick={() => handleTableClick(table)}
+                  onContextMenu={(event) =>
+                    handleTableContextMenu(event, table)
+                  }
+                  onDragStart={(event) => handleDragStart(event, table.id)}
+                  onDragOver={handleDragOver}
+                  onDrop={(event) => handleDrop(event, table.id)}
+                />
+              ))}
+            </Box>
+          )}
+        </>
       )}
+
+      {activeTab === 1 && <OrderHistoryList />}
 
       <Menu
         anchorEl={contextMenu.anchorEl}
