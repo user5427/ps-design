@@ -53,19 +53,7 @@ export async function listOrders(
       servedByUserName: o.servedByUser?.name ?? null,
       status: o.status,
       totalAmount: o.totalAmount,
-      itemCount: o.itemsTotal, // Assuming itemsTotal tracks count or sum? Wait, itemsTotal usually means money.
-      // Ah, implementation of itemsTotal in Order entity might be money.
-      // Let me check what itemsTotal is.
-      // In toOrderResponse, itemsTotal is mapped to itemsTotal.
-      // I should check entity definition.
-      // But for summary, maybe we want count of items?
-      // createQueryBuilder doesn't join items by default.
-      // I'll leave itemCount as 0 for now or remove it from schema if expensive.
-      // Actually, looking at schema I just added: itemCount: z.number().int()
-      // I should probably join orderItems to count them or just store it.
-      // For now, I'll map it to 0 or remove it from schema.
-      // Wait, standard Order entity often doesn't have item count column.
-      // I'll check Order entity.
+      itemCount: o.itemsTotal,
       createdAt: o.createdAt.toISOString(),
     })),
     pagination: {
@@ -462,7 +450,7 @@ export async function initiateOrderStripePayment(
   fastify: FastifyInstance,
   businessId: string,
   orderId: string,
-  amount?: number, // optional manual amount in major units
+  amount?: number,
 ): Promise<{
   clientSecret: string;
   paymentIntentId: string;
@@ -485,7 +473,6 @@ export async function initiateOrderStripePayment(
 
   let amountToPay = remaining;
 
-  // If specific amount requested, validate and use it
   if (amount !== undefined) {
     if (amount <= 0) {
       throw new Error("Payment amount must be greater than 0");
