@@ -255,6 +255,9 @@ export function useOrderPaymentModal({
             queryClient.invalidateQueries({
               queryKey: floorKeys.floorPlan(),
             });
+            queryClient.invalidateQueries({
+              queryKey: orderKeys.history(),
+            });
 
             const currentPaidAmount = getPaidAmount(updatedOrder);
 
@@ -314,6 +317,7 @@ export function useOrderPaymentModal({
       }
 
       queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
+      queryClient.invalidateQueries({ queryKey: orderKeys.history() });
 
       resetForm();
       onClose();

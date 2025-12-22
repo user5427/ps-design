@@ -8,6 +8,8 @@ import type {
   UpdateOrderItemsBody,
   UpdateOrderWaiterBody,
   UpdateOrderTotalsBody,
+  ListOrdersQuery,
+  OrderListResponse,
 } from "@ps-design/schemas/order/order";
 
 export async function createOrder(
@@ -107,5 +109,14 @@ export async function cancelOrderApi(orderId: string): Promise<OrderResponse> {
   const response = await apiClient.post<OrderResponse>(
     `/orders/${orderId}/cancel`,
   );
+  return response.data;
+}
+
+export async function listOrders(
+  params: ListOrdersQuery,
+): Promise<OrderListResponse> {
+  const response = await apiClient.get<OrderListResponse>("/orders", {
+    params,
+  });
   return response.data;
 }

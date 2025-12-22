@@ -42,6 +42,7 @@ import {
   useUpdateOrderItems,
   useUpdateOrderWaiter,
   useUpdateOrderTotals,
+  orderKeys,
 } from "@/hooks/orders/order-hooks";
 import { useMenuItems } from "@/hooks/menu";
 import { useAuthUser } from "@/hooks/auth";
@@ -393,6 +394,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
         onSuccess: () => {
           setIsRefundModalOpen(false);
           queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
+          queryClient.invalidateQueries({ queryKey: orderKeys.history() });
         },
         onError: () => {
           window.alert("Could not refund this order. Please try again.");
@@ -922,7 +924,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                   variant="outlined"
                   color="error"
                   onClick={hasPayments ? () => setIsRefundModalOpen(true) : handleCancelOrder}
-                  disabled={!isOpen || cancelOrderMutation.isPending || refundOrderMutation.isPending}
+                  disabled={order.status === "CANCELLED" || order.status === "REFUNDED" || cancelOrderMutation.isPending || refundOrderMutation.isPending}
                 >
                   {hasPayments ? "Refund Payments" : "Cancel Order"}
                 </Button>
@@ -941,6 +943,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
         order={order}
         onSuccess={() => {
           queryClient.invalidateQueries({ queryKey: floorKeys.floorPlan() });
+          queryClient.invalidateQueries({ queryKey: orderKeys.history() });
         }}
       />
 
