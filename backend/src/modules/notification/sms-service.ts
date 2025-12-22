@@ -117,7 +117,6 @@ export class SMSService {
       customerPhone = `+${customerPhone}`;
     }
 
-
     await this.sendSMS({
       phoneNumber: customerPhone,
       message,
