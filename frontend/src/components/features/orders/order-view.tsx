@@ -50,6 +50,7 @@ import type { OrderItemInput } from "@ps-design/schemas/order/order";
 import type { BusinessUserResponse } from "@ps-design/schemas/business";
 import type { MenuItemResponse } from "@ps-design/schemas/menu/items";
 import { OrderPayModal } from "./order-pay-modal";
+import { generateOrderReceiptPdf } from "@/utils/generate-receipt-pdf";
 
 interface MenuItemEntry {
   id: string;
@@ -381,11 +382,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
 
   const handlePrintBill = () => {
     if (!order) return;
-
-    // For now, trigger the browser print dialog so the
-    // current order view (items, totals, payments) can
-    // be printed as a receipt.
-    window.print();
+    generateOrderReceiptPdf(order);
   };
 
   const parseMoneyInput = (value: string): number => {
@@ -618,14 +615,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                     ?.variations?.some(
                       (v) => !v.isDisabled && v.isAvailable,
                     ) && (
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ mt: 0.5 }}
-                    >
-                      Has variations
-                    </Typography>
-                  )}
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                      >
+                        Has variations
+                      </Typography>
+                    )}
                   {isSoldOut && (
                     <Box
                       sx={{
@@ -1004,7 +1001,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                       control={<Radio />}
                       label={`${(
                         (activeMenuItem.basePrice + variation.priceAdjustment) /
-                          100
+                        100
                       ).toFixed(2)}€ — ${variation.name}`}
                     />
                   ))}

@@ -3,7 +3,9 @@ import EditIcon from "@mui/icons-material/Edit";
 import CancelIcon from "@mui/icons-material/Cancel";
 import PaymentIcon from "@mui/icons-material/Payment";
 import RefundIcon from "@mui/icons-material/Undo";
+import ReceiptIcon from "@mui/icons-material/Receipt";
 import type { Appointment } from "@/schemas/appointments";
+import { generateAppointmentReceiptPdf } from "@/utils/generate-receipt-pdf";
 
 interface AppointmentRowActionsProps {
   appointment: Appointment;
@@ -43,12 +45,23 @@ export const AppointmentRowActions: React.FC<AppointmentRowActionsProps> = ({
   }
 
   if (appointment.status === "PAID") {
+    const handlePrintReceipt = () => {
+      generateAppointmentReceiptPdf(appointment);
+    };
+
     return (
-      <Tooltip title="Refund">
-        <IconButton size="small" color="warning" onClick={onRefund}>
-          <RefundIcon fontSize="small" />
-        </IconButton>
-      </Tooltip>
+      <>
+        <Tooltip title="Print Receipt">
+          <IconButton size="small" color="primary" onClick={handlePrintReceipt}>
+            <ReceiptIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Refund">
+          <IconButton size="small" color="warning" onClick={onRefund}>
+            <RefundIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </>
     );
   }
 

@@ -442,8 +442,6 @@ export class OrderRepository {
     });
     if (!order) return;
 
-    // Calculate total tax based on menu item category tax rates.
-    // Mirrors appointment tax behavior by applying discounts before tax.
     let totalTax = 0;
 
     if (itemsTotal > 0) {
