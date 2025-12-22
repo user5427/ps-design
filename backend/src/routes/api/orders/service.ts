@@ -53,19 +53,7 @@ export async function listOrders(
       servedByUserName: o.servedByUser?.name ?? null,
       status: o.status,
       totalAmount: o.totalAmount,
-      itemCount: o.itemsTotal, // Assuming itemsTotal tracks count or sum? Wait, itemsTotal usually means money.
-      // Ah, implementation of itemsTotal in Order entity might be money.
-      // Let me check what itemsTotal is.
-      // In toOrderResponse, itemsTotal is mapped to itemsTotal.
-      // I should check entity definition.
-      // But for summary, maybe we want count of items?
-      // createQueryBuilder doesn't join items by default.
-      // I'll leave itemCount as 0 for now or remove it from schema if expensive.
-      // Actually, looking at schema I just added: itemCount: z.number().int()
-      // I should probably join orderItems to count them or just store it.
-      // For now, I'll map it to 0 or remove it from schema.
-      // Wait, standard Order entity often doesn't have item count column.
-      // I'll check Order entity.
+      itemCount: o.itemsTotal,
       createdAt: o.createdAt.toISOString(),
     })),
     pagination: {
@@ -312,8 +300,6 @@ export async function payOrder(
       throw new Error("Order is already fully paid");
     }
 
-    // Validate and redeem the gift card.
-    // NOTE: validateAndRedeem must be implemented atomically to prevent race conditions.
     let giftCard: GiftCard;
     try {
       giftCard = await fastify.db.giftCard.validateAndRedeem(
@@ -321,7 +307,6 @@ export async function payOrder(
         businessId,
       );
     } catch (err: unknown) {
-      // Handle race condition or already redeemed error
       const error = err as { code?: string; message?: string };
       if (
         error &&
@@ -335,7 +320,7 @@ export async function payOrder(
       throw err;
     }
 
-    const giftCardAmount = giftCard.value; // already in major units
+    const giftCardAmount = giftCard.value;
     const amountToApply = Math.min(remaining, giftCardAmount);
 
     if (amountToApply <= 0) {
