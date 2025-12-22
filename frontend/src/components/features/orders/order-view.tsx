@@ -108,7 +108,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
   >("base");
 
   const [tipInput, setTipInput] = useState<string>("");
-  const [refundAmountInput, setRefundAmountInput] = useState<string>("");
+
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
   const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
 
@@ -251,8 +251,6 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     setTipInput(order.totalTip.toFixed(2));
     // discountInput is for MANUAL discount only - auto-discount is calculated by backend
     // Don't initialize from order.totalDiscount as it includes auto-discount
-    const suggestedRefund = remaining > 0 ? 0 : order.totalAmount;
-    setRefundAmountInput(suggestedRefund.toFixed(2));
   }, [order?.id, remaining]);
 
   const handleBack = () => {
@@ -433,24 +431,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     );
   };
 
-  const handleRefund = () => {
-    if (!order) return;
 
-    const amount = parseMoneyInput(refundAmountInput);
-    if (amount <= 0) {
-      window.alert("Enter a valid refund amount.");
-      return;
-    }
-
-    refundOrderMutation.mutate(
-      { amount },
-      {
-        onError: () => {
-          window.alert("Could not refund this order.");
-        },
-      },
-    );
-  };
 
   const primaryLabel = "Send to Kitchen";
 
@@ -898,30 +879,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                     </Button>
                   )}
 
-                  {(order.status === "PAID" || order.status === "REFUNDED") && (
-                    <Stack
-                      direction={{ xs: "column", sm: "row" }}
-                      spacing={1}
-                      alignItems={{ xs: "flex-start", sm: "center" }}
-                    >
-                      <TextField
-                        label="Refund amount (€)"
-                        size="small"
-                        value={refundAmountInput}
-                        onChange={(e) => setRefundAmountInput(e.target.value)}
-                        sx={{ minWidth: 160 }}
-                      />
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        color="warning"
-                        onClick={handleRefund}
-                        disabled={refundOrderMutation.isPending}
-                      >
-                        Refund
-                      </Button>
-                    </Stack>
-                  )}
+
                 </Stack>
               </Box>
             </Stack>
