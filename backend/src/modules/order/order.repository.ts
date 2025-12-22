@@ -35,7 +35,7 @@ export class OrderRepository {
     private baseProductRepo: Repository<MenuItemBaseProduct>,
     private variationProductRepo: Repository<MenuItemVariationProduct>,
     private stockChangeRepo: StockChangeRepository,
-  ) { }
+  ) {}
 
   async getByIdAndBusinessId(id: string, businessId: string): Promise<Order> {
     const order = await this.orderRepo.findOne({
@@ -117,8 +117,8 @@ export class OrderRepository {
 
       const variations = variationIds.length
         ? await manager
-          .getRepository(this.menuItemVariationRepo.target)
-          .find({ where: { id: In(variationIds), deletedAt: IsNull() } })
+            .getRepository(this.menuItemVariationRepo.target)
+            .find({ where: { id: In(variationIds), deletedAt: IsNull() } })
         : [];
 
       const baseProducts = await manager
@@ -127,8 +127,8 @@ export class OrderRepository {
 
       const variationProducts = variationIds.length
         ? await manager
-          .getRepository(this.variationProductRepo.target)
-          .find({ where: { variationId: In(variationIds) } })
+            .getRepository(this.variationProductRepo.target)
+            .find({ where: { variationId: In(variationIds) } })
         : [];
 
       const menuItemById = new Map(menuItems.map((m) => [m.id, m]));
@@ -262,8 +262,8 @@ export class OrderRepository {
 
       const variationProducts = variationIds.length
         ? await manager
-          .getRepository(this.variationProductRepo.target)
-          .find({ where: { variationId: In(variationIds) } })
+            .getRepository(this.variationProductRepo.target)
+            .find({ where: { variationId: In(variationIds) } })
         : [];
 
       const quantityByProduct = new Map<string, number>();
@@ -377,10 +377,12 @@ export class OrderRepository {
       await manager.getRepository(this.paymentRepo.target).save(payment);
 
       // Query within the transaction to see the just-saved payment
-      const refreshed = await manager.getRepository(this.orderRepo.target).findOne({
-        where: { id: orderId, businessId },
-        relations: ["payments"],
-      });
+      const refreshed = await manager
+        .getRepository(this.orderRepo.target)
+        .findOne({
+          where: { id: orderId, businessId },
+          relations: ["payments"],
+        });
 
       if (!refreshed) {
         throw new NotFoundError("Order not found");

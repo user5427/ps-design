@@ -23,7 +23,13 @@ export const orderKeys = {
   all: ["orders"] as const,
   order: (orderId: string) => [...orderKeys.all, orderId] as const,
   history: (status?: string, page?: number, limit?: number) =>
-    [...orderKeys.all, "history", status ?? "all", page ?? 1, limit ?? 20] as const,
+    [
+      ...orderKeys.all,
+      "history",
+      status ?? "all",
+      page ?? 1,
+      limit ?? 20,
+    ] as const,
 };
 
 export function useOrder(orderId: string) {

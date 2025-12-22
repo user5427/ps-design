@@ -286,13 +286,15 @@ export function FloorPlanDashboard() {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
+      >
         <Typography variant="h4">Orders</Typography>
         {activeTab === 0 && (
-          <Button
-            variant="contained"
-            onClick={() => setAddDialogOpen(true)}
-          >
+          <Button variant="contained" onClick={() => setAddDialogOpen(true)}>
             Add Table
           </Button>
         )}
@@ -338,7 +340,9 @@ export function FloorPlanDashboard() {
                   key={table.id}
                   table={table}
                   onClick={() => handleTableClick(table)}
-                  onContextMenu={(event) => handleTableContextMenu(event, table)}
+                  onContextMenu={(event) =>
+                    handleTableContextMenu(event, table)
+                  }
                   onDragStart={(event) => handleDragStart(event, table.id)}
                   onDragOver={handleDragOver}
                   onDrop={(event) => handleDrop(event, table.id)}

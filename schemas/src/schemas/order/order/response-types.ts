@@ -75,4 +75,3 @@ export const OrderListResponseSchema = z.object({
 
 export type OrderSummary = z.infer<typeof OrderSummarySchema>;
 export type OrderListResponse = z.infer<typeof OrderListResponseSchema>;
-

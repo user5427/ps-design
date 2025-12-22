@@ -433,8 +433,6 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
     );
   };
 
-
-
   const primaryLabel = "Send to Kitchen";
 
   if (isLoading || isMenuLoading || !order) {
@@ -620,14 +618,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                     ?.variations?.some(
                       (v) => !v.isDisabled && v.isAvailable,
                     ) && (
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{ mt: 0.5 }}
-                      >
-                        Has variations
-                      </Typography>
-                    )}
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ mt: 0.5 }}
+                    >
+                      Has variations
+                    </Typography>
+                  )}
                   {isSoldOut && (
                     <Box
                       sx={{
@@ -880,8 +878,6 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                       Take Payment
                     </Button>
                   )}
-
-
                 </Stack>
               </Box>
             </Stack>
@@ -923,8 +919,17 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                 <Button
                   variant="outlined"
                   color="error"
-                  onClick={hasPayments ? () => setIsRefundModalOpen(true) : handleCancelOrder}
-                  disabled={order.status === "CANCELLED" || order.status === "REFUNDED" || cancelOrderMutation.isPending || refundOrderMutation.isPending}
+                  onClick={
+                    hasPayments
+                      ? () => setIsRefundModalOpen(true)
+                      : handleCancelOrder
+                  }
+                  disabled={
+                    order.status === "CANCELLED" ||
+                    order.status === "REFUNDED" ||
+                    cancelOrderMutation.isPending ||
+                    refundOrderMutation.isPending
+                  }
                 >
                   {hasPayments ? "Refund Payments" : "Cancel Order"}
                 </Button>
@@ -991,7 +996,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
             Total Refund: {refundableAmount.toFixed(2)}€
           </Typography>
           {payments.some((p) => !p.isRefund && p.method === "CARD") && (
-            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mt: 1, display: "block" }}
+            >
               Card payments will be refunded via Stripe.
             </Typography>
           )}
@@ -1046,7 +1055,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ orderId }) => {
                       control={<Radio />}
                       label={`${(
                         (activeMenuItem.basePrice + variation.priceAdjustment) /
-                        100
+                          100
                       ).toFixed(2)}€ — ${variation.name}`}
                     />
                   ))}

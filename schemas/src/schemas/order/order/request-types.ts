@@ -68,4 +68,3 @@ export const ListOrdersQuerySchema = z.object({
 });
 
 export type ListOrdersQuery = z.infer<typeof ListOrdersQuerySchema>;
-

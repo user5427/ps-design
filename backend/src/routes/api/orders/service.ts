@@ -13,9 +13,9 @@ import type { GiftCard } from "@/modules/gift-card/gift-card.entity";
 import { stripeService } from "@/modules/payment/stripe-service";
 import { MINIMUM_STRIPE_PAYMENT_AMOUNT } from "@ps-design/schemas/payments";
 
-import {
-  type ListOrdersQuery,
-  type OrderListResponse,
+import type {
+  ListOrdersQuery,
+  OrderListResponse,
 } from "@ps-design/schemas/order/order";
 import { Order } from "@/modules/order";
 
@@ -246,7 +246,11 @@ export async function updateOrderTotals(
 ): Promise<OrderResponse> {
   // body.discountAmount = MANUAL discount only
   // Auto-discount is calculated fresh to avoid double-application
-  const autoDiscount = await getBestDiscountForOrder(fastify, businessId, orderId);
+  const autoDiscount = await getBestDiscountForOrder(
+    fastify,
+    businessId,
+    orderId,
+  );
   const totalDiscount = body.discountAmount + autoDiscount;
 
   const order = await fastify.db.order.updateTotals(
@@ -486,8 +490,11 @@ export async function initiateOrderStripePayment(
     if (amount <= 0) {
       throw new Error("Payment amount must be greater than 0");
     }
-    if (amount > remaining + 0.01) { // allow small epsilon
-      throw new Error(`Payment amount cannot exceed remaining balance of ${remaining.toFixed(2)}€`);
+    if (amount > remaining + 0.01) {
+      // allow small epsilon
+      throw new Error(
+        `Payment amount cannot exceed remaining balance of ${remaining.toFixed(2)}€`,
+      );
     }
     amountToPay = amount;
   }
