@@ -109,6 +109,7 @@ export class ProductRepository {
     }
 
     try {
+      await this.repository.update({ id, businessId }, data);
       const updatedProduct = await this.findById(id);
       if (!updatedProduct) {
         throw new NotFoundError("Product not found after update");
